@@ -22,27 +22,27 @@
     <meta name="description" content="[TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内存管理（一）之分段机制">
-<meta property="og:url" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:url" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/1.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/2.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/3.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/4.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/5.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/6.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/7.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/8.png">
-<meta property="og:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/9.png">
-<meta property="article:published_time" content="2024-07-19T06:58:02.000Z">
-<meta property="article:modified_time" content="2024-11-13T14:53:18.643Z">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/11.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/22.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/33.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/44.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/55.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/66.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/77.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/88.png">
+<meta property="og:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/99.png">
+<meta property="article:published_time" content="2024-09-19T06:58:02.000Z">
+<meta property="article:modified_time" content="2024-11-13T15:44:27.668Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="内存管理">
 <meta property="article:tag" content="分段机制">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/07/19/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/1.png">
+<meta name="twitter:image" content="http://example.com/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/hexo-blog/source/_posts/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/11.png">
   
   
   
@@ -223,8 +223,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-07-19 14:58" pubdate>
-          2024年7月19日 下午
+        <time datetime="2024-09-19 14:58" pubdate>
+          2024年9月19日 下午
         </time>
       </span>
     
@@ -306,10 +306,10 @@
 </li>
 </ul>
 <h2 id="3、-物理地址（physical-address）"><a href="#3、-物理地址（physical-address）" class="headerlink" title="3、 物理地址（physical address）"></a>3、 物理地址（physical address）</h2><p>物理地址是真正的硬件地址，是实际的内存地址。用于内存芯片级内存单元寻址。它们从微处理器的地址引脚发送到内存总线上的电信号相对应。物理地址由 32 位或 36 位无符号整数表示。</p>
-<h2 id="4、三者间的关系"><a href="#4、三者间的关系" class="headerlink" title="4、三者间的关系"></a>4、三者间的关系</h2><p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/1.png" srcset="/img/loading.gif" lazyload alt="转换关系"></p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/2.png" srcset="/img/loading.gif" lazyload alt="分段与分页"></p>
+<h2 id="4、三者间的关系"><a href="#4、三者间的关系" class="headerlink" title="4、三者间的关系"></a>4、三者间的关系</h2><p><img src="hexo-blog/source/_posts/分段机制/11.png" srcset="/img/loading.gif" lazyload alt="转换关系"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/22.png" srcset="/img/loading.gif" lazyload alt="分段与分页"></p>
 <h1 id="二、硬件中的分段"><a href="#二、硬件中的分段" class="headerlink" title="二、硬件中的分段"></a>二、硬件中的分段</h1><h2 id="1、段选择符和段寄存器"><a href="#1、段选择符和段寄存器" class="headerlink" title="1、段选择符和段寄存器"></a>1、段选择符和段寄存器</h2><h3 id="1-1-段选择符"><a href="#1-1-段选择符" class="headerlink" title="1.1 段选择符"></a>1.1 段选择符</h3><p>一个逻辑地址由两部分组成：一个段标识符和一个指定段内相对地址的偏移量，前面已经介绍过。段标识符是一个 16 位长的字段，称为段选择符（<em>Segment Selector</em>），偏移量是一个 32 位长的字段。</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/3.png" srcset="/img/loading.gif" lazyload alt="段描述符格式"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/33.png" srcset="/img/loading.gif" lazyload alt="段描述符格式"></p>
 <p>其各个字段的含义如下：</p>
 <ul>
 <li><strong>Index</strong>：索引号，指定了放在 GDT 或 LDT 中的相应段描述符的入口。处理器将索引号乘以 8 （这里乘以 8 是因为一个段描述符是 8 字节长）在加上 GDT 或者 LDT 的基地址，就是要加载的段描述符。</li>
@@ -324,7 +324,7 @@
 <li><strong>ds</strong>：数据段寄存器，指向包含静态数据或者全局数据段。</li>
 </ul>
 <p>其他 3 个段寄存器用作一般用途，可以指向任意的数据段。</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/4.png" srcset="/img/loading.gif" lazyload alt="段寄存器结构"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/44.png" srcset="/img/loading.gif" lazyload alt="段寄存器结构"></p>
 <table>
 <thead>
 <tr>
@@ -383,7 +383,7 @@
 <p>读一个段寄存器只读 16 位，写一个段寄存器写 96 位。<br><br><br>例如 <code>mov dword ptr ds:[0x123456], eax</code>，其实我们真正读写的地址是：<code>ds.base + 0x123456</code>。并不是 0x123456，不过正好的是 ds 段寄存器的基址是 0 而已。</p>
 </blockquote>
 <h2 id="2、段描述符"><a href="#2、段描述符" class="headerlink" title="2、段描述符"></a>2、段描述符</h2><p>每个段由一个 8 字节的描述符（<em>Segment Descriptor</em>）表示，它描述了段的特征。段描述符放在全局描述符表（<em>Global Descriptor Table</em>，<em>GDT</em>）或局部描述符表（<em>Local Descriptor Table</em>，<em>LDT</em>）中。</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/5.png" srcset="/img/loading.gif" lazyload alt="段描述符结构"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/55.png" srcset="/img/loading.gif" lazyload alt="段描述符结构"></p>
 <p>下面是各个字段的含义：</p>
 <ul>
 <li><strong>Base</strong>：包含段的首字节的线性地址。</li>
@@ -404,7 +404,7 @@
 <li><strong>Type</strong>：描述了段的类型特征和它的存取权限。</li>
 </ul>
 <p>对于数据段来说， 这 4 位分别是 <code>X、 E、 W、 A</code> 位；而对于代码段来说，这 4 位则分别是 <code>X、 C、 R、 A</code> 位。如下：</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/6.png" srcset="/img/loading.gif" lazyload alt="Type 类型"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/66.png" srcset="/img/loading.gif" lazyload alt="Type 类型"></p>
 <ul>
 <li><strong>X</strong>：表示是否可以执行（ Executable）。<ul>
 <li>数据段总是不可执行的，X＝0；</li>
@@ -429,13 +429,13 @@
 </li>
 </ul>
 <hr>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/7.png" srcset="/img/loading.gif" lazyload alt="80x86中的段描述符的分类"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/77.png" srcset="/img/loading.gif" lazyload alt="80x86中的段描述符的分类"></p>
 <h3 id="2-1-快速访问段描述符"><a href="#2-1-快速访问段描述符" class="headerlink" title="2.1 快速访问段描述符"></a>2.1 快速访问段描述符</h3><p>为了加速逻辑地址到线性地址的转换，80x86 处理器提供了一种附加的非编程的寄存器（不能被程序员所设置的寄存器）供六个可编程的段寄存器使用。每一个非编程的寄存器含有 8 个字节的段描述符，由相应的段寄存器中的段选择符来指定。</p>
 <p>每当一个段选择符被装入段寄存器时，相应的段描述符就由内存装入到对应的非编程寄存器。从这时起，针对那个段的逻辑地址转换就可以不访问主存中的 GDT 或 LDT，处理器只需直接引用存放段描述符的 CPU 非编程寄存器即可。当且仅当，段寄存器中的段选择符改变时，才有必要访问 GDT 或 LDT。</p>
 <br>
 
 <p>下面来看一下，如果使用分段机制，怎么使虚拟地址空间转到对应的物理地址空间。转换过程如下图所示：</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/8.png" srcset="/img/loading.gif" lazyload alt="虚拟地址转换成物理地址"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/88.png" srcset="/img/loading.gif" lazyload alt="虚拟地址转换成物理地址"></p>
 <ol>
 <li>首先根据段选择符中的 TI 字段判断段描述符在 GDT 还是 LDT 中（这里以 GDT 为例，即 TI&#x3D;0）。</li>
 <li>然后将段选择符中的 Index*8 与 gdtr 相加，得到对应段描述符在 GDT 中的位置。</li>
@@ -451,7 +451,7 @@
 <li>出于兼容大部分硬件架构的考虑，RISC架构对分段支持的不是很好。</li>
 </ul>
 <p>那么 Linux 内核是怎么支持分段机制的呢？原理和上节相同：</p>
-<p><img src="hexo-blog/source/_posts/2024-07-19-Linux-内存管理（一）之分段机制/9.png" srcset="/img/loading.gif" lazyload alt="Linux中的分段"></p>
+<p><img src="hexo-blog/source/_posts/分段机制/99.png" srcset="/img/loading.gif" lazyload alt="Linux中的分段"></p>
 <p>下面是四个主要的 Linux 段的段描述符字段的值：</p>
 <table>
 <thead>
@@ -577,7 +577,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>Linux 内存管理（一）之分段机制</div>
-      <div>http://example.com/2024/07/19/Linux-内存管理（一）之分段机制/</div>
+      <div>http://example.com/2024/09/19/分段机制/</div>
     </div>
     <div class="license-meta">
       
@@ -589,7 +589,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年7月19日</div>
+          <div>2024年9月19日</div>
         </div>
       
       
@@ -621,7 +621,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/07/29/Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" title="Linux 内存管理（一）之分段机制">
+                      <a href="/2024/09/19/2024-11-13-Segment/" title="Linux 内存管理（一）之分段机制">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">Linux 内存管理（一）之分段机制</span>
                         <span class="visible-mobile">上一篇</span>
@@ -630,6 +630,12 @@
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2024/08/19/2024-11-13-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" title="Linux 内存管理（一）之分段机制">
+                        <span class="hidden-mobile">Linux 内存管理（一）之分段机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
