@@ -229,39 +229,6 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/11/13/2024-11-13-test/" target="_self">
-          test
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/13/2024-11-13-test/" target="_self">
-        <div>
-          
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-11-13 23:23" pubdate>
-              2024-11-13
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
         <a href="/2024/11/11/FreeRTOS-task-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
           FreeRTOS task 源码解析
         </a>
@@ -330,15 +297,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/11/11/2024-11-11-FreeRTOS-task-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-          FreeRTOS task 源码解析
+        <a href="/2024/07/29/slab/" target="_self">
+          Linux 内存管理（八）之 slab 分配器
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/11/2024-11-11-FreeRTOS-task-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/29/slab/" target="_self">
         <div>
-          [toc]   FreeRTOS 本质上就是有很多的 List 组成，所以学习之前最好要对 FreeRTOS 中的链表要有所了解，可以参考：FreeRTOS 列表 List 源码解析   源码都在 task.c 中  一、基本结构和变量1、TCB_t首先来看一下一个任务的结构： 123456789101112131415161718192021222324252627282930313233343
+          @TOC  前言在上一节 Linux 内存管理（七）之伙伴系统算法 中，我们学习了 Linux 内核如何使用伙伴系统算法以页为单位管理内存，进行内存分配。这一节，将要提到的 slab 算法也是一种内存分配算法。 一、为什么要引入 slab 算法Linux 内存以页为单位进行内存管理，伙伴系统算法以 $2^n$ 次方个页面来进行内存分配管理，最小为 $2^0$，也就是一页，最大为 $2^{11}$，
         </div>
       </a>
 
@@ -346,8 +313,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-11-11 15:52" pubdate>
-              2024-11-11
+            <time datetime="2024-07-29 21:15" pubdate>
+              2024-07-29
             </time>
           </div>
         
@@ -362,12 +329,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
   
   
 
@@ -384,7 +351,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/slab/">#slab</a>
             
           </div>
         
@@ -398,15 +369,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/19/2024-11-13-Segment/" target="_self">
-          Linux 内存管理（一）之分段机制
+        <a href="/2024/07/24/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E7%AE%97%E6%B3%95/" target="_self">
+          Linux 内存管理（七）之伙伴系统算法
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/19/2024-11-13-Segment/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/24/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E7%AE%97%E6%B3%95/" target="_self">
         <div>
-          [TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address
+          @TOC  前言伙伴系统算法是一种用来管理分配和释放内存的算法，它在 Linux 内核中被广泛使用。其设计目标是高效地管理内存碎片，并且具有快速的分配和释放速度。 接下来将详细探讨一下 Linux 中的伙伴系统算法。 一、伙伴系统的由来在 Linux 内存管理（三）之分页机制 一文中，我曾提到过内存碎片，频繁地请求和释放不同大小的一组连续页框，必然导致在已分配页框的块内分散了许多小块的空闲页框。由
         </div>
       </a>
 
@@ -414,8 +385,429 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-19 14:58" pubdate>
-              2024-09-19
+            <time datetime="2024-07-24 21:01" pubdate>
+              2024-07-24
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E7%AE%97%E6%B3%95/">#伙伴系统算法</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/23/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8C%BA/" target="_self">
+          Linux 内存管理（六）之内存管理区
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/23/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8C%BA/" target="_self">
+        <div>
+          [TOC]  前言为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。  非一致内存访问（Non-Uniform MemoryAccess，NUMA）模型，是一种内存架构模型，用于多处理器系统中的内存访问。在
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-23 21:52" pubdate>
+              2024-07-23
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/22/TLB/" target="_self">
+          Linux 内存管理（五）之转换后援缓存器（TLB）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/22/TLB/" target="_self">
+        <div>
+          @TOC  前言在传统的地址转换方式中，每次访问内存时，CPU 都需要通过页表来查找虚拟地址到物理地址的映射关系。这个过程需要多次内存访问，从而导致较大的延迟。为了减少这种延迟，引入了一种叫做 TLB 的缓存机制，将最近使用过的映射关系存储在高速缓存中。 一、高速缓存TLB 实际上就是一种高速缓存，所以讲解 TLB 之前我们先来看一下什么是高速缓存。 为了缩小 CPU 和 RAM 之间的速度不匹配
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-22 21:38" pubdate>
+              2024-07-22
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/TLB/">#TLB</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/21/PAE/" target="_self">
+          Linux 内存管理（四）之物理地址扩展（PAE）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/21/PAE/" target="_self">
+        <div>
+          [TOC]  前言在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示 $2^{32}$ 个不同的地址，即 4GB 的地址空间。这意味着无论实际物理内存有多大，操作系统最多只能寻址 4GB 的物理内存。 然而，在实际应用中，特别是在服务器和高性能计算领域，需要处理大型数据集和运行大规模应用程序的情况下，4GB 的内存往往不够用。因此，引入 PAE 机制可以扩展物理地址空间，使操作系统能够
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-21 22:38" pubdate>
+              2024-07-21
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/PAE/">#PAE</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" target="_self">
+          Linux 内存管理（三）之分页机制
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" target="_self">
+        <div>
+          [TOC]  前言在早期的操作系统中，分段机制被广泛采用，但随着技术的发展，分页机制逐渐成为主流选择。接下来，我们将深入探讨分页机制的原理、工作方式以及与其他内存管理机制的比较。  分段机制部分的内容可以看：Linux 内存管理（一）之分段机制。   本文涉及到的 cr0、cr2、cr3、cr4 这四个控制寄存器可以参考：x86&#x2F;x86_64 下的 CPU 控制寄存器   本文还提及了
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-21 09:36" pubdate>
+              2024-07-21
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/">#分页机制</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/20/x86-crx/" target="_self">
+          x86/x86_64 下的 CPU 控制寄存器
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/20/x86-crx/" target="_self">
+        <div>
+          [TOC]  前言x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。 一、CR0 寄存器CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-20 23:14" pubdate>
+              2024-07-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/linux/" class="category-chain-item">linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/linux/">#linux</a>
+            
+              <a href="/tags/x86/">#x86</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/07/20/GDTLDT/" target="_self">
+          Linux 内存管理（二）之GDT与LDT
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/20/GDTLDT/" target="_self">
+        <div>
+          [TOC]  前言在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT1、什么是 GDT全局描述符表（Global Descriptor Table，GDT）。在单处理器
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-20 08:18" pubdate>
+              2024-07-20
             </time>
           </div>
         
@@ -456,8 +848,6 @@
             
               <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
             
-              <a href="/tags/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">#分段机制</a>
-            
           </div>
         
       </div>
@@ -470,159 +860,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
+        <a href="/2024/07/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
           Linux 内存管理（一）之分段机制
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
         <div>
-          [TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-19 14:58" pubdate>
-              2024-09-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
-            
-              <a href="/tags/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">#分段机制</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/08/19/2024-11-13-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
-          Linux 内存管理（一）之分段机制
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/19/2024-11-13-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
-        <div>
-          [TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-19 14:58" pubdate>
-              2024-08-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
-            
-              <a href="/tags/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">#分段机制</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/07/19/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
-          Linux 内存管理（一）之分段机制
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/19/2024-07-19-Linux-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E4%B9%8B%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
-        <div>
-          [TOC]  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address
+          @TOC  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address）
         </div>
       </a>
 
