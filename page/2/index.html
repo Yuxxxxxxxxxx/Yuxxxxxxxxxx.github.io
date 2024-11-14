@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/09/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2/" target="_self">
-          Linux 进程调度（二）之进程的上下文切换
+        <a href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
+          ESP32-IDF 非易失存储 NVS
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/09/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
         <div>
-          @toc  一、概述进程的上下文切换是指在多任务操作系统中，当操作系统决定要切换当前运行的进程时，将当前进程的状态保存起来，并恢复下一个要运行的进程的状态。上下文切换是操作系统实现进程调度和实现多任务的关键机制之一。 操作系统一个非常重要的功能就是进程的管理，通过调度策略选择合适的进程来执行，对于单个 CPU 而言，进程是串行分时执行，这就需要内核支持进程切换，挂起一个正在 CPU 中执行的进程，
+          @toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我
         </div>
       </a>
 
@@ -245,8 +245,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-09 15:27" pubdate>
-              2024-08-09
+            <time datetime="2024-10-21 00:18" pubdate>
+              2024-10-21
             </time>
           </div>
         
@@ -261,12 +261,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" class="category-chain-item">进程调度</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -283,9 +283,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/">#进程调度</a>
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -299,15 +299,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/08/%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0/" target="_self">
-          Linux 调试之动态打印
+        <a href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
+          ESP32-IDF 分区表
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/08/%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
         <div>
-          [toc]  一、概述在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，printk 打印是全局的，只能设置输出等级，而且使用 printk 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，printk 被 dev_info，de
+          [toc]  一、基本介绍使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体1.1 esp_partition_t1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the par
         </div>
       </a>
 
@@ -315,8 +315,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-08 16:09" pubdate>
-              2024-08-08
+            <time datetime="2024-10-20 08:18" pubdate>
+              2024-10-20
             </time>
           </div>
         
@@ -331,12 +331,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">Linux 性能优化/调试</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -353,9 +353,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#Linux 性能优化/调试</a>
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -369,15 +369,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" target="_self">
-          Linux 下查看 CPU 使用率
+        <a href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
+          ESP32-IDF 通用定时器 GPTimer
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
         <div>
-          @toc  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jif
+          @toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      /*!&lt; GPTimer clock source */    gptimer_count_direction_t direction; /*!&lt;
         </div>
       </a>
 
@@ -385,8 +385,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-07 20:50" pubdate>
-              2024-08-07
+            <time datetime="2024-10-19 08:33" pubdate>
+              2024-10-19
             </time>
           </div>
         
@@ -401,12 +401,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">Linux 性能优化/调试</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -423,11 +423,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#Linux 性能优化/调试</a>
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -441,15 +439,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/07/ftrace/" target="_self">
-          Linux 利用 ftrace 分析内核调用
+        <a href="/2024/10/18/ESP32-IDF-USART/" target="_self">
+          ESP32-IDF USART 专题
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/07/ftrace/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/18/ESP32-IDF-USART/" target="_self">
         <div>
-          @toc  一、概述在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实现跟
+          @toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_uart/include/driver/uart.h。  1、配置结构体1.1 uart_config_t1234567891011121314typedef struc
         </div>
       </a>
 
@@ -457,8 +455,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-07 16:27" pubdate>
-              2024-08-07
+            <time datetime="2024-10-18 09:59" pubdate>
+              2024-10-18
             </time>
           </div>
         
@@ -473,12 +471,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">Linux 性能优化/调试</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -495,11 +493,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/Linux-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#Linux 性能优化/调试</a>
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -513,15 +509,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/06/coredump/" target="_self">
-          Linux 中 core dump 异常的分析
+        <a href="/2024/10/17/ESP32-IDF-GPIO/" target="_self">
+          ESP32-IDF GPIO 专题
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/06/coredump/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/17/ESP32-IDF-GPIO/" target="_self">
         <div>
-          [toc]  一、概述 在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dump
+          [toc]  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_gpio/include/driver/gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情况
         </div>
       </a>
 
@@ -529,8 +525,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-06 21:52" pubdate>
-              2024-08-06
+            <time datetime="2024-10-17 08:58" pubdate>
+              2024-10-17
             </time>
           </div>
         
@@ -545,12 +541,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">性能优化/调试</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -567,11 +563,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/%E8%B0%83%E8%AF%95/">#调试</a>
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -585,15 +579,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/06/iostatiotop/" target="_self">
-          Linux 利用 iostat 和 iotop 进行 IO 分析
+        <a href="/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/" target="_self">
+          CMake 教程（三）添加库的使用要求
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/06/iostatiotop/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/" target="_self">
         <div>
-          @toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的
+          @toc 一、实例——添加库的使用要求目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：  target_compile_definitions() target_compile_options() target_include_directories() target_link_directories()
         </div>
       </a>
 
@@ -601,52 +595,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-06 18:18" pubdate>
-              2024-08-06
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#性能优化/调试</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/08/05/perf/" target="_self">
-          Linux 下 perf 的使用
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/05/perf/" target="_self">
-        <div>
-          [TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-05 22:38" pubdate>
-              2024-08-05
+            <time datetime="2024-10-16 14:20" pubdate>
+              2024-10-16
             </time>
           </div>
         
@@ -661,12 +611,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">性能优化/调试</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
   
   
 
@@ -683,11 +633,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/CMake/">#CMake</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#性能优化/调试</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
             
           </div>
         
@@ -701,15 +649,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/05/ag/" target="_self">
-          Linux 下 ag 命令的使用
+        <a href="/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/" target="_self">
+          CMake 教程（二）添加库
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/05/ag/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/" target="_self">
         <div>
-          [toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1
+          @toc  在第一节 CMake 教程（一）初识 CMake 中，我们已经了解和实现了通过 CMake 来创建一个基本项目。本节我们将通过两个实例来学习如何在项目中创建和使用库。 一、实例一——创建库1、add_library要在 CMake 中添加库，就需要使用 add_library 命令来指定哪些源文件应组成库。 1add_library(&lt;name&gt; [&lt;type&gt;
         </div>
       </a>
 
@@ -717,8 +665,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-05 21:01" pubdate>
-              2024-08-05
+            <time datetime="2024-10-15 17:45" pubdate>
+              2024-10-15
             </time>
           </div>
         
@@ -733,12 +681,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/Linux-%E5%91%BD%E4%BB%A4/" class="category-chain-item">Linux 命令</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
   
   
 
@@ -755,9 +703,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/CMake/">#CMake</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
             
           </div>
         
@@ -771,15 +719,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/08/04/objdump/" target="_self">
-          Linux 下 objdump 命令的使用
+        <a href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" target="_self">
+          CMake 教程（一）初识 CMake
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/04/objdump/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" target="_self">
         <div>
-          [TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转
+          [toc]  CMake 是个一个开源的跨平台自动化建构系统，用来管理软件建置的程序，并不依赖于某特定编译器，并可支持多层目录、多个应用程序与多个函数库。 CMake 通过使用简单的配置文件 CMakeLists.txt，自动生成不同平台的构建文件（如 Makefile、Ninja 构建文件、Visual Studio 工程文件等），简化了项目的编译和构建过程。 CMake 本身不是构建工具，而是
         </div>
       </a>
 
@@ -787,8 +735,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-08-04 21:17" pubdate>
-              2024-08-04
+            <time datetime="2024-10-14 21:36" pubdate>
+              2024-10-14
             </time>
           </div>
         
@@ -803,12 +751,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/Linux-%E5%91%BD%E4%BB%A4/" class="category-chain-item">Linux 命令</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
   
   
 
@@ -825,11 +773,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/CMake/">#CMake</a>
             
-              <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/">#Linux 命令</a>
-            
-              <a href="/tags/%E8%B0%83%E8%AF%95/">#调试</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
             
           </div>
         
@@ -843,15 +789,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/07/31/%E5%88%9D%E5%A7%8B%E8%BF%9B%E7%A8%8B/" target="_self">
-          Linux 进程调度（一）之初识进程
+        <a href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" target="_self">
+          Cortex-M 内核的 OS 特性
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/31/%E5%88%9D%E5%A7%8B%E8%BF%9B%E7%A8%8B/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" target="_self">
         <div>
-          [TOC]  一、初识进程1、基本概念进程是任何多道程序设计的操作系统中的基本概念。通常把进程定义为程序执行的一个实例，因此，如果 16 个用户同时运行 vi，那么就有 16 个独立的进程（尽管它们共享同一个可执行代码）。在 Linux 源代码中，常把进程称为任务（task）或线程（thread）。 进程类似于人类：它们被产生，有或多或少有效的生命，可以产生一个或多个子进程最终都要死亡。一个微小的
+          @toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈
         </div>
       </a>
 
@@ -859,8 +805,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-31 22:08" pubdate>
-              2024-07-31
+            <time datetime="2024-10-13 13:08" pubdate>
+              2024-10-13
             </time>
           </div>
         
@@ -875,12 +821,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" class="category-chain-item">进程调度</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
   
   
 
@@ -897,9 +843,79 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/">#进程调度</a>
+              <a href="/tags/STM32/">#STM32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/10/DMA/" target="_self">
+          DMA 详解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/10/DMA/" target="_self">
+        <div>
+          [toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-10 18:35" pubdate>
+              2024-10-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/STM32/">#STM32</a>
             
           </div>
         
@@ -911,7 +927,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/#board">3</a><a class="page-number" href="/page/4/#board">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/#board">9</a><a class="extend next" rel="next" href="/page/3/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
