@@ -27,7 +27,10 @@
 <meta property="og:description" content="[toc]  一、概述IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）线">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/1.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/10.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/2.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/11.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/12.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/3.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/4.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/5.png">
@@ -35,8 +38,14 @@
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/7.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/8.png">
 <meta property="og:image" content="http://example.com/2024/08/15/I2C/9.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/13.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/14.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/15.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/16.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/17.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/18.png">
 <meta property="article:published_time" content="2024-08-15T12:12:03.000Z">
-<meta property="article:modified_time" content="2024-11-14T10:48:29.934Z">
+<meta property="article:modified_time" content="2024-11-27T12:47:26.196Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="通信协议">
 <meta property="article:tag" content="嵌入式">
@@ -235,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4k 字
+          6k 字
         
       </span>
     
@@ -246,7 +255,7 @@
         
         
         
-          34 分钟
+          51 分钟
         
       </span>
     
@@ -294,21 +303,83 @@
 <p><code>I2C</code> 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（<em><strong>Serial Data</strong></em>）线用于双向数据传输，而 SCL（<em><strong>Serial Clock</strong></em>）线则用于同步数据传输的时钟信号。通信始终由主设备（<em><strong>Master</strong></em>）控制，从设备（<em><strong>Slave</strong></em>）被动接收和回应。这种简单的线路连接方式使得设备之间的互连变得非常容易。下图即是 <code>I2C</code> 的基本结构：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>I2C</code> 协议具有广泛的应用范围，如连接传感器、存储器、显示器等设备，常用于微控制器和嵌入式系统中，因为它使用的引脚较少，可以同时连接多个设备，并且具有简单的硬件和软件实现。</p>
-<h1 id="二、I2C-详解"><a href="#二、I2C-详解" class="headerlink" title="二、I2C 详解"></a>二、I2C 详解</h1><h2 id="1、I2C-总线简介"><a href="#1、I2C-总线简介" class="headerlink" title="1、I2C 总线简介"></a>1、I2C 总线简介</h2><p><code>I2C</code> 总线是一种多主机总线，连接在 <code>I2C</code> 总线上的器件分为&#x3D;&#x3D;主机&#x3D;&#x3D;和&#x3D;&#x3D;从机&#x3D;&#x3D;。</p>
+<p>串行、8 位方向的双向数据传输在 <code>Standard-mode</code> 下最高可达 100 kbit&#x2F;s；在 <code> Fast-mode</code> 下最高可达 400 kbit&#x2F;s；在 <code> Fast-mode Plus</code> 下最高可达 1 Mbit&#x2F;s；在 <code>High-speed mode</code> 下最高可达 3.4 Mbit&#x2F;s。</p>
+<p> 在 <code> Ultra Fast-mode</code> 下，串行、8 位方向、单向数据传输速度高达 5 Mbit&#x2F;s。</p>
+<p>下表中列出了几个 <code>I2C</code> 的专业术语：</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Transmitter</code> - 发送器</td>
+<td>向总线发送数据的设备</td>
+</tr>
+<tr>
+<td><code>Receiver</code> - 接收器</td>
+<td>从总线接收数据的设备</td>
+</tr>
+<tr>
+<td><code>Controller</code> - 控制器</td>
+<td>启动传输、生成时钟信号并终止传输的器件</td>
+</tr>
+<tr>
+<td><code>Target</code> - 目标</td>
+<td>被控制器寻址的设备</td>
+</tr>
+<tr>
+<td><code>Multi-controller</code> - 多控制器</td>
+<td>多个控制器可以尝试同时控制总线，而不会破坏消息</td>
+</tr>
+<tr>
+<td><code>Arbitration</code> - 仲裁</td>
+<td>如果多个控制器同时尝试控制总线，则只允许一个控制器这样做，并且不会破坏消息</td>
+</tr>
+<tr>
+<td><code>Synchronization</code> - 同步</td>
+<td>同步两个或多个器件的时钟信号的过程</td>
+</tr>
+</tbody></table>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二、I2C-详解"><a href="#二、I2C-详解" class="headerlink" title="二、I2C 详解"></a>二、I2C 详解</h1><h2 id="1、I2C-总线简介"><a href="#1、I2C-总线简介" class="headerlink" title="1、I2C 总线简介"></a>1、I2C 总线简介</h2><p><code>I2C</code> 总线是一种多主机总线，连接在 <code>I2C</code> 总线上的器件分为 <code>Master</code> 和 <code>Slaver</code>。</p>
 <ul>
 <li>主机有权发起和结束一次通信，从机只能被动呼叫；</li>
 <li>当总线上有多个主机同时启用总线时，<code>I2C</code> 也具备冲突检测和仲裁的功能来防止错误产生；</li>
 <li>每个连接到 <code>I2C</code> 总线上的器件都有一个唯一的地址（7 bit），且每个器件都可以作为主机也可以作为从机（但同一时刻只能有一个主机），总线上的器件增加和删除不影响其他器件正常工作；</li>
-<li><code>I2C</code> 总线在通信时总线上发送数据的器件为&#x3D;&#x3D;发送器&#x3D;&#x3D;，接收数据的器件为&#x3D;&#x3D;接收器&#x3D;&#x3D;。</li>
+<li><code>I2C</code> 总线在通信时总线上发送数据的器件为 <code>Transmitter</code>，接收数据的器件为 <code>Receiver</code>。</li>
 </ul>
 <p><code>I2C</code> 总线可以通过外部连线进行在线检测，便于系统故障诊断和调试，故障可以立即被寻址，软件也有利于标准化和模块化，缩短开发时间。</p>
-<p><code>I2C</code> 总线上可挂接的设备数量受总线的最大电容400pF限制。</p>
-<p>串行的 8 位双向数据传输速率在标准模式下可达 100Kbit&#x2F;s，快速模式下可达 400Kbit&#x2F;s，高速模式下可达 3.4Mbit&#x2F;s。</p>
+<p><code>I2C</code> 总线上可挂接的设备数量受总线的最大电容 400pF 限制。</p>
 <p>总线具有极低的电流消耗，抗噪声干扰能力强，增加总线驱动器可以使总线电容扩大 10 倍，传输距离达到 15m；兼容不同电压等级的器件，工作温度范围宽。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload><br>上图就是 <code>I2C</code> 总线如何同多台设备进行通信，在 <code>I2C</code> 总线上，每个从机都有其唯一的设备地址。所以我们只需要知道器件的地址，根据时序就可以实现微控制器与器件之间的通信。</p>
-<p>注意，按照实际设计中经验大概是不超过 &#x3D;&#x3D;8&#x3D;&#x3D; 个器件。</p>
-<p>这是由 <code>I2C</code> 地址决定：8 位地址，减去 1 位广播地址，是 7 位地址，$2^7&#x3D;128$，但是地址 0x00 不用，那就是 127 个地址， 所以理论上可以挂 127 个从器件。但是，<code>I2C</code> 协议没有规定总线上设备最大数目，但是规定了&#x3D;&#x3D;总线电容不能超过 400pF&#x3D;&#x3D;。管脚都是有输入电容的，PCB 上也会有寄生电容，所以会有一个限制。实际设计中经验值大概是不超过 8 个器件。</p>
-<p>总线之所以规定电容大小是因为，<code>I2C</code> 的 OD 要求外部有电阻上拉，电阻和总线电容产生了一个 RC 延时效应，电容越大信号的边沿就越缓，有可能带来信号质量风险。传输速度越快，信号的窗口就越小，上升沿下降沿时间要求更短更陡峭，所以 RC 乘积必须更小。</p>
+<p>注意，按照实际设计中经验大概是不超过 <code>8</code> 个器件。</p>
+<p>这是由 <code>I2C</code> 地址决定：8 位地址，减去 1 位广播地址，是 7 位地址，$2^7&#x3D;128$，但是地址 0x00 不用，那就是 127 个地址， 所以理论上可以挂 127 个从器件。但是，<code>I2C</code> 协议没有规定总线上设备最大数目，但是规定了 <code>总线电容不能超过 400pF</code>。管脚都是有输入电容的，PCB 上也会有寄生电容，所以会有一个限制。实际设计中经验值大概是不超过 8 个器件。</p>
+<p>总线之所以规定电容大小是因为，<code>I2C</code> 的 OD（漏极输出， 漏极开路或集电极开路 ）要求外部有电阻上拉，这样才能执行线与逻辑。电阻和总线电容产生了一个 RC 延时效应，电容越大信号的边沿就越缓，有可能带来信号质量风险。传输速度越快，信号的窗口就越小，上升沿下降沿时间要求更短更陡峭，所以 RC 乘积必须更小。</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-1-I2C-中为什么要有上拉电阻"><a href="#1-1-I2C-中为什么要有上拉电阻" class="headerlink" title="1.1 I2C 中为什么要有上拉电阻"></a>1.1 I2C 中为什么要有上拉电阻</h3><p><code>I2C</code> 支持多个主设备与多个从设备连接在同一根总线上，如果不开漏输出，会出现短路现象。 但是，采用开漏输出时，如果没有上拉电阻的存在，只能输出低电位，无法输出高点位，也就是说，连接上拉电阻后，才可以输出高电位。 </p>
+<ul>
+<li>当从端驱动 SDA&#x2F;SCL 为低（0）时，从端会直接给 SDA&#x2F;SCL 一个0值；</li>
+<li>如果从端驱动 SDA&#x2F;SCL 不为低（0）时，从端会给 SDA&#x2F;SCL 一个<strong>高阻态值</strong>。</li>
+</ul>
+<blockquote>
+<p>高阻态是一个无效驱动，而高电位（1）是一个有效驱动，如果置为 1 会跟其他的驱动源造成多驱动冲突。为了避免多重驱动的问题，当 Slave 或者 Master 不打算驱动任何一根线时（SDA&#x2F;SCL），那必须把 SDA&#x2F;SCL 给一个高阻态（z）值。</p>
+</blockquote>
+<p>经过上拉处理后，如果在整个总线上，master 和 slave 都没有给 SDA&#x2F;SCL 一个有效驱动（即低电位），会通过上拉电阻将 SCL&#x2F;SDA 置为高电位（1）。</p>
+<blockquote>
+<p>注意：这个给的高电位（1）是一个弱信号，可以防止形成多驱动源造成冲突。</p>
+</blockquote>
+<p><code>I2C</code> 支持多个主设备与多个从设备连接在同一根总线上，如果多个设备同时占用总线，怎么判断谁先占用总线呢？所以就需要一种仲裁机制。<code>I2C</code> 没有 Arbiter 直接的来处理仲裁，而是<strong>通过线与的逻辑实现仲裁</strong>。 </p>
+<p>仲裁过程：当主设备 A 准备占用 <code>I2C</code> 时，需要在 SCL 为高时，将 SDA 拉高，再拉低，满足一个启动条件。当主设备 A 将 SDA 拉高后，需要检查 SDA 的电平：</p>
+<ul>
+<li>如果此时 SDA 电平为高，说明主设备可以占用总线，然后主设备 A 会将 SDA 拉低，一次满足启动条件，开始传输</li>
+<li>如果此时 SDA 电平为低，说明总线已经被其他设备占用，主设备 A 会退出<ul>
+<li>因为<strong>线与</strong>逻辑的存在。只有总线上有其他的设备将 SDA 置为 0，线与后，SDA线的电平为 0。主设备 A 检查 SDA 线的电平时，会发现为低电平。所以仲裁时，哪个设备更早地将 SDA 线拉低，谁就抢占了优先权</li>
+</ul>
+</li>
+</ul>
 <h2 id="2、I2C-协议相关知识"><a href="#2、I2C-协议相关知识" class="headerlink" title="2、I2C 协议相关知识"></a>2、I2C 协议相关知识</h2><h3 id="2-1-起始位"><a href="#2-1-起始位" class="headerlink" title="2.1 起始位"></a>2.1 起始位</h3><p>如下图，就是 <code>I2C</code> 通信起始标志，通过这个起始位就可以告诉 <code>I2C</code> 从机，主机要开始进行 <code>I2C</code> 通信了。&#x3D;&#x3D;在 SCL 为高电平的时候，SDA 出现下降沿就表示为起始位&#x3D;&#x3D;：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="2-2-停止位"><a href="#2-2-停止位" class="headerlink" title="2.2 停止位"></a>2.2 停止位</h3><p>如下图，就是停止 <code>I2C</code> 通信的标志位，和起始位的功能相反。&#x3D;&#x3D;在 SCL 位高电平的时候，SDA 出现上升沿就表示为停止位&#x3D;&#x3D;：</p>
@@ -328,15 +399,23 @@
 <ol>
 <li>起始信号</li>
 </ol>
-<p>当 SCL 为高电平期间，SDA 由高到低的跳变，起始信号是一种电平跳变时序信号，而不是一个电平信号。该信号由主机发出，在起始信号产生后，总线就处于被占用状态，准备数据传输。</p>
+<p>当 SCL 为高电平期间，SDA 由高到低的跳变，起始信号是一种电平跳变时序信号，而不是一个电平信号。该信号由主机发出，在起始信号产生后，总线就处于被占用（Busy）状态，准备数据传输。</p>
 <ol start="2">
 <li>停止信号</li>
 </ol>
-<p>当 SCL 为高电平期间，SDA 由低到高的跳变；停止信号也是一种电平跳变时序信号，而不是一个电平信号。该信号由主机发出，在停止信号发出后，总线就处于空闲状态。</p>
+<p>当 SCL 为高电平期间，SDA 由低到高的跳变；停止信号也是一种电平跳变时序信号，而不是一个电平信号。该信号由主机发出，在停止信号发出后，总线就处于空闲（Free）状态。</p>
 <ol start="3">
 <li>应答信号</li>
 </ol>
-<p>发送器每发送一个字节，就在时钟脉冲 9 期间释放数据线，由接收器反馈一个应答信号。应答信号为低电平时，规定为有效应答位（ACK 简称应答位），表示接收器已经成功地接收了该字节；应答信号为高电平时，规定为非应答位（NACK），一般表示接收器接收该字节没有成功。</p>
+<p>发送器每发送一个字节，就在时钟脉冲 9 期间释放数据线，由接收器反馈一个应答信号。应答信号为<strong>低电平</strong>时，规定为有效应答位（ACK 简称应答位），表示接收器已经成功地接收了该字节；应答信号为<strong>高电平</strong>时，规定为非应答位（NACK），一般表示接收器接收该字节没有成功。</p>
+<p>当满足下面五个条件的时候，酒后生成 NACK：</p>
+<ul>
+<li>总线上没有具有传输地址的接收器，因此没有设备响应确认</li>
+<li>接受器无法接收或发送，因为它正在执行某些实时功能，并且尚未准备好开始与控制器通信</li>
+<li>在传输过程中，接收方会获得它无法理解的数据或命令</li>
+<li>在传输过程中，接收方无法再接受任何数据字节</li>
+<li>控制器接收器必须向目标发射器发出传输结束信号</li>
+</ul>
 <ol start="4">
 <li>数据有效性</li>
 </ol>
@@ -397,13 +476,53 @@
 <li><p>读取多个字节<br>  从从机设备的某一个寄存器读取多个字节数据：<code>开始信号+设备地址(7位)+写(1位)+等待从机应答+数据地址(8位)+等待从机应答+开始信号+设备地址(7位)+读(1位)+等待从机应答+从机返回读取数据_1(8位)+主机(接收机)应答+从机返回读取数据_2(8位)+主机(接收机)应答+......+从机返回读取数据_N(8位)+主机(接收机)不再应答+终止信号</code>。</p>
 </li>
 </ul>
-<h2 id="3、时钟同步和仲裁"><a href="#3、时钟同步和仲裁" class="headerlink" title="3、时钟同步和仲裁"></a>3、时钟同步和仲裁</h2><h3 id="3-1-时钟同步"><a href="#3-1-时钟同步" class="headerlink" title="3.1  时钟同步"></a>3.1  时钟同步</h3><p>在 <code>I2C</code> 总线上传送信息时的时钟同步信号是由挂接在 SCL 线上的所有器件的 &#x3D;&#x3D;逻辑“与”&#x3D;&#x3D; 完成的。即如果有多个主机同时产生时钟，那么&#x3D;&#x3D;只有所有主机都发送高电平时，SCL 上才表现为高电平，否则 SCL 都表现为低电平&#x3D;&#x3D;。</p>
+<h2 id="3、时钟同步和仲裁"><a href="#3、时钟同步和仲裁" class="headerlink" title="3、时钟同步和仲裁"></a>3、时钟同步和仲裁</h2><p>两个控制器可以同时在空闲总线上开始传输，并且必须有一种方法来决定哪个控制器控制总线并完成其传输。这是通过时钟同步和时钟仲裁完成的。在单处理器系统中，不需要时钟同步和时钟仲裁。 </p>
+<h3 id="3-1-时钟同步"><a href="#3-1-时钟同步" class="headerlink" title="3.1  时钟同步"></a>3.1  时钟同步</h3><p>I2C 接口的时钟同步是通过将所有接口连接到 SCL 线上的“线与”连接来实现的。这意味着 SCL 线上的高电平到低电平的转换会使相关控制器开始计数它们的低电平周期，一旦某个控制器的时钟变为低电平，它会保持 SCL 线在该状态，直到达到时钟的高电平状态（见下图）。然而，如果另一个时钟仍在其低电平周期内，该时钟的低电平到高电平的转换可能不会改变 SCL 线的状态。因此，具有最长低电平周期的控制器会保持 SCL 线为低电平。具有较短低电平周期的控制器在此期间会进入高电平等待状态。</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>简单来说，如果有多个主机同时产生时钟，那么&#x3D;&#x3D;只有所有主机都发送高电平时，SCL 上才表现为高电平，否则 SCL 都表现为低电平&#x3D;&#x3D;。</p>
+</blockquote>
 <p>SCL 线上由高电平到低电平的跳变将影响到这些器件，一旦某个器件的时钟信号下跳为低电平，将使 SCL 线一直保持低电平，使 SCL 线上的所有器件开始低电平期。此时，低电平周期短的器件的时钟由低至高的跳变并不能影响 SCL 线的状态，于是这些器件将进入高电平等待的状态。当所有器件的时钟信号都上跳为高电平时，低电平期结束，SCL 线被释放返回高电平，即所有的器件都同时开始它们的高电平期。其后，第一个结束高电平期的器件又将 SCL 线拉成低电平。这样就在 SCL 线上产生一个同步时钟。</p>
-<p>可见，&#x3D;&#x3D;时钟低电平时间由时钟低电平期最长的器件确定，而时钟高电平时间由时钟高电平期最短的器件确定&#x3D;&#x3D;。</p>
-<h3 id="3-2-时钟仲裁"><a href="#3-2-时钟仲裁" class="headerlink" title="3.2 时钟仲裁"></a>3.2 时钟仲裁</h3><p>总线仲裁与时钟同步类似，&#x3D;&#x3D;当所有主机在 SDA 上都写 1 时，SDA 的数据才是 1，只要有一个主机写 0，那此时 SDA 上的数据就是 0&#x3D;&#x3D;。</p>
-<p>一个主机每发送一个 bit 数据，在 SCL 为高电平时，就检查 SDA 的电平是否和发送的数据一致，如果不一致，这个主机便知道自己输掉了仲裁，然后停止向 SDA 写数据。也就是说，如果主机一致检查到总线上数据和自己发送的数据一致，则继续传输，这样在仲裁过程中就保证了赢得仲裁的主机不会丢失数据。</p>
-<p>输掉仲裁的主机在检测到自己输了之后也就不再产生时钟脉冲，并且要在总线空闲时才能重新传输。</p>
-<p>仲裁的过程可能要经过多个 bit 的发送和检查，实际上两个主机如果发送的时序和数据完全一样，则两个主机都能正常完成整个数据传输。</p>
+<blockquote>
+<p> 可见，时钟低电平时间由时钟低电平期最长的器件确定，而时钟高电平时间由时钟高电平期最短的器件确定。</p>
+</blockquote>
+<h3 id="3-2-时钟仲裁"><a href="#3-2-时钟仲裁" class="headerlink" title="3.2 时钟仲裁"></a>3.2 时钟仲裁</h3><p>总线仲裁与时钟同步类似，是在系统中使用多个控制器时才需要的协议部分。 </p>
+<blockquote>
+<p> &#x3D;&#x3D;当所有主机在 SDA 上都写 1 时，SDA 的数据才是 1，只要有一个主机写 0，那此时 SDA 上的数据就是 0&#x3D;&#x3D;。</p>
+</blockquote>
+<p>目标设备不参与仲裁过程。控制器只有在总线空闲时才能开始传输。两个控制器可能会在 START 条件的最小保持时间（tHD;STA）内生成一个 START 条件，从而在总线上产生有效的 START 条件。此时需要进行仲裁，以确定哪个控制器将完成其传输。 </p>
+<p>仲裁逐位进行。在每一位期间，当 SCL 为高电平时，每个控制器都会检查 SDA 电平是否与其发送的内容匹配。此过程可能需要多个比特。</p>
+<blockquote>
+<p>实际上，如果两个主机如果发送的时序和数据完全一样，则两个主机都能正常完成整个数据传输。</p>
+</blockquote>
+<p>当一个控制器第一次尝试发送高电平但检测到 SDA 电平为<strong>低电平</strong>时，该控制器知道它已经输掉了仲裁，并关闭其 SDA 输出驱动器；另一个控制器则继续完成其事务。在仲裁过程中没有信息丢失。输掉仲裁的控制器可以在其输掉仲裁的字节结束之前生成时钟脉冲，并且必须<strong>在总线空闲时重新启动其传输</strong>。</p>
+<p>如果一个控制器还具有目标功能，并且在寻址阶段输掉了仲裁，可能获胜的控制器正在尝试寻址它。因此，输掉仲裁的控制器必须立即切换到其目标模式。</p>
+<p>下图展示了两个控制器的仲裁过程，具体涉及的控制器数量取决于连接到总线的控制器数量。当生成 DATA1 的控制器的内部数据水平与 SDA 线上实际水平之间出现差异时，DATA1 输出被关闭。这不会影响由获胜控制器发起的数据传输。</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<p>由于 <code>I2C</code> 总线的控制完全由竞争控制器发送的地址和数据决定，因此不存在中央控制器，也没有总线的优先级顺序。如果仲裁过程仍在进行中，而某个控制器发送重复的 START 条件或 STOP 条件时，另一控制器仍在发送数据，就会出现不确定状态。换句话说，以下组合会导致不确定状态：</p>
+<ul>
+<li>控制器 1 发送重复的 START 条件，而控制器 2 发送数据位。</li>
+<li>控制器 1 发送 STOP 条件，而控制器 2 发送数据位。</li>
+<li>控制器 1 发送重复的 START 条件，而控制器 2 发送 STOP 条件。</li>
+</ul>
+<h2 id="4、目标地址和-R-W-位"><a href="#4、目标地址和-R-W-位" class="headerlink" title="4、目标地址和 R&#x2F;W 位"></a>4、目标地址和 R&#x2F;W 位</h2><p>数据传输遵循如下图的格式：</p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p>在 START 信号后，紧跟的是 7 位的目标地址，后跟第 8 位，即数据方向位（R&#x2F;W）——“0” - WRITE，“1” - READ。数据传输始终由 STOP 信号终止。 但是，如果控制器仍然希望在总线上通信，它可以生成重复的 START 条件并寻址另一个目标，而无需先生成 STOP 条件。在这种传输中，读&#x2F;写格式的各种组合是可能的。</p>
+<p> 如下是几种可能的数据格式：</p>
+<ol>
+<li><p>发射器向接收器发送信号，传输方向不变，接受器确认每个字节</p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>控制器在每一个字节后立即读取目标。在第一次确认的那一刻，发射器成为接收器，接收器成为发射器。 此第一个确认仍由目标生成。控制器生成后续确认。STOP 条件由控制器生成，控制器在 STOP 条件之前发送 NACK</p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p>组合格式。在传输中更改方向期间，START 条件和目标地址都重复，但 R&#x2F;W 位相反。如果控制器接收器发送重复的 START 条件，它会在重复的 START 条件之前发送 NACK</p>
+</li>
+</ol>
+<p>   <img src="18.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>START 条件后跟 STOP 条件（空消息）是非法格式。然而，许多设备被设计为在这种情况下正常运行 </p>
+</blockquote>
 
                 
               </div>
