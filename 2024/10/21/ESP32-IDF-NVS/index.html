@@ -1,0 +1,1130 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ESP32-IDF 非易失存储 NVS">
+<meta property="og:url" content="http://example.com/2024/10/21/ESP32-IDF-NVS/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/10/21/ESP32-IDF-NVS/1.png">
+<meta property="og:image" content="http://example.com/2024/10/21/ESP32-IDF-NVS/2.png">
+<meta property="og:image" content="http://example.com/2024/10/21/ESP32-IDF-NVS/3.png">
+<meta property="og:image" content="http://example.com/2024/10/21/ESP32-IDF-NVS/4.png">
+<meta property="article:published_time" content="2024-10-20T16:18:18.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:00:56.313Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ESP32">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/21/ESP32-IDF-NVS/1.png">
+  
+  
+  
+  <title>ESP32-IDF 非易失存储 NVS - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ESP32-IDF 非易失存储 NVS"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-21 00:18" pubdate>
+          星期一, 十月 21日 2024, 12:18 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ESP32-IDF 非易失存储 NVS</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="零、前言"><a href="#零、前言" class="headerlink" title="零、前言"></a>零、前言</h1><p>NVS（<em><strong>Non-volatile storage</strong></em>，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。</p>
+<p>在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我们要先指定一个地址，然后对这个地址执行擦除操作，然后才能写入；读取的时候也需要根据这个地址，然后指定读取长度。如果我们要存的项比较多，又在代码中比较分散，我们对 Flash 的地址就很难管理。因为我们很难知道要存的内容与其他地址有没冲突，会不会误擦除。存在诸多问题。所以需要一个机制，方便帮我们把这些检测判断活都干了，不需要我们指定地址操作。文件系统就是这样的，但 NVS 操作更加轻量级。</p>
+<p>在 NVS 中，我们要存一个值，我们不需要指定地址，但需要指定一个“键” key，然后我们在这个“键”索引下存我们的值 value。假设我们要存 WIFI 的 SSID 和 pasword，我们可以在 NVS 中这样定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">key = ssid,value = testwifi<br>key = password,value = <span class="hljs-number">12345678</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>在键名 ssid 下，我们存的值是 testwifi</li>
+<li>在键名 password 下，我们存的值是 12345678。</li>
+</ul>
+<p>因此键名 key 一般不会修改，经常修改的是 value。</p>
+<p>在 ESP32 中对于 NVS 的操作，还需要指定一个命名空间，是因为还考虑了一种情况，在各个不同的功能模块中，键名是有可能取到一样的，比如对于 WIFI 模块，存在一个 password 键名，对于管理员模块，可能也存在一个 password 键名，这样有可能就造成了重复，程序无法按我们的意思进行。如果我们增加了一个命名空间进行隔离，那么键名有重复也不怕，比如说在 WIFI 模块中，我们指定一个命名空间”wifi”，在此命名空间下有 ssid 和 password 键名；在管理员模块，我们指定一个命名空间”manager”，在此命名空间下有 password 键名，这两组命名空间互不干扰。</p>
+<h1 id="一、基本介绍"><a href="#一、基本介绍" class="headerlink" title="一、基本介绍"></a>一、基本介绍</h1><h2 id="1、配置结构体"><a href="#1、配置结构体" class="headerlink" title="1、配置结构体"></a>1、配置结构体</h2><h3 id="1-1-nvs-entry-info-t"><a href="#1-1-nvs-entry-info-t" class="headerlink" title="1.1 nvs_entry_info_t"></a>1.1 nvs_entry_info_t</h3><p>存储从 <code>nvs_entry_info()</code> 中获取到的条目信息：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">char</span> namespace_name[NVS_NS_NAME_MAX_SIZE];  <span class="hljs-comment">/*!&lt; Namespace to which key-value belong */</span><br>    <span class="hljs-type">char</span> key[NVS_KEY_NAME_MAX_SIZE];            <span class="hljs-comment">/*!&lt; Key of stored key-value pair */</span><br>    <span class="hljs-type">nvs_type_t</span> type;                            <span class="hljs-comment">/*!&lt; Type of stored key-value pair */</span><br>&#125; <span class="hljs-type">nvs_entry_info_t</span>;<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="2、常用-API"><a href="#2、常用-API" class="headerlink" title="2、常用 API"></a>2、常用 API</h2><h3 id="2-1-nvs-flash-init"><a href="#2-1-nvs-flash-init" class="headerlink" title="2.1 nvs_flash_init"></a>2.1 nvs_flash_init</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>作用<ul>
+<li>初始化默认 NVS 分区。默认 NVS 分区是在分区表中标记为 “nvs” 的分区。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+<li><code>ESP_ERR_NOT_FOUND</code>：如果在分区表中找不到标签为 “nvs” 的分区</li>
+<li><code>ESP_ERR_NO_MEM</code>：无法为内部结构分配内存</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2-nvs-flash-init-partition"><a href="#2-2-nvs-flash-init-partition" class="headerlink" title="2.2 nvs_flash_init_partition"></a>2.2 nvs_flash_init_partition</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_init_partition</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *partition_label)</span><br></code></pre></td></tr></table></figure>
+
+
+<ul>
+<li>参数<ul>
+<li><code>partition_label</code>：分区的标签。不得超过 16 个字符。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>初始化指定分区的 NVS 闪存。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+<li><code>ESP_ERR_NO_MEM</code>：无法为内部结构分配内存</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-3-nvs-flash-init-partition-ptr"><a href="#2-3-nvs-flash-init-partition-ptr" class="headerlink" title="2.3 nvs_flash_init_partition_ptr"></a>2.3 nvs_flash_init_partition_ptr</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_init_partition_ptr</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">esp_partition_t</span> *partition)</span><br></code></pre></td></tr></table></figure>
+
+
+<ul>
+<li>参数<ul>
+<li><code>partition</code>：指向 ESP 分区 API 获取的分区的指针。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>初始化分区指针指定的分区的 NVS 闪存存储。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+<li><code>ESP_ERR_NO_MEM</code>：无法为内部结构分配内存</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-4-nvs-flash-erase"><a href="#2-4-nvs-flash-erase" class="headerlink" title="2.4 nvs_flash_erase"></a>2.4 nvs_flash_erase</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_init_partition_ptr</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">esp_partition_t</span> *partition)</span><br></code></pre></td></tr></table></figure>
+
+
+<ul>
+<li>参数<ul>
+<li><code>partition</code>：指向 ESP 分区 API 获取的分区的指针。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>擦除默认 NVS 分区（带有标签 “nvs” 的分区）的所有内容。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如果分区已初始化，则此函数首先 deinit 它。之后，必须再次初始化分区才能使用。</p>
+</blockquote>
+<h3 id="2-5-nvs-flash-erase-partition"><a href="#2-5-nvs-flash-erase-partition" class="headerlink" title="2.5 nvs_flash_erase_partition"></a>2.5 nvs_flash_erase_partition</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_erase_partition</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *part_name)</span><br></code></pre></td></tr></table></figure>
+
+
+<ul>
+<li>参数<ul>
+<li><code>part_name</code>：应擦除的分区的名称 （标签）</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>擦除指定的 NVS 分区。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如果分区已初始化，则此函数首先 deinit 它。之后，必须再次初始化分区才能使用。</p>
+</blockquote>
+<h3 id="2-6-nvs-flash-erase-partition-ptr"><a href="#2-6-nvs-flash-erase-partition-ptr" class="headerlink" title="2.6 nvs_flash_erase_partition_ptr"></a>2.6 nvs_flash_erase_partition_ptr</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_erase_partition_ptr</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">esp_partition_t</span> *partition)</span><br></code></pre></td></tr></table></figure>
+
+
+<ul>
+<li>参数<ul>
+<li><code>partition</code>：指向 ESP 分区 API 获取的分区的指针。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>擦除指定自定义分区的所有内容。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NO_FREE_PAGES NVS</code>：存储是否不包含空页（如果 NVS 分区被截断，则可能会发生这种情况）</li>
+<li><code>ESP_ERR_INVALID_ARG</code>：分区为 NULL</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如果分区已初始化，则此函数首先 deinit 它。之后，必须再次初始化分区才能使用。</p>
+</blockquote>
+<h3 id="2-7-nvs-flash-generate-keys"><a href="#2-7-nvs-flash-generate-keys" class="headerlink" title="2.7 nvs_flash_generate_keys"></a>2.7 nvs_flash_generate_keys</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_flash_generate_keys</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">esp_partition_t</span> *partition, <span class="hljs-type">nvs_sec_cfg_t</span> *cfg)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>partition</code>：向使用 <code>esp_partition_find_first</code> 或 <code>esp_partition_get</code> 获取的分区结构的指针。必须为非 NULL。</li>
+<li><code>cfg</code>：指向 nvs 安全配置结构的指针。指针必须为非 NULL。生成的键将填充到此结构中。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>擦除指定自定义分区的所有内容。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_INVALID_ARG</code>：partition 或 cfg 为 NULL</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-8-nvs-set-i8"><a href="#2-8-nvs-set-i8" class="headerlink" title="2.8 nvs_set_i8"></a>2.8 nvs_set_i8</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_set_i8</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">int8_t</span> value)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>handle</code>：向使用 <code>esp_partition_find_first</code> 或 <code>esp_partition_get</code> 获取的分区结构的指针。必须为非 NULL。</li>
+<li><code>key</code>：键名称。最大长度为 （<code>NVS_KEY_NAME_MAX_SIZE-1</code>） 个字符。不应为空。</li>
+<li><code>value</code>：要设置的值。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>为给定键设置 <code>int8_t</code> 值</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_FAIL</code>：如果存在内部错误;很可能是由于 NVS 分区损坏（仅当禁用 NVS 断言检查时）</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+<li><code>ESP_ERR_NVS_READ_ONLY</code>：如果存储句柄以只读方式打开</li>
+<li><code>ESP_ERR_NVS_INVALID_NAME</code>：key name 不满足 constraints</li>
+<li><code>ESP_ERR_NVS_NOT_ENOUGH_SPACE</code>：如果底层存储中没有足够的空间来保存值</li>
+<li><code>ESP_ERR_NVS_REMOVE_FAILED</code>：值是否因闪存写入操作失败而未更新。但是，该值已写入，并且 update 将在重新初始化 nvs 后完成，前提是 flash 操作不会再次失败。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><code>nvs_set_*</code>：类似的还有 u8、i16、u16、i32、u32、i64、u64、str</p>
+</blockquote>
+<h4 id="2-8-1-nvs-set-blob"><a href="#2-8-1-nvs-set-blob" class="headerlink" title="2.8.1 nvs_set_blob"></a>2.8.1 nvs_set_blob</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_set_blob</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *value, <span class="hljs-type">size_t</span> length)</span><br></code></pre></td></tr></table></figure>
+
+<p>相比其它几个 get 函数，要注意一下：</p>
+<ul>
+<li><code>value</code>：要设置的值。</li>
+<li><code>length</code>： 要设置的二进制值的长度，以字节为单位;最大长度为 508000 字节或（分区大小的 97.6% - 4000）字节，以较低者为准。</li>
+</ul>
+<h3 id="2-9-nvs-get-u8"><a href="#2-9-nvs-get-u8" class="headerlink" title="2.9 nvs_get_u8"></a>2.9 nvs_get_u8</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_get_u8</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">uint8_t</span> *out_value)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>handle</code>：向使用 <code>esp_partition_find_first</code> 或 <code>esp_partition_get</code> 获取的分区结构的指针。必须为非 NULL。</li>
+<li><code>key</code>：键名称。最大长度为 （<code>NVS_KEY_NAME_MAX_SIZE-1</code>） 个字符。不应为空。</li>
+<li><code>value</code>：存储要获取的值。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>获取给定键 <code>uint8_t</code> 值</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_FAIL</code>：如果存在内部错误;很可能是由于 NVS 分区损坏（仅当禁用 NVS 断言检查时）</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+<li><code>ESP_ERR_NVS_READ_ONLY</code>：如果存储句柄以只读方式打开</li>
+<li><code>ESP_ERR_NVS_INVALID_NAME</code>：key name 不满足 constraints</li>
+<li><code>ESP_ERR_NVS_NOT_ENOUGH_SPACE</code>：如果底层存储中没有足够的空间来保存值</li>
+<li><code>ESP_ERR_NVS_REMOVE_FAILED</code>：值是否因闪存写入操作失败而未更新。但是，该值已写入，并且 update 将在重新初始化 nvs 后完成，前提是 flash 操作不会再次失败。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><code>nvs_get_*</code>：类似的还有 u8、i16、u16、i32、u32、i64、u64、str、blob</p>
+</blockquote>
+<h4 id="2-9-1-nvs-get-blob-nvs-get-str"><a href="#2-9-1-nvs-get-blob-nvs-get-str" class="headerlink" title="2.9.1 nvs_get_blob&#x2F;nvs_get_str"></a>2.9.1 nvs_get_blob&#x2F;nvs_get_str</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_get_blob</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">void</span> *out_value, <span class="hljs-type">size_t</span> *length)</span><br><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_get_str</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">char</span> *out_value, <span class="hljs-type">size_t</span> *length)</span><br></code></pre></td></tr></table></figure>
+
+<p>相比其它几个 get 函数，要注意一下：</p>
+<ul>
+<li><code>out_value</code>：指向输出值的指针。对于 <code>nvs_get_str</code> 和 <code>nvs_get_blob</code> 可能为 NULL，在这种情况下，所需长度将在 length 参数中返回。</li>
+<li><code>length</code>： 一个非零指针，指向保存 <code>out_value</code> 长度的变量。<ul>
+<li>如果 <code>out_value</code> 为 NULL，则将设置为保存该值所需的长度。</li>
+<li>如果 <code>out_value</code> 不为零，则将设置为写入值的实际长度。对于 <code>nvs_get_str</code> 来说，<code>nvs_get_blob</code> 还包括零终止符。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-10-nvs-open"><a href="#2-10-nvs-open" class="headerlink" title="2.10 nvs_open"></a>2.10 nvs_open</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_open</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *namespace_name, <span class="hljs-type">nvs_open_mode_t</span> open_mode, <span class="hljs-type">nvs_handle_t</span> *out_handle)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>namespace_name</code>：Namespace 名称。最大长度为 （<code>NVS_KEY_NAME_MAX_SIZE-1</code>） 个字符。不应为空。</li>
+<li><code>open_mode</code>：<code>NVS_READWRITE</code> 或 <code>NVS_READONLY</code>。如果 <code>NVS_READONLY</code>，将打开仅用于读取的句柄。此 handle 的所有写入请求都将被拒绝。</li>
+<li><code>out_handle</code>：如果成功（返回代码为零），则在此参数中返回 handle。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>从默认 NVS 分区中打开具有给定命名空间的非易失性存储。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_FAIL</code>：如果存在内部错误;很可能是由于 NVS 分区损坏（仅当禁用 NVS 断言检查时）</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+<li><code>ESP_ERR_NVS_READ_ONLY</code>：如果存储句柄以只读方式打开</li>
+<li><code>ESP_ERR_NVS_INVALID_NAME</code>：key name 不满足 constraints</li>
+<li><code>ESP_ERR_NVS_NOT_ENOUGH_SPACE</code>：如果底层存储中没有足够的空间来保存值</li>
+<li><code>ESP_ERR_NVS_REMOVE_FAILED</code>：值是否因闪存写入操作失败而未更新。但是，该值已写入，并且 update 将在重新初始化 nvs 后完成，前提是 flash 操作不会再次失败。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><code>esp_err_t nvs_open_from_partition(const char *part_name, const char *namespace_name, nvs_open_mode_t open_mode, nvs_handle_t *out_handle)</code> 类似，不过是从指定分区打开具有给定命名空间的非易失性存储器。</p>
+</blockquote>
+<h3 id="2-11-nvs-find-key"><a href="#2-11-nvs-find-key" class="headerlink" title="2.11 nvs_find_key"></a>2.11 nvs_find_key</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_find_key</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key, <span class="hljs-type">nvs_type_t</span> *out_type)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>namespace_name</code>：通过 <code>nvs_open</code> 获得的存储句柄。</li>
+<li><code>key</code>：键名称。最大长度为 （<code>NVS_KEY_NAME_MAX_SIZE-1</code>） 个字符。不应为空。</li>
+<li><code>out_type</code>：指向输出变量的指针，该变量填充了 NVS 条目的数据类型，以防找到 key 的情况。可能为 NULL，则不提供相应的数据类型。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>查找具有给定键名称的键值对。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_FAIL</code>：如果存在内部错误;很可能是由于 NVS 分区损坏（仅当禁用 NVS 断言检查时）</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+<li><code>ESP_ERR_NVS_READ_ONLY</code>：如果存储句柄以只读方式打开</li>
+<li><code>ESP_ERR_NVS_INVALID_NAME</code>：key name 不满足 constraints</li>
+<li><code>ESP_ERR_NVS_NOT_ENOUGH_SPACE</code>：如果底层存储中没有足够的空间来保存值</li>
+<li><code>ESP_ERR_NVS_REMOVE_FAILED</code>：值是否因闪存写入操作失败而未更新。但是，该值已写入，并且 update 将在重新初始化 nvs 后完成，前提是 flash 操作不会再次失败。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>请注意，如果找到密钥，函数可能同时指示密钥的存在以及 NVS 条目的数据类型。</p>
+</blockquote>
+<p><code>nvs_erase_key</code> 是擦除具有给定键名称的键值对。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_erase_key</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *key)</span><br></code></pre></td></tr></table></figure>
+
+<p><code>nvs_erase_all</code> 是擦除命名空间中的所有键值对。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_erase_all</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle)</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-12-nvs-commit"><a href="#2-12-nvs-commit" class="headerlink" title="2.12 nvs_commit"></a>2.12 nvs_commit</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_commit</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>handle</code>：通过 <code>nvs_open</code> 获得的存储句柄。不能使用以只读方式打开的句柄。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>将任何待处理的更改写入非易失性存储。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>设置任何值后，必须调用 <code>nvs_commit()</code> 以确保将更改写入非易失性存储。单个 implementations 可能会在其他时间写入 storage，但不能保证这一点。</p>
+</blockquote>
+<h3 id="2-13-nvs-close"><a href="#2-13-nvs-close" class="headerlink" title="2.13 nvs_close"></a>2.13 nvs_close</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">nvs_close</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>handle</code>：要关闭的存储 handle</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>关闭存储 handle 并释放所有已分配的资源。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-14-nvs-entry-find-in-handle"><a href="#2-14-nvs-entry-find-in-handle" class="headerlink" title="2.14 nvs_entry_find_in_handle"></a>2.14 nvs_entry_find_in_handle</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_entry_find_in_handle</span><span class="hljs-params">(<span class="hljs-type">nvs_handle_t</span> handle, <span class="hljs-type">nvs_type_t</span> type, <span class="hljs-type">nvs_iterator_t</span> *output_iterator)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>handle</code>：通过 <code>nvs_open</code> 获得的存储句柄。不能使用以只读方式打开的句柄。</li>
+<li><code>type</code>：<code>nvs_type_t</code> 值之一。</li>
+<li><code>output_iterator</code>：设置为有效的迭代器以枚举找到的所有条目。<ul>
+<li>如果未找到指定条件的条目，则设置为 NULL。</li>
+<li>如果发生除 <code>ESP_ERR_INVALID_ARG</code> 以外的任何其他错误，<code>output_iterator</code> 也为 NULL。</li>
+<li>如果发生 <code>ESP_ERR_INVALID_ARG</code>，则不会更改 <code>output_iterator</code>。</li>
+<li>如果通过此函数获得有效的迭代器，则必须在不再使用时使用 <code>nvs_release_iterator</code> 释放它，除非返回 <code>ESP_ERR_INVALID_ARG</code>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>创建迭代器以根据句柄和类型枚举 NVS 条目。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_INVALID_HANDLE</code>：句柄是否已关闭或为 NULL</li>
+<li><code>ESP_ERR_NVS_NOT_FOUND</code>：未找到指定条件的元素</li>
+<li><code>ESP_ERR_NO_MEM</code>：在分配内部结构期间内存是否已耗尽。</li>
+<li><code>ESP_ERR_INVALID_ARG</code>：如果 <code>output_iterator</code> 参数为 NULL。注意：如果 <code>ESP_ERR_INVALID_ARG</code> 已被退回，请不要释放 <code>output_iterator</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-15-nvs-entry-next"><a href="#2-15-nvs-entry-next" class="headerlink" title="2.15 nvs_entry_next"></a>2.15 nvs_entry_next</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_entry_next</span><span class="hljs-params">(<span class="hljs-type">nvs_iterator_t</span> *iterator)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>iterator </code>：从 <code>nvs_entry_find</code> 或 <code>nvs_entry_find_in_handle</code> 函数获得的迭代器。必须为非 NULL。<ul>
+<li>如果发生除 <code>ESP_ERR_INVALID_ARG</code> 之外的任何错误，则 iterator 设置为 NULL。</li>
+<li>如果出现 <code>ESP_ERR_INVALID_ARG</code>，则不会更改 iterator。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>将迭代器前进到与迭代器条件匹配的下一个项目。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_NVS_NOT_FOUND</code>：未找到指定条件的元素</li>
+<li><code>ESP_ERR_INVALID_ARG</code>：如果有参数为 NULL。注意：如果 <code>ESP_ERR_INVALID_ARG</code> 已被退回，请不要释放 <code>output_iterator</code></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>请注意，在此调用后，迭代器的任何副本都将无效。</p>
+</blockquote>
+<h3 id="2-16-nvs-entry-info"><a href="#2-16-nvs-entry-info" class="headerlink" title="2.16 nvs_entry_info"></a>2.16 nvs_entry_info</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">nvs_entry_info</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">nvs_iterator_t</span> iterator, <span class="hljs-type">nvs_entry_info_t</span> *out_info)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>iterator</code>： 从 <code>nvs_entry_find</code> 或 <code>nvs_entry_find_in_handle</code> 函数获取的 Iterator。必须为非 NULL。</li>
+<li><code>out_info</code>：将条目信息复制到的结构体。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>将任何待处理的更改写入非易失性存储。</li>
+</ul>
+</li>
+<li>返回值<ul>
+<li><code>ESP_OK</code>：成功</li>
+<li><code>ESP_ERR_INVALID_ARG</code>：如果有参数为 NULL。注意：如果 <code>ESP_ERR_INVALID_ARG</code> 已被退回，请不要释放 <code>output_iterator</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-17-nvs-release-iterator"><a href="#2-17-nvs-release-iterator" class="headerlink" title="2.17 nvs_release_iterator"></a>2.17 nvs_release_iterator</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">nvs_release_iterator</span><span class="hljs-params">(<span class="hljs-type">nvs_iterator_t</span> iterator)</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>参数<ul>
+<li><code>iterator</code>：从 nvs_entry_find 或 nvs_entry_find_in_handle 或 nvs_entry_next 函数获得的 Release 迭代器。允许 NULL 参数。</li>
+</ul>
+</li>
+<li>作用<ul>
+<li>释放迭代器。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、枚举类型"><a href="#3、枚举类型" class="headerlink" title="3、枚举类型"></a>3、枚举类型</h2><h3 id="3-1-nvs-open-mode-t"><a href="#3-1-nvs-open-mode-t" class="headerlink" title="3.1 nvs_open_mode_t"></a>3.1 nvs_open_mode_t</h3><p>打开类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>	NVS_READONLY,  <span class="hljs-comment">/*!&lt; Read only */</span><br>	NVS_READWRITE  <span class="hljs-comment">/*!&lt; Read and write */</span><br>&#125; <span class="hljs-type">nvs_open_mode_t</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-nvs-type-t"><a href="#3-2-nvs-type-t" class="headerlink" title="3.2 nvs_type_t"></a>3.2 nvs_type_t</h3><p>数据类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    NVS_TYPE_U8    = <span class="hljs-number">0x01</span>,  <span class="hljs-comment">/*!&lt; Type uint8_t */</span><br>    NVS_TYPE_I8    = <span class="hljs-number">0x11</span>,  <span class="hljs-comment">/*!&lt; Type int8_t */</span><br>    NVS_TYPE_U16   = <span class="hljs-number">0x02</span>,  <span class="hljs-comment">/*!&lt; Type uint16_t */</span><br>    NVS_TYPE_I16   = <span class="hljs-number">0x12</span>,  <span class="hljs-comment">/*!&lt; Type int16_t */</span><br>    NVS_TYPE_U32   = <span class="hljs-number">0x04</span>,  <span class="hljs-comment">/*!&lt; Type uint32_t */</span><br>    NVS_TYPE_I32   = <span class="hljs-number">0x14</span>,  <span class="hljs-comment">/*!&lt; Type int32_t */</span><br>    NVS_TYPE_U64   = <span class="hljs-number">0x08</span>,  <span class="hljs-comment">/*!&lt; Type uint64_t */</span><br>    NVS_TYPE_I64   = <span class="hljs-number">0x18</span>,  <span class="hljs-comment">/*!&lt; Type int64_t */</span><br>    NVS_TYPE_STR   = <span class="hljs-number">0x21</span>,  <span class="hljs-comment">/*!&lt; Type string */</span><br>    NVS_TYPE_BLOB  = <span class="hljs-number">0x42</span>,  <span class="hljs-comment">/*!&lt; Type blob */</span><br>    NVS_TYPE_ANY   = <span class="hljs-number">0xff</span>   <span class="hljs-comment">/*!&lt; Must be last */</span><br>&#125; <span class="hljs-type">nvs_type_t</span>;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、NVS"><a href="#二、NVS" class="headerlink" title="二、NVS"></a>二、NVS</h1><h2 id="1、底层存储"><a href="#1、底层存储" class="headerlink" title="1、底层存储"></a>1、底层存储</h2><p>NVS 库通过调用 <code>esp_partition()</code> 使用主 flash 的部分空间，即类型为 data 且子类型为 nvs 的所有分区。应用程序可调用 <code>nvs_open()</code> 选择使用带有 nvs 标签的分区，也可以通过调用 <code>nvs_open_from_partition()</code> 选择使用指定名称的任意分区。</p>
+<blockquote>
+<p>如果 NVS 分区被截断（例如，更改分区表布局时），则应擦除分区内容。可以使用 ESP-IDF 构建系统中的 <code>idf.py erase-flash</code> 命令擦除 flash 上的所有内容。</p>
+</blockquote>
+<h2 id="2、键值对"><a href="#2、键值对" class="headerlink" title="2、键值对"></a>2、键值对</h2><p>NVS 的操作对象为键值对，其中键是 ASCII 字符串，当前支持的最大键长为 15 个字符。值可以为以下几种类型：</p>
+<ul>
+<li>整数型：<code>uint8_t</code>、<code>int8_t</code>、<code>uint16_t</code>、<code>int16_t</code>、<code>uint32_t</code>、<code>int32_t</code>、<code>uint64_t</code> 和 <code>int64_t</code>；</li>
+<li>以 0 结尾的字符串；</li>
+<li>可变长度的二进制数据 (BLOB)</li>
+</ul>
+<blockquote>
+<p>注意，字符串值当前上限为 4000 字节，其中包括空终止符。BLOB 值上限为 508,000 字节或分区大小的 97.6% 减去 4000 字节，以较低值为准。</p>
+</blockquote>
+<p>键必须唯一。为现有的键写入新值时，会将旧的值及数据类型更新为写入操作指定的值和数据类型。</p>
+<p>读取值时会执行数据类型检查。如果读取操作预期的数据类型与对应键的数据类型不匹配，则返回错误。</p>
+<h2 id="3、命名空间"><a href="#3、命名空间" class="headerlink" title="3、命名空间"></a>3、命名空间</h2><p>为了减少不同组件之间键名的潜在冲突，NVS 将每个键值对分配给一个命名空间。命名空间的命名规则遵循键名的命名规则：</p>
+<ul>
+<li>键名最多可占 15 个字符</li>
+<li>单个 NVS 分区最多只能容纳 254 个不同的命名空间</li>
+</ul>
+<p>命名空间的名称在调用 <code>nvs_open()</code> 或 <code>nvs_open_from_partition</code> 中指定，调用后将返回一个不透明句柄，用于后续调用 <code>nvs_get_*</code>、<code>nvs_set_*</code> 和 <code>nvs_commit</code> 函数。这样，一个句柄关联一个命名空间，键名便不会与其他命名空间中相同键名冲突。请注意，不同 NVS 分区中具有相同名称的命名空间将被视为不同的命名空间。</p>
+<h2 id="4、NVS-迭代器"><a href="#4、NVS-迭代器" class="headerlink" title="4、NVS 迭代器"></a>4、NVS 迭代器</h2><p>迭代器允许根据指定的分区名称、命名空间和数据类型轮询 NVS 中存储的键值对。</p>
+<p>使用以下函数，可执行相关操作：</p>
+<ul>
+<li><code>nvs_entry_find</code>：创建一个不透明句柄，用于后续调用 <code>nvs_entry_next</code> 和 <code>nvs_entry_info</code> 函数；</li>
+<li><code>nvs_entry_next</code>：让迭代器指向下一个键值对；</li>
+<li><code>nvs_entry_info</code>：返回每个键值对的信息。</li>
+</ul>
+<p>总的来说，所有通过 <code>nvs_entry_find()</code> 获得的迭代器（包括 NULL 迭代器）都必须使用 <code>nvs_release_iterator()</code> 释放。</p>
+<p>一般情况下，<code>nvs_entry_find()</code> 和 <code>nvs_entry_next()</code> 会将给定的迭代器设置为 NULL 或为一个有效的迭代器。但如果出现参数错误（如返回 <code>ESP_ERR_NVS_NOT_FOUND</code>），给定的迭代器不会被修改。因此，在调用 <code>nvs_entry_find()</code> 之前最好将迭代器初始化为 NULL，这样可以避免在释放迭代器之前进行复杂的错误检查。</p>
+<h2 id="5、NVS-分区生成程序"><a href="#5、NVS-分区生成程序" class="headerlink" title="5、NVS 分区生成程序"></a>5、NVS 分区生成程序</h2><p>NVS 分区生成程序帮助生成 NVS 分区二进制文件，可使用烧录程序将二进制文件单独烧录至特定分区。烧录至分区上的键值对由 CSV 文件提供。</p>
+<p>可以直接使用函数 <code>nvs_create_partition_image</code> 通过 CMake 创建分区二进制文件，无需手动调用 <code>nvs_partition_gen.py</code> 工具:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">nvs_create_partition_image(&lt;partition&gt; &lt;csv&gt; [FLASH_IN_PROJECT] [DEPENDS  dep dep dep ...])<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>位置参数<ul>
+<li><code>partition</code>：NVS 分区名</li>
+<li><code>csv</code>：解析的 CSV 文件路径</li>
+</ul>
+</li>
+<li>可选参数<ul>
+<li><code>FLASH_IN_PROJECT</code>：NVS 分区名</li>
+<li><code>DEPENDS</code>：指定命令依赖的文件</li>
+</ul>
+</li>
+</ul>
+<p>在没有指定 <code>FLASH_IN_PROJECT</code> 的情况下，也支持生成分区镜像，不过此时需要使用 <code>idf.py &lt;partition&gt;-flash</code> 手动进行烧录。举个例子，如果分区名为 nvs，则需使用的命令为 <code>idf.py nvs-flash</code>。</p>
+<p>目前，仅支持从组件中的 <code>CMakeLists.txt</code> 文件调用 <code>nvs_create_partition_image</code>，且此选项仅适用于非加密分区。</p>
+<h1 id="三、实例操作"><a href="#三、实例操作" class="headerlink" title="三、实例操作"></a>三、实例操作</h1><h2 id="1、例一——读写操作实验"><a href="#1、例一——读写操作实验" class="headerlink" title="1、例一——读写操作实验"></a>1、例一——读写操作实验</h2><p>本例中向 NVS 分区中的 storage 命名空间写入数据，并读出数据，并验证了 NVS 分区的掉电不丢失的特性：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">// 初始化 NVS 分区</span><br>    <span class="hljs-type">esp_err_t</span> err = nvs_flash_init();<br>    <span class="hljs-keyword">if</span> (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) &#123;<br>        ESP_ERROR_CHECK(nvs_flash_erase());<br>        err = nvs_flash_init();<br>    &#125;<br>    ESP_ERROR_CHECK( err );<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Opening Non-Volatile Storage (NVS) handle... &quot;</span>);<br><br>    nvs_handle handle;<br>    err = nvs_open(<span class="hljs-string">&quot;storage&quot;</span>, NVS_READWRITE, &amp;handle);  <span class="hljs-comment">// 打开 NVS 分区</span><br>    <span class="hljs-keyword">if</span> (err != ESP_OK) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Error (%s) opening NVS handle!\n&quot;</span>, esp_err_to_name(err));<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Done\n&quot;</span>);<br><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Reading restart counter from NVS ... &quot;</span>);<br>        <span class="hljs-type">int32_t</span> restart_counter = <span class="hljs-number">0</span>;<br>        err = nvs_get_i32(handle, <span class="hljs-string">&quot;restart_counter&quot;</span>, &amp;restart_counter);  <span class="hljs-comment">// 读取数据</span><br>        <span class="hljs-keyword">switch</span> (err) &#123;<br>            <span class="hljs-keyword">case</span> ESP_OK:<br>                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Done\n&quot;</span>);<br>                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Restart counter = %&quot;</span> PRIu32 <span class="hljs-string">&quot;\n&quot;</span>, restart_counter);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> ESP_ERR_NVS_NOT_FOUND:<br>                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;The value is not initialized yet!\n&quot;</span>);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Error (%s) reading!\n&quot;</span>, esp_err_to_name(err));<br>        &#125;<br><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Updating restart counter in NVS ... &quot;</span>);<br>        restart_counter++;<br>        err = nvs_set_i32(handle, <span class="hljs-string">&quot;restart_counter&quot;</span>, restart_counter);  <span class="hljs-comment">// 写入数据</span><br>        <span class="hljs-built_in">printf</span>((err != ESP_OK) ? <span class="hljs-string">&quot;Failed!\n&quot;</span> : <span class="hljs-string">&quot;Done\n&quot;</span>);<br><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Committing updates to NVS ... &quot;</span>);<br>        err = nvs_commit(handle);  <span class="hljs-comment">// 更新数据</span><br>        <span class="hljs-built_in">printf</span>((err != ESP_OK) ? <span class="hljs-string">&quot;Failed!\n&quot;</span> : <span class="hljs-string">&quot;Done\n&quot;</span>);<br><br>        nvs_close(handle);<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">10</span>; i &gt;= <span class="hljs-number">0</span>; --i) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Restarting in %d seconds... \n&quot;</span>, i);<br>        vTaskDelay(<span class="hljs-number">1000</span> / portTICK_PERIOD_MS);<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Restarting now. \n&quot;</span>);<br>    fflush(<span class="hljs-built_in">stdout</span>);<br>    esp_restart();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、例二——blob-的写入和读取"><a href="#2、例二——blob-的写入和读取" class="headerlink" title="2、例二——blob 的写入和读取"></a>2、例二——blob 的写入和读取</h2><p>blob 的读取（以及 str 的读取）有一点小技巧，因为事先读取的时候，我们并不知道要读取的 blob 数据的长度，所以我们可以利用 <code>nvs_get_blob</code> 的功能，先将第三个参数设为 NULL，读取出数据的长度，再次调用 <code>nvs_get_blob</code>，就可以获取到 blob 数据了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">size_t</span> required_size = <span class="hljs-number">0</span>;  <br>err = nvs_get_blob(my_handle, <span class="hljs-string">&quot;run_time&quot;</span>, <span class="hljs-literal">NULL</span>, &amp;required_size);  <span class="hljs-comment">// required_size 保存了 blob 数据的长度</span><br>err = nvs_get_blob(my_handle, <span class="hljs-string">&quot;run_time&quot;</span>, run_time, &amp;required_size);<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> NVS_NAMESPACE <span class="hljs-string">&quot;storage&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NVS_KEY       <span class="hljs-string">&quot;password&quot;</span></span><br><br><span class="hljs-type">const</span> <span class="hljs-type">char</span> *TAG = <span class="hljs-string">&quot;NVS_TEST&quot;</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">write_nvs_blob</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* namespace, <span class="hljs-type">const</span> <span class="hljs-type">char</span>* key,<span class="hljs-type">uint8_t</span>* value, <span class="hljs-type">size_t</span> len)</span><br>&#123;<br>    <span class="hljs-type">nvs_handle_t</span> nvs_handle;<br>    <span class="hljs-type">esp_err_t</span> ret;<br><br>    ESP_ERROR_CHECK(nvs_open(namespace, NVS_READWRITE, &amp;nvs_handle));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Write NVS: %s&quot;</span>, value);<br>    ret = nvs_set_blob(nvs_handle, key, value, len);<br><br>    ESP_ERROR_CHECK(nvs_commit(nvs_handle));<br>    nvs_close(nvs_handle);<br>    <br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">read_nvs_blob</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* namespace,<span class="hljs-type">const</span> <span class="hljs-type">char</span>* key,<span class="hljs-type">uint8_t</span> *value,<span class="hljs-type">int</span> maxlen)</span><br>&#123;<br>    <span class="hljs-type">nvs_handle_t</span> nvs_handle;<br>    <span class="hljs-type">esp_err_t</span> ret_val = ESP_FAIL;<br>    <span class="hljs-type">size_t</span> required_size = <span class="hljs-number">0</span>;<br><br>    ESP_ERROR_CHECK(nvs_open(namespace, NVS_READONLY, &amp;nvs_handle));<br>    ret_val = nvs_get_blob(nvs_handle, key, <span class="hljs-literal">NULL</span>, &amp;required_size);<br>    <span class="hljs-keyword">if</span> (ret_val == ESP_OK &amp;&amp; required_size &lt;= maxlen)<br>    &#123;<br>        ESP_ERROR_CHECK(nvs_get_blob(nvs_handle, key, value, &amp;required_size));<br>        ESP_LOGI(TAG,<span class="hljs-string">&quot;Read NVS: %s&quot;</span>, value);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>        ESP_LOGI(TAG, <span class="hljs-string">&quot;Read fail&quot;</span>);<br>        <br>    nvs_close(nvs_handle);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">esp_err_t</span> err = nvs_flash_init();<br>    <span class="hljs-keyword">if</span> (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) &#123;<br>        ESP_ERROR_CHECK(nvs_flash_erase());<br>        err = nvs_flash_init();<br>    &#125;<br>    ESP_ERROR_CHECK( err );<br><br>    <span class="hljs-type">uint8_t</span> blob_buf[<span class="hljs-number">20</span>] = <span class="hljs-string">&quot;abcd1234&quot;</span>;<br>    <span class="hljs-comment">// 写入</span><br>    write_nvs_blob(NVS_NAMESPACE,NVS_KEY, blob_buf, <span class="hljs-number">8</span>); <br>     <br>    <span class="hljs-comment">// 读取</span><br>    read_nvs_blob(NVS_NAMESPACE, NVS_KEY, blob_buf, <span class="hljs-keyword">sizeof</span>(blob_buf));<br>    <br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        vTaskDelay(pdMS_TO_TICKS(<span class="hljs-number">1000</span>));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>str 的读取类似，不再重复演示。</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/ESP32/" class="print-no-link">#ESP32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ESP32-IDF 非易失存储 NVS</div>
+      <div>http://example.com/2024/10/21/ESP32-IDF-NVS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="静态链接过程分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">静态链接过程分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" title="ESP32-IDF 分区表">
+                        <span class="hidden-mobile">ESP32-IDF 分区表</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

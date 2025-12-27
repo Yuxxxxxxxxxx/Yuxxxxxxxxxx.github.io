@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、可变参数在 C 语言中实现可变参数需要用到这下面这几个数据类型和函数（其实是宏定义）：  va_list va_start va_arg va_end  处理动态参数的过程是下面这 4 个步骤：  定义一个变量 va_list arg； 调用 va_start 来初始化 arg 变量，传入的第二个参数是可变参数(三个点)前面的那个变量； 使用 va_arg 函数提取可变参数：循环从 arg 中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C语言中的可变参数和可变参数宏">
+<meta property="og:url" content="http://example.com/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、可变参数在 C 语言中实现可变参数需要用到这下面这几个数据类型和函数（其实是宏定义）：  va_list va_start va_arg va_end  处理动态参数的过程是下面这 4 个步骤：  定义一个变量 va_list arg； 调用 va_start 来初始化 arg 变量，传入的第二个参数是可变参数(三个点)前面的那个变量； 使用 va_arg 函数提取可变参数：循环从 arg 中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/1.png">
+<meta property="article:published_time" content="2024-12-26T14:45:47.000Z">
+<meta property="article:modified_time" content="2024-12-26T14:49:45.074Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/1.png">
+  
+  
+  
+  <title>C语言中的可变参数和可变参数宏 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C语言中的可变参数和可变参数宏"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-26 22:45" pubdate>
+          星期四, 十二月 26日 2024, 10:45 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C语言中的可变参数和可变参数宏</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、可变参数"><a href="#一、可变参数" class="headerlink" title="一、可变参数"></a>一、可变参数</h1><p>在 C 语言中实现可变参数需要用到这下面这几个数据类型和函数（其实是宏定义）：</p>
+<ul>
+<li><code>va_list</code></li>
+<li><code>va_start</code></li>
+<li><code>va_arg</code></li>
+<li><code>va_end</code></li>
+</ul>
+<p>处理动态参数的过程是下面这 4 个步骤：</p>
+<ol>
+<li>定义一个变量 <code>va_list arg</code>；</li>
+<li>调用 <code>va_start</code> 来初始化 <code>arg</code> 变量，传入的第二个参数是可变参数(三个点)前面的那个变量；</li>
+<li>使用 <code>va_arg</code> 函数提取可变参数：循环从 <code>arg</code> 中提取每一个变量，最后一个参数用来指定提取的数据类型。比如：如果格式化字符串是 <code>%d</code>，那么就从可变参数中提取一个 <code>int</code> 型的数据，如果格式化字符串是 <code>%c</code>，就从可变参数中提取一个 <code>char</code> 型数据；</li>
+<li>数据处理结束后，使用 <code>va_end</code> 来释放 <code>arg</code> 变量。</li>
+</ol>
+<h2 id="1、使用示例"><a href="#1、使用示例" class="headerlink" title="1、使用示例"></a>1、使用示例</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdarg.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">my_printf_int</span><span class="hljs-params">(<span class="hljs-type">int</span> num,...)</span><br>&#123;<br>    <span class="hljs-type">int</span> i, val;<br>    va_list arg;<br>    va_start(arg, num);<br>    <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; num; i++)<br>    &#123;<br>        val = va_arg(arg, <span class="hljs-type">int</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d &quot;</span>, val);<br>    &#125;<br>    va_end(arg);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">1</span>, b = <span class="hljs-number">2</span>, c = <span class="hljs-number">3</span>;<br>    my_printf_int(<span class="hljs-number">3</span>, a, b, c);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行这段代码会依次输出 <code>1 2 3</code>。</p>
+<p>这里要注意一点，虽然传入的参数个数是不固定的，但是参数的类型都必须是一样的。另外，处理函数中必须要知道传入的参数有多少个，上面的例程中处理函数是通过第一个参数来判断的，如果是处理 <code>char *</code> 的话，则是通过最后一个可变参数 <code>NULL</code> 来判断的。</p>
+<h2 id="2、可变参数原理"><a href="#2、可变参数原理" class="headerlink" title="2、可变参数原理"></a>2、可变参数原理</h2><h3 id="2-1-可变参数的几个宏定义"><a href="#2-1-可变参数的几个宏定义" class="headerlink" title="2.1 可变参数的几个宏定义"></a>2.1 可变参数的几个宏定义</h3><p>前面说到了，可变参数实际上就是宏定义，下面来看一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">char</span> *    va_list;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_start  _crt_va_start</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_arg    _crt_va_arg  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_end    _crt_va_end  </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_end(ap)      ( ap = (va_list)0 )</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，<code>va_list</code> 就是一个 <code>char *</code> 类型的指针</p>
+</blockquote>
+<h3 id="2-2-可变参数的处理过程"><a href="#2-2-可变参数的处理过程" class="headerlink" title="2.2 可变参数的处理过程"></a>2.2 可变参数的处理过程</h3><p>下面结合这些宏定义和前面的示例来看一下柯柏年参数的处理过程。</p>
+<p>在 C 语言中，参数是从右到左，逐个压入栈中，因此在进入 <code>my_printf_int</code> 的函数体中，栈中的布局如下：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>首先执行 <code>va_start(arg, num)</code>，带入宏定义中如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )</span><br></code></pre></td></tr></table></figure>
+
+<p>宏扩展后得到：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">arg = (<span class="hljs-type">char</span> *)&amp;num + <span class="hljs-keyword">sizeof</span>(num);<br></code></pre></td></tr></table></figure>
+
+<p>也就是让 <code>arg</code> 指向栈中第一个参数的地址。</p>
+<p>然后执行 <code>va_arg</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">val = va_arg(arg, <span class="hljs-type">int</span>);<br></code></pre></td></tr></table></figure>
+
+<p>把上面这语句，带入下面这宏定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )</span><br></code></pre></td></tr></table></figure>
+
+<p>宏扩展之后得到：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">val = ( *(<span class="hljs-type">int</span> *)((arg += _INTSIZEOF(<span class="hljs-type">int</span>)) - _INTSIZEOF(<span class="hljs-type">int</span>)) )<br></code></pre></td></tr></table></figure>
+
+<p>也就是先把 <code>arg</code> 自增 <code>int</code> 型数据的大小（4 个字节），然后再把这个地址减去 4 字节，得到的地址里的这个值，强转成 <code>int</code> 型，赋值给 <code>val</code>。</p>
+<p>简单来说，就是得到当前 <code>arg</code> 指向 <code>int</code> 型数据，然后把 <code>arg</code> 指向位于高地址的下一个参数位置。</p>
+<p><code>va_arg</code> 可以反复调用，直到获取栈中所有的函数传入的参数。 </p>
+<p>再然后指向 <code>va_end(arg)</code>：</p>
+<p>把上面这语句，带入下面这宏定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_end(ap)      ( ap = (va_list)0 )</span><br></code></pre></td></tr></table></figure>
+
+<p>宏扩展之后得到：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">arg = (<span class="hljs-type">char</span> *)<span class="hljs-number">0</span>;<br></code></pre></td></tr></table></figure>
+
+<p>这里直接把指针 <code>arg</code> 设置为空。因为栈中的所有动态参数被提取后，<code>arg</code> 的值为最后一个参数的上一个地址，如果不设置为 NULL 的话，下面使用的话就得到未知的结果，为了防止误操作，需要设置为 NULL。 </p>
+<h2 id="3、printf"><a href="#3、printf" class="headerlink" title="3、printf"></a>3、printf</h2><p>通过前面的了解，再来看 <code>printf</code> 的实现就很好理解了，下面是 GNU 中的 <code>printf</code> 源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">__printf (<span class="hljs-type">const</span> <span class="hljs-type">char</span> *format, ...)<br>&#123;<br>   va_list arg;<br>   <span class="hljs-type">int</span> done;<br><br>   va_start (arg, format);<br>   done = <span class="hljs-built_in">vfprintf</span> (<span class="hljs-built_in">stdout</span>, format, arg);<br>   va_end (arg);<br><br>   <span class="hljs-keyword">return</span> done;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、可变参数宏"><a href="#二、可变参数宏" class="headerlink" title="二、可变参数宏"></a>二、可变参数宏</h1><h2 id="1、引入"><a href="#1、引入" class="headerlink" title="1、引入"></a>1、引入</h2><p>前面讲了可变参数，下面来看一下可变参数宏，先看一段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt, ...) printf(fmt, __VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DEBUG(...) printf(__VA_ARGS__)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;Hello! I&#x27;m %s\n&quot;</span>,<span class="hljs-string">&quot;Wanglitao&quot;</span>);<br>    DEBUG(<span class="hljs-string">&quot;Hello! I&#x27;m %s\n&quot;</span>,<span class="hljs-string">&quot;Wanglitao&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>变参宏的实现形式其实跟变参函数差不多：用 <code>...</code> 表示变参列表，变参列表由不确定的参数组成，各个参数之间用逗号隔开。可变参数宏使用 C99 标准新增加的一个 <code>__VA_ARGS__</code> 预定义标识符来表示前面的变参列表，而不是像变参函数一样，使用 <code>va_list</code>、<code>va_start</code>、<code>va_end</code> 这些宏去解析变参列表。预处理器在将宏展开时，会用变参列表替换掉宏定义中的所有 <code>__VA_ARGS__</code> 标识符。</p>
+<p>使用宏定义实现一个变参打印功能，你会发现，它的实现甚至比变参函数还方便！内核中的很多打印宏，经常使用可变参数宏来实现，宏定义一般为下面这个格式。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt, ...) printf(fmt, __VA_ARGS__)</span><br></code></pre></td></tr></table></figure>
+
+<p>在这个宏定义中，有一个固定参数，通常为一个格式字符串，后面的变参用来打印各种格式的数据，跟前面的格式字符串相匹配。</p>
+<blockquote>
+<p>这种定义方式有一个漏洞，即当变参为空时，宏展开时就会产生一个语法错误，如下：</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,...) printf(fmt,__VA_ARGS__)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;hello\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因为当宏展开后，就变成了下面这个样子。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello\n&quot;</span>, );<br></code></pre></td></tr></table></figure>
+
+<p>宏展开后，在第一个字符串参数的后面还有一个逗号，所以就产生了一个语法错误。我们需要继续对这个宏进行改进，使用宏连接符 <code>##</code>，来避免这个语法错误。</p>
+<h2 id="2、继续改进"><a href="#2、继续改进" class="headerlink" title="2、继续改进"></a>2、继续改进</h2><p>接下来，使用宏连接符 <code>##</code> 来改进上面的宏。</p>
+<p>宏连接符 <code>##</code> 的主要作用就是连接两个字符串，我们在宏定义中可以使用 <code>##</code> 来连接两个字符。预处理器在预处理阶段对宏展开时，会将 <code>##</code> 两边的字符合并，并删除 <code>##</code> 这两个字符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> A(x) a##x</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-title function_">A</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span> = <span class="hljs-number">2</span>; <span class="hljs-comment">//int a1 = 2;</span><br>    <span class="hljs-type">int</span> <span class="hljs-title function_">A</span><span class="hljs-params">()</span> = <span class="hljs-number">3</span>;  <span class="hljs-comment">//int a=3;</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d %d\n&quot;</span>,a1,a);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;   <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如上面的程序，我们定义一个宏。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> A(x) a##x</span><br></code></pre></td></tr></table></figure>
+
+<p>这个宏的功能就是连接字符 a 和 x。在程序中，<code>A(1)</code> 展开后就是 <code>a1</code>，<code>A()</code> 展开后就是 <code>a</code>。我们使用 <code>printf()</code> 函数可以直接打印变量 <code>a1</code>、<code>a</code> 的值，因为宏展开后，就相当于使用 <code>int</code> 关键字定义了两个整型变量 <code>a1</code> 和 <code>a</code>。上面的程序可以编译通过，运行结果如下。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">2 3<br></code></pre></td></tr></table></figure>
+
+<p>知道了宏连接符 <code>##</code> 的使用方法，我们接下来就可以就对 <code>LOG</code> 宏做一些修改。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,...) printf(fmt, ##__VA_ARGS__)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;hello\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们在标识符 <code>__VA_ARGS__</code> 前面加上宏连接符 <code>##</code>，这样做的好处是：</p>
+<ul>
+<li>当变参列表非空时，<code>##</code> 的作用是连接 <code>fmt</code>，和变参列表，各个参数之间用逗号隔开，宏可以正常使用</li>
+<li>当变参列表为空时，<code>##</code> 还有一个特殊的用处，它会将固定参数 fmt 后面的逗号删除掉，这样宏也就可以正常使用了</li>
+</ul>
+<h2 id="3、可变参数宏的另一种写法"><a href="#3、可变参数宏的另一种写法" class="headerlink" title="3、可变参数宏的另一种写法"></a>3、可变参数宏的另一种写法</h2><p>当我们定义一个变参宏时，除了使用预定义标识符 <code>__VA_ARGS__</code> 表示变参列表外，还可以使用下面这种写法。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,args...) printf(fmt, args)</span><br></code></pre></td></tr></table></figure>
+
+<p>使用预定义标识符 <code>__VA_ARGS__</code> 来定义一个变参宏，是 C99 标准规定的写法。而上面这种格式是 GNU C 扩展的一个新写法。我们不再使用 <code>__VA_ARGS__</code>，而是直接使用 <code>args...</code> 来表示一个变参列表，然后在后面的宏定义中，直接使用 <code>args</code> 代表变参列表就可以了。</p>
+<p>跟上面一样，为了避免变参列表为空时的语法错误，我们也需要添加一个连接符 <code>##</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,args...) printf(fmt, ##args)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;hello\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用这种方式，你会发现这种写法比使用 <code>__VA_ARGS__</code> 看起来更加直观和方便。</p>
+<h2 id="4、内核中的可变参数宏"><a href="#4、内核中的可变参数宏" class="headerlink" title="4、内核中的可变参数宏"></a>4、内核中的可变参数宏</h2><p>可变参数宏在内核中主要用于日志打印。一些驱动模块或子系统有时候会定义自己的打印宏，可以支持打印开关、打印格式、优先级控制等。如在 <code>printk.h</code> 头文件中，我们可以看到 <code>pr_debug</code> 宏的定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_DYNAMIC_DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    dynamic_pr_debug(fmt, ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">elif</span> defined(DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    no_printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dynamic_pr_debug(fmt, ...)                \</span><br><span class="hljs-meta">do &#123;                                \</span><br><span class="hljs-meta">    DEFINE_DYNAMIC_DEBUG_METADATA(descriptor, fmt); \</span><br><span class="hljs-meta">    <span class="hljs-keyword">if</span> (unlikely(descriptor.flags       \</span><br><span class="hljs-meta">            &amp; _DPRINTK_FLAGS_PRINT))    \</span><br><span class="hljs-meta">        __dynamic_pr_debug(&amp;descriptor, pr_fmt(fmt),    \</span><br><span class="hljs-meta">                   ##__VA_ARGS__);      \</span><br><span class="hljs-meta">&#125; while (0)</span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> __printf(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br><span class="hljs-type">int</span> <span class="hljs-title function_">no_printk</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *fmt, ...)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __printf(a, b)    \   </span><br>__attribute__((format(<span class="hljs-built_in">printf</span>, a, b)))<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C%E8%AF%AD%E8%A8%80/" class="category-chain-item">C语言</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C%E8%AF%AD%E8%A8%80/" class="print-no-link">#C语言</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C语言中的可变参数和可变参数宏</div>
+      <div>http://example.com/2024/12/26/C语言可变参数和可变参数宏/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/01/C%E8%AF%AD%E8%A8%80%E6%8C%87%E9%92%88%E8%AF%A6%E8%A7%A3/" title="C语言指针详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C语言指针详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">
+                        <span class="hidden-mobile">由 printf(结构体) 引发的错误</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

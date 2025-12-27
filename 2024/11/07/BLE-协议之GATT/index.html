@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  在上一节讲了什么是 ATT，ATT 之所以称作 protocol，是因为它还比较抽象，仅仅定义了一套机制，允许 Client 和 Server 通过 Attribute 的形式共享信息。而具体共享哪些信息，ATT 并不关心，因为这是由 GATT（Generic Attribute Profile）来控制。 GATT 相对 ATT 只多了一个 G，但含义却大不同，因为 GATT 是一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BLE 协议之 GATT">
+<meta property="og:url" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  在上一节讲了什么是 ATT，ATT 之所以称作 protocol，是因为它还比较抽象，仅仅定义了一套机制，允许 Client 和 Server 通过 Attribute 的形式共享信息。而具体共享哪些信息，ATT 并不关心，因为这是由 GATT（Generic Attribute Profile）来控制。 GATT 相对 ATT 只多了一个 G，但含义却大不同，因为 GATT 是一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/1.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/2.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/3.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/4.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/5.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/6.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/7.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/8.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/9.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/10.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/11.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/12.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/13.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/14.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/15.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/16.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/17.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/18.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/19.png">
+<meta property="og:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/20.png">
+<meta property="article:published_time" content="2024-11-07T08:11:20.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:56:58.064Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="BLE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/1.png">
+  
+  
+  
+  <title>BLE 协议之 GATT - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BLE 协议之 GATT"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-07 16:11" pubdate>
+          星期四, 十一月 7日 2024, 4:11 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BLE 协议之 GATT</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload><br>在上一节讲了什么是 <code>ATT</code>，<code>ATT</code> 之所以称作 protocol，是因为它还比较抽象，仅仅定义了一套机制，允许 Client 和 Server 通过 Attribute 的形式共享信息。而具体共享哪些信息，ATT 并不关心，因为这是由 <code>GATT</code>（<em><strong>Generic Attribute Profile</strong></em>）来控制。</p>
+<p><code>GATT</code> 相对 <code>ATT</code> 只多了一个 G，但含义却大不同，因为 <code>GATT</code> 是一个 profile（更准确的说是 profile framework）。</p>
+<p>在蓝牙协议中，profile 一直是一个比较抽象的概念，我们可以将其理解为“应用场景、功能、使用方式”都被规定好的 Application。传统的BR&#x2F;EDR 如此，BLE 更甚。上面我们讲过，BLE很大一部分的应用场景是信息（Attribute）的共享，因此，BLE协议栈基于Attribute Protocol，定义了一个称作 <code>GATT</code>（<em><strong>Generic Attribute</strong></em>）的 profile framework（它本身也是一个 profile），用于提供通用的、信息的存储和共享等功能。</p>
+<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p><code>GATT</code>（<em><strong>Generic Attributes</strong></em>）：通用属性， 低功耗蓝牙的设备之间的通信协议 。</p>
+<p>GATT 使用 ATT 协议， 定义了一套服务框架，用于发现、读写、通知、广播信息的配置 。</p>
+<p>角色的定义<br>为了更好的实现 GATT 的 profile 概要文件， GATT 定义了如下角色：</p>
+<ul>
+<li><code>Client</code> ：主要向服务器发送命令和请求，接收服务器的响应</li>
+<li><code>Server</code> ：接收命令和请求，发送响应</li>
+</ul>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二、协议框架"><a href="#二、协议框架" class="headerlink" title="二、协议框架"></a>二、协议框架</h1><p>GATT Profile 定义了用于通信的数据结构，包括 <code>services</code> 和 <code>characteristics</code>。</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>由上图可知， GATT profile 的层次结构依次是： Profile —&gt; Service —&gt; characteristic。</p>
+<ul>
+<li>最顶层的是 <code>profile</code>，一个 <code>profile</code> 由一个或者多个 <code>service</code> 组成。</li>
+<li>一个 <code>service</code> 又由 <code>characteristics</code> 组成。</li>
+<li>每个 <code>characteristic</code> 由 <code>property</code> 、<code>value</code> 、<code>descriptor</code> 组成。</li>
+</ul>
+<h2 id="1、Profile"><a href="#1、Profile" class="headerlink" title="1、Profile"></a>1、Profile</h2><p><code>GATT Profile</code> 可以理解为一种规范，一个标准的通信协议 ，它存在于&#x3D;&#x3D;从机&#x3D;&#x3D;中。它定义了如何使用 ATT 协议去广播、发现、读写相关属性信息。</p>
+<p>下面是 <code>Attribute Type</code> 的类型：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、Service"><a href="#2、Service" class="headerlink" title="2、Service"></a>2、Service</h2><h3 id="2-1-Service-定义"><a href="#2-1-Service-定义" class="headerlink" title="2.1 Service 定义"></a>2.1 Service 定义</h3><p><code>Service</code> 服务是完成特定功能或特性的数据和相关行为的集合 。</p>
+<p>在 BLE 从机中，通过有多个服务，例如电量信息服务、系统信息服务等，每个 <code>service</code> 中又包含多个 <code>characteristic</code> 特征值。每个具体的 <code>characteristic</code> 特征值才是 BLE 通信的主题。</p>
+<p>比如当前的电量是 80%，所以会通过电量的 <code>characteristic</code> 特征值存在从机的 profile 里，这样主机就可以通过这个 <code>characteristic</code> 来读取80%这个数据。</p>
+<p>一个 Service 的定义包括了： Service 声明、（可选的） include 定义、（可选的） characteristic 定义。</p>
+<h3 id="2-2-Service-声明"><a href="#2-2-Service-声明" class="headerlink" title="2.2 Service 声明"></a>2.2 Service 声明</h3><p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：服务类型有两种，分别为 <code>primary service</code> 和 <code>secondary service</code> ，即 首要服务和次要服务 ，对应的 <code>Attribute Type</code> 分别为 0x2800 或 0x2801 ，</li>
+<li><code>Attribute Value</code> ：是一个16 位 UUID 或者 128 位的 UUID 。用来表示这是什么服务。</li>
+<li><code>Attribute permission</code> ：表示这个该声明即这个 ATT 属性是只读的、无需验证的、无需授权的。</li>
+</ul>
+<h2 id="3、include"><a href="#3、include" class="headerlink" title="3、include"></a>3、include</h2><h3 id="3-1-include-定义"><a href="#3-1-include-定义" class="headerlink" title="3.1 include 定义"></a>3.1 include 定义</h3><p><code>include</code> 用于去引用已定义存在的服务，相当于 C 语言中的 include 包含。</p>
+<p><code>include</code> 定义仅仅包含一个 <code>include Declaration</code>。</p>
+<h3 id="3-2-include-声明"><a href="#3-2-include-声明" class="headerlink" title="3.2 include 声明"></a>3.2 include 声明</h3><p><code>include Declaration</code> 如下：</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：服务类型为 include ，对应的 <code>Attribute Type</code> 为 0x2802 。</li>
+<li><code>Attribute Value</code> ：设置为所要引用的服务的 <code>Attribute Handle</code> 、<code>End Group Handle</code> 、<code>UUID</code></li>
+<li><code>Attribute permission</code> ：表示这个该声明即这个ATT属性是只读的、无需验证的、无需授权的。</li>
+</ul>
+<h2 id="4、Characteristic"><a href="#4、Characteristic" class="headerlink" title="4、Characteristic"></a>4、Characteristic</h2><h3 id="4-1-Characteristic-定义"><a href="#4-1-Characteristic-定义" class="headerlink" title="4.1 Characteristic 定义"></a>4.1 Characteristic 定义</h3><p><code>characteristic</code> 包含了&#x3D;&#x3D;特征&#x3D;&#x3D;和&#x3D;&#x3D;值&#x3D;&#x3D;的定义。</p>
+<p>BLE 主从机的通信均是通过 <code>characteristic</code> 来实现，可以理解为一个标签，通过这个标签可以获取或者写入想要的内容。</p>
+<p><code>characteristic</code> 的定义包含了 <code>characteristic declaration</code>，<code>Characteristic Value declaration</code>，<code>characteristic descriptor declaration</code>，其中前两个属性是必须的，最后一个属性是可选的。</p>
+<blockquote>
+<p>characteristic &#x3D; characteristic声明 + characteristic value声明 + 可选的descriptor声明</p>
+</blockquote>
+<h3 id="4-2-Characteristic-声明"><a href="#4-2-Characteristic-声明" class="headerlink" title="4.2 Characteristic 声明"></a>4.2 Characteristic 声明</h3><p><code>Characteristic declaration</code> 如下：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：服务类型为 <code>Characteristic</code> ，对应的 <code>Attribute Type</code> 为 0x2803 。</li>
+<li><code>Attribute Value</code> ：设置为 <code>Characteristic Properties</code>、<code>Characteristic Value Attribute Handle</code>、<code>Characteristic UUID</code> 。</li>
+<li><code>Attribute permission</code> ：表示这个该声明即这个 ATT 属性是只读的、无需验证的、无需授权的。</li>
+</ul>
+<p><code>Attribute Value</code> 字段如下 ：</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload><br>一个服务，可能有多个 <code>characteristic definitions</code> 用相同的 <code>Characteristic UUID</code>。</p>
+<p><code>Characteristic Properties</code> 字段如下：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Characteristic Value Attribute Handle</code> ：包含了 <code>characteristic value</code> 的句柄</li>
+<li><code>Characteristic UUID</code> ：是一个 16 位 UUID 或者 128 位的 UUID 。</li>
+</ul>
+<h3 id="4-3-Characteristic-Value-声明"><a href="#4-3-Characteristic-Value-声明" class="headerlink" title="4.3 Characteristic Value 声明"></a>4.3 Characteristic Value 声明</h3><p><code>Characteristic Value Declaration</code> 如下 ：</p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>Characteristic Value</code> 是 <code>characteristic</code> 声明后的第一个属性。</p>
+<ul>
+<li><code>Attribute Type</code> ：该字段的值设置为 <code>Characteristic</code> 声明时的 UUID</li>
+<li><code>Attribute Value</code> ：为所声明的 <code>Characteristic</code> 中相同 UUID 的属性的值。</li>
+<li><code>Attribute permission</code> ：由上层权限指定</li>
+</ul>
+<h3 id="4-4-Characteristic-Descriptor-声明"><a href="#4-4-Characteristic-Descriptor-声明" class="headerlink" title="4.4 Characteristic Descriptor 声明"></a>4.4 Characteristic Descriptor 声明</h3><p><code>Characteristic descriptors</code> 主要用于包含一些与 <code>Characteristic Value</code> 相关的信息，<code>GATT</code> 定义了多种可选 <code>descriptors</code> ，如下：</p>
+<ul>
+<li><code>Characteristic Extended Properties</code></li>
+<li><code>Characteristic User Description</code></li>
+<li><code>Client Characteristic Configuration</code></li>
+<li><code>Server Characteristic Configuration</code></li>
+<li><code>Characteristic Presentation Format</code></li>
+<li><code>Characteristic Aggregate Format</code></li>
+</ul>
+<p>每一种 <code>descriptor</code> 都有其特有的格式。</p>
+<h4 id="4-4-1-Characteristic-Extended-Properties"><a href="#4-4-1-Characteristic-Extended-Properties" class="headerlink" title="4.4.1 Characteristic Extended Properties"></a>4.4.1 Characteristic Extended Properties</h4><p><code>Characteristic Extended Properties declaration</code> 是一个定义扩展特征属性的描述符。<code>characteristic descriptor</code> 可以出现在特征值之后的特征定义内的任何位置。在一个特征定义中只能存在一个特征扩展属性声明。</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：应设置为 <code>Characteristic Extended Properties</code> 的 UUID，对应的值为 0x2900</li>
+<li><code>Attribute Value</code> ：长度应为两个字节，并应包含特征扩展属性位字段</li>
+<li><code>Attribute permission</code> ：只读，不需要身份验证和授权即可读取。</li>
+</ul>
+<p>特征扩展属性位域描述了如何使用特征值或如何访问特征描述符的附加属性。如果设置了下表中定义的比特位，则允许描述的操作。可以设置多个附加属性。</p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-4-2-Characteristic-User-Description"><a href="#4-4-2-Characteristic-User-Description" class="headerlink" title="4.4.2 Characteristic User Description"></a>4.4.2 Characteristic User Description</h4><p><code>Characteristic User Description</code> 是一个可选的特征描述符，它定义了一个可变大小的UTF-8字符串，该字符串是特征值的用户文本描述。</p>
+<p>如果设置了特征扩展属性的可写辅助位，则可以写入该特征描述符。<code>characteristic descriptor</code> 可以出现在特征值之后的特征定义内的任何位置。在一个特征定义中只能存在一个特征用户描述声明。</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：该字段的值设置为 <code>Characteristic user description</code> ，对应的值为 0x2901</li>
+<li><code>Attribute Value</code> ：为定义的 UTF-8 字符串</li>
+<li><code>Attribute permission</code> ：由上层权限指定</li>
+</ul>
+<h4 id="4-4-3-Client-Characteristic-Configuration"><a href="#4-4-3-Client-Characteristic-Configuration" class="headerlink" title="4.4.3 Client Characteristic Configuration"></a>4.4.3 Client Characteristic Configuration</h4><p><code>Client Characteristic Configuration</code> 是一个可选的特征描述符，它定义了特定客户端如何配置特征。客户端特征配置描述符值应该在绑定设备的连接之间持久存在。客户端特征配置描述符值应设置为与非绑定设备的每个连接的默认值。特征描述符值是位域。当一个比特位被设置时，该操作将被启用，否则将不会被使用。客户端特征配置描述符可以出现在特征值之后的特征定义中的任何位置。在一个特征定义中只能存在一个客户端特征配置声明。</p>
+<p>客户端可以编写这个配置描述符来控制服务器对客户端的这个特性的配置。每个客户端都有自己的客户端特征配置实例。客户端特性配置的读操作只显示该客户端的配置，而写操作只影响该客户端的配置。服务器可能需要身份验证和授权来编写配置描述符。客户端特性配置声明应该是可读可写的。</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：该字段的值设置为 <code>Client Characteristic Configuration</code> ，对应的值为 0x2902</li>
+<li><code>Attribute Value</code> ：长度为2个字节，设置为特征描述符值</li>
+<li><code>Attribute permission</code> ：无需身份验证或授权即可读取。可写的身份验证和授权由更高的层规范定义或具体实现</li>
+</ul>
+<p>下表定义了下列客户端特征配置位：</p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload><br>客户端特性配置描述符的默认值应该是 0x0000。</p>
+<p>在客户端和服务器之间应该有一个单一的客户端特征配置描述符，而不管它们之间的ATT承载的数量。</p>
+<h4 id="4-4-4-Server-Characteristic-Configuration"><a href="#4-4-4-Server-Characteristic-Configuration" class="headerlink" title="4.4.4 Server Characteristic Configuration"></a>4.4.4 Server Characteristic Configuration</h4><p><code>Server Characteristic Configuration</code> 声明是一个可选的特征描述符，它定义了如何为服务器配置特征。特征描述符值是位域。当一个比特位被设置时，该操作将被启用，否则将不会被使用。服务器特征配置描述符可以出现在特征值之后的特征定义内的任何位置。在一个特征定义中只能存在一个服务器特征配置声明。</p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：该字段的值设置为 <code>Server Characteristic Configuration</code> ，对应的值为 0x2903</li>
+<li><code>Attribute Value</code> ：长度为2个字节，设置为特征描述符值</li>
+<li><code>Attribute permission</code> ：无需身份验证或授权即可读取。可写的身份验证和授权由更高的层规范定义或具体实现</li>
+</ul>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-4-5-Characteristic-Presentation-Format"><a href="#4-4-5-Characteristic-Presentation-Format" class="headerlink" title="4.4.5 Characteristic Presentation Format"></a>4.4.5 Characteristic Presentation Format</h4><p><code>Characteristic Presentation Format</code> 是一个可选的特征描述符，它定义了特征值的格式。特征描述子可以出现在特征值之后的特征定义内的任何位置。如果一个特征定义中存在多个特征表示格式声明，则一个特征聚合格式声明应作为该特征定义的一部分存在。</p>
+<p>特征表示格式值由格式、指数、单位、名称空间和描述五个部分组成。</p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><p><code>Attribute Type</code> ：该字段的值设置为 <code>Characteristic Presentation Format</code> ，对应的值为 0x2904</p>
+</li>
+<li><p><code>Attribute Value</code> ：特征描述符值</p>
+</li>
+<li><p><code>Attribute permission</code> ：只读的，不需要认证或授权<br><img src="19.png" srcset="/img/loading.gif" lazyload><br><code>Attribute Value</code> 字段含义：</p>
+</li>
+<li><p><code>Format</code>：确定特征值中包含的单个值的格式。该字段的值定义在分配的数字中</p>
+</li>
+<li><p><code>Exponent</code>：用于整型数据类型，用于确定值的进一步格式化方式。该字段仅用于整数格式类型，指数字段的类型是 sint8。<br>$$<br>actual value &#x3D; Characteristic Value * 10^{Exponent}<br>$$</p>
+</li>
+</ul>
+<p>由上式可以看出，实际值是特征值和 10 的幂指数的组合。这有时被称为定点数。</p>
+<p>例：</p>
+<ul>
+<li><p>如果指数是 2，特征值是 23，那么实际值就是 2300。</p>
+</li>
+<li><p>如果指数是 -3，特征值是 3892，那么实际值就是 3.892。</p>
+</li>
+<li><p><code>Unit</code>：UUID，见 <a target="_blank" rel="noopener" href="https://www.bluetooth.com/specifications/assigned-numbers/">Assigned Numbers</a></p>
+</li>
+<li><p><code>Name Space</code>：用于标识负责定义 <code>Description</code> 字段枚举的组织，见 <a target="_blank" rel="noopener" href="https://www.bluetooth.com/specifications/assigned-numbers/">Assigned Numbers</a></p>
+</li>
+<li><p><code>Description</code>：一个枚举值，定义在由 <code>Name Space</code> 字段标识的组织分配的编号中。</p>
+</li>
+</ul>
+<h4 id="4-4-6-Characteristic-Aggregate-Format"><a href="#4-4-6-Characteristic-Aggregate-Format" class="headerlink" title="4.4.6 Characteristic Aggregate Format"></a>4.4.6 Characteristic Aggregate Format</h4><p><code>Characteristic Aggregate Format</code> 是一个可选的特征描述符，它定义了聚合特征值的格式。特征描述子可以出现在特征值之后的特征定义内的任何位置。一个特征定义中只能存在一个特征集合格式声明。</p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Attribute Type</code> ：该字段的值设置为 <code>Characteristic Aggregate Format</code> ，对应的值为 0x2905</li>
+<li><code>Attribute Value</code> ：由特征表示格式声明的属性句柄列表组成，其中每个属性句柄指向一个特征表示格式声明</li>
+<li><code>Attribute permission</code> ：只读的，不需要认证或授权</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="print-no-link">#通信协议</a>
+      
+        <a href="/tags/BLE/" class="print-no-link">#BLE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BLE 协议之 GATT</div>
+      <div>http://example.com/2024/11/07/BLE-协议之GATT/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/11/11/FreeRTOS-task-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS task 源码解析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FreeRTOS task 源码解析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/05/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BATT/" title="BLE 协议之 ATT">
+                        <span class="hidden-mobile">BLE 协议之 ATT</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

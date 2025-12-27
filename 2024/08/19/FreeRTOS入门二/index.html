@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeRTOS 快速入门（二）之内存管理">
+<meta property="og:url" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/1.png">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/2.png">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/3.png">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/4.png">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/5.png">
+<meta property="og:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/6.png">
+<meta property="article:published_time" content="2024-08-19T09:24:14.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:26:54.416Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="FreeRTOS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/1.png">
+  
+  
+  
+  <title>FreeRTOS 快速入门（二）之内存管理 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeRTOS 快速入门（二）之内存管理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-19 17:24" pubdate>
+          星期一, 八月 19日 2024, 5:24 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FreeRTOS 快速入门（二）之内存管理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p> 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理解为电脑的硬盘。在这一 章中我们主要讨论内部存储空间（RAM）的管理——内存管理。</p>
+<p><code>FreeRTOS</code> 操作系统将内核与内存管理分开实现，操作系统内核仅规定了必要的内存管 理函数原型，而不关心这些内存管理函数是如何实现的，所以在 <code>FreeRTOS</code> 中提供了多种 内存分配算法（分配策略），但是上层接口（API）却是统一的。这样做可以增加系统的 灵活性：用户可以选择对自己更有利的内存管理策略，在不同的应用场合使用不同的内存 分配策略。</p>
+<p>如果 <code>FreeRTOS</code> 对象是动态创建的，那么标准 C 库 malloc() 和 free() 函数有时可用于此目的，但是…它们在嵌入式系统上并不总是可用，占用了宝贵的代码空间，不是线程安全的，而且不是确定性的 （执行函数所需时间将因调用而异），所以更多的时候需要的不是一个替代的内存分配实现。</p>
+<p>一个嵌入式&#x2F;实时系统的 RAM 和定时要求可能与另一个非常不同，所以单一的 RAM 分配算法 将永远只适用于一个应用程序子集。</p>
+<p>为了避免此问题，<code>FreeRTOS</code> 将内存分配 API 保留在其可移植层。 可移植层在实现核心 <code>FreeRTOS</code> 功能的源文件之外， 允许提供适合于正在开发的实时系统的特定应用程序实现。 当 <code>FreeRTOS</code> 内核需要 RAM 时，它不调用 malloc()，而是调用 pvPortMalloc()；释放 RAM 时， RTOS 内核调用 vPortFree()，而不是 free()。</p>
+<p><code>FreeRTOS</code> 提供了几种堆管理方案， 其复杂性和功能各不相同。 你也可以提供自己的堆实现， 甚至同时使用两个堆实现。 同时使用两个堆实现 允许将任务堆栈和其他 <code>FreeRTOS</code> 对象放置在 内部 RAM 中，并将应用程序数据放置在较慢的外部 RAM 中。</p>
+<h1 id="二、FreeRTOS-中管理内存的-5-种方法"><a href="#二、FreeRTOS-中管理内存的-5-种方法" class="headerlink" title="二、FreeRTOS 中管理内存的 5 种方法"></a>二、FreeRTOS 中管理内存的 5 种方法</h1><p>前面已经提到，<code>FreeRTOS</code> 中内存管理的接口函数为：pvPortMalloc 、vPortFree，对应于 C 库的 malloc、free。文件在 <code>FreeRTOS/Source/portable/MemMang</code> 下，它也是放在 portable 目录下，表示你可以提供自己的函数。</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>heap_1.c</code></td>
+<td>分配简单，时间确定</td>
+<td>只分配、不回收</td>
+</tr>
+<tr>
+<td><code>heap_2.c</code></td>
+<td>动态分配、最佳匹配</td>
+<td>碎片、时间不定</td>
+</tr>
+<tr>
+<td><code>heap_3.c</code></td>
+<td>调用标准库函数</td>
+<td>速度慢、时间不定</td>
+</tr>
+<tr>
+<td><code>heap_4.c</code></td>
+<td>相邻空闲内存可合并</td>
+<td>可解决碎片问题、时间不定</td>
+</tr>
+<tr>
+<td><code>heap_5.c</code></td>
+<td>在 heap_4 基础上支持分隔的内存块</td>
+<td>可解决碎片问题、时间不定</td>
+</tr>
+</tbody></table>
+<h2 id="1、Heap-1"><a href="#1、Heap-1" class="headerlink" title="1、Heap_1"></a>1、Heap_1</h2><p>它只实现了 <code>pvPortMalloc</code>，没有实现 <code>vPortFree</code>。如果你的程序不需要删除内核对象，那么可以使用 <code>heap_1</code>：</p>
+<ul>
+<li>实现最简单</li>
+<li>没有碎片问题</li>
+<li>一些要求非常严格的系统里，不允许使用动态内存，就可以使用 <code>heap_1</code></li>
+</ul>
+<p>如果您的应用程序从未删除任务、队列、信号量、互斥锁等，则可以使用（这实际上涵盖了使用 <code>FreeRTOS</code> 的大多数应用程序）。始终具有确定性（总是需要相同的时间来执行），不会导致内存碎片化。非常简单，且从静态分配的数组分配内存， 这意味着它通常适合用于不允许真实动态内存分配的应用程序 。</p>
+<p>它的实现原理很简单，首先定义一个大数组：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Allocate the memory for the heap. */</span><br><br>#<span class="hljs-meta">#<span class="hljs-keyword">if</span> ( configAPPLICATION_ALLOCATED_HEAP == 1 )</span><br><span class="hljs-comment">/* The application writer has already defined the array used for the RTOS</span><br><span class="hljs-comment"> * heap - probably so it can be placed in a special segment or address. */</span><br>	<span class="hljs-keyword">extern</span> <span class="hljs-type">uint8_t</span> ucHeap[ configTOTAL_HEAP_SIZE ];<br>#<span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>	<span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> ucHeap[ configTOTAL_HEAP_SIZE ];<br>#<span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* configAPPLICATION_ALLOCATED_HEAP */</span></span><br></code></pre></td></tr></table></figure>
+
+<p>然后，对于 <code>pvPortMalloc</code> 调用时，从这个数组中分配空间。</p>
+<p><code>FreeRTOS</code> 在创建任务时，需要 2 个内核对象：task control block(TCB)、stack。</p>
+<p>使用 heap_1 时，内存分配过程如下图所示：</p>
+<ul>
+<li>A：创建任务之前整个数组都是空闲的</li>
+<li>B：创建第 1 个任务之后，蓝色区域被分配出去了</li>
+<li>C：创建 3 个任务之后的数组使用情况</li>
+</ul>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、Heap-2"><a href="#2、Heap-2" class="headerlink" title="2、Heap_2"></a>2、Heap_2</h2><p><code>Heap_2</code> 之所以还保留，只是为了兼容以前的代码。新设计中不再推荐使用 <code>Heap_2</code>。建议使用 <code>Heap_4</code> 来替代 <code>Heap_2</code>，更加高效。</p>
+<p><code>Heap_2</code> 也是在数组上分配内存，跟 <code>Heap_1</code> 不一样的地方在于：</p>
+<ul>
+<li><code>Heap_2</code> 使用最佳匹配算法（<em><strong>best fit</strong></em>）来分配内存</li>
+<li>它支持 <code>vPortFree</code></li>
+</ul>
+<blockquote>
+<p>最佳匹配算法：</p>
+<ul>
+<li>假设 heap 有 3 块空闲内存：5 字节、25 字节、100 字节</li>
+<li><code>pvPortMalloc</code> 想申请 20 字节</li>
+<li>找出最小的、能满足 <code>pvPortMalloc</code> 的内存：25 字节</li>
+<li>把它划分为 20 字节、5 字节<ul>
+<li>返回这 20 字节的地址</li>
+<li>剩下的 5 字节仍然是空闲状态，留给后续的 <code>pvPortMalloc</code> 使用</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>与 <code>Heap_4</code> 相比，<code>Heap_2</code> 不会合并相邻的空闲内存，所以 <code>Heap_2</code> 会导致严重的”碎片化”问题。虽然不再推荐使用 <code>Heap_2</code>，但是它的效率还是远高于 malloc、free。</p>
+<p> 如果应用程序动态地创建和删除任务， 且分配给正在创建任务的堆栈大小总是相同的 ， 那么 <code>heap2.c</code> 可以在大多数情况下使用。 但是， 如果分配给正在创建任务的堆栈的大小不是总相同， 那么可用的空闲内存可能会被碎片化成许多小块 ， 最终导致分配失败。 在这种情况下，<code>heap_4.c</code> 是更好的选择。</p>
+<p>应用程序直接调用 <code>pvPortMalloc()</code> 和 <code>vPortFree()</code>， 而不是仅通过其他 FreeRTOS API 函数间接调用。</p>
+<p>如果您应用程序的队列、任务、信号量、互斥锁等的顺序不可预测， 可能会导致内存碎片化。 这对几乎所有的应用程序来说都是不可能的， 但应牢记这一点。非确定性，但比大多数标准 C 库 malloc 实现更有效。</p>
+<p>使用 <code>heap_2</code> 时，内存分配过程如下图所示：</p>
+<ul>
+<li>A：创建了 3 个任务</li>
+<li>B：删除了一个任务，空闲内存有 3 部分：顶层的、被删除任务的 TCB 空间、被删除任务的 Stack 空间</li>
+<li>C：创建了一个新任务，因为 TCB、栈大小跟前面被删除任务的 TCB、栈大小一致，所以刚好分配到原来的内存</li>
+</ul>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、Heap-3"><a href="#3、Heap-3" class="headerlink" title="3、Heap_3"></a>3、Heap_3</h2><p><code>Heap_3</code> 使用标准 C 库里的 malloc、free 函数，所以堆大小由链接器的配置决定，配置项 <code>configTOTAL_HEAP_SIZE</code> 不再起作用。</p>
+<p>C 库里的 malloc、free 函数并非线程安全的，<code>Heap_3</code> 中先暂停 <code>FreeRTOS</code> 的调度器，再去调用这些函数，使用这种方法实现了线程安全。</p>
+<p>使用 <code>Heap_3</code> 时需要链接器设置堆，需要编译器库提供 malloc() 和 free() 实现。不具有确定性，能会大大增加 RTOS 内核代码大小。</p>
+<blockquote>
+<p>请注意，使用 <code>heap_3</code> 时，<code>FreeRTOSConfig.h</code> 中的 <code>configTOTAL_HEAP_SIZE</code> 设置无效 。</p>
+</blockquote>
+<h2 id="4、Heap-4"><a href="#4、Heap-4" class="headerlink" title="4、Heap_4"></a>4、Heap_4</h2><p><code>Heap_4</code> 使用首次适应算法（<em><strong>first fit</strong></em>）来分配内存。它还会把相邻的空闲内存合并为一个更大的空闲内存，这有助于较少内存的碎片问题。</p>
+<blockquote>
+<p>首次适应算法：</p>
+<ul>
+<li>假设堆中有 3 块空闲内存：5 字节、200 字节、100 字节</li>
+<li>pvPortMalloc 想申请 20 字节</li>
+<li>找出第 1 个能满足 <code>pvPortMalloc</code> 的内存：200 字节</li>
+<li>把它划分为 20 字节、180 字节<ul>
+<li>返回这 20 字节的地址</li>
+<li>剩下的 180 字节仍然是空闲状态，留给后续的 <code>pvPortMalloc</code> 使用</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p><code>Heap_4</code> 会把相邻空闲内存合并为一个大的空闲内存，可以较少内存的碎片化问题。适用于这种场景：频繁地分配、释放不同大小的内存。</p>
+<p>可用堆空间的总量通过 <code>configTOTAL_HEAP_SIZE</code>（定义于 <code>FreeRTOSConfig.h</code> 中）设置。 提供了 <code>configAPPLICATION_ALLOCATED_HEAP</code>（在 FreeRTOSConfig.h 配置宏）， 以允许将堆放置在内存中的特定地址。</p>
+<p><code>xPortGetFreeHeapSize()</code> 函数被调用时返回未分配的堆空间总量， <code>xPortGetMinimumEverFreeHeapSize()</code> 函数返回 FreeRTOS 应用程序启动的系统中已存在的最小空闲堆空间量。 这两个函数都没有提供关于未分配的 内存如何碎片化为小块的信息。</p>
+<p><code>vPortGetHeapStats()</code> 函数提供了其他信息。 它填充了一个 heap_t 结构体的成员，如下所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Prototype of the vPortGetHeapStats() function. */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vPortGetHeapStats</span><span class="hljs-params">( HeapStats_t *xHeapStats )</span>;<br> <br><span class="hljs-comment">/* Definition of the Heap_stats_t structure. */</span><br> <br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xHeapStats</span></span><br><span class="hljs-class">&#123;</span><br>       <span class="hljs-type">size_t</span> xAvailableHeapSpaceInBytes;      <span class="hljs-comment">/* The total heap size currently available - this is the sum of all the free blocks, not the largest block that can be allocated. */</span><br>       <span class="hljs-type">size_t</span> xSizeOfLargestFreeBlockInBytes;     <span class="hljs-comment">/* The maximum size, in bytes, of all the free blocks within the heap at the time vPortGetHeapStats() is called. */</span><br>       <span class="hljs-type">size_t</span> xSizeOfSmallestFreeBlockInBytes; <span class="hljs-comment">/* The minimum size, in bytes, of all the free blocks within the heap at the time vPortGetHeapStats() is called. */</span><br>       <span class="hljs-type">size_t</span> xNumberOfFreeBlocks;            <span class="hljs-comment">/* The number of free memory blocks within the heap at the time vPortGetHeapStats() is called. */</span><br>       <span class="hljs-type">size_t</span> xMinimumEverFreeBytesRemaining; <span class="hljs-comment">/* The minimum amount of total free memory (sum of all free blocks) there has been in the heap since the system booted. */</span><br>       <span class="hljs-type">size_t</span> xNumberOfSuccessfulAllocations;   <span class="hljs-comment">/* The number of calls to pvPortMalloc() that have returned a valid memory block. */</span><br>       <span class="hljs-type">size_t</span> xNumberOfSuccessfulFrees;     <span class="hljs-comment">/* The number of calls to vPortFree() that has successfully freed a block of memory. */</span><br>&#125; HeapStats_t;<br></code></pre></td></tr></table></figure>
+
+<p><code>Heap_4</code> 的使用过程举例如下：</p>
+<ul>
+<li>A：创建了 3 个任务</li>
+<li>B：删除了一个任务，空闲内存有 2 部分：<ul>
+<li>顶层的</li>
+<li>被删除任务的 TCB 空间、被删除任务的 Stack 空间合并起来的</li>
+</ul>
+</li>
+<li>C：分配了一个 Queue，从第 1 个空闲块中分配空间</li>
+<li>D：分配了一个 User 数据，从 Queue 之后的空闲块中分配</li>
+<li>E：释放的 Queue，User 前后都有一块空闲内存</li>
+<li>F：释放了 User 数据，User 前后的内存、User 本身占据的内存，合并为一个大的空闲内存</li>
+</ul>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>与 <code>heap_2</code> 实现相比，导致堆空间严重碎片化成多个小块的可能性更小（即使正在分配和释放的内存是随机大小）。不具有确定性，但比大多数标准 C 库 malloc 实现更有效。</p>
+<p><code>heap_4.c</code> 对于想在应用程序代码中直接使用可移植层内存分配方案的应用程序特别有用 （而不是 通过调用函数 <code>pvPortMalloc()</code> 和 <code>vPortFree()</code> 来间接使用)。</p>
+<p><code>Heap_4</code> 执行的时间是不确定的，但是它的效率高于标准库的 malloc、free。</p>
+<h3 id="4-1-内存申请"><a href="#4-1-内存申请" class="headerlink" title="4.1 内存申请"></a>4.1 内存申请</h3><p><code>heap_4.c</code> 方案的内存申请函数与 <code>heap_2.c</code> 方案的内存申请函数大同小异，同样是从链表头 xStart 开始遍历查找合适的内存块，如果某个空闲内存块的大小能容得下用户要申请的内存，则将这块内存取出用户需要内存空间大小的部分返回给用户，剩下的内存块组成 一个新的空闲块，按照空闲内存块起始地址大小顺序插入到空闲块链表中，内存地址小的在前，内存地址大的在后。</p>
+<p>在插入到空闲内存块链表的过程中，系统还会执行合并算法将 地址相邻的内存块进行合并：判断这个空闲内存块是相邻的空闲内存块合并成一个大内存 块，如果可以则合并，合并算法是 <code>heap_4.c</code> 内存管理方案和 <code>heap_2.c</code> 内存管理方案最大的不同之处，这样一来，会导致的内存碎片就会大大减少，内存管理方案适用性就很强，能 一样随机申请和释放内存的应用中，灵活性得到大大的提高，<code>heap_4.c</code> 内存初始化的源码和完成示意图具体见下图。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *<span class="hljs-title function_">pvPortMalloc</span><span class="hljs-params">( <span class="hljs-type">size_t</span> xWantedSize )</span><br>&#123;<br>BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;<br><span class="hljs-type">void</span> *pvReturn = <span class="hljs-literal">NULL</span>;<br>	vTaskSuspendAll();<br>	&#123;<br>		<span class="hljs-comment">/* If this is the first call to malloc then the heap will require</span><br><span class="hljs-comment">		initialisation to setup the list of free blocks. */</span><br>		<span class="hljs-keyword">if</span>( pxEnd == <span class="hljs-literal">NULL</span> )<br>		&#123;<br>			prvHeapInit();<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			mtCOVERAGE_TEST_MARKER();<br>		&#125;<br> <br>		<span class="hljs-comment">/* Check the requested block size is not so large that the top bit is</span><br><span class="hljs-comment">		set.  The top bit of the block size member of the BlockLink_t structure</span><br><span class="hljs-comment">		is used to determine who owns the block - the application or the</span><br><span class="hljs-comment">		kernel, so it must be free. */</span><br>		<span class="hljs-keyword">if</span>( ( xWantedSize &amp; xBlockAllocatedBit ) == <span class="hljs-number">0</span> )<br>		&#123;<br>			<span class="hljs-comment">/* The wanted size is increased so it can contain a BlockLink_t</span><br><span class="hljs-comment">			structure in addition to the requested amount of bytes. */</span><br>			<span class="hljs-keyword">if</span>( xWantedSize &gt; <span class="hljs-number">0</span> )<br>			&#123;<br>				xWantedSize += xHeapStructSize;<br> <br>				<span class="hljs-comment">/* Ensure that blocks are always aligned to the required number</span><br><span class="hljs-comment">				of bytes. */</span><br>				<span class="hljs-keyword">if</span>( ( xWantedSize &amp; portBYTE_ALIGNMENT_MASK ) != <span class="hljs-number">0x00</span> )<br>				&#123;<br>					<span class="hljs-comment">/* Byte alignment required. */</span><br>					xWantedSize += ( portBYTE_ALIGNMENT - ( xWantedSize &amp; portBYTE_ALIGNMENT_MASK ) );<br>					configASSERT( ( xWantedSize &amp; portBYTE_ALIGNMENT_MASK ) == <span class="hljs-number">0</span> );<br>				&#125;<br>				<span class="hljs-keyword">else</span><br>				&#123;<br>					mtCOVERAGE_TEST_MARKER();<br>				&#125;<br>			&#125;<br>			<span class="hljs-keyword">else</span><br>			&#123;<br>				mtCOVERAGE_TEST_MARKER();<br>			&#125;<br> <br>			<span class="hljs-keyword">if</span>( ( xWantedSize &gt; <span class="hljs-number">0</span> ) &amp;&amp; ( xWantedSize &lt;= xFreeBytesRemaining ) )<br>			&#123;<br>				<span class="hljs-comment">/* Traverse the list from the start	(lowest address) block until</span><br><span class="hljs-comment">				one	of adequate size is found. */</span><br>				pxPreviousBlock = &amp;xStart;<br>				pxBlock = xStart.pxNextFreeBlock;<br>				<span class="hljs-keyword">while</span>( ( pxBlock-&gt;xBlockSize &lt; xWantedSize ) &amp;&amp; ( pxBlock-&gt;pxNextFreeBlock != <span class="hljs-literal">NULL</span> ) )<br>				&#123;<br>					pxPreviousBlock = pxBlock;<br>					pxBlock = pxBlock-&gt;pxNextFreeBlock;<br>				&#125;<br> <br>				<span class="hljs-comment">/* If the end marker was reached then a block of adequate size</span><br><span class="hljs-comment">				was	not found. */</span><br>				<span class="hljs-keyword">if</span>( pxBlock != pxEnd )<br>				&#123;<br>					<span class="hljs-comment">/* Return the memory space pointed to - jumping over the</span><br><span class="hljs-comment">					BlockLink_t structure at its start. */</span><br>					pvReturn = ( <span class="hljs-type">void</span> * ) ( ( ( <span class="hljs-type">uint8_t</span> * ) pxPreviousBlock-&gt;pxNextFreeBlock ) + xHeapStructSize );<br> <br>					<span class="hljs-comment">/* This block is being returned for use so must be taken out</span><br><span class="hljs-comment">					of the list of free blocks. */</span><br>					pxPreviousBlock-&gt;pxNextFreeBlock = pxBlock-&gt;pxNextFreeBlock;<br> <br>					<span class="hljs-comment">/* If the block is larger than required it can be split into</span><br><span class="hljs-comment">					two. */</span><br>					<span class="hljs-keyword">if</span>( ( pxBlock-&gt;xBlockSize - xWantedSize ) &gt; heapMINIMUM_BLOCK_SIZE )<br>					&#123;<br>						<span class="hljs-comment">/* This block is to be split into two.  Create a new</span><br><span class="hljs-comment">						block following the number of bytes requested. The void</span><br><span class="hljs-comment">						cast is used to prevent byte alignment warnings from the</span><br><span class="hljs-comment">						compiler. */</span><br>						pxNewBlockLink = ( <span class="hljs-type">void</span> * ) ( ( ( <span class="hljs-type">uint8_t</span> * ) pxBlock ) + xWantedSize );<br>						configASSERT( ( ( ( <span class="hljs-type">size_t</span> ) pxNewBlockLink ) &amp; portBYTE_ALIGNMENT_MASK ) == <span class="hljs-number">0</span> );<br> <br>						<span class="hljs-comment">/* Calculate the sizes of two blocks split from the</span><br><span class="hljs-comment">						single block. */</span><br>						pxNewBlockLink-&gt;xBlockSize = pxBlock-&gt;xBlockSize - xWantedSize;<br>						pxBlock-&gt;xBlockSize = xWantedSize;<br> <br>						<span class="hljs-comment">/* Insert the new block into the list of free blocks. */</span><br>						prvInsertBlockIntoFreeList( pxNewBlockLink );<br>					&#125;<br>					<span class="hljs-keyword">else</span><br>					&#123;<br>						mtCOVERAGE_TEST_MARKER();<br>					&#125;<br> <br>					xFreeBytesRemaining -= pxBlock-&gt;xBlockSize;<br> <br>					<span class="hljs-keyword">if</span>( xFreeBytesRemaining &lt; xMinimumEverFreeBytesRemaining )<br>					&#123;<br>						xMinimumEverFreeBytesRemaining = xFreeBytesRemaining;<br>					&#125;<br>					<span class="hljs-keyword">else</span><br>					&#123;<br>						mtCOVERAGE_TEST_MARKER();<br>					&#125;<br> <br>					<span class="hljs-comment">/* The block is being returned - it is allocated and owned</span><br><span class="hljs-comment">					by the application and has no &quot;next&quot; block. */</span><br>					pxBlock-&gt;xBlockSize |= xBlockAllocatedBit;<br>					pxBlock-&gt;pxNextFreeBlock = <span class="hljs-literal">NULL</span>;<br>				&#125;<br>				<span class="hljs-keyword">else</span><br>				&#123;<br>					mtCOVERAGE_TEST_MARKER();<br>				&#125;<br>			&#125;<br>			<span class="hljs-keyword">else</span><br>			&#123;<br>				mtCOVERAGE_TEST_MARKER();<br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			mtCOVERAGE_TEST_MARKER();<br>		&#125;<br> <br>		traceMALLOC( pvReturn, xWantedSize );<br>	&#125;<br>	( <span class="hljs-type">void</span> ) xTaskResumeAll();<br> <br>	<span class="hljs-meta">#<span class="hljs-keyword">if</span>( configUSE_MALLOC_FAILED_HOOK == 1 )</span><br>	&#123;<br>		<span class="hljs-keyword">if</span>( pvReturn == <span class="hljs-literal">NULL</span> )<br>		&#123;<br>			<span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">vApplicationMallocFailedHook</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br>			vApplicationMallocFailedHook();<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			mtCOVERAGE_TEST_MARKER();<br>		&#125;<br>	&#125;<br>	<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br> <br>	configASSERT( ( ( ( <span class="hljs-type">size_t</span> ) pvReturn ) &amp; ( <span class="hljs-type">size_t</span> ) portBYTE_ALIGNMENT_MASK ) == <span class="hljs-number">0</span> );<br>	<span class="hljs-keyword">return</span> pvReturn;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-2-内存释放"><a href="#4-2-内存释放" class="headerlink" title="4.2 内存释放"></a>4.2 内存释放</h3><p><code>heap_4.c</code> 内存管理方案的内存释放函数 <code>vPortFree()</code> 也比较简单，根据传入要释放的内存块地址，偏移之后找到链表节点，然后将这个内存块插入到空闲内存块链表中，在内存块插入过程中会执行合并算法，这个我们已经在内存申请中讲过了（而且合并算法多用于释放内存中）。最后是将这个内存块标志为“空闲”（内存块节点的 <code>xBlockSize</code> 成员变量最高位清 0）、再更新未分配的内存堆大小即可，下面是 <code>vPortFree</code> 的源码实现和示意图。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vPortFree</span><span class="hljs-params">( <span class="hljs-type">void</span> *pv )</span><br>&#123;<br><span class="hljs-type">uint8_t</span> *puc = ( <span class="hljs-type">uint8_t</span> * ) pv;<br>BlockLink_t *pxLink;<br> <br>	<span class="hljs-keyword">if</span>( pv != <span class="hljs-literal">NULL</span> )<br>	&#123;<br>		<span class="hljs-comment">/* The memory being freed will have an BlockLink_t structure immediately</span><br><span class="hljs-comment">		before it. */</span><br>		puc -= xHeapStructSize;<br> <br>		<span class="hljs-comment">/* This casting is to keep the compiler from issuing warnings. */</span><br>		pxLink = ( <span class="hljs-type">void</span> * ) puc;<br> <br>		<span class="hljs-comment">/* Check the block is actually allocated. */</span><br>		configASSERT( ( pxLink-&gt;xBlockSize &amp; xBlockAllocatedBit ) != <span class="hljs-number">0</span> );<br>		configASSERT( pxLink-&gt;pxNextFreeBlock == <span class="hljs-literal">NULL</span> );<br> <br>		<span class="hljs-keyword">if</span>( ( pxLink-&gt;xBlockSize &amp; xBlockAllocatedBit ) != <span class="hljs-number">0</span> )<br>		&#123;<br>			<span class="hljs-keyword">if</span>( pxLink-&gt;pxNextFreeBlock == <span class="hljs-literal">NULL</span> )<br>			&#123;<br>				<span class="hljs-comment">/* The block is being returned to the heap - it is no longer</span><br><span class="hljs-comment">				allocated. */</span><br>				pxLink-&gt;xBlockSize &amp;= ~xBlockAllocatedBit;<br> <br>				vTaskSuspendAll();<br>				&#123;<br>					<span class="hljs-comment">/* Add this block to the list of free blocks. */</span><br>					xFreeBytesRemaining += pxLink-&gt;xBlockSize;<br>					traceFREE( pv, pxLink-&gt;xBlockSize );<br>					prvInsertBlockIntoFreeList( ( ( BlockLink_t * ) pxLink ) );<br>				&#125;<br>				( <span class="hljs-type">void</span> ) xTaskResumeAll();<br>			&#125;<br>			<span class="hljs-keyword">else</span><br>			&#123;<br>				mtCOVERAGE_TEST_MARKER();<br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			mtCOVERAGE_TEST_MARKER();<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<p>调用 <code>prvInsertBlockIntoFreeList()</code> 函数将释放的内存块添加到空闲内存块链表中，在这过程中，如果内存块可以合并就会进行内存块合并，否则就单纯插入空闲内存块链表（按内存地址排序）。 按照内存释放的过程，当我们释放一个内存时，如果与它相邻的内存块都不是空闲的， 那么该内存块并不会合并，只会被添加到空闲内存块链表中；而如果某个时间段释放了另一个内存块，发现该内存块前面有一个空闲内存块与它在地址上是连续的，那么这两个内存块会合并成一个大的内存块，并插入空闲内存块链表 中。整个过程示意图具体见下图：</p>
+<p>下图是释放一个无法合并的内存块：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>下图是释放一个可以合并的内存块：</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5、Heap-5"><a href="#5、Heap-5" class="headerlink" title="5、Heap_5"></a>5、Heap_5</h2><p><code>Heap_5</code> 分配内存、释放内存的算法跟 <code>Heap_4</code> 是一样的。相比于 <code>Heap_4</code>，<code>Heap_5</code> 并不局限于管理一个大数组：它可以管理多块、分隔开的内存。</p>
+<p>在嵌入式系统中，内存的地址可能并不连续，这种场景下可以使用 <code>Heap_5</code>。既然内存时分隔开的，那么就需要进行初始化：确定这些内存块在哪、多大：</p>
+<ul>
+<li>在使用 <code>pvPortMalloc</code> 之前，必须先指定内存块的信息</li>
+<li>使用 <code>vPortDefineHeapRegions</code> 来指定这些信息</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HeapRegion</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-type">uint8_t</span> * pucStartAddress; <span class="hljs-comment">// 起始地址</span><br>	<span class="hljs-type">size_t</span> xSizeInBytes;       <span class="hljs-comment">// 大小</span><br>&#125; HeapRegion_t;<br></code></pre></td></tr></table></figure>
+
+<p>使用一个 <code>HeapRegion_t</code> 数组可以指定多块地址，在这个数组中，低地址在前、高地址在后。比如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">HeapRegion_t xHeapRegions[] =<br>&#123;<br>	&#123; ( <span class="hljs-type">uint8_t</span> * ) <span class="hljs-number">0x80000000</span>UL, <span class="hljs-number">0x10000</span> &#125;, <span class="hljs-comment">// 起始地址0x80000000，大小0x10000</span><br>	&#123; ( <span class="hljs-type">uint8_t</span> * ) <span class="hljs-number">0x90000000</span>UL, <span class="hljs-number">0xa0000</span> &#125;, <span class="hljs-comment">// 起始地址0x90000000，大小0xa0000</span><br>	&#123; <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span> &#125; <span class="hljs-comment">// 表示数组结束</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><code>vPortDefineHeapRegions</code> 函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vPortDefineHeapRegions</span><span class="hljs-params">( <span class="hljs-type">const</span> HeapRegion_t * <span class="hljs-type">const</span> pxHeapRegions )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>把 <code>xHeapRegions</code> 数组传给 <code>vPortDefineHeapRegions</code> 函数，即可初始化 <code>Heap_5</code>。</p>
+<h1 id="三、Heap-相关的函数"><a href="#三、Heap-相关的函数" class="headerlink" title="三、Heap 相关的函数"></a>三、Heap 相关的函数</h1><h2 id="1、pvPortMalloc-vPortFree"><a href="#1、pvPortMalloc-vPortFree" class="headerlink" title="1、pvPortMalloc&#x2F;vPortFree"></a>1、pvPortMalloc&#x2F;vPortFree</h2><p>函数原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> * <span class="hljs-title function_">pvPortMalloc</span><span class="hljs-params">( <span class="hljs-type">size_t</span> xWantedSize )</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">vPortFree</span><span class="hljs-params">( <span class="hljs-type">void</span> * pv )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>作用：分配内存、释放内存。如果分配内存不成功，则返回值为 NULL。</p>
+<h2 id="2、xPortGetFreeHeapSize"><a href="#2、xPortGetFreeHeapSize" class="headerlink" title="2、xPortGetFreeHeapSize"></a>2、xPortGetFreeHeapSize</h2><p>函数原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">size_t</span> <span class="hljs-title function_">xPortGetFreeHeapSize</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>当前还有多少空闲内存，这函数可以用来优化内存的使用情况。比如当所有内核对象都分配好后，执行此函数返回 2000，那么  <code>configTOTAL_HEAP_SIZE</code> 就可减小 2000。</p>
+<blockquote>
+<p>注意：在 <code>heap_3</code> 中无法使用。</p>
+</blockquote>
+<h2 id="3、xPortGetMinimumEverFreeHeapSize"><a href="#3、xPortGetMinimumEverFreeHeapSize" class="headerlink" title="3、xPortGetMinimumEverFreeHeapSize"></a>3、xPortGetMinimumEverFreeHeapSize</h2><p>函数原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">size_t</span> <span class="hljs-title function_">xPortGetMinimumEverFreeHeapSize</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>返回：程序运行过程中，空闲内存容量的最小值。</p>
+<blockquote>
+<p>注意：只有 <code>heap_4</code>、<code>heap_5</code> 支持此函数。</p>
+</blockquote>
+<h2 id="4、malloc-失败的钩子函数"><a href="#4、malloc-失败的钩子函数" class="headerlink" title="4、malloc 失败的钩子函数"></a>4、malloc 失败的钩子函数</h2><p>在 <code>pvPortMalloc</code> 函数内部：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> * <span class="hljs-title function_">pvPortMalloc</span><span class="hljs-params">( <span class="hljs-type">size_t</span> xWantedSize )</span>vPortDefineHeapRegions<br>&#123;<br>	......<br>	<span class="hljs-meta">#<span class="hljs-keyword">if</span> ( configUSE_MALLOC_FAILED_HOOK == 1 )</span><br>	&#123;<br>		<span class="hljs-keyword">if</span>( pvReturn == <span class="hljs-literal">NULL</span> )<br>		&#123;<br>			<span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">vApplicationMallocFailedHook</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br>			vApplicationMallocFailedHook();<br>		&#125;<br>	&#125;<br>	<span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	<span class="hljs-keyword">return</span> pvReturn;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>所以，如果想使用这个钩子函数，需要注意以下几点：</p>
+<ul>
+<li>在 <code>FreeRTOSConfig.h</code> 中，把 <code>configUSE_MALLOC_FAILED_HOOK</code> 定义为 1</li>
+<li>提供 <code>vApplicationMallocFailedHook</code> 函数</li>
+<li><code>pvPortMalloc</code> 失败时，才会调用此函数</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/FreeRTOS/" class="print-no-link">#FreeRTOS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeRTOS 快速入门（二）之内存管理</div>
+      <div>http://example.com/2024/08/19/FreeRTOS入门二/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/" title="FreeRTOS 快速入门（三）之任务管理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FreeRTOS 快速入门（三）之任务管理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" title="FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则">
+                        <span class="hidden-mobile">FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

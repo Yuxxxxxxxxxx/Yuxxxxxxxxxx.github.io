@@ -1,0 +1,824 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BLE 协议之 L2CAP">
+<meta property="og:url" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/1.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/2.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/3.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/4.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/5.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/6.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/7.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/8.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/9.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/10.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/11.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/12.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/13.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/14.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/15.png">
+<meta property="og:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/16.png">
+<meta property="article:published_time" content="2024-11-01T10:49:31.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:38:21.788Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="BLE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/1.png">
+  
+  
+  
+  <title>BLE 协议之 L2CAP - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BLE 协议之 L2CAP"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-01 18:49" pubdate>
+          星期五, 十一月 1日 2024, 6:49 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BLE 协议之 L2CAP</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：</p>
+<ul>
+<li>一条是无连接的广播通道，天高任鸟飞</li>
+<li>另一条是基于连接的数据通道，是一个点对点（<em><strong>Master to Slave</strong></em>）的逻辑通道。</li>
+</ul>
+<p>广播通道暂且不提，这个数据通道（后面简称逻辑通道，<em><strong>Logical Channel</strong></em>），要怎么使用，还需要一番思索，例如：</p>
+<ul>
+<li><code>Logical Channel</code> 只有一条，而要利用它传输数据的上层应用却不止一个（例如上图中的 ATT 和 SMP），怎么复用？</li>
+<li><code>Logical Channel</code> 所能传输的有效 payload 长度最大只有 251bytes，怎是否意味着上层应用每次只能传输少于这个长度的数据？（显然不能！）</li>
+<li><code>Logical Channel</code> 仅提供了简单的应答和流控机制，如果传输的数据出错怎么办？</li>
+<li>……</li>
+</ul>
+<p>L2CAP 所具备的主要功能如下：</p>
+<ul>
+<li>协议信道复用（<em><strong>Protocol&#x2F;channel multiplexing</strong></em>） ：能够区分高层协议，在信道建立时，协议复用功能用来 发送请求来连接正确的上层协议 ；在数据传输时，逻辑信道复用必须能够把用同一个协议的不同几个高层实体的区分出来(一对多情况)。</li>
+<li>分段与重组（<em><strong>Segmentation and reassembly</strong></em>） ：高层协议需传输的数据长度不定，L2CAP 层控制了 PDU 的长度，不仅易于管理而且通过对数据标记分组，允许数据单元的交错，可以满足延时要求，发生错误时的重传也可以更加方便准确。</li>
+<li>基于 L2CAP Channel 的流控机制（<em><strong>Flow control per L2CAP channel</strong></em>） ：对传输的数据进行流量控制</li>
+<li>错误控制和重传机制（<em><strong>Error control and retransmissions</strong></em>）</li>
+<li>协议数据单元（PDUs）的分片（和重组）（<em><strong>Fragmentation and Recombination</strong></em>）：生成符合 Link Layer 传输要求的数据片（长度不超过251）</li>
+<li>支持流式传输（<em><strong>Support for Streaming</strong></em>）：如音频、视频等，不需要重传或者只需要有限重传</li>
+</ul>
+<h1 id="二、L2CAP-Protocol-架构"><a href="#二、L2CAP-Protocol-架构" class="headerlink" title="二、L2CAP Protocol 架构"></a>二、L2CAP Protocol 架构</h1><blockquote>
+<p>见 Core v5.4 P1016</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="1、逻辑信道划分"><a href="#1、逻辑信道划分" class="headerlink" title="1、逻辑信道划分"></a>1、逻辑信道划分</h2><p>在了解逻辑信道划分前，先了解以下 CID（<em><strong>Channel Identifier</strong></em>）</p>
+<p>CID ：逻辑链路通道的端点标识，其分配情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>CID</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x0000</td>
+<td>无效标识</td>
+</tr>
+<tr>
+<td>0x0001</td>
+<td>发送信令的信道</td>
+</tr>
+<tr>
+<td>0x0002</td>
+<td>无连接的接收信道</td>
+</tr>
+<tr>
+<td>0x0003-0x003f</td>
+<td>保留(特定功能)</td>
+</tr>
+<tr>
+<td>0x0040-0xffff</td>
+<td>动态分配</td>
+</tr>
+</tbody></table>
+<p>其中的 $0x0004-0x0005$ 被分配给 BLE（低功耗蓝牙） ：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果设备支持 BLE 功能， $0x0005$ 作为其信令通道，$0x0004$ 和 $0x0006$ 也会被强制分配给 BLE ，分别作为 ATT 和 SecurityManager 信道。</p>
+<p>CID 主要用来区分上层协议，进而保证多协议信道的复用。</p>
+<h2 id="2、信道模式"><a href="#2、信道模式" class="headerlink" title="2、信道模式"></a>2、信道模式</h2><p>逻辑信道有几种操作模式，最后一种是 LE 设备特有的：</p>
+<ul>
+<li><code>Basic L2CAP Mode</code>（equivalent to L2CAP specification in Bluetooth v1.1) 默认模式，在未选择其他模式的情况下，用此模式。</li>
+<li><code>Flow Control Mode</code> 流控模式，此模式下不会进行重传，但是丢失的数据能够被检测到，并报告丢失。</li>
+<li><code>Retransmission Mode</code> 重传模式，此模式确保数据包都能成功的传输给对端设备。</li>
+<li><code>Enhanced Retransmission Mode</code> 增强重传模式，此模式和重传模式类似，加入了 Poll-bit 等提高恢复效率。</li>
+<li><code>Streaming Mode</code> 流模式，此模式是为了真实的实时传输，数据包被编号但是不需要 ACK 确认。设定一个超时定时器，一旦定时器超时就将超时数据冲掉。</li>
+<li><code>LE Credit Based Flow Control Mode</code> 基于 LE 信用的流控模式，被用于 LE 设备通讯。</li>
+</ul>
+<h2 id="3、设计思想"><a href="#3、设计思想" class="headerlink" title="3、设计思想"></a>3、设计思想</h2><p>使用链路管理器协议在两单元间建立 ACL 链路。基带提供数据分组的有序传输, 但也可能有个别分组损坏或重复。任两台设备之间只会有一条 ACL 链路。</p>
+<p>信道建立在链路的基础上，信道可以有多个，链路只有一条。</p>
+<p>通过使用基带层提供的机制，L2CAP 提供了一条可靠的信道。当收到请求和重发数据时，基带通常要执行数据完整性校验，直到数据成功确认或发生超时。由于可能会丢失确认报文，所以甚至在数据成功发送后也会发生超时。基带协议使用长度为 1 位的序列号,该序列号用于删除重复发送的分组。由于所有广播的 L2CAP 数据分组的首段都以同一序列位为起始位, 如果需要提供可靠传输,就应禁止使用基带广播分组。</p>
+<p>L2CAP 主要对数据进行 封装 ，支持协议复用，统一高层协议数据格式。</p>
+<h2 id="4、帧结构"><a href="#4、帧结构" class="headerlink" title="4、帧结构"></a>4、帧结构</h2><p>L2CAP 要想实现信道复用与差错控制，必定也要在数据包前加一些前缀信息。</p>
+<p>L2CAP 有以下几种连接类型:</p>
+<ul>
+<li>Connection-oriented Channels in Basic L2CAP mode </li>
+<li>Connectionless Data Channel in Basic L2CAP mode </li>
+<li>Connection-oriented Channel in Retransmission&#x2F;Flow Control&#x2F;Streaming Mode </li>
+<li>Connection-oriented Channels in LE Credit Based Flow Control Mode</li>
+</ul>
+<h3 id="4-1-面向连接信道-B-frame"><a href="#4-1-面向连接信道-B-frame" class="headerlink" title="4.1 面向连接信道 B-frame"></a>4.1 面向连接信道 B-frame</h3><p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>PDU Length</code>：2 octets (16 bits)，主要指基本 L2CAP 报文头除长度以外的信息净荷的大小，即图中空白部分，其长度可达 65535 字节。</li>
+<li><code>Channel ID</code>：2 octets，用于标识分组的目标信道终端。</li>
+<li><code>Information payload</code>：0 to 65535 octets， 静荷信息包含来自上层协议(发出的分组)的净荷或者发送到上层协议（接收的分组）的净荷。 MTU 的值在信道配置时确定。所支持的用于信令分组的 MTU 的最小值为 48 字节。</li>
+</ul>
+<h3 id="4-2-无连接数据信道包-G-frame"><a href="#4-2-无连接数据信道包-G-frame" class="headerlink" title="4.2 无连接数据信道包 G-frame"></a>4.2 无连接数据信道包 G-frame</h3><p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>Protocol&#x2F;Service Multiplexer (PSM)：2 octets (minimum)，一般为 SDP、RFCOMM、TCS 等中介协议复用。小于 0x1000 的值，0x0001 对应 SDP，0x0003 对应 RFCOMM、0x0005 对应 TCS。主要用于标识何种上层协议。</li>
+</ul>
+<h3 id="4-3-重传-流量控制-流传输模式下的面向连接的信道-S-frame、I-frame"><a href="#4-3-重传-流量控制-流传输模式下的面向连接的信道-S-frame、I-frame" class="headerlink" title="4.3 重传&#x2F;流量控制&#x2F;流传输模式下的面向连接的信道 S-frame、I-frame"></a>4.3 重传&#x2F;流量控制&#x2F;流传输模式下的面向连接的信道 S-frame、I-frame</h3><ul>
+<li><code>I-frame</code> 用于在 L2CAP 实体间进行信息传输</li>
+<li><code>S-Frame</code> 则用于确认 <code>I-frame</code> 和 <code>I-frame</code> 的重传请求</li>
+</ul>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Length</code>：2 bytes，除 Basic L2CAP 外的总字节数  </li>
+<li><code>Channel ID</code>：2 bytes，对端目的信道 </li>
+<li><code>L2CAP SDU Length</code>：2 bytes，只出现在 Start I-frame(SAR&#x3D;0x01)中，表示总的 SDU 长度 </li>
+<li><code>FCS</code>：2 bytes，帧校验序列</li>
+</ul>
+<p>Control field 有三种模式：</p>
+<ul>
+<li><code>Standard Control Field</code>：用于重传模式和流量控制模式</li>
+<li><code>Enhanced Control Field</code>：用于增强的重传模式和流模式</li>
+<li><code>Extended Control Field</code>：用于扩展的重传模式和流模式</li>
+</ul>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><p><code>Type</code>：I-frame 的类型位为0，S-frame 的类型位为 1。</p>
+</li>
+<li><p><code>TxSeq</code>：(6&#x2F;14 bits)，发送序列号，对发送的 I-frame 计数, 用于分段和重组</p>
+</li>
+<li><p><code>ReqSeq</code>：(6&#x2F;14 bits)，接收序列号，接收方用于应答 I-frame 和请求重传</p>
+</li>
+<li><p><code>R</code>：(1 bits)，重传禁用位，用来实现流控制</p>
+</li>
+<li><p><code>SAR</code>：(2 bits)，分割与重组，指明该 L2CAP 是否是分段过<br><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><code>S</code>：(2 bits)，表示 S-Frame 的 Type<br><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><code>P</code>：(1 bits)，置1表示从接收方征求响应</p>
+</li>
+<li><p><code>F</code>：(1 bits)，当 S-frame 的 P 为 1 时，F 也置 1</p>
+</li>
+</ul>
+<h3 id="4-4-面向连接的通道分为-LE-信用流控模式和增强型信用流控模式-K-frame"><a href="#4-4-面向连接的通道分为-LE-信用流控模式和增强型信用流控模式-K-frame" class="headerlink" title="4.4 面向连接的通道分为 LE 信用流控模式和增强型信用流控模式 K-frame"></a>4.4 面向连接的通道分为 LE 信用流控模式和增强型信用流控模式 K-frame</h3><p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5、信道包格式"><a href="#5、信道包格式" class="headerlink" title="5、信道包格式"></a>5、信道包格式</h2><blockquote>
+<p>Core v5.4 P1042</p>
+</blockquote>
+<p>这里介绍的是在对端设备上两个 L2CAP 实体间传递的信号命令(<em><strong>Signaling Commands</strong></em>)，这些信号命令通过 <code>Signaling Channel</code> 来传输</p>
+<p>对于 ACL-U 逻辑链路应该使用 CID 0x0001，而对于 LE-U 则应该使用 CID 0x0005</p>
+<p>通用的信号包格式如下：</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>注意：一个 C-Frame 通过 0x0001 信道可以传递多个命令；而一个 C-Frame 通过 0x0005 信道则只能传递一个命令</p>
+</blockquote>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload><br>上图显示了信号命令的通用格式，各字段含义如下</p>
+<ul>
+<li><code>Code</code>：1 byte,   指定 Command 的类别 </li>
+<li><code>Identifier</code>：1 byte,   用于标识一个 Request 和 Response 匹配对 </li>
+<li><code>Length</code>：2 byte,   Data 字段的长度 </li>
+<li><code>Data</code>：0~N byte, Code 字段来决定其格式，参照下表：<br><img src="16.png" srcset="/img/loading.gif" lazyload></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="print-no-link">#通信协议</a>
+      
+        <a href="/tags/BLE/" class="print-no-link">#BLE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BLE 协议之 L2CAP</div>
+      <div>http://example.com/2024/11/01/BLE-协议之L2CAP/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" title="【STM32】通过 DWT 实现毫秒级延时">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【STM32】通过 DWT 实现毫秒级延时</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" title="BLE 协议之传输层">
+                        <span class="hidden-mobile">BLE 协议之传输层</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

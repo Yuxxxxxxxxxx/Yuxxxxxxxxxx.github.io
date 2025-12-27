@@ -1,0 +1,765 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  在第一节 CMake 教程（一）初识 CMake 中，我们已经了解和实现了通过 CMake 来创建一个基本项目。本节我们将通过两个实例来学习如何在项目中创建和使用库。 一、实例一——创建库1、add_library要在 CMake 中添加库，就需要使用 add_library 命令来指定哪些源文件应组成库。 1add_library(&lt;name&gt; [&lt;type&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CMake 教程（二）添加库">
+<meta property="og:url" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  在第一节 CMake 教程（一）初识 CMake 中，我们已经了解和实现了通过 CMake 来创建一个基本项目。本节我们将通过两个实例来学习如何在项目中创建和使用库。 一、实例一——创建库1、add_library要在 CMake 中添加库，就需要使用 add_library 命令来指定哪些源文件应组成库。 1add_library(&lt;name&gt; [&lt;type&gt;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/1.png">
+<meta property="og:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/2.png">
+<meta property="og:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/3.png">
+<meta property="og:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/4.png">
+<meta property="og:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/5.png">
+<meta property="article:published_time" content="2024-10-15T09:45:00.000Z">
+<meta property="article:modified_time" content="2024-11-14T08:47:02.877Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="CMake">
+<meta property="article:tag" content="工具">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/1.png">
+  
+  
+  
+  <title>CMake 教程（二）添加库 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CMake 教程（二）添加库"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-15 17:45" pubdate>
+          星期二, 十月 15日 2024, 5:45 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CMake 教程（二）添加库</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<p>在第一节 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142926818">CMake 教程（一）初识 CMake</a> 中，我们已经了解和实现了通过 CMake 来创建一个基本项目。本节我们将通过两个实例来学习如何在项目中创建和使用库。</p>
+<h1 id="一、实例一——创建库"><a href="#一、实例一——创建库" class="headerlink" title="一、实例一——创建库"></a>一、实例一——创建库</h1><h2 id="1、add-library"><a href="#1、add-library" class="headerlink" title="1、add_library"></a>1、add_library</h2><p>要在 <code>CMake</code> 中添加库，就需要使用 <code>add_library</code> 命令来指定哪些源文件应组成库。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">add_library(&lt;name&gt; [&lt;type&gt;] [EXCLUDE_FROM_ALL] &lt;sources&gt;...)<br></code></pre></td></tr></table></figure>
+
+<p>其作用为：添加一个名为 <code>&lt;name&gt;</code> 的库目标，该目标要从命令调用中列出的源文件构建。</p>
+<p>参数说明：</p>
+<ul>
+<li><code>&lt;name&gt;</code> 对应于逻辑目标名称，并且在项目中必须是全局唯一的。构建的库的实际文件名是根据本机平台的约定（例如 <code>lib&lt;name&gt;.a</code> 或 <code>&lt;name&gt;.lib</code>）构建的。</li>
+<li>可选的 <code>&lt;type&gt;</code> 指定要创建的库的类型：<ul>
+<li><code>STATIC</code>：链接其他目标时使用的目标文件存档。</li>
+<li><code>SHARED</code>：一个动态库，可以由其他目标链接并在运行时加载。</li>
+<li><code>MODULE</code>：一个插件，它不能被其他目标链接，但可以在运行时使用类似 dlopen 的功能动态加载。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>如果未给出 <code>&lt;type&gt;</code>，则默认值为 <code>STATIC</code> 或 <code>SHARED</code> </p>
+</blockquote>
+<h2 id="2、target-include-directories-、target-link-libraries"><a href="#2、target-include-directories-、target-link-libraries" class="headerlink" title="2、target_include_directories()、target_link_libraries()"></a>2、target_include_directories()、target_link_libraries()</h2><p>我们可以使用一个或多个子目录来组织项目，而不是将所有源文件放在一个目录中。在这种情况下，我们将专门为我们的库创建一个子目录。在这里，我们可以添加新的 <code>CMakeLists.txt</code> 文件和一个或多个源文件。在顶级 <code>CMakeLists.txt</code> 文件中，我们将使用 <code>add_subdirectory()</code> 命令将子目录添加到构建中。</p>
+<p>创建库后，它通过 <code>target_include_directories()</code> 和 <code>target_link_libraries()</code> 连接到我们的可执行目标。</p>
+<h3 id="2-1-target-include-directories"><a href="#2-1-target-include-directories" class="headerlink" title="2.1 target_include_directories()"></a>2.1 target_include_directories()</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">target_include_directories(&lt;target&gt; [SYSTEM] [AFTER|BEFORE]<br>  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]<br>  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])<br></code></pre></td></tr></table></figure>
+
+<p>指定编译给定目标（例如可执行文件、库等）时要使用的包含目录。命名的 <code>&lt;target&gt;</code> 必须由 <code>add_executable()</code> 或 <code>add_library()</code> 等命令创建，并且不能是 <code>ALIAS</code> 目标。</p>
+<ul>
+<li><code>target</code>：目标名称，可以是一个可执行文件、静态库或动态库的名称。</li>
+<li><code>SYSTEM</code>：可选参数，指定包含目录是否应被视为系统目录。表示编译器不会产生警告。</li>
+<li><code>[AFTER|BEFORE]</code>：可选参数：<ul>
+<li><code>BEFORE</code>：参数用于将包含目录添加到已有的包含目录之前，即在搜索其他包含目录之前搜索指定的目录。</li>
+<li><code>AFTER</code>：参数用于将包含目录添加到已有的包含目录之后，即在搜索其他包含目录之后搜索指定的目录。</li>
+</ul>
+</li>
+<li><code>&lt;INTERFACE|PUBLIC|PRIVATE&gt;</code>：可选参数，指定添加的包含目录的属性。<ul>
+<li><code>INTERFACE</code>：目标的接口包含目录，这意味着只有依赖该目标的其他目标才能看到这个包含目录。对于依赖该目标的目标来说，这个包含目录会像是它自己的接口一样可见。</li>
+<li><code>PUBLIC</code>：目标的公共包含目录，这意味着该目标及依赖它的其他目标都可以看到这个包含目录。</li>
+<li><code>PRIVATE</code>：目标的私有包含目录，只有该目标自身才可见这个包含目录。</li>
+</ul>
+</li>
+<li><code>item1...</code>：需要添加的包含目录。</li>
+</ul>
+<h3 id="2-2-target-link-libraries"><a href="#2-2-target-link-libraries" class="headerlink" title="2.2 target_link_libraries()"></a>2.2 target_link_libraries()</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">target_link_libraries(&lt;target&gt; ... &lt;item&gt;... ...)<br></code></pre></td></tr></table></figure>
+
+<p><code>target_link_libraries()</code> 命令用于为目标添加链接的库。</p>
+<ul>
+<li><code>&lt;target&gt;</code>：表示要添加库的目标，可以是一个目标名称或者一个目标别名。</li>
+<li><code>&lt;item&gt;</code>：表示要链接的库的名称，可以是一个目标名称、一个目标别名、一个链接库或者一个链接库的路径。</li>
+</ul>
+<p><code>target_link_libraries</code> 命令将目标与指定的库进行链接。链接库可以是静态库（<code>.a</code>、<code>.lib</code> 等）或者动态库（<code>.so</code>、<code>.dll</code> 等）。这个命令还可以用于链接其他目标，将目标与目标进行依赖关系的建立。</p>
+<p><code>CMake</code> 会自动获取库的路径和链接依赖关系，因此在使用 <code>target_link_libraries()</code> 命令时，不需要完整的库文件路径。</p>
+<h2 id="3、实例操作"><a href="#3、实例操作" class="headerlink" title="3、实例操作"></a>3、实例操作</h2><p>接下来，我们尝试向项目中添加一个库，库中包含我们自己实现的用于计算平方的的实现。然后，让可执行文件可以使用这个库，而不是使用编译器提供的标准库函数。</p>
+<p>我们把将要实现的库放在 lib 目录下的 <code>my_sqrt.c</code> 和 <code>my_sqrt.h</code>，并实现一个简单的平方函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// my_sqrt.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __MY_SQRT_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __MY_SQRT_H</span><br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">my_sqrt</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* __MY_SQRT_H */</span></span><br><br><span class="hljs-comment">// my_sqrt.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;my_sqrt.h&quot;</span></span><br>  <br><span class="hljs-type">int</span> <span class="hljs-title function_">my_sqrt</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> (a * a);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后在 <code>math_func.c</code> 和 <code>math_func.h</code> 文件中封装一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// math_func.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;math_func.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;my_sqrt.h&quot;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">m_sqrt</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> my_sqrt(a);<br>&#125;<br><br><span class="hljs-comment">// math_func.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __MATH_FUNC_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __MATH_FUNC_H</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">m_func</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>然后实现这个子目录下的 <code>CMakeLists.txt</code> 文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>project(my_lib)<br><br>add_library(MYSQRT math_func.c my_sqrt.c)<br></code></pre></td></tr></table></figure>
+
+<p>然后执行命令 <code>cmake .</code>：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>子目录的工作就完成了。然后是主目录：</p>
+<p>在 <code>main.c</code> 文件中简单地调用刚才我们实现的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;my_sqrt.h&quot;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (argc &lt; <span class="hljs-number">1</span> || argc &gt; <span class="hljs-number">3</span>) &#123;<br>        perror(<span class="hljs-string">&quot;argument err!&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>    &#125;<br><br>    <span class="hljs-type">int</span> a = atoi(argv[<span class="hljs-number">1</span>]);<br>    <span class="hljs-type">int</span> b = m_sqrt(a);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;result is %d\n&quot;</span>, b);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后完成 <code>CMakeLists.txt</code> 文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>add_executable(test02 main.c)<br><br>project(test02 VERSION <span class="hljs-number">1.1</span>)<br><br>add_subdirectory(lib)<br><br>target_link_libraries(test02 PUBLIC MYSQRT)<br><br>target_include_directories(test02 PUBLIC<br>                          <span class="hljs-string">&quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;</span><br>                          <span class="hljs-string">&quot;$&#123;PROJECT_SOURCE_DIR&#125;/lib&quot;</span><br>                          )<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，对应的库名和目录名一定要对应，否则会找不到库</p>
+</blockquote>
+<p>然后执行 <code>cmake --build .</code>：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>大功告成：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二、实例二——添加选项"><a href="#二、实例二——添加选项" class="headerlink" title="二、实例二——添加选项"></a>二、实例二——添加选项</h1><p>现在让我们在 <code>MYSQRT</code> 库中添加一个选项，允许开发人员选择自定义平方根实现或内置标准实现。虽然对于本教程来说，确实没有必要这样做，但对于较大的项目来说，这种情况很常见。</p>
+<h2 id="1、option"><a href="#1、option" class="headerlink" title="1、option()"></a>1、option()</h2><p><code>CMake</code> 可以使用 <code>option()</code> 命令来做到这一点。这为用户提供了一个变量，他们可以在配置 cmake 版本时更改该变量。此设置将存储在缓存中，因此用户无需在每次在 build 目录上运行 CMake 时都设置该值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">option(&lt;variable&gt; <span class="hljs-string">&quot;&lt;help_text&gt;&quot;</span> [value])<br></code></pre></td></tr></table></figure>
+
+<p>作用：提供用户可以选择选择的布尔选项。</p>
+<p>如果未提供初始 <code>&lt;value&gt;</code>，则布尔值 OFF 为默认值。如果 <code>&lt;variable&gt;</code> 已设置为普通变量或缓存变量，则该命令不执行任何操作。</p>
+<h2 id="2、实例操作"><a href="#2、实例操作" class="headerlink" title="2、实例操作"></a>2、实例操作</h2><p>首先修改 lib 子目录下的 <code>CMakeLists.txt</code> 文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>project(my_lib)<br><br>LINK_LIBRARIES(m)<br><br>add_library(MYSQRT math_func.c)<br><br>option(USE_MYMATH <span class="hljs-string">&quot;Use projectsauron provided math implementation&quot;</span> ON)<br><br><span class="hljs-keyword">if</span> (USE_MYMATH)<br>    target_compile_definitions(MYSQRT PRIVATE <span class="hljs-string">&quot;USE_MYMATH&quot;</span>)<br><br>    add_library(SqrtLibrary STATIC<br>              my_sqrt.c<br>              )<br><br>    target_link_libraries(MYSQRT PRIVATE SqrtLibrary)<br>endif()<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，因为待会儿的 C 文件中要使用到 C 标准库中的 <code>math.h</code> 头文件，所以要连接 math 库：<code>LINK_LIBRARIES(m)</code></p>
+</blockquote>
+<p><code>option</code> 添加一个选项 <code>USE_MYMATH</code>。此选项将显示在 <code>cmake-gui</code> 和 <code>ccmake</code> 中，默认值为 ON，用户可以更改该默认值。</p>
+<p>至于下面的语句，请看：如果 <code>USE_MYMATH</code> 为 OFF，则不会使用 <code>mysqrt.c</code>，但仍会对其进行编译，因为 <code>MYSQRT</code> 目标在源下列出了 <code>mysqrt.c</code>。</p>
+<p>有几种方法可以解决这个问题。第一个选项是使用 <code>target_sources()</code> 从 <code>USE_MYMATH</code> 块中添加 <code>mysqrt.c</code>。另一种选择是在 <code>USE_MYMATH</code> 块中创建一个额外的库，该库负责编译 <code>mysqrt.c</code>。在这里中，我们采取的是后面那种方法。</p>
+<p><code>math_func.c</code> 文件修改如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;math_func.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> USE_MYMATH</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;my_sqrt.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>  <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;math.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">m_sqrt</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span><br>&#123;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> USE_MYMATH</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;use my sqrt!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> my_sqrt(a);<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;use std sqrt!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">sqrt</span>(a);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里通过 <code>printf</code>，可以验证我们的结果是否正确。</p>
+<p>因为 <code>USE_MYMATH</code> 默认是 ON，所以编译好后，使用的仍是我们自己实现的函数：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p> 重新执行下面的语句即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cmake ../test02 -DUSE_MYMATH=OFF<br>cmake --build .<br></code></pre></td></tr></table></figure>
+
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>现在使用的是标准库。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CMake/" class="print-no-link">#CMake</a>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/" class="print-no-link">#工具</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CMake 教程（二）添加库</div>
+      <div>http://example.com/2024/10/15/CMake添加库/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/" title="CMake 教程（三）添加库的使用要求">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CMake 教程（三）添加库的使用要求</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" title="CMake 教程（一）初识 CMake">
+                        <span class="hidden-mobile">CMake 教程（一）初识 CMake</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

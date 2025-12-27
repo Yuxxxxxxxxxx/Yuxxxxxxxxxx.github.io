@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、概述在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，printk 打印是全局的，只能设置输出等级，而且使用 printk 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，printk 被 dev_info，de">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 调试之动态打印">
+<meta property="og:url" content="http://example.com/2024/08/08/%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，printk 打印是全局的，只能设置输出等级，而且使用 printk 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，printk 被 dev_info，de">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-08T08:09:31.000Z">
+<meta property="article:modified_time" content="2024-11-14T10:44:31.673Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="性能优化&#x2F;调试">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux 调试之动态打印 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 调试之动态打印"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-08 16:09" pubdate>
+          星期四, 八月 8日 2024, 4:09 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 调试之动态打印</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，<code>printk</code> 打印是全局的，只能设置输出等级，而且使用 <code>printk</code> 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，<code>printk</code> 被 <code>dev_info</code>，<code>dev_dbg</code>，<code>dev_err</code> 之类的函数代替，<code>dev_xxx</code> 函数的本质还是使用 <code>printk</code> 打印的，只是对 <code>printk</code> 进行了一层包装。</p>
+<p>在系统运行时候，动态打印可以由系统维护者动态打开内核子系统的打印，可以有选择性地打开某些模块的打印。要使用动态打印，必须在内核配置时打开 <code>CONFIG_DYNAMIC_DEBUG</code> 宏。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">CONFIG_DEBUG_FS=y<br>CONFIG_DYNAMIC_DEBUG=y<br></code></pre></td></tr></table></figure>
+
+<p><code>CONFIG_DYNAMIC_DEBUG</code> 是配置动态输出，它依赖于 <code>CONFIG_DEBUG_FS</code>，而 <code>CONFIG_DEBUG_FS</code> 是 <code>debugfs</code> 文件系统。debugfs默认会挂载到 <code>/sys/kernel/debug</code>，如果没有挂载，可以执行以下命令挂载： </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ mount -t debugfs none /sys/kernel/debug<br></code></pre></td></tr></table></figure>
+
+<h1 id="二、printk"><a href="#二、printk" class="headerlink" title="二、printk"></a>二、printk</h1><h2 id="1、printk-消息级别"><a href="#1、printk-消息级别" class="headerlink" title="1、printk 消息级别"></a>1、printk 消息级别</h2><p>Linux 内核共提供了八种不同的消息级别，分为级别 0~7。数值越大，表示级别越低，对应的消息越不重要。相应的宏定义在 <code>include/linux/kern_levels.h</code> 文件中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_SOH    <span class="hljs-string">&quot;\001&quot;</span>      <span class="hljs-comment">/* ASCII Start Of Header */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_SOH_ASCII  <span class="hljs-string">&#x27;\001&#x27;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_EMERG  KERN_SOH <span class="hljs-string">&quot;0&quot;</span>    <span class="hljs-comment">/* system is unusable */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_ALERT  KERN_SOH <span class="hljs-string">&quot;1&quot;</span>    <span class="hljs-comment">/* action must be taken immediately */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_CRIT   KERN_SOH <span class="hljs-string">&quot;2&quot;</span>    <span class="hljs-comment">/* critical conditions */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_ERR    KERN_SOH <span class="hljs-string">&quot;3&quot;</span>    <span class="hljs-comment">/* error conditions */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_WARNING    KERN_SOH <span class="hljs-string">&quot;4&quot;</span>    <span class="hljs-comment">/* warning conditions */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_NOTICE KERN_SOH <span class="hljs-string">&quot;5&quot;</span>    <span class="hljs-comment">/* normal but significant condition */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_INFO   KERN_SOH <span class="hljs-string">&quot;6&quot;</span>    <span class="hljs-comment">/* informational */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERN_DEBUG  KERN_SOH <span class="hljs-string">&quot;7&quot;</span>    <span class="hljs-comment">/* debug-level messages */</span></span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>KERN_EMERG</strong> 表示紧急事件，一般是系统崩溃之前提示的消息；</li>
+<li><strong>KERN_ALERT</strong> 表示必须立即采取行动的消息；</li>
+<li><strong>KERN_CRIT</strong> 表示临界状态，通常涉及严重的硬件或软件操作失败；</li>
+<li><strong>KERN_ERR</strong> 用于报告错误状态，设备驱动程序会经常使用该级别来报告来自硬件的问题；</li>
+<li><strong>KERN_WARNING</strong> 对可能出现问题的情况进行警告，这类情况通常不会对系统造成严重的问题；</li>
+<li><strong>KERN_NOTICE</strong> 表示有必要进行提示的正常情形，许多与安全相关的状况用这个级别进行汇报；</li>
+<li><strong>KERN_INFO</strong> 表示内核提示信息，很多驱动程序在启动的时候，用这个级别打印出它们找到的硬件信息；</li>
+<li><strong>KERN_DEBUG</strong> 用于调试信息。</li>
+</ul>
+<h2 id="2、调整内核-printk-打印级别"><a href="#2、调整内核-printk-打印级别" class="headerlink" title="2、调整内核 printk 打印级别"></a>2、调整内核 printk 打印级别</h2><p>通过 <code>/proc/sys/kernel/printk</code> 文件可以调节 printk 的输出等级，该文件有 4 个数字值：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> /proc/sys/kernel/printk<br>4	4	1	7<br></code></pre></td></tr></table></figure>
+
+<p>四个数值含义分别如下：</p>
+<ul>
+<li>控制台日志级别：优先级高于该值的消息将被打印至控制台；</li>
+<li>默认的消息日志级别：将用该优先级来打印没有优先级的消息（即 printk 没有指定消息级别）；</li>
+<li>最低的控制台日志级别：控制台日志级别可被设置的最小值（最高优先级）；</li>
+<li>默认的控制台日志级别：控制台日志级别的缺省值。</li>
+</ul>
+<p>通过修改 <code>/proc/sys/kernel/printk</code> 中的值来改变内核打印效果。例如，屏蔽掉所有的内核 printk 打印，只需要把第一个数值调到最小值 1 或者 0，指令如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">echo</span> 1 4 1 7 &gt; /proc/sys/kernel/printk<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、dynamic-debug-的使用"><a href="#三、dynamic-debug-的使用" class="headerlink" title="三、dynamic debug 的使用"></a>三、dynamic debug 的使用</h1><h2 id="1、dev-xxx-函数"><a href="#1、dev-xxx-函数" class="headerlink" title="1、dev_xxx 函数"></a>1、dev_xxx 函数</h2><p>下面简述下几个 <code>dev_xxx</code> 函数的基本使用规则，以及动态调试使用方式。</p>
+<ul>
+<li><code>dev_info()</code>： 启动过程、或者模块加载过程等 “通知类的” 信息等，一般只会通知一次，例如 probe 函数；</li>
+<li><code>dev_dbg()</code>： 一般使用在普通错误，如 -EINVAL、-ENOMEM 等 errno 发生处，用于调试；</li>
+<li><code>dev_err()</code>： 一般使用在严重错误，尤其是用户无法得到 errno 的地方，或者程序员不容易猜测系统哪里出了问题的地方。</li>
+</ul>
+<p><code>dev_debug</code> 的定义在文件 <code>include/linux/device.h</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_DYNAMIC_DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dev_dbg(dev, fmt, ...)	\</span><br><span class="hljs-meta"> dynamic_dev_dbg(dev, dev_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">elif</span> defined(DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dev_dbg(dev, fmt, ...)	\</span><br><span class="hljs-meta"> dev_printk(KERN_DEBUG, dev, dev_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dev_dbg(dev, fmt, ...)	\</span><br><span class="hljs-meta">(&#123;	\</span><br><span class="hljs-meta"> <span class="hljs-keyword">if</span> (0)	\</span><br><span class="hljs-meta">  dev_printk(KERN_DEBUG, dev, dev_fmt(fmt), ##__VA_ARGS__); \</span><br><span class="hljs-meta">&#125;)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p><code>pr_debug</code> 的定义在文件 <code>include/linux/printk.h</code>，从 <code>pr_debug</code> 的源码注释建议：如果写驱动，请用 <code>dev_dbg</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* If you are writing a driver, please use dev_dbg instead */</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_DYNAMIC_DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/dynamic_debug.h&gt;</span></span><br><br><span class="hljs-comment">/* dynamic_pr_debug() uses pr_fmt() internally so we don&#x27;t need it here */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta"> dynamic_pr_debug(fmt, ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">elif</span> defined(DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta"> printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta"> no_printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>pr_debug&#x2F;dev_dbg输出情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CONFIG_DYNAMIC_DEBUG&#x3D;y <br>DEBUG&#x3D;n</td>
+<td>调用 <code>dynamic_pr_debug/dynamic_dev_dbg</code>， <code>echo -n “file xxx.c +p” &gt; /sys/kernel/debug/dynamic_debug/control</code></td>
+</tr>
+<tr>
+<td>CONFIG_DYNAMIC_DEBUG&#x3D;y <br>DEBUG&#x3D;y</td>
+<td>调用 <code>dynamic_pr_debug/dynamic_dev_dbg</code>，增加启动参数 <code>loglevel=8</code> 之后，kernel 启动阶段就能看到 log</td>
+</tr>
+<tr>
+<td>CONFIG_DYNAMIC_DEBUG&#x3D;n <br>DEBUG&#x3D;y</td>
+<td>调用 printk，打印等级是 <code>KERN_DEBUG=7</code>，所以要将打印等级设置为 8（<code>echo 8 &gt; /proc/sys/kernel/printk</code>）才能看到输出</td>
+</tr>
+<tr>
+<td>CONFIG_DYNAMIC_DEBUG&#x3D;n <br>DEBUG&#x3D;n</td>
+<td>不打印</td>
+</tr>
+</tbody></table>
+<h2 id="2、动态输出支持的特性"><a href="#2、动态输出支持的特性" class="headerlink" title="2、动态输出支持的特性"></a>2、动态输出支持的特性</h2><p>动态输出在 <code>debugfs</code> 文件系统中对应的是 <code>control</code> 文件节点。<code>control</code> 文件节点记录了系统中所有使用动态输出技术的文件名路径，输出语句所在的行号、模块名和将要输出的语句等。</p>
+<p>你可以通过以下命令查看目前所有调试状态的行为配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> /sys/kernel/debug/dynamic_debug/control<br></code></pre></td></tr></table></figure>
+
+<p>你也可以应用标准的 Unix 文本过滤命令来过滤这些数据, 例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ grep -i rdma /sys/kernel/debug/dynamic_debug/control  | <span class="hljs-built_in">wc</span> -l<br></code></pre></td></tr></table></figure>
+
+<h2 id="3、命令行格式"><a href="#3、命令行格式" class="headerlink" title="3、命令行格式"></a>3、命令行格式</h2><p>在语法层面上，一个命令由一系列的规格匹配组成，最后由一个标记来改变这规格。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">command</span> ::= match-spec* flags-spec<br></code></pre></td></tr></table></figure>
+
+<p><code>match-spec</code> 常用来选择一个已知的 <em>dprintk()</em> 调用点的子集来套用 <code>flags-spec</code>。把他们当做彼此之间的每对做隐式查询。注意，一个空的 <code>match_specs</code> 列表是有可能的，但不是非常有用，因为它不会匹配任何调用点的调试子句。</p>
+<p>一个匹配规范由一个关键字组成，关键字控制被比较的调用点的属性和要比较的值。可能关键字是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">match-spec ::= <span class="hljs-string">&#x27;func&#x27;</span> <span class="hljs-built_in">string</span>    |<br>	           <span class="hljs-string">&#x27;file&#x27;</span> <span class="hljs-built_in">string</span>    |<br>	           <span class="hljs-string">&#x27;module&#x27;</span> <span class="hljs-built_in">string</span>  |<br>	           <span class="hljs-string">&#x27;format&#x27;</span> <span class="hljs-built_in">string</span>  |<br>	           <span class="hljs-string">&#x27;line&#x27;</span> line-range<br>	           <br><br>line-range ::= lineno |<br>       		<span class="hljs-string">&#x27;-&#x27;</span>lineno |<br>       	    lineno<span class="hljs-number">&#x27;</span>-<span class="hljs-string">&#x27; |</span><br><span class="hljs-string">  	        lineno&#x27;</span>-<span class="hljs-string">&#x27;lineno</span><br></code></pre></td></tr></table></figure>
+
+<p>注意：<code>line-range</code> 不能包含空格，例如，“1-30”是有效的范围，但“1 - 30”就是无效的</p>
+<p>每个关键字的含义如下：</p>
+<ul>
+<li><strong>func</strong>：给定的字符串会和每个调用点的函数名比较。例如： <code>func svc_tcp_accept</code></li>
+<li><strong>file</strong>：给定的字符串会和每个调用点的源文件的全路径名或者相对名比较。例如： <code>file svcsock.c</code>，  <code>file /usr/src/packages/BUILD/sgi-enhancednfs-1.4/default/net/sunrpc/svcsock.c</code></li>
+<li><strong>module</strong>：给定的字符串会和每个调用点的模块名进行比较。模块名是和在 <code>ls mod</code> 里看到的字符串一样。例如，<code>module sunrpc</code></li>
+<li><strong>format</strong>：给定的字符串会在动态调试格式字符串里查找。注意这字符串不需要匹配这个格式。空格和其他特殊字符能够用八进制字符语法来转义，例如空字符是 <code>\040</code>。作为选择，这个字符串可以附上双引号 <strong>“</strong> 或者是单引号 <strong>‘</strong>。例如：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">format svcrdma:         // NFS/RDMA 服务器的dprintks<br>format readahead        // 一些在预加载缓存里的dprintks<br>format nfsd:\040SETATTR // 一个使用空格来匹配格式的方式<br>format <span class="hljs-string">&quot;nfsd: SETATTR&quot;</span>  // 一个整齐的方法来用空格匹配格式<br>format <span class="hljs-string">&#x27;nfsd: SETATTR&#x27;</span>  // 同样是一个用空格来匹配格式的方法和<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>line</strong>：给定的行号或者是行号范围会和每个 <em>dprintk()</em> 调用点的行号进行比较。例如：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">line <span class="hljs-number">1603</span>      <span class="hljs-comment">// 准确定位到1603行 </span><br>line <span class="hljs-number">1600</span><span class="hljs-number">-1605</span> <span class="hljs-comment">// 1600行到1605行之间的6行</span><br>line <span class="hljs-number">-1605</span>     <span class="hljs-comment">// 从第一行到1605行之间的1605行</span><br>line <span class="hljs-number">1600</span>-     <span class="hljs-comment">// 从1600行到结尾的全部行</span><br></code></pre></td></tr></table></figure>
+
+<p>标记规范包含了一个由一个或多个标记字符跟随的变化操作。这变化操作如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">- <span class="hljs-comment">// 移除给定的标记</span><br>+ <span class="hljs-comment">// 加入给定的标记</span><br>= <span class="hljs-comment">// 设置标记到给定的标记上 </span><br>f <span class="hljs-comment">// 包含已打印消息的函数名</span><br>l <span class="hljs-comment">// 包含已在打印消息的行号</span><br>m <span class="hljs-comment">// 包含已打印消息的模块名</span><br>p <span class="hljs-comment">// 产生一个 printk() 消息到显示系统启动日志</span><br>t <span class="hljs-comment">// 包含了不在中断上下文中产生的消息里的线程ID</span><br></code></pre></td></tr></table></figure>
+
+
+
+
+<h2 id="4、动态打印"><a href="#4、动态打印" class="headerlink" title="4、动态打印"></a>4、动态打印</h2><p>例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 打开一个文件中所有动态打印语句</span><br>$ <span class="hljs-built_in">echo</span> -n <span class="hljs-string">&quot;file gadget.c +p&quot;</span> &gt; /sys/kernel/debug/dynamic_debug/control<br><br><span class="hljs-comment"># 打开一个模块所有动态打印语句</span><br>$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;moudle dwc3 +p&quot;</span> &gt; /sys/kernel/debug/dynamic_debug/control<br><br><span class="hljs-comment"># 打开一个函数中所有的动态打印语句</span><br>$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;func svc_process +p&quot;</span> &gt; /sys/kernel/debug/dynamic_debug/control<br><br><span class="hljs-comment"># 打开文件路径中包含 usb 的文件里所有的动态打印语句</span><br><span class="hljs-built_in">echo</span> -n <span class="hljs-string">&quot;*usb* +p&quot;</span> &gt; /sys/kernel/debug/dynamic_debug/control<br></code></pre></td></tr></table></figure>
+
+<p>上面是打开动态打印语句的例子，除了能打印 <code>pr_debug()</code> &#x2F; <code>dev_dbg()</code> 函数中定义的输出外，还能打印一些额外信息，例如函数名、行号、模块名字和线程 ID 等。</p>
+<p>参数：</p>
+<ul>
+<li><strong>p</strong>：打开动态打印语句。</li>
+<li><strong>f</strong>：打印函数名</li>
+<li><strong>l</strong>：打印行号</li>
+<li><strong>m</strong>：打印模块名字</li>
+<li><strong>t</strong>：打印线程 ID</li>
+</ul>
+<p>另外，还可以在各个子系统的 Makefile 中添加 <code>ccflags</code> 来打开动态输出语句：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">Makefile：<br>ccflags-y += -DDEBUG<br>ccflags-y += -DVERBOSE_DEBUG<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">性能优化/调试</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="print-no-link">#性能优化/调试</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 调试之动态打印</div>
+      <div>http://example.com/2024/08/08/动态打印/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/09/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2/" title="Linux 进程调度（二）之进程的上下文切换">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 进程调度（二）之进程的上下文切换</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" title="Linux 下查看 CPU 使用率">
+                        <span class="hidden-mobile">Linux 下查看 CPU 使用率</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

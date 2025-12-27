@@ -1,0 +1,793 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、任务通知1、基本概念FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeRTOS 快速入门（八）之任务通知">
+<meta property="og:url" content="http://example.com/2024/08/25/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AB/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、任务通知1、基本概念FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-25T10:43:19.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:37:19.522Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="FreeRTOS">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>FreeRTOS 快速入门（八）之任务通知 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeRTOS 快速入门（八）之任务通知"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-25 18:43" pubdate>
+          星期日, 八月 25日 2024, 6:43 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FreeRTOS 快速入门（八）之任务通知</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<h1 id="一、任务通知"><a href="#一、任务通知" class="headerlink" title="一、任务通知"></a>一、任务通知</h1><h2 id="1、基本概念"><a href="#1、基本概念" class="headerlink" title="1、基本概念"></a>1、基本概念</h2><p><code>FreeRTOS</code> 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。</p>
+<p>相对于以前使用 <code>FreeRTOS</code> 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然更灵活。按照 FreeRTOS 官方的说法，使用任务通知比通过信号量等 ICP 通信方式解除阻塞的任务要快 45%，并且更加省 RAM 内存空间（使用 GCC 编译器，-o2 优化级别），任务通知的使用无需创建队列。 </p>
+<p>想要使用任务通知，必须将 <code>FreeRTOSConfig.h</code> 中的宏定义 <code>configUSE_TASK_NOTIFICATIONS</code> 设置为 1，其实<code>FreeRTOS</code> 默认是为 1 的，所以任务通知是默认使能的。</p>
+<p><code>FreeRTOS</code> 提供以下几种方式发送通知给任务 ：</p>
+<ul>
+<li>发送通知给任务， 如果有通知未读，不覆盖通知值。</li>
+<li>发送通知给任务，直接覆盖通知值。</li>
+<li>发送通知给任务，设置通知值的一个或者多个位 ，可以当做事件组来使用。</li>
+<li>发送通知给任务，递增通知值，可以当做计数信号量使用。</li>
+</ul>
+<p>通过对以上任务通知方式的合理使用，可以在一定场合下替代 <code>FreeRTOS</code> 的信号量，队列、事件组等。</p>
+<h2 id="2、优势及限制"><a href="#2、优势及限制" class="headerlink" title="2、优势及限制"></a>2、优势及限制</h2><p>任务通知的优势：</p>
+<ul>
+<li>效率更高：使用任务通知来发送事件、数据给某个任务时，效率更高。比队列、信号量、事件组都有大的优势。</li>
+<li>更节省内存：使用其他方法时都要先创建对应的结构体，使用任务通知时无需额外创建结构体。</li>
+</ul>
+<p>任务通知的限制：</p>
+<ul>
+<li>不能发送数据给 ISR：ISR 并没有任务结构体，所以无法使用任务通知的功能给 ISR 发送数据。但是 ISR 可以使用任务通知的功能，发数据给任务。</li>
+<li>数据只能给该任务独享</li>
+<li>无法缓冲数据</li>
+<li>无法广播给多个任务</li>
+<li>如果发送受阻，发送方无法进入阻塞状态等待</li>
+</ul>
+<h2 id="3、通知状态和通知值"><a href="#3、通知状态和通知值" class="headerlink" title="3、通知状态和通知值"></a>3、通知状态和通知值</h2><p>每个任务都有一个结构体：TCB（<em><strong>Task Control Block</strong></em>），里面有 2 个成员：</p>
+<ul>
+<li>一个是 uint8_t 类型，用来表示&#x3D;&#x3D;通知状态&#x3D;&#x3D;</li>
+<li>一个是 uint32_t 类型，用来表示&#x3D;&#x3D;通知值&#x3D;&#x3D;</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">tskTaskControlBlock</span></span><br><span class="hljs-class">&#123;</span><br>	......<br>	<span class="hljs-comment">/* configTASK_NOTIFICATION_ARRAY_ENTRIES = 1 */</span><br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span> ulNotifiedValue[ configTASK_NOTIFICATION_ARRAY_ENTRIES ];<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint8_t</span> ucNotifyState[ configTASK_NOTIFICATION_ARRAY_ENTRIES ];<br>	......<br>&#125; tskTCB;<br></code></pre></td></tr></table></figure>
+
+<p>通知状态有 3 种取值：</p>
+<ul>
+<li><code>taskNOT_WAITING_NOTIFICATION</code>：任务没有在等待通知</li>
+<li><code>taskWAITING_NOTIFICATION</code>：任务在等待通知</li>
+<li><code>taskNOTIFICATION_RECEIVED</code>：任务接收到了通知，也被称为 pending(有数据了，待处理)</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskNOT_WAITING_NOTIFICATION ( ( uint8_t ) 0 ) <span class="hljs-comment">/* 也是初始状态 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskWAITING_NOTIFICATION ( ( uint8_t ) 1 )</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskNOTIFICATION_RECEIVED ( ( uint8_t ) 2 )</span><br></code></pre></td></tr></table></figure>
+
+<p>通知值可以有很多种类型：</p>
+<ul>
+<li>计数值</li>
+<li>位(类似事件组)</li>
+<li>任意数值</li>
+</ul>
+<h1 id="二、任务通知的使用"><a href="#二、任务通知的使用" class="headerlink" title="二、任务通知的使用"></a>二、任务通知的使用</h1><p>使用任务通知，可以实现轻量级的队列（长度为 1）、邮箱(覆盖的队列)、计数型信号量、二进制信号量、事件组。</p>
+<p>任务通知有两套函数，简化版、专业版，列表如下：</p>
+<ul>
+<li>简化版函数的使用比较简单，它实际上也是使用专业版函数实现的</li>
+<li>专业版函数支持很多参数，可以实现很多功能</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>简化版</th>
+<th>专业版</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>发出通知</td>
+<td><code>xTaskNotifyGive</code><br><code>vTaskNotifyGiveFromISR</code></td>
+<td><code>xTaskNotify</code><br><code>xTaskNotifyFromISR</code></td>
+</tr>
+<tr>
+<td>取出通知</td>
+<td><code>ulTaskNotifyTake</code></td>
+<td><code>xTaskNotifyWait</code></td>
+</tr>
+</tbody></table>
+<h2 id="1、xTaskNotifyGive-ulTaskNotifyTake"><a href="#1、xTaskNotifyGive-ulTaskNotifyTake" class="headerlink" title="1、xTaskNotifyGive&#x2F;ulTaskNotifyTake"></a>1、xTaskNotifyGive&#x2F;ulTaskNotifyTake</h2><p>在任务中使用 <code>xTaskNotifyGive</code> 函数，在 ISR 中使用 <code>vTaskNotifyGiveFromISR</code> 函数，都是直接给其他任务<br>发送通知：</p>
+<ul>
+<li>使得通知值加一</li>
+<li>并使得通知状态变为”pending”，也就是 <code>taskNOTIFICATION_RECEIVED</code>，表示有数据了、待处理</li>
+</ul>
+<p>可以使用 <code>ulTaskNotifyTake</code> 函数来取出通知值：</p>
+<ul>
+<li>如果通知值等于 0，则阻塞(可以指定超时时间)</li>
+<li>当通知值大于 0 时，任务从阻塞态进入就绪态</li>
+<li>在 <code>ulTaskNotifyTake</code> 返回之前，还可以做些清理工作：把通知值减一，或者把通知值清零</li>
+</ul>
+<blockquote>
+<p>使用 ulTaskNotifyTake 函数可以实现轻量级的、高效的二进制信号量、计数型信号量。</p>
+</blockquote>
+<p>原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify : 任务句柄(创建任务时得到)，给哪个任务发通知</span><br><span class="hljs-comment"> * 返回值 : 必定返回pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyGive</span><span class="hljs-params">( TaskHandle_t xTaskToNotify )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskHandle : 任务句柄(创建任务时得到)，给哪个任务发通知</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken : 被通知的任务，可能正处于阻塞状态。此函数发出通知后，</span><br><span class="hljs-comment">      会把它从阻塞状态切换为就绪态。如果被唤醒的任务的优先级，高于当前任务的优先级，则 </span><br><span class="hljs-comment">      *pxHigherPriorityTaskWoken 被设置为pdTRUE，这表示在中断返回之前要进行任务切换。</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskNotifyGiveFromISR</span><span class="hljs-params">( TaskHandle_t xTaskHandle, BaseType_t</span><br><span class="hljs-params">						*pxHigherPriorityTaskWoken )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xClearCountOnExit : 函数返回前是否清零：</span><br><span class="hljs-comment"> *                    pdTRUE：把通知值清零</span><br><span class="hljs-comment"> *                    pdFALSE：如果通知值大于0，则把通知值减一</span><br><span class="hljs-comment"> * xTicksToWait : 任务进入阻塞态的超时时间，它在等待通知值大于0。</span><br><span class="hljs-comment"> *                 0：不等待，即刻返回；</span><br><span class="hljs-comment"> *                 portMAX_DELAY：一直等待，直到通知值大于0；</span><br><span class="hljs-comment"> *                 其他值：Tick Count，可以用pdMS_TO_TICKS() 把ms转换为Tick Count</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">uint32_t</span> <span class="hljs-title function_">ulTaskNotifyTake</span><span class="hljs-params">( BaseType_t xClearCountOnExit, TickType_t </span><br><span class="hljs-params">						  xTicksToWait</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2、xTaskNotify-xTaskNotifyWait"><a href="#2、xTaskNotify-xTaskNotifyWait" class="headerlink" title="2、xTaskNotify&#x2F;xTaskNotifyWait"></a>2、xTaskNotify&#x2F;xTaskNotifyWait</h2><p><code>xTaskNotify</code> 函数功能更强大，可以使用不同参数实现各类功能，比如：</p>
+<ul>
+<li>让接收任务的通知值加一：这时 <code>xTaskNotify()</code> 等同于 <code>xTaskNotifyGive()</code></li>
+<li>设置接收任务的通知值的某一位、某些位，这就是一个轻量级的、更高效的事件组</li>
+<li>把一个新值写入接收任务的通知值：上一次的通知值被读走后，写入才成功。这就是轻量级的、长度为1的队列</li>
+<li>用一个新值覆盖接收任务的通知值：无论上一次的通知值是否被读走，覆盖都成功。类似 <code>xQueueOverwrite()</code> 函数，这就是轻量级的邮箱。</li>
+</ul>
+<p><code>xTaskNotify()</code> 比 <code>xTaskNotifyGive()</code> 更灵活、强大，使用上也就更复杂。<code>xTaskNotifyFromISR()</code> 是它对应的 ISR 版本。</p>
+<p>使用 <code>xTaskNotifyWait()</code> 函数来取出任务通知。它比 <code>ulTaskNotifyTake()</code> 更复杂：</p>
+<ul>
+<li>可以让任务等待(可以加上超时时间)，等到任务状态为”pending”(也就是有数据)</li>
+<li>还可以在函数进入、退出时，清除通知值的指定位</li>
+</ul>
+<p>原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见下面表格</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotify</span><span class="hljs-params">( TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">						<span class="hljs-type">uint32_t</span> ulValue,</span><br><span class="hljs-params">						eNotifyAction eAction )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见下面表格</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken：在使用之前必须先初始化为 pdFALSE。当调用该函数发送一个任务通知时，</span><br><span class="hljs-comment">   		目标任务接收到通知后将从阻塞态变为就绪态，并且如果其优先级比当前运行的任务的优先级高，</span><br><span class="hljs-comment">   		那么 *pxHigherPriorityTaskWoken 会被设置为 pdTRUE，然后在中断退出前执行一次上下文切换，</span><br><span class="hljs-comment">   		去执行刚刚被唤醒的中断优先级较高的任务。pxHigherPriorityTaskWoken 是一个可选的参数可以设置为 NULL</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyFromISR</span><span class="hljs-params">( TaskHandle_t xTaskToNotify,</span><br><span class="hljs-params">						        <span class="hljs-type">uint32_t</span> ulValue,</span><br><span class="hljs-params">								eNotifyAction eAction,</span><br><span class="hljs-params">								BaseType_t *pxHigherPriorityTaskWoken )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * ulBitsToClearOnEntry：ulBitsToClearOnEntry 表示在使用通知之前，将任务通知值的哪些位清 0，</span><br><span class="hljs-comment"> 		实现过程就是将任务的通知值与参数 ulBitsToClearOnEntry 的按位取反值按位与操作。</span><br><span class="hljs-comment"> 		如果 ulBitsToClearOnEntry 设置为 0x01，那么在函数进入前，任务通知值的位1会被清0，其他位保持不变。</span><br><span class="hljs-comment"> 		如果 ulBitsToClearOnEntry 设置为 0xFFFFFFFF (ULONG_MAX)，那么在进入函数前任务通知值的所有位都</span><br><span class="hljs-comment"> 		会被清 0，表示清零任务通知值</span><br><span class="hljs-comment"> * pulNotificationValue：用于保存接收到的任务通知值。如果接收到的任务通知不需要使用，则设置为 NULL 即可。</span><br><span class="hljs-comment"> 		这个通知值在参数 ulBitsToClearOnExit 起作用前将通知值拷贝到 *pulNotificationValue 中</span><br><span class="hljs-comment"> * xTicksToWait：等待超时时间，单位为系统节拍周期。宏 pdMS_TO_TICKS 用于将单位毫秒转化为系统节拍数</span><br><span class="hljs-comment"> * 返回值：如果获取任务通知成功则返回 pdTRUE，失败则返回 pdFALSE</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyWait</span><span class="hljs-params">( <span class="hljs-type">uint32_t</span> ulBitsToClearOnEntry,</span><br><span class="hljs-params">							<span class="hljs-type">uint32_t</span> ulBitsToClearOnExit,</span><br><span class="hljs-params">							<span class="hljs-type">uint32_t</span> *pulNotificationValue,</span><br><span class="hljs-params">							TickType_t xTicksToWait )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>eAcrtion</code> 的取值如下：</p>
+<table>
+<thead>
+<tr>
+<th>eAction 取值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>eNoAction</td>
+<td>对象任务接收任务通知，但是任务自身的任务通知值不更新，即形参 ulValue 没有用。</td>
+</tr>
+<tr>
+<td>eSetBits</td>
+<td>对象任务接收任务通知，同时任务自身的任务通知值与 ulValue 按位或。<br>如果 ulValue 设置为 0x01，那么任务的通知值的位 0 将被置为 1。<br>同样的如果 ulValue 设置为 0x04，那么任务的通知值的位 2 将被置为 1。<br> 在这种方式下，任务通知可以看成是事件标志的一种轻量型的实现，速度更快。</td>
+</tr>
+<tr>
+<td>eIncrement</td>
+<td>对象任务接收任务通知，任务自身的任务通知值加 1，即形参ulValue 没有用。<br>这个时候调用 xTaskNotify() 等同于调用 xTaskNotifyGive()。</td>
+</tr>
+<tr>
+<td>eSetValueWithOverwrite</td>
+<td>对象任务接收任务通知，且任务自身的任务通知值会无条件的被设置为 ulValue。 <br>在这种方式下，任务通知可以看成是函数 <code>xQueueOverwrite()</code> 的一种轻量型的实现，速度更快。</td>
+</tr>
+<tr>
+<td>eSetValueWithoutOverwrite</td>
+<td>对象任务接收任务通知，且对象任务没有通知值，那么通知值就会被设置为 ulValue。<br>对象任务接收任务通知，但是上一次接收到的通知值并没有取走，那么本次的通知值将不会更新，同时函数返回 pdFALSE。<br> 在这种方式下，任务通知可以看成是函数 <code>xQueueSend()</code> 应用在队列深度为 1 的队列上的一种轻量型实现，速度更快。</td>
+</tr>
+</tbody></table>
+<h2 id="3、xTaskNotifyAndQuery"><a href="#3、xTaskNotifyAndQuery" class="headerlink" title="3、xTaskNotifyAndQuery"></a>3、xTaskNotifyAndQuery</h2><p><code>xTaskNotifyAndQuery()</code> 与 <code>xTaskNotify()</code> 很像，都是调用通用的任务通知发送函数 <code>xTaskGenericNotify()</code> 来实现通知的发送，不同的是多了一个附加的参数 <code>pulPreviousNotifyValue</code> 用于回传接收任务的上一个通知值。</p>
+<p><code>xTaskNotifyAndQuery()</code> 函数不能用在中断中，而是必须使用带中断保护功能的 <code>xTaskNotifyAndQuery()FromISR</code> 来代替。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见上面表格</span><br><span class="hljs-comment"> * pulPreviousNotifyValue：对象任务的上一个任务通知值，如果为 NULL，则不需要回传，</span><br><span class="hljs-comment"> 		这个时候就等价于函数 xTaskNotify()</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyAndQuery</span><span class="hljs-params">( TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">								<span class="hljs-type">uint32_t</span> ulValue, </span><br><span class="hljs-params">								eNotifyAction eAction, </span><br><span class="hljs-params">								<span class="hljs-type">uint32_t</span> *pulPreviousNotifyValue )</span><br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见上面表格</span><br><span class="hljs-comment"> * pulPreviousNotifyValue：对象任务的上一个任务通知值，如果为 NULL，则不需要回传，</span><br><span class="hljs-comment"> 		这个时候就等价于函数 xTaskNotify()</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken：在使用之前必须先初始化为 pdFALSE。当调用该函数发送一个任务通知时，</span><br><span class="hljs-comment"> 		目标任务接收到通知后将从阻塞态变为就绪态，并且如果其优先级比当前运行的任务的优先级高，那么 </span><br><span class="hljs-comment"> 		*pxHigherPriorityTaskWoken 会被设置为 pdTRUE，然后在中断退出前执行一次上下文切换，</span><br><span class="hljs-comment"> 		去执行刚刚被唤醒的中断优先级较高的任务。</span><br><span class="hljs-comment"> 		pxHigherPriorityTaskWoken 是一个可选的参数可以设置为 NULL</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyAndQueryFromISR</span><span class="hljs-params">(  TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">										<span class="hljs-type">uint32_t</span> ulValue, </span><br><span class="hljs-params">										eNotifyAction eAction, </span><br><span class="hljs-params">										<span class="hljs-type">uint32_t</span> *pulPreviousNotifyValue, </span><br><span class="hljs-params">										BaseType_t *pxHigherPriorityTaskWoken )</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/FreeRTOS/" class="print-no-link">#FreeRTOS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeRTOS 快速入门（八）之任务通知</div>
+      <div>http://example.com/2024/08/25/FreeRTOS入门八/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/26/FreeRTOS%E5%85%A5%E9%97%A8%E4%B9%9D/" title="FreeRTOS 快速入门（九）之软件定时器">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FreeRTOS 快速入门（九）之软件定时器</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/24/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%83/" title="FreeRTOS 快速入门（七）之事件组">
+                        <span class="hidden-mobile">FreeRTOS 快速入门（七）之事件组</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
