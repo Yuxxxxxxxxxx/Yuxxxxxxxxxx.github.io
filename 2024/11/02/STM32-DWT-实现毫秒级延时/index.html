@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>【STM32】通过 DWT 实现毫秒级延时 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  零、前言在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【STM32】通过 DWT 实现毫秒级延时">
+<meta property="og:url" content="http://example.com/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  零、前言在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-11-02T03:03:57.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:42:14.656Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "【STM32】通过 DWT 实现毫秒级延时",
+  "url": "http://example.com/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-11-02T03:03:57.000Z",
+  "dateModified": "2024-11-14T09:42:14.656Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '【STM32】通过 DWT 实现毫秒级延时',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">【STM32】通过 DWT 实现毫秒级延时</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">【STM32】通过 DWT 实现毫秒级延时</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-02T03:03:57.000Z" title="发表于 2024-11-02 11:03:57">2024-11-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T09:42:14.656Z" title="更新于 2024-11-14 17:42:14">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<h1 id="零、前言"><a href="#零、前言" class="headerlink" title="零、前言"></a>零、前言</h1><p>在 FreeRTOS 中，<code>SysTick</code> 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。</p>
+<p>因此，这里提供一种基于 DWT 实现的 delay。</p>
+<h1 id="一、DWT"><a href="#一、DWT" class="headerlink" title="一、DWT"></a>一、DWT</h1><p>在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：</p>
+<blockquote>
+<p>这里只介绍待会儿会用到的延时相关的内容</p>
+</blockquote>
+<p><img src="1.png"></p>
+<p><img src="2.png"></p>
+<p><img src="3.png"></p>
+<p>在 Cortex-M 内核内核中里面有一个外设叫 <code>DWT</code>(<em><strong>Data Watchpoint and Trace</strong></em>)，是用于系统调试及跟踪。</p>
+<p>它有一个 32 位的寄存器叫 <code>CYCCNT</code>，它是一个&#x3D;&#x3D;向上&#x3D;&#x3D;的计数器，记录的是内核时钟运行的个数，内核时钟跳动一次，该计数器就加 1。</p>
+<p>它的精度非常高，取决于内核的频率是多少，如果是 F103 系列，内核时钟是 72M，那精度就是 $1&#x2F;72M &#x3D; 14ns$，而程序的运行时间都是微秒级别的，所以 14ns 的精度是远远够的。最长能记录的时间为：$60s &#x3D; 2^{32}&#x2F;72000000$ (假设内核频率为72M，内核跳一次的时间大概为 $1&#x2F;72M&#x3D;14ns$)，而如果是 H7 这种 400M 主频的芯片，那它的计时精度高达 2.5ns（$1&#x2F;400000000 &#x3D; 2.5$）。</p>
+<p>当 <code>CYCCNT</code> 溢出之后，会清 0 重新开始向上计数。</p>
+<p>要实现延时的功能，总共涉及到三个寄存器：<code>DEMCR</code>、<code>DWT_CTRL</code>、<code>DWT_CYCCNT</code>，分别用于开启 DWT 功能、开启 CYCCNT 及获得系统时钟计数值。下面就来看一下这几个寄存器吧。</p>
+<h2 id="1、DEMCR"><a href="#1、DEMCR" class="headerlink" title="1、DEMCR"></a>1、DEMCR</h2><p>参照权威指南：</p>
+<p><img src="4.png"></p>
+<p>配置的时候，将 <code>TRCENA</code> 设置为 1 就行了。</p>
+<h2 id="2、DWT-CTRL"><a href="#2、DWT-CTRL" class="headerlink" title="2、DWT_CTRL"></a>2、DWT_CTRL</h2><p><img src="5.png"><br>将 <code>CYCCNTENA</code> 使能位置 1 即可。</p>
+<h2 id="3、DWT-CYCCNT"><a href="#3、DWT-CYCCNT" class="headerlink" title="3、DWT_CYCCNT"></a>3、DWT_CYCCNT</h2><p><img src="6.png"><br>使用 <code>DWT_CYCCNT</code> 寄存器之前，先清 0。</p>
+<p>综上所述，要使用 DWT 的 <code>CYCCNT</code> 配置步骤如下：</p>
+<ol>
+<li>使能 DWT 外设，这个由内核调试寄存器 DEMCR 的位 24 <code>TRCENA</code> 控制，写 1 使能</li>
+<li>使能 <code>CYCCNT</code> 寄存器之前，先清 0。</li>
+<li>使能 <code>CYCCNT</code> 寄存器，这个由 DWT 控制寄存器的 <code>CYCCNTENA</code> 位控制，也就是 DWT 控制寄存器的位 0 控制，写 1 使能</li>
+</ol>
+<h1 id="二、实现代码"><a href="#二、实现代码" class="headerlink" title="二、实现代码"></a>二、实现代码</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span>  DWT_CYCCNT  *(volatile unsigned int *)0xE0001004</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>  DWT_CR      *(volatile unsigned int *)0xE0001000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>  DEM_CR      *(volatile unsigned int *)0xE000EDFC</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>  DEM_CR_TRCENA               (1 &lt;&lt; 24)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span>  DWT_CR_CYCCNTENA            (1 &lt;&lt;  0)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  初始化 DWT</span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bsp_dwt_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    DEM_CR         |= (<span class="type">unsigned</span> <span class="type">int</span>)DEM_CR_TRCENA;   <span class="comment">/* Enable Cortex-M4&#x27;s DWT CYCCNT reg.  */</span></span><br><span class="line">	DWT_CYCCNT      = (<span class="type">unsigned</span> <span class="type">int</span>)<span class="number">0u</span>;</span><br><span class="line">	DWT_CR         |= (<span class="type">unsigned</span> <span class="type">int</span>)DWT_CR_CYCCNTENA;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      </span></span><br><span class="line"><span class="comment"> * @param[in]  _delay_time    :    延时时间  </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bsp_dwt_delay</span><span class="params">(<span class="type">uint32_t</span> _delay_time)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">uint32_t</span> cnt, delay_cnt;</span><br><span class="line">	<span class="type">uint32_t</span> start;</span><br><span class="line">		</span><br><span class="line">	cnt = <span class="number">0</span>;</span><br><span class="line">	delay_cnt = _delay_time;  <span class="comment">/* 需要的节拍数 */</span> 		      </span><br><span class="line">	start = DWT_CYCCNT;       <span class="comment">/* 刚进入时的计数器值 */</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">while</span>(cnt &lt; delay_cnt)</span><br><span class="line">	&#123;</span><br><span class="line">		cnt = DWT_CYCCNT - start; <span class="comment">/* 求减过程中，如果发生第一次32位计数器重新计数，依然可以正确计算 */</span>	</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      这里的延时采用CPU的内部计数实现，32位计数器</span></span><br><span class="line"><span class="comment"> *             OSSchedLock(&amp;err);</span></span><br><span class="line"><span class="comment"> *			   bsp_DelayUS(5);</span></span><br><span class="line"><span class="comment"> *			   OSSchedUnlock(&amp;err); 根据实际情况看看是否需要加调度锁或选择关中断</span></span><br><span class="line"><span class="comment"> * @param[in]  _delay_time    :    延迟长度，单位1 us</span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * @note       1. 主频168MHz的情况下，32位计数器计满是2^32/168000000 = 25.565秒</span></span><br><span class="line"><span class="comment"> *                建议使用本函数做延迟的话，延迟在1秒以下。  </span></span><br><span class="line"><span class="comment"> *             2. 实际通过逻辑分析仪测试，微妙延迟函数比实际设置实际多运行0.25us左右的时间。</span></span><br><span class="line"><span class="comment"> *             3. 测试硬件：STM32F407VET6</span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bsp_delay_us</span><span class="params">(<span class="type">uint32_t</span> _delay_time)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">uint32_t</span> cnt, delay_cnt;</span><br><span class="line">	<span class="type">uint32_t</span> start;</span><br><span class="line">		</span><br><span class="line">	start = DWT_CYCCNT;                                     <span class="comment">/* 刚进入时的计数器值 */</span></span><br><span class="line">	cnt = <span class="number">0</span>;</span><br><span class="line">	delay_cnt = _delay_time * (SystemCoreClock / <span class="number">1000000</span>);	 <span class="comment">/* 需要的节拍数 */</span> 		      </span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(cnt &lt; delay_cnt)</span><br><span class="line">	&#123;</span><br><span class="line">		cnt = DWT_CYCCNT - start; <span class="comment">/* 求减过程中，如果发生第一次32位计数器重新计数，依然可以正确计算 */</span>	</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      为了让底层驱动在带RTOS和裸机情况下有更好的兼容性</span></span><br><span class="line"><span class="comment"> *             专门制作一个阻塞式的延迟函数，在底层驱动中ms毫秒延迟主要用于初始化，并不会影响实时性。 </span></span><br><span class="line"><span class="comment"> * @param[in]  _delay_time    :    延迟长度，单位1 ms</span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">bsp_delay_ms</span><span class="params">(<span class="type">uint32_t</span> _delay_time)</span></span><br><span class="line">&#123;</span><br><span class="line">	bsp_delay_us(<span class="number">1000</span> * _delay_time);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、测试"><a href="#三、测试" class="headerlink" title="三、测试"></a>三、测试</h1><p>下面通过一个简单的 demo 测试一下 us 级的延时函数，通过翻转 PC0 的电平状态，再通过逻辑分析仪查看延时效果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/******</span></span><br><span class="line"><span class="comment">	 * 系统及外设初始化函数</span></span><br><span class="line"><span class="comment">	 *****/</span></span><br><span class="line">	</span><br><span class="line">	bsp_dwt_init();</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 使用PC0测试时间 */</span></span><br><span class="line">	&#123;</span><br><span class="line">		GPIO_InitTypeDef GPIO_InitStructure;</span><br><span class="line">			</span><br><span class="line">		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);</span><br><span class="line"></span><br><span class="line">		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;	<span class="comment">/* 输出类型为推挽 */</span></span><br><span class="line">		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;	<span class="comment">/* 内部上拉电阻使能 */</span></span><br><span class="line">		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;	<span class="comment">/* 复用模式 */</span></span><br><span class="line">		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;</span><br><span class="line">		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;</span><br><span class="line">		GPIO_Init(GPIOC, &amp;GPIO_InitStructure);		</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		GPIOC-&gt;BSRR = (<span class="type">uint32_t</span>)GPIO_Pin_0;</span><br><span class="line">		bsp_delay_us(<span class="number">1</span>);</span><br><span class="line">		GPIOC-&gt;BSRR = (<span class="type">uint32_t</span>)GPIO_Pin_0 &lt;&lt; <span class="number">16</span>;</span><br><span class="line">		bsp_delay_us(<span class="number">1</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>bsp_delay_us(10)</code>：</p>
+<p><img src="7.png"></p>
+<blockquote>
+<p>大致要比实际设置的时间多运行 0.25 us</p>
+</blockquote>
+<p><code>bsp_delay_us(1)</code>：</p>
+<p><img src="8.png"></p>
+<blockquote>
+<p>注意事项</p>
+</blockquote>
+<p>在烧录运行程序的时候，由于下载器的问题，早期用的 D 版 JLINK，不能正常复位 DWT。所以 DWT 时钟计数器容易出现不运行的情况，而调试状态或者重新上电都不存在问题，使用的时候要注意。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/">http://example.com/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" title="Git 查错记录"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Git 查错记录</div></div><div class="info-2"><div class="info-item-1">[toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read from remote repository.Please make sure you have the correct access rightsand the repository exists.   遇到这个问题，说明 22 端口可能被防火墙屏蔽了，可以尝试连接 GitHub 的 443 端口。 123456$ vim ~/.ssh/config# 添加如下几行Host github.com  Hostname ssh.github.com  Port 443  修改完 ~/.ssh/config 文件后，使用 ssh -T git@github.com 来测试和GitHub的网络通...</div></div></div></a><a class="pagination-related" href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" title="BLE 协议之 L2CAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">BLE 协议之 L2CAP</div></div><div class="info-2"><div class="info-item-1">[toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只有一条，而要利用它传输数据的上层应用却不止一个（例如上图中的 ATT 和 SMP），怎么复用？ Logical Channel 所能传输的有效 payload 长度最大只有 251bytes，怎是否意味着上层应用每次只能传输少于这个长度的数据？（显然不能！） Logical Channel 仅提供了简单的应答和流控机制，如果传输的数据出错怎么办？ ……  L2CAP 所具备的主要功能如下：  协议信道复用（Protocol&#x2F;channel multiplexing） ：能够区分高层协议，在信道建立时，协议复用功能用来 发送请求来连接正确的上层协议 ；在数据传输时，逻辑信道复用必...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" title="Cortex-M 内核的 OS 特性"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-13</div><div class="info-item-2">Cortex-M 内核的 OS 特性</div></div><div class="info-2"><div class="info-item-1">@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从高地址向低地址生长的，下面通过一个例子演示一下： 12345678__IO uint32_t a = 0x11111111;__IO uint32_t b = 0x22222222;__IO uint32_t c = 0x33333333;__IO uint32_t d = 0x44444444;__IO uint32_t e = 0x55555555;__IO uint32_t f = 0x66666666;__IO uint32_t g = 0x77777777;__IO uint32_t h = 0x88888888;   然后进入调试状态，可以看到现在 SP 指针是 0x20...</div></div></div></a><a class="pagination-related" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" title="STM32 通过 SPI 驱动 W25Q128"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-21</div><div class="info-item-2">STM32 通过 SPI 驱动 W25Q128</div></div><div class="info-2"><div class="info-item-1">[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1234567W25Q     STM32VCC  --&gt; VCCGND  --&gt; GNDDO   --&gt; PA6 (MISO)DI   --&gt; PA7 (MOSI)CLK  --&gt; PA5 (SCK)CS   --&gt; PA4 (CS)  2、时钟控制SCK 线的时钟信号，由波特率发生器根据“控制寄存器CR1”中的 BR[0:2] 位控制，该位是对 fpclk 时钟的分频因子， 对 fpclk 的分频结果就是 SCK 引脚的输出时钟频率，计算方法见下表：  其中的 fpclk 频率是指 SPI 所在的 APB 总线频率，APB1 为 fpclk1，APB...</div></div></div></a><a class="pagination-related" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-01</div><div class="info-item-2">基于 STM32F407 的串口 IAP</div></div><div class="info-2"><div class="info-item-1">[toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主要介绍如何使用串口对固件进行升级。 这里有一点需要特殊注意，就是在 MCU 中，有一个特殊区域被称为 System memory 。在这块区域中存放了 ST 公司自己的 Bootloader 程序，它是在 MCU 出厂时，有 ST 固化到芯片中的，后续不能再更改。其中的 Bootloader 程序也可以对 MCU 进行升级（DFU 对芯片的编程应该就是用的这个 Bootloader）。而且，芯片不同，BootLoader 的功能也是有区别的。ST 官网对于这些也是有详细文档的。下图为部分芯片 BootLoader 版本及功能：  一、概述在学习 IAP 之前，最好先了解一下 SMT32 ...</div></div></div></a><a class="pagination-related" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-08</div><div class="info-item-2">STM32 位带操作</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：  那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是...</div></div></div></a><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-10</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9B%B6%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">零、前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81DWT"><span class="toc-number">2.</span> <span class="toc-text">一、DWT</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81DEMCR"><span class="toc-number">2.1.</span> <span class="toc-text">1、DEMCR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81DWT-CTRL"><span class="toc-number">2.2.</span> <span class="toc-text">2、DWT_CTRL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81DWT-CYCCNT"><span class="toc-number">2.3.</span> <span class="toc-text">3、DWT_CYCCNT</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">二、实现代码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B5%8B%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text">三、测试</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

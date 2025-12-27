@@ -1,0 +1,542 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>MQTT 协议概述 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、概述MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构建于 TCP&#x2F;IP 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。MQTT 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MQTT 协议概述">
+<meta property="og:url" content="http://example.com/2024/09/12/MQTT/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、概述MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构建于 TCP&#x2F;IP 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。MQTT 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-09-12T08:40:42.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:21:26.893Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="MQTT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MQTT 协议概述",
+  "url": "http://example.com/2024/09/12/MQTT/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-09-12T08:40:42.000Z",
+  "dateModified": "2024-11-14T01:21:26.893Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/09/12/MQTT/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MQTT 协议概述',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">MQTT 协议概述</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">MQTT 协议概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-12T08:40:42.000Z" title="发表于 2024-09-12 16:40:42">2024-09-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T01:21:26.893Z" title="更新于 2024-11-14 09:21:26">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><code>MQTT</code>（<em><strong>Message Queuing Telemetry Transport</strong></em>，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（<code>publish/subscribe</code>）模式的“轻量级”通讯协议，该协议构建于 <code>TCP/IP</code> 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。<code>MQTT</code> 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据包。</p>
+<p>MQTT协议具有以下特点：</p>
+<ul>
+<li>轻量级：<code>MQTT</code> 的协议开销小，适用于资源受限的设备，如传感器、物联网设备等。</li>
+<li>灵活和可扩展：<code>MQTT</code> 支持多种传输层协议，如 <code>TCP/IP</code>、<code>WebSocket</code> 等。它还提供了 QoS（<em><strong>Quality of Service</strong></em>）级别，以确保消息的可靠传输。</li>
+<li>异步通信：<code>MQTT</code> 使用发布&#x2F;订阅模型，发布者和订阅者之间不需要直接通信，使得系统的解耦更容易。</li>
+<li>处理低带宽和高延迟网络：<code>MQTT</code> 协议可以在网络连接不稳定或带宽有限的环境中可靠地传输数据。</li>
+</ul>
+<h1 id="二、协议模型"><a href="#二、协议模型" class="headerlink" title="二、协议模型"></a>二、协议模型</h1><h2 id="1、组成部分"><a href="#1、组成部分" class="headerlink" title="1、组成部分"></a>1、组成部分</h2><p><code>MQTT</code> 协议基于 <code>TCP/IP</code> 协议，通常在应用层上使用，通过客户端和服务端之间的发布&#x2F;订阅模型进行通信。它有以下几个主要组成部分：</p>
+<ul>
+<li><code>Broker</code>（代理服务器）：是 <code>MQTT</code> 网络中的中间件，负责接收来自客户端的消息，并将消息路由到符合订阅条件的客户端。<code>Broker</code> 还负责维护客户端的连接状态。</li>
+<li><code>Publisher</code>（发布者）：是发送消息的 <code>MQTT</code> 客户端。发布者将消息发送到 <code>Broker</code>，并指定一个或多个主题（<em><strong>Topic</strong></em>）。</li>
+<li><code>Subscriber</code>（订阅者）：是接收消息的 <code>MQTT</code> 客户端。订阅者通过向 <code>Broker</code> 订阅一个或多个主题，以接收与这些主题相关的消息。</li>
+<li><code>Topic</code>（主题）：是消息的类别或标签，用于将发布者的消息与订阅者的接收行为关联起来。主题由一个或多个层级组成，可以使用通配符进行匹配。</li>
+</ul>
+<p><img src="1.png"></p>
+<h2 id="2、客户端"><a href="#2、客户端" class="headerlink" title="2、客户端"></a>2、客户端</h2><p><code>MQTT</code> 客户端可以是发布者或订阅者，用于发送或接收消息。<code>MQTT</code> 客户端可以运行在各种设备上，如传感器、嵌入式设备、服务器等。它们通过与 <code>MQTT</code> 服务端建立连接进行通信。</p>
+<p><code>MQTT</code> 客户端具有如下功能：</p>
+<ul>
+<li>发布消息给其它相关的客户端。</li>
+<li>订阅主题请求接收相关的应用消息。</li>
+<li>取消订阅主题请求移除接收应用消息。</li>
+<li>从服务端终止连接。</li>
+</ul>
+<h2 id="3、服务器"><a href="#3、服务器" class="headerlink" title="3、服务器"></a>3、服务器</h2><p><code>MQTT</code> 服务器负责接收来自客户端的消息，并将消息路由到符合订阅条件的客户端。它还负责维护客户端的连接状态。<code>MQTT</code> 服务器通常运行在一个可靠的服务器上，并提供消息的持久化存储、安全认证、订阅管理等功能。</p>
+<p><code>MQTT</code> 服务器具有如下功能：</p>
+<ul>
+<li>接受来自客户端的网络连接请求。</li>
+<li>接受客户端发布的应用消息。</li>
+<li>处理客户端的订阅和取消订阅请求。</li>
+<li>转发应用消息给符合条件的已订阅客户端（包括发布者自身）。</li>
+</ul>
+<h1 id="三、MATT-通信过程"><a href="#三、MATT-通信过程" class="headerlink" title="三、MATT 通信过程"></a>三、MATT 通信过程</h1><blockquote>
+<p><code>MQTT</code> 使用的发布&#x2F;订阅消息模式，它提供了一对多的消息分发机制，从而实现与应用程序的解耦。这是一种消息传递模式，消息不是直接从发送器发送到接收器（即点对点），而是由 MQTT Broker 分发的。</p>
+</blockquote>
+<h2 id="1、连接服务器"><a href="#1、连接服务器" class="headerlink" title="1、连接服务器"></a>1、连接服务器</h2><p>客户端到服务器的网络连接建立后，客户端发送给服务器的第一个报文必须是 <code>CONNECT</code> 报文</p>
+<p>在一个网络连接上，客户端只能发送一次 <code>CONNECT</code> 报文，如果出现第二个 <code>CONNECT</code> 报文，按照协议标准，服务器会将第二个<code>CONNECT</code> 报文当作协议违规处理并断开客户端的连接。</p>
+<p>对于正常的连接请求，服务器必须产生应答报文，如果无法建立会话，服务器应该在应答报文中报告对应的错误代码。</p>
+<p><img src="2.png"></p>
+<h2 id="2、订阅主题"><a href="#2、订阅主题" class="headerlink" title="2、订阅主题"></a>2、订阅主题</h2><p><code>MQTT</code> 客户端可以订阅一个或多个主题，以接收与这些主题相关的消息。订阅的客户端被称为订阅者。</p>
+<p>订阅消息的过程如下：</p>
+<ul>
+<li>客户端与 <code>MQTT</code> 服务端建立连接。</li>
+<li>客户端使用指定的主题进行订阅。</li>
+<li><code>MQTT</code> 服务端将订阅信息保存，并等待有与所订阅主题相关的消息到达。</li>
+<li>当有新的消息发布到与订阅主题匹配的主题上时，<code>MQTT</code> 服务端将消息路由给订阅者。</li>
+<li>订阅者接收到消息，并进行相应的处理。</li>
+</ul>
+<p>在 <code>MQTT</code> 中，主题（<strong>Topic</strong>）扮演着重要的角色。主题是一个用于标识消息类型或内容的字符串，如”weather&#x2F;temperature”、”home&#x2F;lights”等。订阅者可以通过使用通配符进行模糊匹配来订阅多个相关主题，如”weather&#x2F;+”表示订阅以”weather&#x2F;“开头的所有主题，”+”代表一个层级的通配符。</p>
+<p><code>SUBSCRIBE</code> 为每个订阅指定了最大的 <code>QoS</code> 等级，服务器根据这些信息分发应用消息给客户端。</p>
+<p><code>SUBSCRIBE</code> 报文拥有固定报头、可变报头、有效载荷。</p>
+<p>当服务器收到客户端发送的一个 <code>SUBSCRIBE</code> 报文时，必须向客户端发送一个 <code>SUBACK</code> 报文响应，同时 <code>SUBACK</code> 报文必须和等待确认的<code>SUBSCRIBE</code> 报文有相同的报文标识符。</p>
+<p>如果服务器收到一个 <code>SUBSCRIBE</code> 报文，报文的主题过滤器与一个现存订阅的主题过滤器相同，那么必须使用新的订阅彻底替换现存的订阅。新订阅的主题过滤器和之前订阅的相同，但是它的最大 <code>QoS</code> 值可以不同。与这个主题过滤器匹配的任何现存的保留消息必须被重发，但是发布流程不能中断。</p>
+<p><img src="3.png"></p>
+<h2 id="3、发布消息"><a href="#3、发布消息" class="headerlink" title="3、发布消息"></a>3、发布消息</h2><p><code>MQTT</code> 客户端可以发布消息到 <code>MQTT</code> 服务端（当然，从服务器分发的报文给订阅者，也是属于 <code>PUBLISH</code> 控制报文。），通过指定一个或多个主题来标识消息的类型或内容。发布的消息可以是任意格式的数据，如文本、二进制数据等。发布消息的客户端被称为发布者（<em><strong>Publisher</strong></em>）。</p>
+<p>发布消息的过程如下：</p>
+<ul>
+<li>客户端与 <code>MQTT</code> 服务端建立连接。</li>
+<li>客户端使用指定的主题和内容发布消息。</li>
+<li><code>MQTT</code> 服务端接收到消息后，将消息路由给符合订阅条件的订阅者（<em><strong>Subscriber</strong></em>）。</li>
+<li>订阅者接收到与其订阅主题相关的消息。</li>
+</ul>
+<p>这里了解一个概念：<code>QoS</code>（<em><strong>Quality of Service levels</strong></em>，服务质量）：</p>
+<p>服务质量是 <code>MQTT</code> 的一个重要特性。当我们使用 <code>TCP/IP</code> 时，连接已经在一定程度上受到保护。但是在无线网络中，中断和干扰很频繁，<code>MQTT</code> 在这里帮助避免信息丢失及其服务质量水平。这些级别在发布时使用。</p>
+<ul>
+<li>如果客户端发布到 <code>MQTT</code> 服务器，则客户端将是发送者，<code>MQTT</code> 服务器将是接收者。</li>
+<li>当 <code>MQTT</code> 服务器向客户端发布消息时，服务器是发送者，客户端是接收者。</li>
+</ul>
+<p><code>QoS</code> 有三个等级：</p>
+<ol>
+<li><code>QoS  0</code>：这一级别会发生消息丢失或重复，消息发布依赖于底层TCP&#x2F;IP网络。即：&lt;&#x3D;1</li>
+</ol>
+<p><img src="4.png"></p>
+<ol start="2">
+<li><code>QoS 1</code>：QoS 1 承诺消息将至少传送一次给订阅者。</li>
+</ol>
+<p><img src="5.png"></p>
+<ol start="3">
+<li><code>QoS  2</code>：使用 QoS 2，我们保证消息仅传送到目的地一次。为此，带有唯一消息 ID 的消息会存储两次，首先来自发送者，然后是接收者。QoS 级别 2 在网络中具有最高的开销，因为在发送方和接收方之间需要两个流。</li>
+</ol>
+<p>  <img src="6.png"></p>
+<h2 id="4、取消订阅"><a href="#4、取消订阅" class="headerlink" title="4、取消订阅"></a>4、取消订阅</h2><p>客户端发送 <code>UNSUBSCRIBE</code> 报文给服务器，用于取消订阅主题。</p>
+<p><code>UNSUBSCRIBE</code> 报文固定报头的第 3,2,1,0 位是保留位且必须分别设置为 0,0,1,0。否则服务器必须认为任何其它的值都是不合法的并关闭网络连。具体的描述可以看协议文档。</p>
+<p><code>UNSUBSCRIBE</code> 报文的有效载荷包含客户端想要取消订阅的主题过滤器列表。<code>UNSUBSCRIBE</code> 报文中的主题过滤器必须是连续打包的 UTF-8 编码字符串。</p>
+<p><code>UNSUBSCRIBE</code> 报文的有效载荷必须至少包含一个主题过滤器列表，而且这个主题过滤器是已经被客户端订阅的，否则的话没有订阅也就没有取消订阅一说了。如果一个 <code>UNSUBSCRIBE</code> 报文没有有效载荷是违反协议的标准的，服务器也不会去处理它。</p>
+<p>而对于服务器删除了一个订阅，那么它将不会再分发该主题的消息到这个客户端中。而且它必须完成分发任何已经开始往客户端发送的<code>QoS1</code> 和 <code>QoS2</code> 的消息，以保证消息的服务质量。</p>
+<p>然后服务器必须发送 <code>UNSUBACK</code> 报文来响应客户端的 <code>UNSUBSCRIBE</code> 请求。<code>UNSUBACK</code> 报文必须包含和 <code>UNSUBSCRIBE</code> 报文相同的报文标识符。即使没有删除任何主题订阅（客户端取消订阅的主题未被订阅），服务器也必须发送一个 <code>UNSUBACK</code> 响应。</p>
+<p><img src="7.png"></p>
+<h2 id="5、断开连接"><a href="#5、断开连接" class="headerlink" title="5、断开连接"></a>5、断开连接</h2><p><code>DISCONNECT</code> 报文是客户端发给服务端的最后一个控制报文。表示客户端正常断开连接。</p>
+<p><code>DISCONNECT</code> 报文的固定报头保留位必须全为 0。</p>
+<p>客户端发送 <code>DISCONNECT</code> 报文之后必须关闭网络连接，不能通过那个网络连接再发送任何控制报文。</p>
+<p>服务端在收到 <code>DISCONNECT</code> 报文时必须丢弃任何与当前连接关联的未发布的遗嘱消息。而且当客户端没有关闭网络连接的时候服务器应该主动去关闭网络连接。</p>
+<p><img src="8.png"></p>
+<h1 id="四、MQTT-数据包结构"><a href="#四、MQTT-数据包结构" class="headerlink" title="四、MQTT 数据包结构"></a>四、MQTT 数据包结构</h1><ul>
+<li>固定头（<em><strong>Fixed header</strong></em>），存在于所有 <code>MQTT</code> 数据包中，表示数据包类型及数据包的分组类标识；</li>
+<li>可变头（<em><strong>Variable header</strong></em>），存在于部分 <code>MQTT</code> 数据包中，数据包类型决定了可变头是否存在及其具体内容；</li>
+<li>消息体（<em><strong>Payload</strong></em>），存在于部分 <code>MQTT</code> 数据包中，表示客户端收到的具体内容；</li>
+</ul>
+<p>整体 <code>MQTT</code> 的消息格式如下图所示；</p>
+<p><img src="9.png"></p>
+<h2 id="1、MQTT-固定头"><a href="#1、MQTT-固定头" class="headerlink" title="1、MQTT 固定头"></a>1、MQTT 固定头</h2><p>固定头存在于所有 <code>MQTT</code> 数据包中，其结构如下：</p>
+<p><img src="10.png"></p>
+<p>其中，<code>MQTT</code> 消息类型是一个 4 位的无符号值，类型如下：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>值</th>
+<th>流方向</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reserved</td>
+<td>0</td>
+<td>不可用</td>
+<td>保留位</td>
+</tr>
+<tr>
+<td>CONNECT</td>
+<td>1</td>
+<td>客户端到服务器</td>
+<td>客户端请求连接到服务器</td>
+</tr>
+<tr>
+<td>CONNACK</td>
+<td>2</td>
+<td>服务器到客户端</td>
+<td>连接确认</td>
+</tr>
+<tr>
+<td>PUBLISH</td>
+<td>3</td>
+<td>双向</td>
+<td>发布消息</td>
+</tr>
+<tr>
+<td>PUBACK</td>
+<td>4</td>
+<td>双向</td>
+<td>发布确认</td>
+</tr>
+<tr>
+<td>PUBREC</td>
+<td>5</td>
+<td>双向</td>
+<td>发布收到（保证第1部分到达）</td>
+</tr>
+<tr>
+<td>PUBREL</td>
+<td>6</td>
+<td>双向</td>
+<td>发布释放（保证第2部分到达）</td>
+</tr>
+<tr>
+<td>PUBCOMP</td>
+<td>7</td>
+<td>双向</td>
+<td>发布完成（保证第3部分到达）</td>
+</tr>
+<tr>
+<td>SUBSCRIBE</td>
+<td>8</td>
+<td>客户端到服务器</td>
+<td>客户端请求订阅</td>
+</tr>
+<tr>
+<td>SUBACK</td>
+<td>9</td>
+<td>服务器到客户端</td>
+<td>订阅确认</td>
+</tr>
+<tr>
+<td>UNSUBSCRIBE</td>
+<td>10</td>
+<td>客户端到服务器</td>
+<td>请求取消订阅</td>
+</tr>
+<tr>
+<td>UNSUBACK</td>
+<td>11</td>
+<td>服务器到客户端</td>
+<td>取消订阅确认</td>
+</tr>
+<tr>
+<td>PINGREQ</td>
+<td>12</td>
+<td>客户端到服务器</td>
+<td>PING请求</td>
+</tr>
+<tr>
+<td>PINGRESP</td>
+<td>13</td>
+<td>服务器到客户端</td>
+<td>PING应答</td>
+</tr>
+<tr>
+<td>DISCONNECT</td>
+<td>14</td>
+<td>客户端到服务器</td>
+<td>中断连接</td>
+</tr>
+<tr>
+<td>Reserved</td>
+<td>15</td>
+<td>不可用</td>
+<td>保留位</td>
+</tr>
+</tbody></table>
+<p>标识位（DUP）：在不使用标识位的消息类型中，标识位被作为保留位。如果收到无效的标志时，接收端必须关闭网络连接：</p>
+<table>
+<thead>
+<tr>
+<th>数据包</th>
+<th>标识位</th>
+<th>Bit 3</th>
+<th>Bit 2</th>
+<th>Bit 1</th>
+<th>Bit 0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CONNECT</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>CONNACK</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PUBLISH</td>
+<td>MQTT 3.1.1 使用</td>
+<td>DUP1</td>
+<td>QoS2</td>
+<td>QoS2</td>
+<td>RETAIN3</td>
+</tr>
+<tr>
+<td>PUBACK</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PUBREC</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PUBREL</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PUBCOMP</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>SUBSCRIBE</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>SUBACK</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>UNSUBSCRIBE</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>UNSUBACK</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PINGREQ</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>PINGRESP</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>DISCONNECT</td>
+<td>保留位</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<p><code>QoS</code>：发布消息的服务质量（前面已经做过介绍），即：保证消息传递的次数<br>    - 00：最多一次，即：&lt;&#x3D;1<br>    - 01：至少一次，即：&gt;&#x3D;1<br>    - 10：一次，即：&#x3D;1<br>    - 11：预留</p>
+<p><code>RETAIN</code>：发布保留标识，表示服务器要保留这次推送的信息，如果有新的订阅者出现，就把这消息推送给它，如果设有那么推送至当前订阅者后释放。</p>
+<h2 id="2、MQTT-可变头"><a href="#2、MQTT-可变头" class="headerlink" title="2、MQTT 可变头"></a>2、MQTT 可变头</h2><p><code>MQTT</code> 数据包中包含一个可变头，它驻位于固定的头和负载之间。可变头的内容因数据包类型而不同，较常的应用是做为包的标识：</p>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>7  — 0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>byte 1</td>
+<td>包标签符（MSB）</td>
+</tr>
+<tr>
+<td>byte 2…</td>
+<td>包标签符（LSB）</td>
+</tr>
+</tbody></table>
+<p>很多类型数据包中都包括一个 2 字节的数据包标识字段，这些类型的包有：PUBLISH (QoS &gt; 0)、PUBACK、PUBREC、PUBREL、PUBCOMP、SUBSCRIBE、SUBACK、UNSUBSCRIBE、UNSUBACK2.3。 </p>
+<h2 id="3-Payload消息体"><a href="#3-Payload消息体" class="headerlink" title="3. Payload消息体"></a>3. Payload消息体</h2><p>Payload 消息体是 <code>MQTT</code> 数据包的第三部分，有 <code>CONNECT</code>、<code>SUBSCRIBE</code>、<code>SUBACK</code>、<code>UNSUBSCRIBE</code> 四种类型的消息：</p>
+<ul>
+<li><code>CONNECT</code>，消息体内容主要是：客户端的 ClientID、订阅的 Topic、Message 以及用户名和密码 </li>
+<li><code>SUBSCRIBE</code>，消息体内容是一系列的要订阅的主题以及 QoS。</li>
+<li><code>SUBACK</code>，消息体内容是服务器对于 <code>SUBSCRIBE</code> 所申请的主题及 QoS 进行确认和回复。</li>
+<li><code>UNSUBSCRIBE</code>，消息体内容是要订阅的主题。</li>
+</ul>
+<h1 id="五、示例演示"><a href="#五、示例演示" class="headerlink" title="五、示例演示"></a>五、示例演示</h1><p>上文简单讲了一下 <code>MQTT</code> 协议，下面借助 <code>MQTTX</code> 和 <code>MQTT.FX</code> 工具来演示一下 MQTT 的工作。</p>
+<p>首先在 <code>MQTTX</code>  上新建一个服务器，这里的地址就使用工具免费的测试地址就可以。为了简便，这里就不设置用户密码了。</p>
+<p><img src="11.png"></p>
+<p>然后在 <code>MQTT.FX</code> 配置好客户端：</p>
+<p><img src="12.png"></p>
+<p>连接成功：</p>
+<p><img src="13.png"></p>
+<p>然后订阅主题：</p>
+<p><img src="14.png"></p>
+<p>可以看到，当服务器发布一个消息的时候，客户端收到了相应的消息：</p>
+<p><img src="15.png"></p>
+<p><img src="16.png"></p>
+<p>同理，现在让服务器订阅客户端的主题：</p>
+<p><img src="17.png"></p>
+<p>服务器也能收到相应的消息：</p>
+<p><img src="18.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/12/MQTT/">http://example.com/2024/09/12/MQTT/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a><a class="post-meta__tags" href="/tags/MQTT/">MQTT</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" title="结构体内存对齐"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">结构体内存对齐</div></div><div class="info-2"><div class="info-item-1">[toc]  一、什么是结构体内存对齐进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024];  思考一下 	node1 和 node2 的大小分别为多少？ 12printf(&quot;The size of node1 is: %d\r\n&quot;, sizeof(node1));printf(&quot;The size of node2 is: %d\r\n&quot;, sizeof(node2));  结果如下： 12The size of node1 is: 8192The size of node2 is: 12288   我是在 Windows 下 MinGW32 的 GCC 测试的  一样的成员属性，但 node1 只有 8K，而 node2 的大小却有 12K。 由此可见，结...</div></div></div></a><a class="pagination-related" href="/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" title="Linux 下 C/C++ 程序编译的过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux 下 C/C++ 程序编译的过程</div></div><div class="info-2"><div class="info-item-1">[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具。GCC 工具链软件包括 GCC、Binutils、C 运行库等。  GCC GCC（GNU C Compiler）是编译工具。本文所要介绍的将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程即由编译器完成。   Binutils 一组二进制程序处理工具，包括：addr2line、ar、objcopy、objdump、as、ld、ldd、readelf、size等。这一组工具是开发和调试不可缺少的工具，分别简介如下： addr2line：用来将程序地址转换成其所对应的程序源文件及所对应的代码行，也可以得到所对应的函数。该工具将帮助调试器在调试的过程中定...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/16/UART/" title="UART 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-16</div><div class="info-item-2">UART 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述UART (Universal Asynchronous Receiver&#x2F;Transmitter，通用异步收发器) 是一种常用的串行通信协议，用于在计算机和外部设备之间传输数据。它是一种异步通信协议，也就是说数据的传输不需要事先建立好同步时钟信号。 UART 协议定义了数据传输的格式和通信规则。它包括一系列的控制信号和数据线来实现双向的串行通信。常见的 UART 协议有 RS-232、RS-422 和 RS-485 等。 UART 协议的数据传输是基于帧（Frame）的概念的。每个数据帧由一个起始位、若干个数据位、一个可选的奇偶校验位和一个或多个停止位组成。起始位用于指示数据帧的开始，数据位用于传输实际的数据，奇偶校验位用于检测数据的正确性，停止位用于指示数据帧的结束。 UART 协议的工作方式是通过不断发送和接收数据来实现通信。发送方将数据按照一定的格式组织成数据帧，并通过数据线发送出去。接收方接收到数据后，解析数据帧，并进行相应的处理。 UART 协议的优点是简单、成本低廉且广泛应用。它可以通过简单的硬件电路实现，并且在嵌入式系统、通信设备、...</div></div></div></a><a class="pagination-related" href="/2024/08/17/SPI/" title="SPI 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-17</div><div class="info-item-2">SPI 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述SPI（Serial Peripheral interface，串行外围设备接口） 通信协议是 Motorola 公司首先在其MC68HCXX 系列处理器上定义的。SPI 接口是一种高速的全双工同步的通信总线，已经广泛应用在众多 MCU、存储芯片、AD 转换器和 LCD 之间。 由 SPI 连成的串行总线是一种三线同步总线，总线上可以连接多个可作为主机的 MCU，装有 SPI 接口的输出设备，输入设备如液晶驱动、A&#x2F;D 转换等外设，也可以简单连接到单个 TTL 移位寄存器的3芯片。总线上允许连接多个能作主机的设备，但在任一瞬间只允许有一个设备作为主机。总线的时钟线 SCK 由主机控制，另外两根分别是：主机输入&#x2F;从机输出线（MISO）和主机输出&#x2F;从机输入线（MOSI）。下图就是 SPI 总线的典型结构图：  系统可以简单，也可以复杂，主要有以下几种形式：  一台主机 MCU 和若干台从机 MCU。 多台 MCU 互相连接成一个多主机系统。 一台主机 MCU 和若干台从机外围设备。  二、SPI 详解1、基本信息1.1 SPI 的引...</div></div></div></a><a class="pagination-related" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-28</div><div class="info-item-2">USB-HID 协议</div></div><div class="info-2"><div class="info-item-1">一、简介HID（Human Interface Device，人机接口设备）是 USB 设备中常用的设备类型，是直接与人交互的 USB 设备，例如键盘、鼠标与游戏杆等。在 USB 设备中，HID 设备的成本较低。另外，HID 设备并不一定要有人机交互功能，只要符合 HID 类别规范的设备都是 HID 设备。   Wndows 操作系统最先支持的 HID 设备。 在 Windows 98 以及后来的版本中内置有  HID 设备的驱动程序。 也就是说，用户无需去开发驱动程序，，应用程序可以直接使用这些驱动程序来与设备通信。 在设计一个 USB 接口的计算机外部设备时，如果 HID 类型的设备可以满足需要，可以将其设计为 HID 类型设备，这样可以省去比较复杂的 USB 驱动程序的编写，直接利用 Windows 操作系统对标准的 HID 类型 USB 设备的支持。 1、HID 设备特点 交换的数据储存在称为报表（Report）的结构内，设备的固件必须支持 HlD 报表的格式。主机通过控制和中断传输中的传送和请求报表来传送和接收数据。报表的格式非常灵活。  每一笔事务可以携带小量或中量的...</div></div></div></a><a class="pagination-related" href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" title="BLE 协议之传输层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-25</div><div class="info-item-2">BLE 协议之传输层</div></div><div class="info-2"><div class="info-item-1">[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。 上图即是 UART 传输层的功能框图。 一、HCI 简介 Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Controller 硬件上的 HCI Firmware 交换数据和命令，这就是 HCI 的功能。  HCI 提供了一种统一接口用来访问，控制 Controller ，传输层是透明的，独立于底层传输技术，并且无需关系 Host 传输给 Controller 的数据是什么内容. 在 HOST 与 Controller 之间，以 Command 与 Event 命令方式进行传输。 Host 发送 Command 信息到 Controller ， Controller 将 Command Status 和 Params 以 Event 的形式返回给 Host ，最后返回 Command Complete E...</div></div></div></a><a class="pagination-related" href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" title="BLE 协议之 L2CAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-01</div><div class="info-item-2">BLE 协议之 L2CAP</div></div><div class="info-2"><div class="info-item-1">[toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只有一条，而要利用它传输数据的上层应用却不止一个（例如上图中的 ATT 和 SMP），怎么复用？ Logical Channel 所能传输的有效 payload 长度最大只有 251bytes，怎是否意味着上层应用每次只能传输少于这个长度的数据？（显然不能！） Logical Channel 仅提供了简单的应答和流控机制，如果传输的数据出错怎么办？ ……  L2CAP 所具备的主要功能如下：  协议信道复用（Protocol&#x2F;channel multiplexing） ：能够区分高层协议，在信道建立时，协议复用功能用来 发送请求来连接正确的上层协议 ；在数据传输时，逻辑信道复用必...</div></div></div></a><a class="pagination-related" href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" title="BLE 协议之物理层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="info-item-2">BLE 协议之物理层</div></div><div class="info-2"><div class="info-item-1">@toc   一、概述 物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym&#x2F;s 的无编码物理层 2M Sym&#x2F;s 的无编码物理层 1M Sym&#x2F;s 的编码物理层  其中 1M Sym&#x2F;s 的无编码物理层与 BLE v4 系列协议的物理层兼容，另外两种物理层则分别扩展了通信速率和通信距离。 二、Physical Channel1、物理通道任何一个通信系统，首先要确定的就是通信介质（物理通道，Physical Channel），BLE 也不例外。在 BLE 协议中，通信介质的定义是由 Physical Layer 负责。  大多数无线通信的频段需要申请授权才可以使用，不同地区开辟了少量免授权频段，只要产品满足当地无线电规范，即可免授权使用。下图展示了全球免授权的频段及其分布：  图中 2.4GHz 的频段很强...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%8D%8F%E8%AE%AE%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">二、协议模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86"><span class="toc-number">2.1.</span> <span class="toc-text">1、组成部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">2.2.</span> <span class="toc-text">2、客户端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">2.3.</span> <span class="toc-text">3、服务器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81MATT-%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、MATT 通信过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.1.</span> <span class="toc-text">1、连接服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%AE%A2%E9%98%85%E4%B8%BB%E9%A2%98"><span class="toc-number">3.2.</span> <span class="toc-text">2、订阅主题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%8F%91%E5%B8%83%E6%B6%88%E6%81%AF"><span class="toc-number">3.3.</span> <span class="toc-text">3、发布消息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%8F%96%E6%B6%88%E8%AE%A2%E9%98%85"><span class="toc-number">3.4.</span> <span class="toc-text">4、取消订阅</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5"><span class="toc-number">3.5.</span> <span class="toc-text">5、断开连接</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81MQTT-%E6%95%B0%E6%8D%AE%E5%8C%85%E7%BB%93%E6%9E%84"><span class="toc-number">4.</span> <span class="toc-text">四、MQTT 数据包结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81MQTT-%E5%9B%BA%E5%AE%9A%E5%A4%B4"><span class="toc-number">4.1.</span> <span class="toc-text">1、MQTT 固定头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81MQTT-%E5%8F%AF%E5%8F%98%E5%A4%B4"><span class="toc-number">4.2.</span> <span class="toc-text">2、MQTT 可变头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Payload%E6%B6%88%E6%81%AF%E4%BD%93"><span class="toc-number">4.3.</span> <span class="toc-text">3. Payload消息体</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%A4%BA%E4%BE%8B%E6%BC%94%E7%A4%BA"><span class="toc-number">5.</span> <span class="toc-text">五、示例演示</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

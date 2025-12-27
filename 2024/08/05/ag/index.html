@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux 下 ag 命令的使用 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 下 ag 命令的使用">
+<meta property="og:url" content="http://example.com/2024/08/05/ag/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-05T13:01:48.000Z">
+<meta property="article:modified_time" content="2024-11-13T16:50:37.116Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux 命令">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux 下 ag 命令的使用",
+  "url": "http://example.com/2024/08/05/ag/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-05T13:01:48.000Z",
+  "dateModified": "2024-11-13T16:50:37.116Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/05/ag/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux 下 ag 命令的使用',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux 下 ag 命令的使用</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Linux 下 ag 命令的使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-05T13:01:48.000Z" title="发表于 2024-08-05 21:01:48">2024-08-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T16:50:37.116Z" title="更新于 2024-11-14 00:50:37">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/Linux-%E5%91%BD%E4%BB%A4/">Linux 命令</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><h2 id="1、功能"><a href="#1、功能" class="headerlink" title="1、功能"></a>1、功能</h2><p>在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。</p>
+<h2 id="2、下载"><a href="#2、下载" class="headerlink" title="2、下载"></a>2、下载</h2><p>在下面是各个系统安装 ag 的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install silversearcher-ag</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>MacOS</strong>:</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install the_silver_searcher</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p><strong>Debian&#x2F;Ubuntu</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install silversearcher-ag</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>CentOS</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install the_silver_searcher</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Fedora</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install the_silver_searcher</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Arch</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pacman -S the_silver_searcher</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="二、常用参数说明"><a href="#二、常用参数说明" class="headerlink" title="二、常用参数说明"></a>二、常用参数说明</h1><p>ag 目录的语法格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ag [选项] [搜索模式] [文件/目录]</span><br></pre></td></tr></table></figure>
+
+<p>下面是一些常用的参数：</p>
+<ul>
+<li><strong>-i</strong>：忽略大小写进行搜索；</li>
+<li><strong>-w</strong>：只匹配整个单词，而不是部分匹配；</li>
+<li><strong>-r</strong>：递归搜索指定目录下的文件；</li>
+<li><strong>-l</strong>：只列出匹配的文件名；</li>
+<li><strong>-c</strong>：统计匹配的文件数；</li>
+<li><strong>-n</strong>：显示行号。</li>
+</ul>
+<p>更多参数信息，可以使用命令：<code>ag -h</code> 查看。</p>
+<h1 id="三、实例"><a href="#三、实例" class="headerlink" title="三、实例"></a>三、实例</h1><ol>
+<li>在指定目录下查询字符串</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ag pattern /path/to/directory</span><br></pre></td></tr></table></figure>
+
+<p><code>pattern</code> 是要搜索的字符串，<code>/path/to/directory</code> 是要搜索的目录。如果省略了目录信息，则表示在当前目录及其子目录下搜索包含 pattern 的文件。</p>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag <span class="string">&quot;alloc&quot;</span> ./include</span><br><span class="line">include/dump.h</span><br><span class="line">52:dumper_t* alloc_dumper(void) FAST_FUNC;</span><br><span class="line"></span><br><span class="line">include/bb_e2fs_defs.h</span><br><span class="line">406:	 * Performance hints.  Directory preallocation should only</span><br><span class="line">407:	 * happen <span class="keyword">if</span> the EXT2_FEATURE_COMPAT_DIR_PREALLOC flag is on.</span><br><span class="line">409:	uint8_t		s_prealloc_blocks;	/* Nr of blocks to try to preallocate*/</span><br><span class="line">410:	uint8_t		s_prealloc_dir_blocks;	/* Nr to preallocate <span class="keyword">for</span> <span class="built_in">dirs</span> */</span><br><span class="line">485:#define EXT2_FEATURE_COMPAT_DIR_PREALLOC	0x0001</span><br><span class="line"></span><br><span class="line">include/bb_archive.h</span><br><span class="line">222:void dealloc_bunzip(bunzip_data *bd) FAST_FUNC;</span><br><span class="line"></span><br><span class="line">include/inet_common.h</span><br><span class="line">26:/* These <span class="built_in">return</span> malloced string */</span><br><span class="line">...</span><br><span class="line"><span class="comment">## 篇幅原因，只展示部分代码</span></span><br></pre></td></tr></table></figure>
+
+<p>该命令结果首先会打印出相应的文件目录，下面紧接的是匹配到的段落：左边的数字是该匹配到的文本出现在对应文件的行数；右边则是对应的文本。</p>
+<ol start="2">
+<li>搜索指定文件类型的文件</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ag pattern --hh</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>--hh</code> 选项指定要搜索的文件类型，上例中搜索的是 C 语言中的 .h 头文件。当然也可以用 	<code>--cc</code> 或者 <code>--cpp</code> 选项，都包含的和 C 相关的各个文件。</p>
+<p>通过使用 <code>--list-file-types</code> 选项，可以查看 ag 命令支持的文件类型列表：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag --list-file-types</span><br><span class="line">The following file types are supported:</span><br><span class="line"><span class="comment">## 篇幅原因，只展示部分代码</span></span><br><span class="line">...</span><br><span class="line">	--cc</span><br><span class="line">      .c  .h  .xs</span><br><span class="line"></span><br><span class="line">	--cpp</span><br><span class="line">      .cpp  .cc  .C  .cxx  .m  .hpp  .hh  .h  .H  .hxx  .tpp</span><br><span class="line">      </span><br><span class="line">	--hh</span><br><span class="line">      .h   </span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>搜索时忽略指定文件或目录：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ag pattern --ignore-file=/path/to/ignore</span><br></pre></td></tr></table></figure>
+
+<p><code>--ignore-file</code> 选项指定要忽略的文件或目录，上例中忽略了 &#x2F;path&#x2F;to&#x2F;ignore 目录。</p>
+<ol start="4">
+<li>利用正则表达式限制文件类型</li>
+</ol>
+<p>例如，以下命令限制只在 <code>.c</code> 文件中搜索： </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -G <span class="string">&quot;.+\.c&quot;</span> <span class="string">&quot;config&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>对结果取反</li>
+</ol>
+<p>如果想要搜索不满足特定模式的行，用 <code>ag -v</code> 对搜索结果取反。</p>
+<ol start="6">
+<li>统计匹配的文件数</li>
+</ol>
+<p>用 <code>ag -c</code> 可以统计各个文件匹配到目标字符串的次数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -c <span class="string">&quot;alloc&quot;</span> ./include</span><br><span class="line">include/bb_e2fs_defs.h:7</span><br><span class="line">include/dump.h:1</span><br><span class="line">include/inet_common.h:1</span><br><span class="line">include/bb_archive.h:1</span><br><span class="line">include/platform.h:6</span><br><span class="line">include/libbb.h:97</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>统计匹配的文件</li>
+</ol>
+<p>与 <code>ag -c</code> 类似，不过 <code>ag -l</code> 只会列出匹配到的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -c <span class="string">&quot;alloc&quot;</span> ./include</span><br><span class="line">include/bb_e2fs_defs.h</span><br><span class="line">include/dump.h</span><br><span class="line">include/inet_common.h</span><br><span class="line">include/bb_archive.h</span><br><span class="line">include/platform.h</span><br><span class="line">include/libbb.h</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、帮助文档"><a href="#四、帮助文档" class="headerlink" title="四、帮助文档"></a>四、帮助文档</h1><p>如下是 <code>ag -h</code> 的打印信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -h</span><br><span class="line">用法: ag [FILE-TYPE] [OPTIONS] PATTERN [PATH]</span><br><span class="line"></span><br><span class="line">  递归地在 PATH 中搜索 PATTERN.</span><br><span class="line">  Like grep or ack, but faster.</span><br><span class="line"></span><br><span class="line">例子:</span><br><span class="line">  ag -i foo /bar/</span><br><span class="line"></span><br><span class="line">输出选项:</span><br><span class="line">     --ackmate            打印结果为 Ackmate 可解析的格式</span><br><span class="line">  -A --after [LINES]      打印匹配后的行 (默认值:2)</span><br><span class="line">  -B --before [LINES]     打印匹配前的行 (默认值:2)</span><br><span class="line">     --[no]<span class="built_in">break</span>          打印不同文件中匹配项之间的换行符 (默认开启)</span><br><span class="line">  -c --count              只打印每个文件中匹配项的数量. (这通常与匹配行的数量不同)</span><br><span class="line">     --[no]color          在结果中打印颜色代码 (默认启用)</span><br><span class="line">     --color-line-number  行号的颜色代码 (Default: 1;33)</span><br><span class="line">     --color-match        结果匹配数字的颜色代码 (Default: 30;43)</span><br><span class="line">     --color-path         路径名称的颜色代码 (Default: 1;32)</span><br><span class="line">     --column             在结果中打印列号</span><br><span class="line">     --[no]filename       打印文件名 (启用，除非搜索单个文件)</span><br><span class="line">  -H --[no]heading        在每个文件匹配结果前打印文件名 (默认开启)</span><br><span class="line">  -C --context [LINES]    打印匹配前后的行 (默认值:2)</span><br><span class="line">     --[no]group          和 --[no]<span class="built_in">break</span> --[no]heading 相同</span><br><span class="line">  -g --filename-pattern PATTERN 打印匹配 PATTERN 的文件名</span><br><span class="line">  -l --files-with-matches       只打印包含匹配项的文件名 (不要打印匹配的行)</span><br><span class="line">  -L --files-without-matches    只打印不包含匹配项的文件名</span><br><span class="line">     --print-all-files    打印所有搜索文件的标题，即使是那些不包含匹配项的文件</span><br><span class="line">     --[no]numbers        打印行号。默认是当搜索流时省略行号</span><br><span class="line">  -o --only-matching      只打印匹配的行</span><br><span class="line">     --print-long-lines   在非常长的行上打印匹配 (默认: &gt;2k 字符)</span><br><span class="line">     --passthrough        搜索流时，打印所有行，即使它们不匹配</span><br><span class="line">     --silent             屏蔽所有日志信息，包括错误信息</span><br><span class="line">     --stats              打印统计数据(扫描的文件，花费的时间等)</span><br><span class="line">     --stats-only         打印统计信息，不打印其他信息</span><br><span class="line">                          (搜索单个文件时和 --count 相同)</span><br><span class="line">     --vimgrep            打印类似 vim 的 :vimgrep /pattern/g</span><br><span class="line">                          (它会报告行上的每个匹配项)</span><br><span class="line">  -0 --null --print0      用 null 分隔文件名 (对于 <span class="string">&#x27;xargs -0&#x27;</span>)</span><br><span class="line"></span><br><span class="line">搜索选项:</span><br><span class="line">  -a --all-types          搜索所有文件(不包括隐藏文件或忽略文件中的模式)</span><br><span class="line">  -D --debug              Ridiculous debugging (可能没有用)</span><br><span class="line">     --depth NUM          搜索最多 NUM 个目录深度(默认值:25)</span><br><span class="line">  -f --follow             Follow symlinks</span><br><span class="line">  -F --fixed-strings      Alias <span class="keyword">for</span> --literal <span class="keyword">for</span> compatibility with grep</span><br><span class="line">  -G --file-search-regex  PATTERN 将搜索限制为文件名匹配模式</span><br><span class="line">     --hidden             搜索隐藏文件 (obeys .*ignore files)</span><br><span class="line">  -i --ignore-case        不区分大小写</span><br><span class="line">     --ignore PATTERN     忽略匹配模式的文件/目录</span><br><span class="line">                          (literal file/directory names also allowed)</span><br><span class="line">     --ignore-dir NAME    Alias <span class="keyword">for</span> --ignore <span class="keyword">for</span> compatibility with ack.</span><br><span class="line">  -m --max-count NUM      在 NUM 匹配后跳过文件的其余部分 (默认:10 000)</span><br><span class="line">     --one-device         不要通过链接到其他设备.</span><br><span class="line">  -p --path-to-ignore STRING Use .ignore file at STRING</span><br><span class="line">  -Q --literal            不将 PATTERN 解析为正则表达式</span><br><span class="line">  -s --case-sensitive     匹配区分大小写</span><br><span class="line">  -S --smart-case         不区分大小写，除非 PATTERN 包含大写字符(默认启用)</span><br><span class="line">     --search-binary      在二进制文件中查找匹配项</span><br><span class="line">  -t --all-text           搜索所有文本文件(不包括隐藏文件)</span><br><span class="line">  -u --unrestricted       不加限制地搜索所有文件(ignore .ignore, .gitignore, etc.;</span><br><span class="line">                          也可以搜索二进制文件和隐藏文件)</span><br><span class="line">  -U --skip-vcs-ignores   Ignore VCS ignore files</span><br><span class="line">                          (.gitignore, .hgignore; still obey .ignore)</span><br><span class="line">  -v --invert-match</span><br><span class="line">  -w --word-regexp        仅匹配整个单词</span><br><span class="line">  -W --width NUM          以 NUM 个字符截断匹配的行</span><br><span class="line">  -z --search-zip         搜索压缩文件(例如gzip)的内容</span><br><span class="line"></span><br><span class="line">文件类型:</span><br><span class="line">搜索可以被限制为某些类型的文件。例如:</span><br><span class="line">  ag --html needle</span><br><span class="line">  - 在后缀为 .htm、.html、.shtml 或 .xhtml 的文件中搜索 needle 。</span><br><span class="line"></span><br><span class="line">要获取支持的文件类型列表，请运行:</span><br><span class="line">  ag --list-file-types</span><br><span class="line"></span><br><span class="line">ag最初由Geoff Greer创建。更多信息(和最新版本)可以查询 http://geoff.greer.fm/ag</span><br></pre></td></tr></table></figure>
+
+<p>​	</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/05/ag/">http://example.com/2024/08/05/ag/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/Linux-%E5%91%BD%E4%BB%A4/">Linux 命令</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/05/perf/" title="Linux 下 perf 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Linux 下 perf 的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事件的类型进行统计。 2、常用的工具集除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：  perf stat：用于收集和显示性能计数器统计信息，可以通过 perf stat 命令来监测进程或命令的整体性能指标，如指令数、缓存命中率、分支预测错误等。 perf record：用于采集程序执行期间的硬件性能计数器数据、事件和调用栈信息，并将其保存到数据文件中。可以使用 perf record 命令来启动采样，并通过 perf report 命令来分析采样数据。 perf report：用于分析通过 per...</div></div></div></a><a class="pagination-related" href="/2024/08/04/objdump/" title="Linux 下 objdump 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux 下 objdump 命令的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。  二、常用参数说明 -C 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。  -d 反汇编特定 section。 -D 反汇编所有 section。 -f 显示文件头信息。 -h 显示目标文件各个 section 的头部摘要信息。 -i 显示对于 -b 或者 -m 选项可用的架构和目标格式列表。 -j name 或 –section&#x3D;name 仅仅显示指定名称为 name 的 section 的信息 。 -m 指定反汇编目标文件时使用的架构，当待反汇编文件本身没有描述架构信息的时候（比如 S-rec...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/06/coredump/" title="Linux 中 core dump 异常的分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-06</div><div class="info-item-2">Linux 中 core dump 异常的分析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述 在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dump 是指在程序异常终止时，操作系统将程序的内存映像保存到磁盘上的一种机制。 在 Linux 系统中，core dump 提供了一种调试程序错误的重要方式，它记录了程序在崩溃时的内存状态，可以帮助开发人员快速定位问题。当程序因为某种原因（如段错误、非法指令等）异常终止时，Linux 系统会尝试将程序在内存中的映像、程序计数器、寄存器状态等信息写入到一个名为 core 的文件中，这个文件就是所谓的 core dump。 以下是一些常见的导致 core dump 的错误：  段错误（Segmentation fault） 程序访问了无效的内存地址，比如试图访问未分配的内存或者已经释放的内存   空...</div></div></div></a><a class="pagination-related" href="/2024/08/07/ftrace/" title="Linux 利用 ftrace 分析内核调用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 利用 ftrace 分析内核调用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实现跟踪功能。其中一个关键的机制是函数预编译器，它会在每个内核函数的入口和出口处插入一些特殊的指令，用于记录函数的调用和返回信息。这些指令可以通过内核配置选项来启用或禁用。 此外，ftrace 还支持事件跟踪，可以记录系统中发生的各种事件，比如中断、系统调用、定时器事件等。通过分析这些事件的发生频率和顺序，可以帮助我们找出系统中的瓶颈和性能问题。 除了记录和分析跟踪信息外，ftrace 还提供了一些工具和接口，用于配置和控制跟踪功能。其中最常用的工具是 trace-cmd 和 trace-cmd-report，它们可以用来收集和分析跟踪数据。 二、ftrace 的使用1、常用信息ftrace...</div></div></div></a><a class="pagination-related" href="/2024/08/05/perf/" title="Linux 下 perf 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-05</div><div class="info-item-2">Linux 下 perf 的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事件的类型进行统计。 2、常用的工具集除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：  perf stat：用于收集和显示性能计数器统计信息，可以通过 perf stat 命令来监测进程或命令的整体性能指标，如指令数、缓存命中率、分支预测错误等。 perf record：用于采集程序执行期间的硬件性能计数器数据、事件和调用栈信息，并将其保存到数据文件中。可以使用 perf record 命令来启动采样，并通过 perf report 命令来分析采样数据。 perf report：用于分析通过 per...</div></div></div></a><a class="pagination-related" href="/2024/08/06/iostatiotop/" title="Linux 利用 iostat 和 iotop 进行 IO 分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-06</div><div class="info-item-2">Linux 利用 iostat 和 iotop 进行 IO 分析</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 top 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。 我们可以在 Linux 中使用 iotop 和 iostat 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。 二、iostat1、下载iostat 工具是 sysstat 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。 对于 Fedora 系统，使用 DNF Com...</div></div></div></a><a class="pagination-related" href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" title="Linux 下查看 CPU 使用率"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 下查看 CPU 使用率</div></div><div class="info-2"><div class="info-item-1">[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jiffies  记录了开机以来的节拍数。每发生一次时间中断，Jiffies 的值就加 1。节拍率 HZ 是内核的可配选项，可以设置为 100、250、1000 等。不同的系统可能设置不同数值。 Linux 通过 /proc 虚拟文件系统，向用户空间提供了系统内部状态的信息，而 /proc/stat 提供的就是系统的 CPU 和任务统计信息。比方说，如果你只关注 CPU 的话，可以执行下面的命令：  第一列表示的是 CPU 编号，如 cpu0、cpu1 ，而第一行没有编号的 cpu ，表示的是所有 CPU 的累加结果。其他列则表示不同场景下 CPU 的累加节拍数，它的单位是 USER_HZ，...</div></div></div></a><a class="pagination-related" href="/2024/08/04/objdump/" title="Linux 下 objdump 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-04</div><div class="info-item-2">Linux 下 objdump 命令的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。  二、常用参数说明 -C 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。  -d 反汇编特定 section。 -D 反汇编所有 section。 -f 显示文件头信息。 -h 显示目标文件各个 section 的头部摘要信息。 -i 显示对于 -b 或者 -m 选项可用的架构和目标格式列表。 -j name 或 –section&#x3D;name 仅仅显示指定名称为 name 的 section 的信息 。 -m 指定反汇编目标文件时使用的架构，当待反汇编文件本身没有描述架构信息的时候（比如 S-rec...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%8A%9F%E8%83%BD"><span class="toc-number">1.1.</span> <span class="toc-text">1、功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%B8%8B%E8%BD%BD"><span class="toc-number">1.2.</span> <span class="toc-text">2、下载</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">二、常用参数说明</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">三、实例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B8%AE%E5%8A%A9%E6%96%87%E6%A1%A3"><span class="toc-number">4.</span> <span class="toc-text">四、帮助文档</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

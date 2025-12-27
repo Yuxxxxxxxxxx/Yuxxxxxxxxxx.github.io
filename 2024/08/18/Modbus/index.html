@@ -1,0 +1,570 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Modbus 通信协议详解 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、概述Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施耐">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Modbus 通信协议详解">
+<meta property="og:url" content="http://example.com/2024/08/18/Modbus/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施耐">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-18T04:41:41.000Z">
+<meta property="article:modified_time" content="2024-11-14T10:49:19.764Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="Modbus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Modbus 通信协议详解",
+  "url": "http://example.com/2024/08/18/Modbus/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-18T04:41:41.000Z",
+  "dateModified": "2024-11-14T10:49:19.764Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/18/Modbus/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Modbus 通信协议详解',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Modbus 通信协议详解</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Modbus 通信协议详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-18T04:41:41.000Z" title="发表于 2024-08-18 12:41:41">2024-08-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T10:49:19.764Z" title="更新于 2024-11-14 18:49:19">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><code>Modbus</code> 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。<code>ModBus</code> 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 <code>Modbus</code> 在基于以太网上的分布式应用，目前施耐德公司已将 <code>Modbus</code> 协议的所有权移交给 IDA（<em><strong>Interface for Distributed Automation</strong></em>，分布式自动化接口）组织，并成立了 Modbus-IDA 组织，为 <code>Modbus</code> 今后的发展奠定了基础。</p>
+<p>在中国，<code>Modbus</code> 已经成为国家标准，并有专业的规范文档，感兴趣的可以去查阅相关的文件，详情如下：标准编号为:GB&#x2F;T19582-2008文件名称:《基于 Modbus 协议的工业自动化网络规范》，主要包含三个部分：</p>
+<ul>
+<li>GB-T19582.1-2008 第 1 部分：Modbus 应用协议</li>
+<li>GB-T19582.1-2008 第 2 部分：Modbus 协议在串行链路上的实现指南</li>
+<li>GB-T19582.1-2008 第 3 部分：Modbus 协议在 TCP&#x2F;IP 上的实现指南</li>
+</ul>
+<h1 id="二、Modbus-的作用"><a href="#二、Modbus-的作用" class="headerlink" title="二、Modbus 的作用"></a>二、Modbus 的作用</h1><p><code>Modbus</code> 协议是一种通信协议，而且是一种开放协议，因此广泛地用于在工业自动化系统中实现设备之间的数据交换。它是最常用的串行通信协议之一，广泛应用于监控和控制设备之间的通信。简而言之，它是用于在电子设备之间的串行线路上传输信息的方法。请求信息的设备被称为 <code>Modbus</code> 客户端，提供信息的设备是 <code>Modbus</code> 服务器。<code>Modbus</code> 支持&#x3D;&#x3D;单主机，多个从机&#x3D;&#x3D;，在标准 <code>Modbus</code> 网络中，有一个客户端和多达 247个服务器，每个服务器都有从 1 到 247 的唯一服务器地址。客户端还可以向服务器写入信息。</p>
+<p><code>Modbus</code> 通常用于从仪器和控制设备传输信号到主控制器或数据采集系统，例如用于测量温度和湿度并将结果传输到计算机的系统。<code>Modbus</code> 通常用于将监控计算机与远程终端单元（RTU）连接在一起，这在监控和数据采集（SCADA）系统中使用。</p>
+<p><code>Modbus</code> 协议简单易于实现，传输效率高，因此在工业自动化领域得到广泛应用。它支持多个设备之间的并行通信，可以实现分布式控制系统的互联互通。同时，<code>Modbus</code> 协议还具有跨平台、跨厂商的特点，使得不同厂商的设备可以进行互操作。</p>
+<h1 id="三、Modbus-的工作原理"><a href="#三、Modbus-的工作原理" class="headerlink" title="三、Modbus 的工作原理"></a>三、Modbus 的工作原理</h1><p><code>Modbus</code> 是一主多从的协议，如下图所示：</p>
+<p><img src="1.png"></p>
+<p>主控发出的数据里，必定含有如下信息：</p>
+<ol>
+<li>设备地址：你要访问从设备 1，还是访问从设备 2。</li>
+<li>访问哪类寄存器，是读还是写，只访问 1 个寄存器，还是多个寄存器：这被称为功能码。</li>
+<li>起始寄存器地址、寄存器数量：这在数据里定义。</li>
+<li>为了保证数据传输的可靠，还附带有 CRC 检验码。</li>
+</ol>
+<h2 id="1、四种数据类型"><a href="#1、四种数据类型" class="headerlink" title="1、四种数据类型"></a>1、四种数据类型</h2><p>Modbus协议规定，进行读写操作的数据类型，按照读写属性和类型可分为以下4种：</p>
+<ul>
+<li><strong>离散量输入</strong>（<em><strong>Discretes Input</strong></em>）：1位，只读</li>
+<li><strong>线圈</strong>（<em><strong>Coils</strong></em>）：1位，读写</li>
+<li><strong>输入寄存器</strong>（<em><strong>Input Registers</strong></em>）：16位，只读</li>
+<li><strong>保持寄存器</strong>（<em><strong>Holding Registers</strong></em>）：16位，读写</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>内存区块</th>
+<th>数据类型</th>
+<th>主设备访问</th>
+<th>从设备访问</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>离散量输入</td>
+<td>布尔</td>
+<td>只读</td>
+<td>读写</td>
+<td>I&#x2F;O 系统提供这种类型数据</td>
+</tr>
+<tr>
+<td>线圈</td>
+<td>布尔</td>
+<td>读写</td>
+<td>读写</td>
+<td>通过应用程序改变这种类型数据</td>
+</tr>
+<tr>
+<td>输入寄存器</td>
+<td>无符号双字节整型</td>
+<td>只读</td>
+<td>读写</td>
+<td>I&#x2F;O 系统提供这种类型数据</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>无符号双字节整型</td>
+<td>读写</td>
+<td>读写</td>
+<td>通过应用程序改变这种类型数据</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>寄存器种类</th>
+<th>说明</th>
+<th>与PLC类比</th>
+<th>举例说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线圈状态(Coil Status)</td>
+<td>输出端口。可设定端口输出状态，也可以读取该位的输出状态。可分为两种不同的执行状态，例如保持型或边沿触发型。</td>
+<td>DO(数字量输出)</td>
+<td>电磁阀输出、 MOSFEF输出、LED显示等</td>
+</tr>
+<tr>
+<td>离散输入状态(Discrete Input Status)</td>
+<td>输入端口。通过外部设定改变输入状态，可读但不可以写。</td>
+<td>DI(数字量输入)</td>
+<td>拨码开关、接近开关等</td>
+</tr>
+<tr>
+<td>保持寄存器(HoldingRegister)</td>
+<td>输出参数或保持参数，控制器运行时被设定的某些参数，可读可写。</td>
+<td>AO(模拟量输出)</td>
+<td>模拟量输出设定值，PID运行参数，变量阀输出大小，传感器报警上限下限</td>
+</tr>
+<tr>
+<td>输入寄存器（Input Register）</td>
+<td>输入参数。控制器运行时从外部设备获得的参数，但可读不可写。</td>
+<td>AI（模拟量输入)</td>
+<td>模拟量输入</td>
+</tr>
+</tbody></table>
+<h2 id="2、三种工作模式"><a href="#2、三种工作模式" class="headerlink" title="2、三种工作模式"></a>2、三种工作模式</h2><p><code>Modbus</code> 协议主要有三种形式：<code>Modbus ASCII</code>、<code>Modbus RTU</code> 和 <code>Modbus TCP/IP</code>。<code>Modbus ASCII</code> 和 <code>Modbus RTU</code> 是基于串行通信的协议，而 <code>Modbus TCP/IP</code> 则是基于以太网的协议。</p>
+<ul>
+<li><code>Modbus ASCII</code> 是一种文本协议，使用 ASCII 码表示数据。它使用起始字符（“**:**”）、从站地址、功能码、数据、结尾字符（换行符 CR&#x2F;LF）等字段来定义通信内容，并采用的是  LRC 校验算法。数据以 ASCII 码的形式传输，通常是通过 RS-232 或 RS-485 等串行通信接口进行传输。</li>
+<li><code>Modbus RTU</code> 是一种二进制协议，使用二进制码表示数据。它采用起始字符、从站地址、功能码、数据等字段来定义通信内容，并使用 CRC 校验位来保证数据的完整性。<code>Modbus RTU</code> 通常通过 RS-232、RS-485 或 RS-422 等串行通信接口进行传输。</li>
+<li><code>Modbus TCP/IP</code> 是一种基于以太网的协议，使用 TCP&#x2F;IP 协议栈进行通信。它使用以太网帧作为数据传输的封装，通过 IP 地址和端口号来标识设备。其占用的是 502 端口，数据帧主要包括两部分：MBAP（报文头）+PDU（帧结构），数据块与串行链路是一致的。<code>Modbus TCP/IP</code> 可以通过以太网、无线局域网等网络介质实现设备之间的远程通信。</li>
+</ul>
+<blockquote>
+<p>补充：</p>
+<ul>
+<li><strong>RS-485</strong>：半双工收发接口，这是最为常用的 <code>Modbus</code> 物理层，信号采用差分电平编码，用一对双绞线现场布线，抗干扰性能也不错</li>
+<li><strong>RS-422</strong>：全双工收发接口，这种物理层也有比较多的应用，信号采用差分电平编码，需要两对双绞线现场布线，抗干扰性能也不错。与 RS-485 相比，其优势在于可以实现全双工，通信的效率高些，所需要的代价就是现场布线需要两对双绞线，增加了一定的成本。</li>
+<li><strong>RS-232</strong>：全双工收发接口，这个基本用在点对点通信场景下，不适合多点拓扑连接，采用共模电平编码，一般需要 Rxd&#x2F;Txd&#x2F;Gnd 三根线连接。</li>
+</ul>
+</blockquote>
+<h2 id="3、三类功能码"><a href="#3、三类功能码" class="headerlink" title="3、三类功能码"></a>3、三类功能码</h2><p><code>Modbus</code> 协议定义了一系列功能码，用于读取和写入设备的寄存器。常用的功能码包括读取保持寄存器、读取输入寄存器、写单个保持寄存器等。通过组合使用功能码和寄存器地址，可以实现对设备的读取和控制操作。</p>
+<p><code>Modbus</code> 主要包括 3 类功能码：公共功能码、用户定义功能码和保留功能码。</p>
+<p><img src="2.png"></p>
+<h3 id="3-1-标志功能码"><a href="#3-1-标志功能码" class="headerlink" title="3.1 标志功能码"></a>3.1 标志功能码</h3><ol>
+<li><strong>0 类代码</strong><br>0 类代码通常被认为是有效 <code>Modbus</code> 设备的最低配置，因为此类代码可使主设备能够读取或写入数据模型。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3</td>
+<td>读取多寄存器</td>
+</tr>
+<tr>
+<td>16</td>
+<td>写入多寄存器</td>
+</tr>
+</tbody></table>
+<ol start="2">
+<li><strong>1 类代码</strong><br>1 类功能码由访问所有类型的数据模型所需的其他代码组成。在原始定义中，此列表包含功能码 7（读取异常）。但是，当前规范规定此代码为仅限于串行的代码。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>读取线圈</td>
+</tr>
+<tr>
+<td>2</td>
+<td>读取离散量输入</td>
+</tr>
+<tr>
+<td>4</td>
+<td>读取输入寄存器</td>
+</tr>
+<tr>
+<td>5</td>
+<td>写入单个线圈</td>
+</tr>
+<tr>
+<td>6</td>
+<td>写入单个寄存器</td>
+</tr>
+<tr>
+<td>7</td>
+<td>读取异常状态（仅限串行）</td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li><strong>2 类代码</strong><br>2 类功能码表示不太常用但更为专业化的功能。例如，读取&#x2F;写入多个寄存器可能有助于减少请求-响应周期的总数，但该行为仍可用 0 类代码实现。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15</td>
+<td>写入多个线圈</td>
+</tr>
+<tr>
+<td>20</td>
+<td>读取文件记录</td>
+</tr>
+<tr>
+<td>21</td>
+<td>写入文件记录</td>
+</tr>
+<tr>
+<td>22</td>
+<td>屏蔽写入寄存器</td>
+</tr>
+<tr>
+<td>23</td>
+<td>读取&#x2F;写入多个寄存器</td>
+</tr>
+<tr>
+<td>24</td>
+<td>读取</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-Modbus-封装接口"><a href="#3-2-Modbus-封装接口" class="headerlink" title="3.2 Modbus 封装接口"></a>3.2 Modbus 封装接口</h3><p><code>Modbus</code> 封装接口（MEI）代码（即功能 43）用于封装 <code>Modbus</code> 数据包内的其他数据。目前，提供了两个 MEI 编号，即 13 (CANopen) 和 14（设备识别）。</p>
+<p>功能 43&#x2F;14（设备识别）非常有用，因为它允许传输多达 256 个唯一的对象。其中一些对象已预定义并预留，例如供应商名称和产品代码，但应用程序可以将其他对象定义为作为通用数据集传输。</p>
+<p>此类代码并不常用。</p>
+<h3 id="3-3-异常"><a href="#3-3-异常" class="headerlink" title="3.3 异常"></a>3.3 异常</h3><p>从设备使用异常来指示各种不良状况，比如错误请求或不正确输入。但是，异常也可以作为对无效请求的应用程序级响应。从设备不会响应发出异常的请求，而是忽略不完整或损坏的请求，并开始等待新的消息传入。</p>
+<p>异常以定义好的数据包格式报告给用户。首先，将功能码返回给等同于原始功能码的请求主设备，设置最高有效位的情况除外。这等同于为原始功能码的值加上 0x80。异常响应包括一个异常码，用于代替与给定功能响应相关的正常数据。</p>
+<p>根据标准，四个最常见的异常码是 01、02、03 和 04。下表中显示了这些代码，并附有每个功能的标准含义。</p>
+<table>
+<thead>
+<tr>
+<th>异常码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td>不支持接收的功能码。要确认原始功能码，请从返回值中减去0x80。</td>
+</tr>
+<tr>
+<td>02</td>
+<td>请求尝试访问的地址无效。根据标准，只有在起始地址和所请求值的编号超过216时才会发生这种情况。但是，有些设备可能会限制其</td>
+</tr>
+<tr>
+<td>03</td>
+<td>请求包含不正确的数据。在某些情况下，这意味着参数不匹配，例如所发送寄存器的数量与“字节总数”字段之间的参数不匹配。更常见的情况是，主设备请求的数据高于从设备或协议所允许的上限。例如，主设备一次只能读取 125 个保持寄存器，而资源受限的设备可能会将此值限制为更少的寄存器。</td>
+</tr>
+<tr>
+<td>04</td>
+<td>尝试处理请求时发生不可恢复的错误。这是一个常见异常码，表示请求有效，但从设备无法执行该请求。</td>
+</tr>
+</tbody></table>
+<p>每个功能码的状态图至少应包含异常码 01，通常包含异常码 02、03、04，并且任何其他定义的异常码都是可选的。</p>
+<h2 id="4、Modbus-协议层"><a href="#4、Modbus-协议层" class="headerlink" title="4、Modbus 协议层"></a>4、Modbus 协议层</h2><p>在最初的做法中，<code>Modbus</code> 是建立在串行端口之上的单一协议，因此它不能被分成多个层。随着时间的推移，该协议引入了不同的应用数据单元，来更改串行通信所用的数据包格式，或允许使用 TCP&#x2F;IP 和 UDP 网络。这样便实现了核心协议和网络层的分离，前者用于定义协议数据单元（<em><strong>PDU</strong></em>），后者用于定义应用数据单元（<em><strong>ADU</strong></em>）。</p>
+<h3 id="4-1-协议数据单元"><a href="#4-1-协议数据单元" class="headerlink" title="4.1 协议数据单元"></a>4.1 协议数据单元</h3><p>PDU及其处理代码构成了 <a target="_blank" rel="noopener" href="https://modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf">Modbus应用协议规范</a> 的核心。该规范定义了PDU的格式、协议使用的各种数据概念、如何使用功能码访问数据，以及每个功能码的具体实现和限制。</p>
+<p><code>Modbus PDU</code> 格式可定义为功能码，后跟一组关联数据。该数据的大小和内容由功能码定义，整个 PDU（功能码和数据）的大小不能超过 253 个字节。每个功能码都有一个特定的行为，从设备可以根据所需的应用程序行为灵活地实现这些行为。PDU 规范定义了数据访问和操作的核心概念；但是，从设备可能会以规范中未明确定义的方式处理数据。</p>
+<p>PDU 由一个单字节的功能码组成，后跟多达 252 字节的功能特定数据。</p>
+<p><img src="3.png"><br>功能码是第一个需要验证的项。如果用于接收请求的设备未识别功能码，则会返回异常。如果功能码被接受，则从设备会根据功能定义开始分解数据。</p>
+<blockquote>
+<p>由于数据包大小限制为 253 字节，因此设备可传输的数据量有限。最常见的功能码可以在从数据模型中传输 240 到 250 字节的实际数据，具体取决于代码。</p>
+</blockquote>
+<h3 id="4-2-访问数据"><a href="#4-2-访问数据" class="headerlink" title="4.2 访问数据"></a>4.2 访问数据</h3><p>一般来说，<code>Modbus</code> 可访问的数据存储在前面所提到的四个数据库或地址范围中的其中一个：<strong>线圈</strong>、<strong>离散量输入</strong>、<strong>保持寄存器</strong> 和 <strong>输入寄存器</strong>。与许多规范一样，这些名称可能因行业或应用而异。例如，保持寄存器可能称为输出寄存器，线圈可能称为数字或离散量输出。这些数据库定义了所包含数据的类型和访问权限。从设备可以直接访问这些数据，因为这些数据由设备本地托管。<code>Modbus</code> 可访问的数据通常是设备主存的一个子集。相反，<code>Modbus</code> 主设备必须通过各种功能码请求访问这些数据。</p>
+<p>通过这些区块，我们可以限制或允许访问不同的数据元素，还可以在应用层提供简化的机制来访问不同的数据类型。</p>
+<p>这些区块是完全概念性的。它们可能作为独立的内存地址存在于给定的系统中，但也可能重叠。例如，线圈1可能存在于与保持寄存器1所代表的字的第一位相同的内存中。寻址方案完全由从设备定义，其对每个内存区块的解释是设备数据模型的重要组成部分。</p>
+<h3 id="4-3-数据模型寻址"><a href="#4-3-数据模型寻址" class="headerlink" title="4.3 数据模型寻址"></a>4.3 数据模型寻址</h3><p>该规范将每个区块定义为包含多达 $65536 (2^{16})$ 个元素的地址空间。在 PDU 的定义中，<code>Modbus</code> 定义了每个数据元素的地址，范围是从 0 到 65535。然而，每个数据元素的编号从 1 到 n，其中 n 的最大值为 65536。也就是说，&#x3D;&#x3D;线圈 1 位于地址 0 的线圈区块中，而保持寄存器 54 位于从设备定义为保持寄存器的内存部分中的地址 53&#x3D;&#x3D;。</p>
+<p>规范允许的全部范围不需要给定设备实现。例如，设备可能会选择不执行线圈、离散量输入或输入寄存器，而只使用保持寄存器 150 至 175 和 200 至 225。这是完全可以接受的，而且可以通过例外来处理无效的访问尝试。</p>
+<h4 id="4-3-1-数据寻址范围"><a href="#4-3-1-数据寻址范围" class="headerlink" title="4.3.1 数据寻址范围"></a>4.3.1 数据寻址范围</h4><p>虽然规范将不同的数据类型定义为存在于不同的区块中，并为每种类型分配一个本地地址范围，但这并不一定能转化为用于记录或了解给定设备的 <code>Modbus</code> 可访问内存的直观寻址方案。为了简化对内存区块位置的理解，我们引入了一种编号方案，即向所讨论数据的地址中添加前缀。</p>
+<p>例如，在设备手册中，数据项不会表示为位于地址 13 的保持寄存器 14，而是表示为位于地址 4014、40014或 400014 的数据项。在这几种情况中，第一个数字都是4，表示保持寄存器，其余数字则用于指定地址。4XXX、4XXXX 和 4XXXXX 的区别取决于设备所用的地址空间。如果 65,536 个寄存器全部都在使用，应该使用 4XXXXX 符号，因为它支持 400,001 到 465,536 的范围。如果只有几个寄存器在使用，通常的做法是使用 4,001 到 4,999 的范围。</p>
+<p>在这种寻址方案中，每种数据类型都被分配了一个前缀，如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>数据区块</th>
+<th>前缀</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>线圈</td>
+<td>0</td>
+</tr>
+<tr>
+<td>离散量输入</td>
+<td>1</td>
+</tr>
+<tr>
+<td>输入寄存器</td>
+<td>3</td>
+</tr>
+<tr>
+<td>保持寄存器</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<p>线圈的前缀为 0，这意味着 4001 的引用可能是指保持寄存器 1 或线圈 4001。出于这个原因，建议所有的新实现都使用&#x3D;&#x3D;带前导零的 6 位数&#x3D;&#x3D;寻址，并在记录时注明这一点。因此，保持寄存器 1 的地址为 400001，而线圈 4001 的地址则为 004001。</p>
+<h4 id="4-3-2-数据地址起始值"><a href="#4-3-2-数据地址起始值" class="headerlink" title="4.3.2 数据地址起始值"></a>4.3.2 数据地址起始值</h4><p>内存地址和引用编号之间的差异会因给定应用程序选择的索引而进一步复杂化。如前所述，保持寄存器 1 位于地址 0。通常，引用编号索引从 1 开始，这意味着给定范围的起始值为 1。因此，400001 即表示位于地址 0 的保持寄存器 00001。一些实现选择以 0 作为范围起始值，即 400000 表示位于地址 0 的保持寄存器。下表展示了这个概念。</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>寄存器编号</th>
+<th>编号（索引从 1 开始，标准）</th>
+<th>编号（索引从 0 开始，备选）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>1</td>
+<td>400001</td>
+<td>400000</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>400002</td>
+<td>400001</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>400003</td>
+<td>400002</td>
+</tr>
+</tbody></table>
+<p>从 1 开始的索引范围应用较为广泛，强烈建议采用这种方案。无论哪种情况，每个范围的起始值都应在记录时注明。</p>
+<h3 id="4-4-大数据类型"><a href="#4-4-大数据类型" class="headerlink" title="4.4 大数据类型"></a>4.4 大数据类型</h3><p><code>Modbus</code> 标准提供了一个相对简单的数据模型，该模型不包含除&#x3D;&#x3D;无符号双字节整型&#x3D;&#x3D;和&#x3D;&#x3D;位值&#x3D;&#x3D;之外的其他数据类型。如果系统的位值对应于螺线管和继电器，并且双字节整型值对应于未缩放的 ADC 值，上述模型便已足够；但对于更高级的系统，则无法满足需求。</p>
+<p>因此，许多 <code>Modbus</code> 实现都包含跨寄存器边界的数据类型。NI LabVIEW 数据记录和监控（DSC）模块以及 KEPServerEX 都定义了许多引用类型。例如，存储在保持寄存器中的字符串应遵循标准格式（400,001），但后跟一个十进制数、长度和字符串的字节序（<code>400001.2H</code> 是指保持寄存器 1 中包含两个字符的字符串，其中高位字节对应到字符串的第一个字符）。这是必需的，因为每个请求的大小都是有限的，所以 <code>Modbus</code> 主设备必须知道字符串的确切范围，而不是搜索长度或分隔符（如 NULL）。</p>
+<h4 id="4-4-1-位访问"><a href="#4-4-1-位访问" class="headerlink" title="4.4.1 位访问"></a>4.4.1 位访问</h4><p>除了允许访问跨寄存器边界的数据之外，一些 <code>Modbus</code> 主设备还支持对寄存器中各个位的引用。由于允许设备将相同内存范围内的每种类型的数据组合在一起，而不必将二进制数据分成线圈和离散量输入范围，因此该功能非常有益。通常使用小数点和位索引或编号进行索引，具体取决于如何实现。也就是说，第一个寄存器的第一位可能是 400,001.00 或 400,001.01。建议所有文档均说明所使用的索引方案。</p>
+<h4 id="4-4-2-数据字节序"><a href="#4-4-2-数据字节序" class="headerlink" title="4.4.2 数据字节序"></a>4.4.2 数据字节序</h4><p>通过将数据拆分到两个寄存器，多寄存器数据（如单精度浮点值）可以轻松地通过 <code>Modbus</code> 进行传输。由于这不是由标准定义的，因此此类拆分的字节序未作规定。尽管每个无符号双字节整型必须以网络（大端）字节序发送才能满足标准，但许多设备会颠倒多字节数据的字节序。下图所示的范例虽然不太常见，但有效地展示了这一观点。</p>
+<p><img src="4.png"></p>
+<h4 id="4-4-3-字符串"><a href="#4-4-3-字符串" class="headerlink" title="4.4.3 字符串"></a>4.4.3 字符串</h4><p>字符串可以轻松地存储在 <code>Modbus</code> 寄存器中。为了简单起见，某些实现方法要求字符串长度为 &#x3D;&#x3D;2 的倍数&#x3D;&#x3D;，并使用&#x3D;&#x3D;空值&#x3D;&#x3D;来填充额外的空间。字节序也是字符串交互中的一个变量。字符串格式可能包含也可能不包含 NULL（作为最终值）。举个例子，一些设备的数据存储方法可能如下图所示。</p>
+<p><img src="5.png"></p>
+<h3 id="4-5-从设备功能执行"><a href="#4-5-从设备功能执行" class="headerlink" title="4.5 从设备功能执行"></a>4.5 从设备功能执行</h3><p>正如由数据模型所定义，不同的功能会访问不同的概念数据块。一种常见的做法是让代码访问静态内存位置，但其他行为仍然可用。例如，功能码 1（读取线圈）和 3（读取保持寄存器）可以访问内存中相同的物理位置。而功能码 3（读取保持寄存器）和 16（写入保持寄存器）可以访问内存中完全不同的位置。因此，建议在定义从数据模型时考虑每个功能码的执行情况。</p>
+<p>无论执行的是何种实际行为，所有从设备都应遵循每个请求的简单状态图。下图是功能码 1（读取线圈）的状态图范例。</p>
+<p><img src="6.png"></p>
+<p>每个从设备必须验证功能码、输入数量、起始地址、总范围以及实际进行读取行为的从属定义功能的执行。</p>
+<p>尽管上面的状态图包含了静态地址范围，但真实系统的需求可能会导致静态地址范围与所定义编号有所不同。在某些情况下，从设备无法传输协议所定义的最大字节数。也就是说，如果主设备请求 0x07D0 输入，从设备只能用 0x0400 进行响应。同样，从数据模型能够将可接受线圈值的范围定义为地址 0 到 500。如果主设备从地址 0 开始请求 125，则没有问题，但如果主设备从地址 400 开始发出相同的请求，最后一个线圈将位于地址 525，这无疑超出了该设备的范围，因而会出现状态图所定义的异常 02。</p>
+<h3 id="4-6-应用数据单元"><a href="#4-6-应用数据单元" class="headerlink" title="4.6 应用数据单元"></a>4.6 应用数据单元</h3><p>除了 <code>Modbus</code> 协议的 PDU 核心所定义的功能外，我们还可以使用多种网络协议。最常见的协议是串行和 TCP&#x2F;IP，但也可以使用 UDP 等其他协议。为了在这些层之间传输 <code>Modbus</code> 所需的数据，<code>Modbus</code> 包含一组专为每种网络协议量身定制的 ADU。</p>
+<h4 id="4-6-1-通用特征"><a href="#4-6-1-通用特征" class="headerlink" title="4.6.1 通用特征"></a>4.6.1 通用特征</h4><p><code>Modbus</code> 需要特定的功能来提供可靠的通信。每种 ADU 格式都需要使用单元 ID 或地址，以便为应用层提供路由信息。每个 ADU 都带有一个完整的 PDU，其中包含给定请求的功能码和相关数据。为了保证可靠性，每条消息都包含错误检查信息。最后，所有的 ADU 都提供了一种机制来确定请求帧的开始和结束，但实现方式各不相同。</p>
+<h4 id="4-6-2-标准格式"><a href="#4-6-2-标准格式" class="headerlink" title="4.6.2 标准格式"></a>4.6.2 标准格式</h4><p>ADU 的三种标准格式分别是 TCP、远程终端单元（RTU）和ASCII。RTU 和 ASCII ADU 通常用于串行线路，而 TCP 则用于现代 TCP&#x2F;IP 或 UDP&#x2F;IP 网络。</p>
+<p>无论是三种传输模式中的哪一种，<code>Modbus</code> 帧格式都是一样的：</p>
+<p><img src="7.png"></p>
+<p><code>Modbus</code> 数据帧主要包括：</p>
+<ul>
+<li><strong>地址域</strong>：1 字节，即从机设备地址，通常 1-247 为有效地址，0 为广播地址</li>
+<li><strong>功能码</strong>：1 字节，表明主机请求数据的类型。</li>
+<li><strong>数据</strong>：N 字节，包含寄存器地址和寄存器数据等。</li>
+<li><strong>差错校验</strong>：对数据进行冗余校验的结果，CRC 或 LRC。</li>
+</ul>
+<h5 id="4-6-2-1-Modbus-ASCII"><a href="#4-6-2-1-Modbus-ASCII" class="headerlink" title="4.6.2.1 Modbus-ASCII"></a>4.6.2.1 Modbus-ASCII</h5><p><code>Modbus-ASCII</code> 传输模式中，每个字节均以 ASCII 编码，实际报文中 1 个字节会以两个 ASCII 字符发送，因此这种模式比 <code>Modbus-RTU</code> 模式效率要低。</p>
+<p>例如报文数据 <code>0x5B = &quot;5&quot; + &quot;B&quot; = 0X35 + 0X42</code>。数据帧格式如下：</p>
+<p><img src="8.png"></p>
+<p>从 ASCII 数据帧可以看出，ASCII 模式增加了帧起始（“**:*<em>”）和帧结束标志（回车&amp;换行），由于报文数据每个字节在 ASCII 模式下需要 2个字符进行编码，为了保证 ASCII 模式和 RTU 模式在应用级兼容，ASCII 模式数据块最大长度为 252</em>2，所以可以计算出报文帧最大长度为 1+2+2+2x252+2+2&#x3D;513 字符，报文帧内的字符间隔时间可以达 1 秒钟。</p>
+<p><code>Modbus-ASCII</code> 模式校验方法采用的是纵向冗余校验（<em><strong>LRC</strong></em>，<em><strong>Longitudinal Redundancy Checking</strong></em>）算法，校验内容不包括帧起始和帧结束字符。</p>
+<p>计算方法也比较简单，对校验内容进行累加和计算，忽略进位，并转换为二进制补码：</p>
+<p>例如 <code>Modbus-ASCII</code> 模式，主机发送请求，向地址为 1 的从设备的 0x405 地址，写入数值 0x1234，报文如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">:<span class="number">010604051234</span>AA&lt;CR&gt;&lt;LF&gt;</span><br><span class="line"></span><br><span class="line">即：</span><br><span class="line"></span><br><span class="line">:<span class="number">01</span> <span class="number">06</span> <span class="number">04</span> <span class="number">05</span> <span class="number">12</span> <span class="number">34</span> AA &lt;CR&gt;&lt;LF&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到01表示设备地址，06表示写单个保持寄存器。地址为0x0405，数据为0x1234，LRC校验值为0xAA。实际进行校验的数据不包含帧头和帧尾。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0xAA</span> = LRC(<span class="number">01</span>, <span class="number">06</span>, <span class="number">04</span>, <span class="number">05</span>, <span class="number">12</span>, <span class="number">34</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 手动 LRC 计算方法：</p>
+</blockquote>
+<p>把原始数据两个字符组成一个字节，并进行二进制加法计算：<code>01+06+04+05+12+34=0x56</code>，计算二进制补码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x56</span> = <span class="number">0101</span> <span class="number">0110</span></span><br><span class="line">  取反：<span class="number">1010</span> <span class="number">1001</span></span><br><span class="line">  加<span class="number">1</span>： <span class="number">1010</span> <span class="number">1010</span> = <span class="number">0xAA</span></span><br><span class="line">或者：<span class="number">0x100</span><span class="number">-0x56</span> = <span class="number">0xAA</span></span><br></pre></td></tr></table></figure>
+
+<p>或者可以利用在线工具计算：<a target="_blank" rel="noopener" href="https://www.23bei.com/tool/539.html">LRC校验码在线计算器</a>。</p>
+<p><img src="9.png"></p>
+<h5 id="4-6-2-2-Modbus-RTU"><a href="#4-6-2-2-Modbus-RTU" class="headerlink" title="4.6.2.2 Modbus-RTU"></a>4.6.2.2 Modbus-RTU</h5><p><code>Modbus-RTU</code> 数据帧，帧长度最大为 256 字节，由以下四部分构成：</p>
+<ul>
+<li>子节点地址：1 字节，范围 0-247。</li>
+<li>功能代码：1 字节。</li>
+<li>数据块：0-252 字节。</li>
+<li>CRC校验值：2 字节，低 8 位在前。</li>
+</ul>
+<p><img src="10.png"></p>
+<p><code>Modbus-RTU</code> 帧间隔，<code>Modbus-RTU</code> 要求两个 RTU 报文帧间隔要大于 3.5 个字节时间：</p>
+<p><img src="11.png"></p>
+<p><code>ModbusRTU</code> 帧间隔且每个报文帧内字节间隔小于 1.5 个字节时间，否则会认为接收不完整。</p>
+<p><img src="12.png"></p>
+<p>Modbus-RTU采用循环冗余校验 (CRC - Cyclical Redundancy Checking) 算法对报文帧全部数据进行计算，得到的校验值附加在报文帧末尾，低位在前。CRC-16_Modbus计算方法可以参考：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzUzNzk2NTMxMw==&mid=2247485023&idx=1&sn=1c0972062c0393fe385cd1777ebf6dab&scene=21#wechat_redirect">CRC-16_Modbus校验算法</a>。</p>
+<blockquote>
+<p>也可以用在线工具：<a target="_blank" rel="noopener" href="https://www.23bei.com/tool/59.html">16进制(CRC16)(MODBUS RTU通讯)校验码在线计算器</a> 计算 CRC 校验值。</p>
+</blockquote>
+<p><strong>例一</strong>：写单个寄存器。向 01 地址设备 0x0105 保持寄存器写入 1 个数据：0x0190</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机发送： <span class="number">01</span> <span class="number">06</span> <span class="number">01</span> <span class="number">05</span> <span class="number">01</span> <span class="number">90</span> <span class="number">99</span> CB</span><br><span class="line">从机回复： <span class="number">01</span> <span class="number">06</span> <span class="number">01</span> <span class="number">05</span> <span class="number">01</span> <span class="number">90</span> <span class="number">99</span> CB</span><br></pre></td></tr></table></figure>
+
+<p>其中，01 表示从机地址，06 功能码表示写单个保持寄存器，0105 表示寄存器地址，0190 表示写入寄存器的数值，99CB 为 CRC 校验值。可以看出，当写 1 个寄存器数据时，从机响应的数据帧和主机发送的数据帧完成一致。</p>
+<p><strong>例二</strong>：写多个寄存器。向 01 地址设备 0x0105、0x0106、0x0107 地址保持寄存器，写入 3 个寄存器数据：0x1102、0x0304、0x0566。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机发送：<span class="number">01</span> <span class="number">10</span> <span class="number">01</span> <span class="number">05</span> <span class="number">00</span> <span class="number">03</span> <span class="number">06</span> <span class="number">11</span> <span class="number">02</span> <span class="number">03</span> <span class="number">04</span> <span class="number">05</span> <span class="number">66</span> <span class="number">4</span>a <span class="number">12</span></span><br><span class="line">从机回复：<span class="number">01</span> <span class="number">10</span> <span class="number">01</span> <span class="number">05</span> <span class="number">00</span> <span class="number">03</span> <span class="number">91</span> f5</span><br></pre></td></tr></table></figure>
+
+<p>同理，01 从机地址，10 功能码表示写多个保持寄存器，0105 表示起始地址，0003 表示写 3 个寄存器，06 表示数据量为 6 个字节，1102&#x2F;0304&#x2F;0566 分别表示写入 3 个寄存器的数值，4a12 表示 CRC 校验数值。</p>
+<p>可以看出，写多个寄存器时使用 10 功能码，从机回复数据也比较精简。</p>
+<p><strong>例三</strong>：读单个寄存器。读 01 地址设备 0x0105 保持寄存器数据。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机发送：<span class="number">01</span> <span class="number">03</span> <span class="number">01</span> <span class="number">05</span> <span class="number">00</span> <span class="number">01</span> <span class="number">95</span> f7</span><br><span class="line">从机回复：<span class="number">01</span> <span class="number">03</span> <span class="number">02</span> <span class="number">56</span> <span class="number">78</span> <span class="number">87</span> c6</span><br></pre></td></tr></table></figure>
+
+<p>主机发送数据中，03 表示读多个寄存器，0105 表示起始地址，0001 表示读 1 个寄存器。</p>
+<p>从机回复值中，02 表示 2 个字节，56 78 表示寄存器的数据。</p>
+<p><strong>例四</strong>：读多个寄存器。读 01 地址设备 0x0105、0x0106、0x0107 地址保持寄存器，共 3 个寄存器数据。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">主机发送：<span class="number">01</span> <span class="number">03</span> <span class="number">01</span> <span class="number">05</span> <span class="number">00</span> <span class="number">03</span> <span class="number">14</span> <span class="number">36</span></span><br><span class="line">从机回复：<span class="number">01</span> <span class="number">03</span> <span class="number">06</span> <span class="number">11</span> <span class="number">22</span> <span class="number">33</span> <span class="number">44</span> <span class="number">55</span> <span class="number">66</span> <span class="number">2</span>a <span class="number">18</span></span><br></pre></td></tr></table></figure>
+
+<p>03 表示读多个寄存器，0105 表示起始地址，0003 表示读 3 个寄存器。</p>
+<p>06 表示 6 个字节，11 22 33 44 55 66 表示寄存器的数据。</p>
+<h5 id="4-6-2-3-Modbus-TCP"><a href="#4-6-2-3-Modbus-TCP" class="headerlink" title="4.6.2.3 Modbus-TCP"></a>4.6.2.3 Modbus-TCP</h5><p><code>Modbus-TCP</code> 基于以下种报文类型：</p>
+<ul>
+<li><strong>MODBUS 请求</strong>：客户机在网络上发送用来启动事务处理的报文</li>
+<li><strong>MODBUS 证实</strong>：在客户端接收的响应信息</li>
+<li><strong>MODBUS 指示</strong>：服务端接收的请求报文</li>
+<li><strong>MODBUS 响应</strong>：服务器发送的响应信息</li>
+</ul>
+<p><img src="13.png"></p>
+<p><img src="14.png"></p>
+<p>报文头的数据字段代表其用途。首先，它包含一个事务处理标识符。这有助于网络允许同时发生多个未处理的请求。也就是说，主设备可以发送请求 1、2 和 3。在稍后的时间点，从设备能以 2、1、3 的顺序进行响应，并且主设备可以将请求匹配到响应并准确解析数据。这对于以太网网络来说很有用。</p>
+<p>协议标识符通常为零，但您可以使用它来扩展协议的行为。协议使用长度字段来描述数据包其余部分的长度。此元素的位置也表明了这个报文头格式在可靠网络层上的依赖关系。由于 TCP 数据包具有内置的错误检查功能，并可确保数据一致性和传递，因此数据包长度可位于报文头的任何位置。在可靠性较差的网络上（比如串行网络），数据包可能会丢失，其影响是即使应用程序读取的数据流包含有效的事务处理和协议信息，长度信息的损坏也会使报文头无效。TCP 为这种情况提供了适当的保护。</p>
+<p>TCP&#x2F;IP 设备通常不使用单元 ID。但是，<code>Modbus</code> 是一种常见的协议，因此通常会开发许多网关来将 <code>Modbus</code> 协议转换为其他协议。在最初的预期应用中，<code>Modbus TCP/IP</code> 转串行网关用于连接新的TCP&#x2F;IP网络与旧的串行网络。在这种环境中，单元 ID用于确定 PDU  实际对应的从设备的地址。</p>
+<p>最后，ADU 还包含一个 PDU。对于标准协议，PDU 的长度仍限制为 253 字节。</p>
+<p><code>Modbus</code> 协议中主机可以以两种模式对从机设备发出请求：单播和广播。</p>
+<h6 id="4-6-2-3-1-单播模式"><a href="#4-6-2-3-1-单播模式" class="headerlink" title="4.6.2.3.1 单播模式"></a>4.6.2.3.1 单播模式</h6><p>在单播模式下，从机地址必须唯一，地址范围 1-247。主机以特定地址访问指定的某个从机，发出一个请求数据帧，这个数据帧功能可以是读取或写入数据，从机接收到并处理完成后，会回报一个应答数据帧，以表示读取或写入成功。</p>
+<p><img src="15.png"></p>
+<h6 id="4-6-2-3-2-广播模式"><a href="#4-6-2-3-2-广播模式" class="headerlink" title="4.6.2.3.2 广播模式"></a>4.6.2.3.2 广播模式</h6><p>在广播模式下，主机向所有的从机发出请求数据帧，所有的从机都会处理这条命令，对于广播请求，所有的从机无需做出应答操作。一般地址 0 表示广播地址。</p>
+<p><img src="16.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/18/Modbus/">http://example.com/2024/08/18/Modbus/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/Modbus/">Modbus</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" title="FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则</div></div><div class="info-2"><div class="info-item-1">[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port 表示接口的意思，就是 FreeRTOS 要移植到这些处理器上需要这些接口文件来把它们连接在一起。 在 FreeRTOS 中，&#x3D;&#x3D;int 型从不使用，只使用 short 和 long 型&#x3D;&#x3D;。在 Cortex-M 内核的 MCU 中，short 为 16 位，long 为 32 位。 在 portmacro.h 文件中，有如下定义： 1234567891011121314151617181920/* Type definitions. */    #define portCHAR          char    #define portFLOAT ...</div></div></div></a><a class="pagination-related" href="/2024/08/17/SPI/" title="SPI 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">SPI 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述SPI（Serial Peripheral interface，串行外围设备接口） 通信协议是 Motorola 公司首先在其MC68HCXX 系列处理器上定义的。SPI 接口是一种高速的全双工同步的通信总线，已经广泛应用在众多 MCU、存储芯片、AD 转换器和 LCD 之间。 由 SPI 连成的串行总线是一种三线同步总线，总线上可以连接多个可作为主机的 MCU，装有 SPI 接口的输出设备，输入设备如液晶驱动、A&#x2F;D 转换等外设，也可以简单连接到单个 TTL 移位寄存器的3芯片。总线上允许连接多个能作主机的设备，但在任一瞬间只允许有一个设备作为主机。总线的时钟线 SCK 由主机控制，另外两根分别是：主机输入&#x2F;从机输出线（MISO）和主机输出&#x2F;从机输入线（MOSI）。下图就是 SPI 总线的典型结构图：  系统可以简单，也可以复杂，主要有以下几种形式：  一台主机 MCU 和若干台从机 MCU。 多台 MCU 互相连接成一个多主机系统。 一台主机 MCU 和若干台从机外围设备。  二、SPI 详解1、基本信息1.1 SPI 的引...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/15/I2C/" title="IIC 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-15</div><div class="info-item-2">IIC 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）线用于双向数据传输，而 SCL（Serial Clock）线则用于同步数据传输的时钟信号。通信始终由主设备（Master）控制，从设备（Slave）被动接收和回应。这种简单的线路连接方式使得设备之间的互连变得非常容易。下图即是 I2C 的基本结构：  I2C 协议具有广泛的应用范围，如连接传感器、存储器、显示器等设备，常用于微控制器和嵌入式系统中，因为它使用的引脚较少，可以同时连接多个设备，并且具有简单的硬件和软件实现。 串行、8 位方向的双向数据传输在 Standard-mode 下最高可达 100 kbit&#x2F;s；在  Fast-mode 下最高可达 400 kbit&#x2F...</div></div></div></a><a class="pagination-related" href="/2024/08/16/UART/" title="UART 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-16</div><div class="info-item-2">UART 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述UART (Universal Asynchronous Receiver&#x2F;Transmitter，通用异步收发器) 是一种常用的串行通信协议，用于在计算机和外部设备之间传输数据。它是一种异步通信协议，也就是说数据的传输不需要事先建立好同步时钟信号。 UART 协议定义了数据传输的格式和通信规则。它包括一系列的控制信号和数据线来实现双向的串行通信。常见的 UART 协议有 RS-232、RS-422 和 RS-485 等。 UART 协议的数据传输是基于帧（Frame）的概念的。每个数据帧由一个起始位、若干个数据位、一个可选的奇偶校验位和一个或多个停止位组成。起始位用于指示数据帧的开始，数据位用于传输实际的数据，奇偶校验位用于检测数据的正确性，停止位用于指示数据帧的结束。 UART 协议的工作方式是通过不断发送和接收数据来实现通信。发送方将数据按照一定的格式组织成数据帧，并通过数据线发送出去。接收方接收到数据后，解析数据帧，并进行相应的处理。 UART 协议的优点是简单、成本低廉且广泛应用。它可以通过简单的硬件电路实现，并且在嵌入式系统、通信设备、...</div></div></div></a><a class="pagination-related" href="/2024/08/17/SPI/" title="SPI 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-17</div><div class="info-item-2">SPI 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述SPI（Serial Peripheral interface，串行外围设备接口） 通信协议是 Motorola 公司首先在其MC68HCXX 系列处理器上定义的。SPI 接口是一种高速的全双工同步的通信总线，已经广泛应用在众多 MCU、存储芯片、AD 转换器和 LCD 之间。 由 SPI 连成的串行总线是一种三线同步总线，总线上可以连接多个可作为主机的 MCU，装有 SPI 接口的输出设备，输入设备如液晶驱动、A&#x2F;D 转换等外设，也可以简单连接到单个 TTL 移位寄存器的3芯片。总线上允许连接多个能作主机的设备，但在任一瞬间只允许有一个设备作为主机。总线的时钟线 SCK 由主机控制，另外两根分别是：主机输入&#x2F;从机输出线（MISO）和主机输出&#x2F;从机输入线（MOSI）。下图就是 SPI 总线的典型结构图：  系统可以简单，也可以复杂，主要有以下几种形式：  一台主机 MCU 和若干台从机 MCU。 多台 MCU 互相连接成一个多主机系统。 一台主机 MCU 和若干台从机外围设备。  二、SPI 详解1、基本信息1.1 SPI 的引...</div></div></div></a><a class="pagination-related" href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" title="FreeRTOS 快速入门（二）之内存管理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="info-item-2">FreeRTOS 快速入门（二）之内存管理</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理解为电脑的硬盘。在这一 章中我们主要讨论内部存储空间（RAM）的管理——内存管理。 FreeRTOS 操作系统将内核与内存管理分开实现，操作系统内核仅规定了必要的内存管 理函数原型，而不关心这些内存管理函数是如何实现的，所以在 FreeRTOS 中提供了多种 内存分配算法（分配策略），但是上层接口（API）却是统一的。这样做可以增加系统的 灵活性：用户可以选择对自己更有利的内存管理策略，在不同的应用场合使用不同的内存 分配策略。 如果 FreeRTOS 对象是动态创建的，那么标准 C 库 malloc() 和 free() 函数有时可用于此目的，但是…它们在嵌入式系统上并不总是可用，占用...</div></div></div></a><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/09/30/hex-%E5%92%8C-bin-%E6%96%87%E4%BB%B6/" title="hex 文件和 bin 文件剖析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="info-item-2">hex 文件和 bin 文件剖析</div></div><div class="info-2"><div class="info-item-1">@toc  在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文将针对这两个文件进行讨论。 一、概述 二进制文件（Binary File）是一种以二进制形式存储的计算机文件，其中的数据以字节为单位进行编码。二进制文件可以包含任意类型的数据，如图像、音频、视频、可执行文件等。与之相对的是文本文件，文本文件使用字符编码（如 ASCII 或 Unicode）表示数据。十六进制文件（Hex File）是一种特殊的二进制文件，其中的数据以十六进制表示。每个十六进制数对应 4 个二进制位，因此可以更直观地查看和编辑二进制数据。十六进制文件常用于存储和传输机器码（即可执行文件），特别是在处理嵌入式系统中常见的固件或软件升级时。  更具体地说，*.bin 文件是二进...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Modbus-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">二、Modbus 的作用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Modbus-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">三、Modbus 的工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%9B%9B%E7%A7%8D%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.1.</span> <span class="toc-text">1、四种数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%B8%89%E7%A7%8D%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">2、三种工作模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E4%B8%89%E7%B1%BB%E5%8A%9F%E8%83%BD%E7%A0%81"><span class="toc-number">3.3.</span> <span class="toc-text">3、三类功能码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A0%87%E5%BF%97%E5%8A%9F%E8%83%BD%E7%A0%81"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.1 标志功能码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Modbus-%E5%B0%81%E8%A3%85%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.2 Modbus 封装接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%BC%82%E5%B8%B8"><span class="toc-number">3.3.3.</span> <span class="toc-text">3.3 异常</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81Modbus-%E5%8D%8F%E8%AE%AE%E5%B1%82"><span class="toc-number">3.4.</span> <span class="toc-text">4、Modbus 协议层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%8D%8F%E8%AE%AE%E6%95%B0%E6%8D%AE%E5%8D%95%E5%85%83"><span class="toc-number">3.4.1.</span> <span class="toc-text">4.1 协议数据单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E8%AE%BF%E9%97%AE%E6%95%B0%E6%8D%AE"><span class="toc-number">3.4.2.</span> <span class="toc-text">4.2 访问数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E5%AF%BB%E5%9D%80"><span class="toc-number">3.4.3.</span> <span class="toc-text">4.3 数据模型寻址</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-1-%E6%95%B0%E6%8D%AE%E5%AF%BB%E5%9D%80%E8%8C%83%E5%9B%B4"><span class="toc-number">3.4.3.1.</span> <span class="toc-text">4.3.1 数据寻址范围</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3-2-%E6%95%B0%E6%8D%AE%E5%9C%B0%E5%9D%80%E8%B5%B7%E5%A7%8B%E5%80%BC"><span class="toc-number">3.4.3.2.</span> <span class="toc-text">4.3.2 数据地址起始值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%A4%A7%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.4.4.</span> <span class="toc-text">4.4 大数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-1-%E4%BD%8D%E8%AE%BF%E9%97%AE"><span class="toc-number">3.4.4.1.</span> <span class="toc-text">4.4.1 位访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-2-%E6%95%B0%E6%8D%AE%E5%AD%97%E8%8A%82%E5%BA%8F"><span class="toc-number">3.4.4.2.</span> <span class="toc-text">4.4.2 数据字节序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4-3-%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">3.4.4.3.</span> <span class="toc-text">4.4.3 字符串</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-%E4%BB%8E%E8%AE%BE%E5%A4%87%E5%8A%9F%E8%83%BD%E6%89%A7%E8%A1%8C"><span class="toc-number">3.4.5.</span> <span class="toc-text">4.5 从设备功能执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-%E5%BA%94%E7%94%A8%E6%95%B0%E6%8D%AE%E5%8D%95%E5%85%83"><span class="toc-number">3.4.6.</span> <span class="toc-text">4.6 应用数据单元</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-1-%E9%80%9A%E7%94%A8%E7%89%B9%E5%BE%81"><span class="toc-number">3.4.6.1.</span> <span class="toc-text">4.6.1 通用特征</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-2-%E6%A0%87%E5%87%86%E6%A0%BC%E5%BC%8F"><span class="toc-number">3.4.6.2.</span> <span class="toc-text">4.6.2 标准格式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#4-6-2-1-Modbus-ASCII"><span class="toc-number">3.4.6.2.1.</span> <span class="toc-text">4.6.2.1 Modbus-ASCII</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-6-2-2-Modbus-RTU"><span class="toc-number">3.4.6.2.2.</span> <span class="toc-text">4.6.2.2 Modbus-RTU</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-6-2-3-Modbus-TCP"><span class="toc-number">3.4.6.2.3.</span> <span class="toc-text">4.6.2.3 Modbus-TCP</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#4-6-2-3-1-%E5%8D%95%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.4.6.2.3.1.</span> <span class="toc-text">4.6.2.3.1 单播模式</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-6-2-3-2-%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.4.6.2.3.2.</span> <span class="toc-text">4.6.2.3.2 广播模式</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux 错误码 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有一部分定义在 include&#x2F;uapi&#x2F;asm-g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 错误码">
+<meta property="og:url" content="http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有一部分定义在 include&#x2F;uapi&#x2F;asm-g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-09T08:31:01.000Z">
+<meta property="article:modified_time" content="2024-11-13T17:16:30.055Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="错误码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux 错误码",
+  "url": "http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-09T08:31:01.000Z",
+  "dateModified": "2024-11-13T17:16:30.055Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux 错误码',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux 错误码</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Linux 错误码</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-09T08:31:01.000Z" title="发表于 2024-08-09 16:31:01">2024-08-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T17:16:30.055Z" title="更新于 2024-11-14 01:16:30">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。</p>
+<p>为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 <code>include/uapi/asm-generic/errno-base.h</code>，还有一部分定义在 <code>include/uapi/asm-generic/errno-base.h</code> 中。</p>
+<p>当函数执行发生错误的时候，操作系统会将这个错误所对应的编号赋值给 <code>errno</code> 变量，每一个进程都维护了自己的 errno 变量，它是程序中的全局变量，该变量用于存储&#x3D;&#x3D;就近&#x3D;&#x3D;发生的函数执行错误编号。</p>
+<blockquote>
+<p>只有当系统调用或者调用 lib 函数时出错，才会置位<code>errno</code>！</p>
+</blockquote>
+<h1 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a>二、含义</h1><table>
+<thead>
+<tr>
+<th>宏名称</th>
+<th>Value</th>
+<th>Description</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EPERM</td>
+<td>1</td>
+<td>Operation not permitted</td>
+<td>操作不允许</td>
+</tr>
+<tr>
+<td>ENOENT</td>
+<td>2</td>
+<td>No such file or directory</td>
+<td>没有这样的文件或目录</td>
+</tr>
+<tr>
+<td>ESRCH</td>
+<td>3</td>
+<td>No such process</td>
+<td>没有这样的过程</td>
+</tr>
+<tr>
+<td>EINTR</td>
+<td>4</td>
+<td>Interrupted system call</td>
+<td>系统调用被中断</td>
+</tr>
+<tr>
+<td>EIO</td>
+<td>5</td>
+<td>I&#x2F;O error</td>
+<td>I&#x2F;O 错误</td>
+</tr>
+<tr>
+<td>ENXIO</td>
+<td>6</td>
+<td>No such device or address</td>
+<td>没有这样的设备或地址</td>
+</tr>
+<tr>
+<td>E2BIG</td>
+<td>7</td>
+<td>Arg list too long</td>
+<td>参数列表太长</td>
+</tr>
+<tr>
+<td>ENOEXEC</td>
+<td>8</td>
+<td>Exec format error</td>
+<td>执行格式错误</td>
+</tr>
+<tr>
+<td>EBADF</td>
+<td>9</td>
+<td>Bad file number</td>
+<td>坏的文件描述符</td>
+</tr>
+<tr>
+<td>ECHILD</td>
+<td>10</td>
+<td>No child processes</td>
+<td>没有子进程</td>
+</tr>
+<tr>
+<td>EAGAIN</td>
+<td>11</td>
+<td>Try again</td>
+<td>资源暂时不可用</td>
+</tr>
+<tr>
+<td>ENOMEM</td>
+<td>12</td>
+<td>Out of memory</td>
+<td>内存溢出</td>
+</tr>
+<tr>
+<td>EACCES</td>
+<td>13</td>
+<td>Permission denied</td>
+<td>拒绝许可</td>
+</tr>
+<tr>
+<td>EFAULT</td>
+<td>14</td>
+<td>Bad address</td>
+<td>错误的地址</td>
+</tr>
+<tr>
+<td>ENOTBLK</td>
+<td>15</td>
+<td>Block device required</td>
+<td>块设备请求</td>
+</tr>
+<tr>
+<td>EBUSY</td>
+<td>16</td>
+<td>Device or resource busy</td>
+<td>设备或资源忙</td>
+</tr>
+<tr>
+<td>EEXIST</td>
+<td>17</td>
+<td>File exists</td>
+<td>文件存在</td>
+</tr>
+<tr>
+<td>EXDEV</td>
+<td>18</td>
+<td>Cross-device link</td>
+<td>无效的交叉链接</td>
+</tr>
+<tr>
+<td>ENODEV</td>
+<td>19</td>
+<td>No such device</td>
+<td>设备不存在</td>
+</tr>
+<tr>
+<td>ENOTDIR</td>
+<td>20</td>
+<td>Not a directory</td>
+<td>不是一个目录</td>
+</tr>
+<tr>
+<td>EISDIR</td>
+<td>21</td>
+<td>Is a directory</td>
+<td>是一个目录</td>
+</tr>
+<tr>
+<td>EINVAL</td>
+<td>22</td>
+<td>Invalid argument</td>
+<td>无效的参数</td>
+</tr>
+<tr>
+<td>ENFILE</td>
+<td>23</td>
+<td>File table overflow</td>
+<td>打开太多的文件系统</td>
+</tr>
+<tr>
+<td>EMFILE</td>
+<td>24</td>
+<td>Too many open files</td>
+<td>打开的文件过多</td>
+</tr>
+<tr>
+<td>ENOTTY</td>
+<td>25</td>
+<td>Not a tty device</td>
+<td>不是 tty 设备</td>
+</tr>
+<tr>
+<td>ETXTBSY</td>
+<td>26</td>
+<td>Text file busy</td>
+<td>文本文件忙</td>
+</tr>
+<tr>
+<td>EFBIG</td>
+<td>27</td>
+<td>File too large</td>
+<td>文件太大</td>
+</tr>
+<tr>
+<td>ENOSPC</td>
+<td>28</td>
+<td>No space left on device</td>
+<td>设备上没有空间</td>
+</tr>
+<tr>
+<td>ESPIPE</td>
+<td>29</td>
+<td>Illegal seek</td>
+<td>非法移位</td>
+</tr>
+<tr>
+<td>EROFS</td>
+<td>30</td>
+<td>Read-only file system</td>
+<td>只读文件系统</td>
+</tr>
+<tr>
+<td>EMLINK</td>
+<td>31</td>
+<td>Too many links</td>
+<td>太多的链接</td>
+</tr>
+<tr>
+<td>EPIPE</td>
+<td>32</td>
+<td>Broken pipe</td>
+<td>管道破裂</td>
+</tr>
+<tr>
+<td>EDOM</td>
+<td>33</td>
+<td>Math argument out of domain</td>
+<td>数值结果超出范围</td>
+</tr>
+<tr>
+<td>ERANGE</td>
+<td>34</td>
+<td>Math result not representable</td>
+<td>数值结果不具代表性</td>
+</tr>
+<tr>
+<td>EDEADLK</td>
+<td>35</td>
+<td>Resource deadlock would occur</td>
+<td>资源死锁错误</td>
+</tr>
+<tr>
+<td>ENAMETOOLONG</td>
+<td>36</td>
+<td>Filename too long</td>
+<td>文件名太长</td>
+</tr>
+<tr>
+<td>ENOLCK</td>
+<td>37</td>
+<td>No record locks available</td>
+<td>没有可用锁</td>
+</tr>
+<tr>
+<td>ENOSYS</td>
+<td>38</td>
+<td>Function not implemented</td>
+<td>功能没有实现</td>
+</tr>
+<tr>
+<td>ENOTEMPTY</td>
+<td>39</td>
+<td>Directory not empty</td>
+<td>目录不空</td>
+</tr>
+<tr>
+<td>ELOOP</td>
+<td>40</td>
+<td>Too many symbolic links encountered</td>
+<td>符号链接层次太多</td>
+</tr>
+<tr>
+<td>EWOULDBLOCK</td>
+<td>41</td>
+<td>Same as EAGAIN</td>
+<td>和 EAGAIN 一样</td>
+</tr>
+<tr>
+<td>ENOMSG</td>
+<td>42</td>
+<td>No message of desired type</td>
+<td>没有期望类型的消息</td>
+</tr>
+<tr>
+<td>EIDRM</td>
+<td>43</td>
+<td>Identifier removed</td>
+<td>标识符删除</td>
+</tr>
+<tr>
+<td>ECHRNG</td>
+<td>44</td>
+<td>Channel number out of range</td>
+<td>频道数目超出范围</td>
+</tr>
+<tr>
+<td>EL2NSYNC</td>
+<td>45</td>
+<td>Level 2 not synchronized</td>
+<td>2 级不同步</td>
+</tr>
+<tr>
+<td>EL3HLT</td>
+<td>46</td>
+<td>Level 3 halted</td>
+<td>3 级中断</td>
+</tr>
+<tr>
+<td>EL3RST</td>
+<td>47</td>
+<td>Level 3 reset</td>
+<td>3 级复位</td>
+</tr>
+<tr>
+<td>ELNRNG</td>
+<td>48</td>
+<td>Link number out of range</td>
+<td>链接数超出范围</td>
+</tr>
+<tr>
+<td>EUNATCH</td>
+<td>49</td>
+<td>Protocol driver not attached</td>
+<td>协议驱动程序没有连接</td>
+</tr>
+<tr>
+<td>ENOCSI</td>
+<td>50</td>
+<td>No CSI structure available</td>
+<td>没有可用 CSI 结构</td>
+</tr>
+<tr>
+<td>EL2HLT</td>
+<td>51</td>
+<td>Level 2 halted</td>
+<td>2 级中断</td>
+</tr>
+<tr>
+<td>EBADE</td>
+<td>52</td>
+<td>Invalid exchange</td>
+<td>无效的交换</td>
+</tr>
+<tr>
+<td>EBADR</td>
+<td>53</td>
+<td>Invalid request descriptor</td>
+<td>请求描述符无效</td>
+</tr>
+<tr>
+<td>EXFULL</td>
+<td>54</td>
+<td>Exchange full</td>
+<td>交换充分</td>
+</tr>
+<tr>
+<td>ENOANO</td>
+<td>55</td>
+<td>No anode</td>
+<td>没有阳极</td>
+</tr>
+<tr>
+<td>EBADRQC</td>
+<td>56</td>
+<td>Invalid request code</td>
+<td>无效的请求代码</td>
+</tr>
+<tr>
+<td>EBADSLT</td>
+<td>57</td>
+<td>Invalid slot</td>
+<td>无效的槽</td>
+</tr>
+<tr>
+<td>EDEADLOCK</td>
+<td>58</td>
+<td>Same as EDEADLK</td>
+<td>和 EDEADLK 一样</td>
+</tr>
+<tr>
+<td>EBFONT</td>
+<td>59</td>
+<td>Bad font file format</td>
+<td>错误的字体文件格式</td>
+</tr>
+<tr>
+<td>ENOSTR</td>
+<td>60</td>
+<td>Device not a stream</td>
+<td>设备不是字符流</td>
+</tr>
+<tr>
+<td>ENODATA</td>
+<td>61</td>
+<td>No data available</td>
+<td>无可用数据</td>
+</tr>
+<tr>
+<td>ETIME</td>
+<td>62</td>
+<td>Timer expired</td>
+<td>计时器过期</td>
+</tr>
+<tr>
+<td>ENOSR</td>
+<td>63</td>
+<td>Out of streams resources</td>
+<td>流资源溢出</td>
+</tr>
+<tr>
+<td>ENONET</td>
+<td>64</td>
+<td>Machine is not on the network</td>
+<td>机器不上网</td>
+</tr>
+<tr>
+<td>ENOPKG</td>
+<td>65</td>
+<td>Package not installed</td>
+<td>没有安装软件包</td>
+</tr>
+<tr>
+<td>EREMOTE</td>
+<td>66</td>
+<td>Object is remote</td>
+<td>对象是远程的</td>
+</tr>
+<tr>
+<td>ENOLINK</td>
+<td>67</td>
+<td>Link has been severed</td>
+<td>联系被切断</td>
+</tr>
+<tr>
+<td>EADV</td>
+<td>68</td>
+<td>Advertise error</td>
+<td>广告的错误</td>
+</tr>
+<tr>
+<td>ESRMNT</td>
+<td>69</td>
+<td>Srmount error</td>
+<td>srmount 错误</td>
+</tr>
+<tr>
+<td>ECOMM</td>
+<td>70</td>
+<td>Communication error on send</td>
+<td>发送时的通讯错误</td>
+</tr>
+<tr>
+<td>EPROTO</td>
+<td>71</td>
+<td>Protocol error</td>
+<td>协议错误</td>
+</tr>
+<tr>
+<td>EMULTIHOP</td>
+<td>72</td>
+<td>Multihop attempted</td>
+<td>多跳尝试</td>
+</tr>
+<tr>
+<td>EDOTDOT</td>
+<td>73</td>
+<td>RFS specific error</td>
+<td>RFS 特定的错误</td>
+</tr>
+<tr>
+<td>EBADMSG</td>
+<td>74</td>
+<td>Not a data message</td>
+<td>非数据消息</td>
+</tr>
+<tr>
+<td>EOVERFLOW</td>
+<td>75</td>
+<td>Value too large for defined data type</td>
+<td>值太大,对于定义数据类型</td>
+</tr>
+<tr>
+<td>ENOTUNIQ</td>
+<td>76</td>
+<td>Name not unique on network</td>
+<td>名不是唯一的网络</td>
+</tr>
+<tr>
+<td>EBADFD</td>
+<td>77</td>
+<td>File descriptor in bad state</td>
+<td>文件描述符在坏状态</td>
+</tr>
+<tr>
+<td>EREMCHG</td>
+<td>78</td>
+<td>Remote address changed</td>
+<td>远程地址改变了</td>
+</tr>
+<tr>
+<td>ELIBACC</td>
+<td>79</td>
+<td>Cannot access a needed shared library</td>
+<td>无法访问必要的共享库</td>
+</tr>
+<tr>
+<td>ELIBBAD</td>
+<td>80</td>
+<td>Accessing a corrupted shared library</td>
+<td>访问损坏的共享库</td>
+</tr>
+<tr>
+<td>ELIBSCN</td>
+<td>81</td>
+<td>A .lib section in an .out is corrupted</td>
+<td>库段 .out 损坏</td>
+</tr>
+<tr>
+<td>ELIBMAX</td>
+<td>82</td>
+<td>Linking in too many shared libraries</td>
+<td>试图链接太多的共享库</td>
+</tr>
+<tr>
+<td>ELIBEXEC</td>
+<td>83</td>
+<td>Cannot exec a shared library directly</td>
+<td>不能直接执行一个共享库</td>
+</tr>
+<tr>
+<td>EILSEQ</td>
+<td>84</td>
+<td>Illegal byte sequence</td>
+<td>无效的或不完整的多字节或宽字符</td>
+</tr>
+<tr>
+<td>ERESTART</td>
+<td>85</td>
+<td>Interrupted system call should be restarted</td>
+<td>应该重新启动中断的系统调用</td>
+</tr>
+<tr>
+<td>ESTRPIPE</td>
+<td>86</td>
+<td>Streams pipe error</td>
+<td>流管错误</td>
+</tr>
+<tr>
+<td>EUSERS</td>
+<td>87</td>
+<td>Too many users</td>
+<td>用户太多</td>
+</tr>
+<tr>
+<td>ENOTSOCK</td>
+<td>88</td>
+<td>Socket operation on non-socket</td>
+<td>套接字操作在非套接字上</td>
+</tr>
+<tr>
+<td>EDESTADDRREQ</td>
+<td>89</td>
+<td>Destination address required</td>
+<td>需要目标地址</td>
+</tr>
+<tr>
+<td>EMSGSIZE</td>
+<td>90</td>
+<td>Message too long</td>
+<td>消息太长</td>
+</tr>
+<tr>
+<td>EPROTOTYPE</td>
+<td>91</td>
+<td>Protocol wrong type for socket</td>
+<td>socket 协议类型错误</td>
+</tr>
+<tr>
+<td>ENOPROTOOPT</td>
+<td>92</td>
+<td>Protocol not available</td>
+<td>协议不可用</td>
+</tr>
+<tr>
+<td>EPROTONOSUPPORT</td>
+<td>93</td>
+<td>Protocol not supported</td>
+<td>不支持的协议</td>
+</tr>
+<tr>
+<td>ESOCKTNOSUPPORT</td>
+<td>94</td>
+<td>Socket type not supported</td>
+<td>套接字类型不受支持</td>
+</tr>
+<tr>
+<td>EOPNOTSUPP</td>
+<td>95</td>
+<td>Operation not supported on transport</td>
+<td>不支持的操作</td>
+</tr>
+<tr>
+<td>EPFNOSUPPORT</td>
+<td>96</td>
+<td>Protocol family not supported</td>
+<td>不支持的协议族</td>
+</tr>
+<tr>
+<td>EAFNOSUPPORT</td>
+<td>97</td>
+<td>Address family not supported by protocol</td>
+<td>协议不支持的地址</td>
+</tr>
+<tr>
+<td>EADDRINUSE</td>
+<td>98</td>
+<td>Address already in use</td>
+<td>地址已在使用</td>
+</tr>
+<tr>
+<td>EADDRNOTAVAIL</td>
+<td>99</td>
+<td>Cannot assign requested address</td>
+<td>无法分配请求的地址</td>
+</tr>
+<tr>
+<td>ENETDOWN</td>
+<td>100</td>
+<td>Network is down</td>
+<td>网络瘫痪</td>
+</tr>
+<tr>
+<td>ENETUNREACH</td>
+<td>101</td>
+<td>Network is unreachable</td>
+<td>网络不可达</td>
+</tr>
+<tr>
+<td>ENETRESET</td>
+<td>102</td>
+<td>Network dropped</td>
+<td>网络连接丢失</td>
+</tr>
+<tr>
+<td>ECONNABORTED</td>
+<td>103</td>
+<td>Software caused connection</td>
+<td>软件导致连接中断</td>
+</tr>
+<tr>
+<td>ECONNRESET</td>
+<td>104</td>
+<td>Connection reset by</td>
+<td>连接被重置</td>
+</tr>
+<tr>
+<td>ENOBUFS</td>
+<td>105</td>
+<td>No buffer space available</td>
+<td>没有可用的缓冲空间</td>
+</tr>
+<tr>
+<td>EISCONN</td>
+<td>106</td>
+<td>Transport endpoint</td>
+<td>传输端点已经连接</td>
+</tr>
+<tr>
+<td>ENOTCONN</td>
+<td>107</td>
+<td>Transport endpoint</td>
+<td>传输终点没有连接</td>
+</tr>
+<tr>
+<td>ESHUTDOWN</td>
+<td>108</td>
+<td>Cannot send after transport</td>
+<td>传输后无法发送</td>
+</tr>
+<tr>
+<td>ETOOMANYREFS</td>
+<td>109</td>
+<td>Too many references</td>
+<td>太多的参考</td>
+</tr>
+<tr>
+<td>ETIMEDOUT</td>
+<td>110</td>
+<td>Connection timed</td>
+<td>连接超时</td>
+</tr>
+<tr>
+<td>ECONNREFUSED</td>
+<td>111</td>
+<td>Connection refused</td>
+<td>拒绝连接</td>
+</tr>
+<tr>
+<td>EHOSTDOWN</td>
+<td>112</td>
+<td>Host is down</td>
+<td>主机已关闭</td>
+</tr>
+<tr>
+<td>EHOSTUNREACH</td>
+<td>113</td>
+<td>No route to host</td>
+<td>没有主机的路由</td>
+</tr>
+<tr>
+<td>EALREADY</td>
+<td>114</td>
+<td>Operation already</td>
+<td>已运行</td>
+</tr>
+<tr>
+<td>EINPROGRESS</td>
+<td>115</td>
+<td>Operation now in</td>
+<td>正在运行</td>
+</tr>
+<tr>
+<td>ESTALE</td>
+<td>116</td>
+<td>Stale NFS file handle</td>
+<td>陈旧的 NFS 文件句柄</td>
+</tr>
+<tr>
+<td>EUCLEAN</td>
+<td>117</td>
+<td>Structure needs cleaning</td>
+<td>结构需要清洗</td>
+</tr>
+<tr>
+<td>ENOTNAM</td>
+<td>118</td>
+<td>Not a XENIX-named</td>
+<td>不是 XENIX 命名的</td>
+</tr>
+<tr>
+<td>ENAVAIL</td>
+<td>119</td>
+<td>No XENIX semaphores</td>
+<td>没有 XENIX 信号量</td>
+</tr>
+<tr>
+<td>EISNAM</td>
+<td>120</td>
+<td>Is a named type file</td>
+<td>是一个命名的文件类型</td>
+</tr>
+<tr>
+<td>EREMOTEIO</td>
+<td>121</td>
+<td>Remote I&#x2F;O error</td>
+<td>远程输入&#x2F;输出错误</td>
+</tr>
+<tr>
+<td>EDQUOT</td>
+<td>122</td>
+<td>Quota exceeded</td>
+<td>超出磁盘配额</td>
+</tr>
+<tr>
+<td>ENOMEDIUM</td>
+<td>123</td>
+<td>No medium found</td>
+<td>没有磁盘被发现</td>
+</tr>
+<tr>
+<td>EMEDIUMTYPE</td>
+<td>124</td>
+<td>Wrong medium type</td>
+<td>错误的媒体类型</td>
+</tr>
+<tr>
+<td>ECANCELED</td>
+<td>125</td>
+<td>Operation Canceled</td>
+<td>取消操作</td>
+</tr>
+<tr>
+<td>ENOKEY</td>
+<td>126</td>
+<td>Required key not available</td>
+<td>所需键不可用</td>
+</tr>
+<tr>
+<td>EKEYEXPIRED</td>
+<td>127</td>
+<td>Key has expired</td>
+<td>关键已过期</td>
+</tr>
+<tr>
+<td>EKEYREVOKED</td>
+<td>128</td>
+<td>Key has been revoked</td>
+<td>关键被撤销</td>
+</tr>
+<tr>
+<td>EKEYREJECTED</td>
+<td>129</td>
+<td>Key was rejected by service</td>
+<td>关键被拒绝服务</td>
+</tr>
+<tr>
+<td>EOWNERDEAD</td>
+<td>130</td>
+<td>Owner died</td>
+<td>所有者死亡</td>
+</tr>
+<tr>
+<td>ENOTRECOVERABLE</td>
+<td>131</td>
+<td>State not recoveable</td>
+<td>状态不可恢复</td>
+</tr>
+<tr>
+<td>ERFKILL</td>
+<td>132</td>
+<td>Operation not possible due to RF-kill</td>
+<td>由于 RF-kill 而无法操作</td>
+</tr>
+<tr>
+<td>EHWPOISON</td>
+<td>133</td>
+<td>Memory page has hardware error</td>
+<td>内存页有硬件错误</td>
+</tr>
+</tbody></table>
+<h1 id="三、错误处理函数"><a href="#三、错误处理函数" class="headerlink" title="三、错误处理函数"></a>三、错误处理函数</h1><h2 id="1、IS-ERR"><a href="#1、IS-ERR" class="headerlink" title="1、IS_ERR"></a>1、IS_ERR</h2><p>对于一个指针，有三种类型：</p>
+<ul>
+<li><strong>合法指针</strong>：合法指针是指指向有效内存地址的指针</li>
+<li><strong>NULL</strong>：NULL 指针是一个特殊的指针值，它不指向任何有效的内存地址</li>
+<li><strong>错误指针</strong>：错误指针是指指向无效、未定义或未分配内存的指针</li>
+</ul>
+<p>在 Linux 内核源码中实现了指针错误的处理机制，相关的函数接口有：<code>IS_ERR()</code>、<code>PTR_ERR()</code>、<code>ERR_PTR()</code> 等，其函数的源码在 <code>include/linux/err.h</code> 中，如下所示：</p>
+<p><img src="1.png"></p>
+<p>如上所示，<code>IS_ERR()</code> 函数其实就是判断指针是否出错，如果指针指向了内核空间的最后一页，就说明指针是一个无效指针，如果指针并不是落在内核空间的最后一页，就说明这个指针是有效的。无效的指针会表示成一种负数的错误码，如果想知道这个指针是哪个错误码，就用 <code>PTR_ERR()</code> 函数进行转化。</p>
+<h2 id="2、strerr、perror"><a href="#2、strerr、perror" class="headerlink" title="2、strerr、perror"></a>2、strerr、perror</h2><p>许多不同的函数库都在失败时设置全局变量 <code>errno</code> 的值来指明失败原因。值得注意的是函数报告出错后必须立刻检查 <code>errno</code> 变量，因为&#x3D;&#x3D;它有可能被下一个函数调用所覆盖&#x3D;&#x3D;。</p>
+<p>有两个非常有用的函数可以用来报告出现的错误：</p>
+<ol>
+<li><strong>strerr</strong></li>
+</ol>
+<p>该函数可以将对应的 errno 转换成适合我们查看的字符串信息，其函数原型如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> *<span class="title function_">strerror</span><span class="params">(<span class="type">int</span> errnum)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>使用实例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;test.txt&quot;</span>, O_RDONLY);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error: %s\n&quot;</span>, strerror(errno));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    close(fd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出：Error: No such file or directory</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>perror</strong></li>
+</ol>
+<p>调用此函数不需要传入 <code>errno</code>，函数内部会自己去获取 <code>errno</code> 变量的值，调用此函数会直接将错误提示字符串打印出来，而不是返回字符串，除此之外还可以在输出的错误提示字符串之前加入自己的打印信息，函数原型如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">perror</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *s)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>使用实例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;test.txt&quot;</span>, O_RDONLY);</span><br><span class="line">    <span class="keyword">if</span> (fd == <span class="number">-1</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;open error&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    close(fd);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出：open error: No such file or directory</span></span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/">http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E9%94%99%E8%AF%AF%E7%A0%81/">错误码</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/" title="Linux 进程调度（三）之进程的优先级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Linux 进程调度（三）之进程的优先级</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先级，可以通过 nice 命令来设置，范围为 -20 到 +19。较低的数值表示较高的优先级。例如，如果给一个进程设置了较低的优先级值如 -10，那么这个进程将具有较高的优先级。 动态优先级：动态优先级是根据进程的行为和运行情况自动调整的。在 Linux 中，使用调度算法来动态调整进程的优先级。当一个进程使用 CPU 时间较长时，系统会降低它的优先级，让其他进程有更多的执行时间。而当一个进程处于等待 IO 等待状态时，系统会提高它的优先级，以便快速完成 IO 操作。  2、优先级的意义因为 CPU 的空间归根结底还是寄存器， 而寄存器很小， 就注定了 CPU 的资源是有限的。 而进程的个数...</div></div></div></a><a class="pagination-related" href="/2024/08/09/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2/" title="Linux 进程调度（二）之进程的上下文切换"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux 进程调度（二）之进程的上下文切换</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述进程的上下文切换是指在多任务操作系统中，当操作系统决定要切换当前运行的进程时，将当前进程的状态保存起来，并恢复下一个要运行的进程的状态。上下文切换是操作系统实现进程调度和实现多任务的关键机制之一。 操作系统一个非常重要的功能就是进程的管理，通过调度策略选择合适的进程来执行，对于单个 CPU 而言，进程是串行分时执行，这就需要内核支持进程切换，挂起一个正在 CPU 中执行的进程，恢复执行之前挂起的进程。 CPU 和寄存器是所有进程共用的，CPU 在运行任何 task 之前，必须地依赖一些环境，包括 CPU 寄存器和程序计数器，除此之外，进程运行过程中还需要用到虚拟内存。进程在切换过程中，主要的工作就是切换进程空间（虚拟内存）切换 CPU 寄存器和程序计数器。 二、上下文切换的实现进程切换由两部分组成：  切换页全局目录安装一个新的地址空间； 切换内核态堆栈及硬件上下文。  Linux 内核中由 context_switch 实现了上述两部分内容。  调用 switch_mm 完成用户空间切换； 调用 switch_to 完成内核栈及寄存器切换。  1、conte...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/06/iostatiotop/" title="Linux 利用 iostat 和 iotop 进行 IO 分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-06</div><div class="info-item-2">Linux 利用 iostat 和 iotop 进行 IO 分析</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 top 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。 我们可以在 Linux 中使用 iotop 和 iostat 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。 二、iostat1、下载iostat 工具是 sysstat 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。 对于 Fedora 系统，使用 DNF Com...</div></div></div></a><a class="pagination-related" href="/2024/07/29/slab/" title="Linux 内存管理（八）之 slab 分配器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-29</div><div class="info-item-2">Linux 内存管理（八）之 slab 分配器</div></div><div class="info-2"><div class="info-item-1">@TOC  前言在上一节 Linux 内存管理（七）之伙伴系统算法 中，我们学习了 Linux 内核如何使用伙伴系统算法以页为单位管理内存，进行内存分配。这一节，将要提到的 slab 算法也是一种内存分配算法。 一、为什么要引入 slab 算法Linux 内存以页为单位进行内存管理，伙伴系统算法以 $2^n$ 次方个页面来进行内存分配管理，最小为 $2^0$，也就是一页，最大为 $2^{11}$，就是 4MB 大小的连续内存空间。但是页的粒度还是太大，Linux 下是 4KB 大小，也就是 4096 个字节，而内核本身有很多数据结构时时刻刻都需要分配或者释放，这些数据的大小又往往小于 4KB 大小，一般只有几个几十个字节这样的大小。而且大多数情况下，需要的内存大小都不是按页对齐的 比方最常用到的 task_struct（进程描述符）结构体和 mm_struct（内存描述符）结构体，其中，sizeof task_struct = 9152，sizeof mm_struct = 2064。这样一来如果所有的这些数据结构都按照页来分配存储和管理，那么内存中将会有大量的内存碎片。 一种更...</div></div></div></a><a class="pagination-related" href="/2024/08/05/ag/" title="Linux 下 ag 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-05</div><div class="info-item-2">Linux 下 ag 命令的使用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1sudo apt-get install silversearcher-ag  CentOS: 1sudo yum install the_silver_searcher  Fedora: 1sudo dnf install the_silver_searcher  Arch: 1sudo pacman -S the_silver_searcher  二、常用参数说明ag 目录的语法格式如下： 1ag [选项] [搜索模式] [文件/目录]  下面是一些常用的参数：  -i：忽略大小写进行搜索； -w：只匹配整个单词，而不是部分匹配； -r：递归搜索指定目录下的文件； -l：只列出匹配的...</div></div></div></a><a class="pagination-related" href="/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/" title="Linux 进程调度（三）之进程的优先级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-10</div><div class="info-item-2">Linux 进程调度（三）之进程的优先级</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先级，可以通过 nice 命令来设置，范围为 -20 到 +19。较低的数值表示较高的优先级。例如，如果给一个进程设置了较低的优先级值如 -10，那么这个进程将具有较高的优先级。 动态优先级：动态优先级是根据进程的行为和运行情况自动调整的。在 Linux 中，使用调度算法来动态调整进程的优先级。当一个进程使用 CPU 时间较长时，系统会降低它的优先级，让其他进程有更多的执行时间。而当一个进程处于等待 IO 等待状态时，系统会提高它的优先级，以便快速完成 IO 操作。  2、优先级的意义因为 CPU 的空间归根结底还是寄存器， 而寄存器很小， 就注定了 CPU 的资源是有限的。 而进程的个数...</div></div></div></a><a class="pagination-related" href="/2024/08/08/%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0/" title="Linux 调试之动态打印"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-08</div><div class="info-item-2">Linux 调试之动态打印</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，printk 打印是全局的，只能设置输出等级，而且使用 printk 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，printk 被 dev_info，dev_dbg，dev_err 之类的函数代替，dev_xxx 函数的本质还是使用 printk 打印的，只是对 printk 进行了一层包装。 在系统运行时候，动态打印可以由系统维护者动态打开内核子系统的打印，可以有选择性地打开某些模块的打印。要使用动态打印，必须在内核配置时打开 CONFIG_DYNAMIC_DEBUG 宏。 12CONFIG_DEBUG_FS=yCONFIG_DYNAMIC_DEBUG=y  CONFIG_DYNAMIC_DEBUG 是配置动态输出，它依赖于 CONFIG_DEBUG_FS，而 CONFIG_DEBUG_FS 是 debugfs 文件系统。debugfs...</div></div></div></a><a class="pagination-related" href="/2024/08/26/gdb/" title="Linux 下 gdb 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-26</div><div class="info-item-2">Linux 下 gdb 的使用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。 单步调试：通过单步调试，你可以逐行执行程序并观察每一行代码的执行情况，方便定位问题。 查看变量和内存：在调试过程中，你可以查看各个变量的值，检查它们是否符合预期。同时，你还可以查看内存的内容，以了解程序的内部状态。 捕捉错误：GDB 可以帮助你捕捉程序的错误，包括内存访问错误、未处理的异常等。当程序发生错误时，GDB会在错误发生的地方停下来，并提供相关信息。 远程调试：在某些情况下，你可能需要在远程机器上进行调试。GDB 支持远程调试，你可以通过网络连接到远程机器，并在该机器上进行调试操作。   更多信息可以查看 GDB 官网。  1、安装和启动 GDB首先输入命令：gdb -v 查看是否安...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%90%AB%E4%B9%89"><span class="toc-number">2.</span> <span class="toc-text">二、含义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E5%87%BD%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">三、错误处理函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81IS-ERR"><span class="toc-number">3.1.</span> <span class="toc-text">1、IS_ERR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81strerr%E3%80%81perror"><span class="toc-number">3.2.</span> <span class="toc-text">2、strerr、perror</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

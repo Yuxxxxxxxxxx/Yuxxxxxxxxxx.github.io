@@ -1,0 +1,413 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Linux 下 gdb 的使用 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、概述GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。 单步">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 下 gdb 的使用">
+<meta property="og:url" content="http://example.com/2024/08/26/gdb/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。 单步">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-26T07:09:40.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:50:47.403Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux 命令">
+<meta property="article:tag" content="性能优化&#x2F;调试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Linux 下 gdb 的使用",
+  "url": "http://example.com/2024/08/26/gdb/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-26T07:09:40.000Z",
+  "dateModified": "2024-11-14T00:50:47.403Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/26/gdb/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux 下 gdb 的使用',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Linux 下 gdb 的使用</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Linux 下 gdb 的使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-26T07:09:40.000Z" title="发表于 2024-08-26 15:09:40">2024-08-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T00:50:47.403Z" title="更新于 2024-11-14 08:50:47">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><code>GDB</code>（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。</p>
+<p><code>GDB</code> 的主要功能包括以下几个方面：</p>
+<ul>
+<li><strong>设置断点</strong>：<code>GDB</code> 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。</li>
+<li><strong>单步调试</strong>：通过单步调试，你可以逐行执行程序并观察每一行代码的执行情况，方便定位问题。</li>
+<li><strong>查看变量和内存</strong>：在调试过程中，你可以查看各个变量的值，检查它们是否符合预期。同时，你还可以查看内存的内容，以了解程序的内部状态。</li>
+<li><strong>捕捉错误</strong>：<code>GDB</code> 可以帮助你捕捉程序的错误，包括内存访问错误、未处理的异常等。当程序发生错误时，GDB会在错误发生的地方停下来，并提供相关信息。</li>
+<li><strong>远程调试</strong>：在某些情况下，你可能需要在远程机器上进行调试。<code>GDB</code> 支持远程调试，你可以通过网络连接到远程机器，并在该机器上进行调试操作。</li>
+</ul>
+<blockquote>
+<p>更多信息可以查看 <a target="_blank" rel="noopener" href="https://www.gnu.org/software/gdb/">GDB 官网</a>。</p>
+</blockquote>
+<h2 id="1、安装和启动-GDB"><a href="#1、安装和启动-GDB" class="headerlink" title="1、安装和启动 GDB"></a>1、安装和启动 GDB</h2><p>首先输入命令：<code>gdb -v</code> 查看是否安装过 GDB：</p>
+<p><img src="1.png" alt=" "></p>
+<p>如果没有安装则输入(Ubuntu 下)：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">sudo</span> apt-get install gdb</span></span><br></pre></td></tr></table></figure>
+
+<p>然后就可以启动 gdb 进行调试了。通过输入如下命令来启动 gdb 调试，直接指定需要调试的可执行文件名即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">gdb test_file</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="2.png" alt=" "></p>
+<p>当下方出现图中圈中的字段则表示可调试。而如果出现了下图中的字段则表示无法调试：</p>
+<p><img src="3.png" alt=" "><br>使用常规编译生成的可执行文件正常一定会出现 <code>No debugging symbols found in xxx</code> 这个错误。而且即使使用带调试信息 <code>-g</code> 编译时，有时候也会出现这种情况。</p>
+<p>解决方法如下：</p>
+<p>我们先使用 <code>-c -g</code> 生成带调试信息的只进行过预处理、编译、汇编，但没有被链接的目标文件，再利用目标文件链接、重定位后生成可执行文件，使用这个可执行文件便不会出现问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -c -g test_file.c <span class="comment"># 生成 test_file.o 文件</span></span> </span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc test_file.o -o test_file</span></span><br></pre></td></tr></table></figure>
+
+
+<p>如果目标执行文件要求出入参数（如 argv[] 接收参数），则可以通过如下三种方式指定参数：</p>
+<ol>
+<li>在启动 gdb 时，<code>gdb --args text_file</code></li>
+<li>在进入 gdb 之后，运行 <code>set args param_1</code> </li>
+<li>在进入 gdb 调试以后，<code>run param_1</code> 或者 <code>start param_1</code></li>
+</ol>
+<p>其中的 <code>param_1</code> 是你自己要输入的参数。</p>
+<h1 id="二、-GDB-常用命令"><a href="#二、-GDB-常用命令" class="headerlink" title="二、 GDB 常用命令"></a>二、 GDB 常用命令</h1><p>以下以 <code>test_file.c</code> 作为源程序例子的名字，<code>test_file</code> 作为可执行文件例子的名字, 以 <code>param_1</code> 作为参数的例子的名字。</p>
+<blockquote>
+<p>格式说明：</p>
+<p>(gdb) 表示是在 GDB 调试页面输入的命令<br><br>p(print)：表示 p 是 print 指令的缩写</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test_file.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line">  </span><br><span class="line"><span class="type">void</span> <span class="title function_">swap</span><span class="params">(<span class="type">int</span> *x, <span class="type">int</span> *y)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> t = *x;</span><br><span class="line">    *x = *y;</span><br><span class="line">    *y = t;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d, b = %d\r\n&quot;</span>, a, b);</span><br><span class="line"></span><br><span class="line">    swap(&amp;a, &amp;b);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d, b = %d\r\n&quot;</span>, a, b);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后再用上一节提到过的方法生成可执行文件。</p>
+<h2 id="1、查看源码"><a href="#1、查看源码" class="headerlink" title="1、查看源码"></a>1、查看源码</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) l(list) [函数名][行数]</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>输入 <code>l</code> 或 <code>list</code> 即可</p>
+</blockquote>
+<p>如果直接输入 <code>l</code> 则会直接从文件第一行开始打印，一次打印 10 行，直到文件尾：</p>
+<p><img src="4.png" alt=" "></p>
+<p>可以看到，GDB 会自动记忆我们上次敲入的指令。</p>
+<p>当然，如果想看指定行的代码，则在 <code>l</code> 后面加上一个行号即可：</p>
+<p><img src="5.png" alt=" "></p>
+<p>同理，如果想看指定函数的代码，则在 <code>l</code> 的后面加上指定的函数名即可：</p>
+<p><img src="6.png" alt=" "></p>
+<h2 id="2、断点"><a href="#2、断点" class="headerlink" title="2、断点"></a>2、断点</h2><h3 id="2-1-设置断点"><a href="#2-1-设置断点" class="headerlink" title="2.1 设置断点"></a>2.1 设置断点</h3><ul>
+<li>break + [源代码行号][源代码函数名][内存地址]</li>
+<li>break … if condition<ul>
+<li>…可以是上述任一参数；condition 是条件。例如在循环体中可以设置 <code>break ... if i = 100</code> 来设置循环次数</li>
+</ul>
+</li>
+</ul>
+<p><img src="7.png" alt=" "></p>
+<ul>
+<li><strong>tbreak</strong>：tbreak 命令可以看到是 break 命令的另一个版本，tbreak 和 break 命令的用法和功能都非常相似，唯一的不同在于，使用 tbreak 命令打的断点仅会作用 1 次，即使程序暂停之后，该断点就会自动消失。</li>
+<li><strong>rbreak</strong>：和 break 和 tbreak 命令不同，rbreak 命令的作用对象是 C、C++ 程序中的函数，它会在指定函数的开头位置打断点。</li>
+</ul>
+<h3 id="2-2-查看断点信息"><a href="#2-2-查看断点信息" class="headerlink" title="2.2 查看断点信息"></a>2.2 查看断点信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info b</span><br></pre></td></tr></table></figure>
+
+<p>若是直接执行 <code>info</code> 的话，出来的就是所有的调试信息：</p>
+<p><img src="8.png" alt=" "></p>
+<p>但若是我们只想查看一下所打的断点的信息，那就在后面加个 <code>b/breakpoint</code>：</p>
+<p><img src="9.png" alt=" "></p>
+<p>六个字段的含义如下：</p>
+<ul>
+<li><strong>Num</strong>	   ： 编号</li>
+<li><strong>Type</strong>	   ： 类型</li>
+<li><strong>Disp</strong>	   ： 状态</li>
+<li><strong>Enb</strong> 	   ： 是否可用</li>
+<li><strong>Address</strong> ： 地址</li>
+<li><strong>What</strong>      ： 在此文件的哪个函数的第几行</li>
+</ul>
+<h3 id="2-3-删除断点"><a href="#2-3-删除断点" class="headerlink" title="2.3 删除断点"></a>2.3 删除断点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) clear location</span><br></pre></td></tr></table></figure>
+
+<p>参数 location 通常为某一行代码的行号或者某个具体的函数名。当 location 参数为某个函数的函数名时，表示删除位于该函数入口处的所有断点。</p>
+<p><img src="10.png" alt=" "></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) d(delete) [breakpoints] [num]</span><br></pre></td></tr></table></figure>
+
+
+<p>输入 breakpoints 参数表示删除所有断点；num 参数为指定断点的编号，表示删除指定编号的断点。</p>
+<p><img src="11.png" alt=" "></p>
+<p><img src="12.png" alt=" "></p>
+<h3 id="2-4-激活-禁用断点"><a href="#2-4-激活-禁用断点" class="headerlink" title="2.4 激活&#x2F;禁用断点"></a>2.4 激活&#x2F;禁用断点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disable b(breakpoints) 	  	   # 使所有断点无效【默认缺省】</span><br><span class="line">(gdb) enable b(breakpoints)  	  	   # 使所有断点有效【默认缺省】</span><br><span class="line">(gdb) disable b(breakpoint) + [编号...] # 使一个或多个断点无效【禁用断点】</span><br><span class="line">(gdb) enable b(breakpoint) + [编号...]  # 使一个或多个断点有效【开启断点】</span><br></pre></td></tr></table></figure>
+
+<p><img src="13.png" alt=" "></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) enable b(breakpoints) once [num...]   # 临时激活以 num... 为编号的多个断点，但断点只能使用 1 次，之后会自动回到禁用状态</span><br><span class="line">(gdb) enable b(breakpoints) count [num...]  # 临时激活以 num... 为编号的多个断点，断点可以使用 count 次，之后进入禁用状态</span><br><span class="line">(gdb) enable b(breakpoints) delete [num...] # 激活 num... 为编号的多个断点，但断点只能使用 1 次，之后会被永久删除。</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="2-5-观察断点"><a href="#2-5-观察断点" class="headerlink" title="2.5 观察断点"></a>2.5 观察断点</h3><p><strong>watch</strong>：此命令打的是观察断点，可以监控某个变量或者表达式的值。只有当被监控变量（表达式）的值发生改变，程序才会停止运行。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) watch cond</span><br></pre></td></tr></table></figure>
+
+<p>cond 代表的就是要监控的变量或者表达式。</p>
+<p><strong>rwatch</strong> 命令：只要程序中出现读取目标变量（表达式）的值的操作，程序就会停止运行；<br><strong>awatch</strong> 命令：只要程序中出现读取目标变量（表达式）的值或者改变值的操作，程序就会停止运行。<br><strong>catch</strong>：捕捉断点的作用是，监控程序中某一事件的发生，例如程序发生某种异常时、某一动态库被加载时等等，一旦目标时间发生，则程序停止执行。</p>
+<blockquote>
+<p>总结：<br><br><strong>观察断点</strong>：<br><code>watch</code>  + [变量][表达式] ：当变量或表达式值改变时即停住程序。<br><code>rwatch</code> + [变量][表达式] ：当变量或表达式被读时，停住程序。<br><code>awatch</code> + [变量][表达式]：当变量或表达式被读或被写时，停住程序。<br><br><strong>设置捕捉点</strong>：<br><code>catch</code> + <code>event</code>：当 event 发生时，停住程序。</p>
+</blockquote>
+<p>其中，catch 指令的参数 event 参数表示要监控的具体事件。常用的 event 事件类型如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>event 事件</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>throw [exception]</td>
+<td>当程序中抛出 exception 指定类型异常时，程序停止执行。<br>如果不指定异常类型（即省略 exception），则表示只要程序发生异常，程序就停止执行。</td>
+</tr>
+<tr>
+<td>catch [exception]</td>
+<td>当程序中捕获到 exception 异常时，程序停止执行。<br>exception 参数也可以省略，表示无论程序中捕获到哪种异常，程序都暂停执行。</td>
+</tr>
+<tr>
+<td>load [regxep] <br>unload [regexp]</td>
+<td>其中，regexp 表示目标动态库的名称，<br>load 命令表示当 regexp 动态库加载时程序停止执行；<br>unload 命令表示当 regexp  动态库被卸载时，程序暂停执行。<br>regexp 参数也可以省略，此时只要程序中某一动态库被加载或卸载，程序就会暂停执行。</td>
+</tr>
+</tbody></table>
+<p>除此之外，还有几个比较特殊的 event：</p>
+<ul>
+<li><strong>exec</strong>：调用系统调用 exec 时。（exec 为关键字，目前此功能只在 HP-UX 下有用）</li>
+<li><strong>fork</strong>：调用系统调用 fork 时。（fork 为关键字，目前此功能只在 HP-UX 下有用）</li>
+<li><strong>vfork</strong>：调用系统调用 vfork 时。（vfork 为关键字，目前此功能只在 HP-UX 下有用）</li>
+</ul>
+<p><img src="14.png" alt=" "></p>
+<h3 id="2-6-捕获信号"><a href="#2-6-捕获信号" class="headerlink" title="2.6 捕获信号"></a>2.6 捕获信号</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) handle + [argu] + signals</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>signals</strong>：是 Linux&#x2F;Unix 定义的信号，<code>SIGINT</code> 表示中断字符信号，也就是 <code>Ctrl+C</code> 的信号，<code>SIGBUS</code> 表示硬件故障的信号；<code>SIGCHLD</code> 表示子进程状态改变信号； <code>SIGKILL</code> 表示终止程序运行的信号......</li>
+<li><strong>argu</strong>：<ul>
+<li><strong>nostop</strong>：当被调试的程序收到信号时，GDB 不会停住程序的运行，但会打出消息告诉你收到这种信号。</li>
+<li><strong>stop</strong>：当被调试的程序收到信号时，GDB 会停住你的程序。</li>
+<li><strong>print</strong>：当被调试的程序收到信号时，GDB 会显示出一条信息。</li>
+<li><strong>noprint</strong>：当被调试的程序收到信号时，GDB 不会告诉你收到信号的信息。</li>
+<li><strong>pass</strong> or <strong>noignore</strong>：当被调试的程序收到信号时，GDB 不处理信号。这表示，GDB 会把这个信号交给被调试程序会处理。</li>
+<li><strong>nopass</strong> or <strong>ignore</strong>：当被调试的程序收到信号时，GDB 不会让被调试程序来处理这个信号。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-7-线程中断"><a href="#2-7-线程中断" class="headerlink" title="2.7 线程中断"></a>2.7 线程中断</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) break [linespec] thread [threadno] [if ...]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>linespec</strong>：断点设置所在的源代码的行号。如: <code>test.c:12</code> 表示文件为 test.c 中的第 12 行设置一个断点。</li>
+<li><strong>threadno</strong>：线程的 ID。是 GDB 分配的，通过输入 <code>info threads</code> 来查看正在运行中程序的线程信息。</li>
+<li>**if …**：设置中断条件。</li>
+</ul>
+<h2 id="3、查看信息"><a href="#3、查看信息" class="headerlink" title="3、查看信息"></a>3、查看信息</h2><h3 id="3-1-查看数据"><a href="#3-1-查看数据" class="headerlink" title="3.1 查看数据"></a>3.1 查看数据</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p(print) variable 查看变量</span><br><span class="line">(gdb) p(print) *array@len 查看数组（array 是数组指针，len 是需要数据长度）</span><br></pre></td></tr></table></figure>
+
+<p>可以通过添加参数来设置输出格式：</p>
+<ul>
+<li><strong>&#x2F;</strong>   ：按十六进制格式显示变量。</li>
+<li><strong>&#x2F;d</strong> ：按十进制格式显示变量。</li>
+<li><strong>&#x2F;u</strong> ：按十六进制格式显示无符号整型。</li>
+<li><strong>&#x2F;o</strong> ：按八进制格式显示变量。</li>
+<li><strong>&#x2F;t</strong>  ：按二进制格式显示变量。 </li>
+<li><strong>&#x2F;a</strong> ：按十六进制格式显示变量。</li>
+<li><strong>&#x2F;c</strong> ：按字符格式显示变量。</li>
+<li><strong>&#x2F;f</strong> ：按浮点数格式显示变量。</li>
+</ul>
+<p><img src="15.png" alt=" "></p>
+<p>但是一个一个地去 print 太过于繁琐，于是可以用 display！</p>
+<p><strong>display</strong>：跟踪查看一个变量，每次停下来都显示它的值（变量&#x2F;结构体…）</p>
+<p><img src="16.png" alt=" "></p>
+<p>同理，也可以用来追踪地址信息：</p>
+<p><img src="17.png" alt=" "></p>
+<p>如果不想追踪某个变量了，就可以用 undisplay 指令取消对该变量的追踪：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) undisplay + 变量名编号</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-查看内存"><a href="#3-2-查看内存" class="headerlink" title="3.2 查看内存"></a>3.2 查看内存</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x(examine) /n f u + 内存地址（指针变量）</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>n 表示显示内存长度</li>
+<li>f 表示输出格式（见 print）</li>
+<li>u 表示字节数制定（b 单字节；h 双字节；w 四字节；g 八字节；默认为四字节）</li>
+</ul>
+<p><img src="18.png" alt=" "></p>
+<h3 id="3-3-查看栈信息"><a href="#3-3-查看栈信息" class="headerlink" title="3.3 查看栈信息"></a>3.3 查看栈信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) bt(backtrace) [-full][-n][n]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>-full</strong> 打印栈帧信息的同时，打印出局部变量的值。</li>
+<li><strong>n</strong> 表示只打印栈顶上 n 层的栈信息。</li>
+<li><strong>-n</strong> 表示只打印栈底上 n 层的栈信息。</li>
+<li><strong>不加参数</strong>，表示打印所有栈信息。</li>
+</ul>
+<p><img src="19.png" alt=" "></p>
+<h3 id="3-4-查看栈帧信息"><a href="#3-4-查看栈帧信息" class="headerlink" title="3.4 查看栈帧信息"></a>3.4 查看栈帧信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info frame</span><br></pre></td></tr></table></figure>
+
+<p>该命令会依次打印出当前栈帧的如下信息：</p>
+<ul>
+<li>当前栈帧的编号，以及栈帧的地址；</li>
+<li>当前栈帧对应函数的存储地址，以及该函数被调用时的代码存储的地址</li>
+<li>当前函数的调用者，对应的栈帧的地址；</li>
+<li>编写此栈帧所用的编程语言；</li>
+<li>函数参数的存储地址以及值；</li>
+<li>函数中局部变量的存储地址；</li>
+<li>栈帧中存储的寄存器变量，例如指令寄存器（64 位环境中用 rip 表示，32 为环境中用 eip 表示）、堆栈基指针寄存器（64 位环境用 rbp 表示，32 位环境用 ebp 表示）等。</li>
+</ul>
+<blockquote>
+<p>除此之外，还可以使用 <code>info args</code> 命令查看当前函数各个参数的值；使用 <code>info locals</code> 命令查看当前函数中各局部变量的值。</p>
+</blockquote>
+<p><img src="20.png" alt=" "></p>
+<h2 id="4、运行、调试"><a href="#4、运行、调试" class="headerlink" title="4、运行、调试"></a>4、运行、调试</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) r(run)</span><br></pre></td></tr></table></figure>
+
+<p>运行代码。如果有断点，会在断点处停下；否则会直接运行到程序结束。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) c(<span class="keyword">continue</span>) </span><br></pre></td></tr></table></figure>
+
+<p>程序在断点处停下来，通过 continue 指令让程序继续执行到下一个断点，没有断点的话则直接运行到程序结束。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n(next) n</span><br></pre></td></tr></table></figure>
+
+<p>参数 n 表示单步执行多少行代码，默认为 1 行。其最大的特点是当遇到包含调用函数的语句时，无论函数内部包含多少行代码，next 指令都会一步执行完。也就是说，&#x3D;&#x3D;对于调用的函数来说，next 命令只会将其视作一行代码&#x3D;&#x3D;。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) s(step) n</span><br></pre></td></tr></table></figure>
+
+<p>参数 n 表示一次执行的行数，默认为 1 行。通常情况下，step 命令和 next 命令的功能相同，都是单步执行程序。不同之处在于，当 step 命令所执行的代码行中包含函数时，&#x3D;&#x3D;会进入该函数内部&#x3D;&#x3D;。</p>
+<p><img src="21.png" alt=" "></p>
+<p><img src="22.png" alt=" "></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) until [location]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>不带参数的 until 命令，可以使 GDB 调试器快速运行完当前的循环体，并运行至循环体外停止。注意，until 命令并非任何情况下都会发挥这个作用，只有当执行至循环体尾部（最后一行代码）时，until 命令才会发生此作用；反之，until 命令和 next 命令的功能一样，只是单步执行程序</li>
+<li><code>(gdb) until location</code>：参数 location 为某一行代码的行号</li>
+</ul>
+<p>下面的例子紧接着上面 step 指令的例子：</p>
+<p><img src="23.png" alt=" "></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(gdb) finish</span><br></pre></td></tr></table></figure>
+
+<p>通过 finish 函数，可以直接让一个函数执行完毕，直接回到了调用函数的位置。</p>
+<p>该例和 until 类似：</p>
+<p><img src="24.png" alt=" "></p>
+<h3 id="5、编辑和搜索"><a href="#5、编辑和搜索" class="headerlink" title="5、编辑和搜索"></a>5、编辑和搜索</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) edit [location]</span><br><span class="line">(gdb) edit [filename]:[location]</span><br></pre></td></tr></table></figure>
+
+<p>location 表示程序中的位置。这个命令表示激活文件的指定位置，然后进行编辑。</p>
+<p>输入以下两种格式都可以：</p>
+<p><img src="25.png" alt=" "></p>
+<p><img src="26.png" alt=" "></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) search &lt;regexp&gt;</span><br><span class="line">(gdb) reverse-search &lt;regexp&gt;</span><br></pre></td></tr></table></figure>
+
+<p>第一项命令格式表示从当前行的开始向前搜索，后一项表示从当前行开始向后搜索。</p>
+<p>其中 regexp 就是正则表达式，正则表达式描述了一种字符串匹配的模式，可以用来检查一个串中是否含有某种子串、将匹配的子串替换或者从某个串中取出符合某个条件的子串。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/26/gdb/">http://example.com/2024/08/26/gdb/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/Linux-%E5%91%BD%E4%BB%A4/">Linux 命令</a><a class="post-meta__tags" href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/27/BLE%E8%AF%A6%E8%A7%A3/" title="蓝牙BLE协议讲解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">蓝牙BLE协议讲解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述蓝牙技术起源于爱立信在 1994 年提出的方案，旨在解决移动电话和其他配件之间进行低功耗、低成本的无线通信连接的方法。 1、发展历史 第一代蓝牙主要是指 90 年代的 V1.0～V1.2 版本，是关于短距离通信的早期探索，此时还存在许多问题，应用不是特别广泛 第二代蓝牙主要是 00 年中 V2.0～V2.1 版本，新增了 EDR（Enhanced Data Rate）技术提高传输速率，以及体验及安全 第三代蓝牙主要是 00 年末 V3.0 版本，新增了 802.11 WiFi 协议，引入了 AMP（Generic Alternate MAC&#x2F;PHY）交替射频技术，极大的提高了传输速率并降低功耗 第四代蓝牙是 10 年以来的 V4.0～V4.2 版本，主推 LE（Low Energy，低功耗），大约仅消耗十分之一，将三种规格，包括&#x3D;&#x3D;经典蓝牙&#x3D;&#x3D;、&#x3D;&#x3D;高速蓝牙&#x3D;&#x3D;、和&#x3D;&#x3D;低功耗蓝牙&#x3D;&#x3D;，集中在一起形成一套综合协议规范 第五代蓝牙是 ...</div></div></div></a><a class="pagination-related" href="/2024/08/26/FreeRTOS%E5%85%A5%E9%97%A8%E4%B9%9D/" title="FreeRTOS 快速入门（九）之软件定时器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">FreeRTOS 快速入门（九）之软件定时器</div></div><div class="info-2"><div class="info-item-1">@toc  一、软件定时器的特性使用定时器跟使用手机闹钟是类似的：  指定时间：启动定时器和运行回调函数，两者的间隔被称为定时器的周期（period）。 指定类型，定时器有两种类型： 一次性（One-shot timers）：  这类定时器启动后，它的回调函数只会被调用一次；  可以手工再次启动它，但是不会自动启动它。 自动加载定时器（Auto-reload timers）：  这类定时器启动后，时间到之后它会自动启动它；  这使得回调函数被周期性地调用。   指定要做什么事，就是指定回调函数  实际的闹钟分为：有效、无效两类。软件定时器也是类似的，它由两种状态：  运行（Running、Active）：运行态的定时器，当指定时间到达之后，它的回调函数会被调用 冬眠（Dormant）：冬眠态的定时器还可以通过句柄来访问它，但是它不再运行，它的回调函数不会被调用  定时器运行情况示例如下：  Timer1：它是一次性的定时器，在 t1 启动，周期是 6 个Tick。经过 6 个 tick 后，在 t7 执行回调函数。它的回调函数只会被执行一次，然后该定时器进入冬眠状态。 Timer...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/07/ftrace/" title="Linux 利用 ftrace 分析内核调用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 利用 ftrace 分析内核调用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实现跟踪功能。其中一个关键的机制是函数预编译器，它会在每个内核函数的入口和出口处插入一些特殊的指令，用于记录函数的调用和返回信息。这些指令可以通过内核配置选项来启用或禁用。 此外，ftrace 还支持事件跟踪，可以记录系统中发生的各种事件，比如中断、系统调用、定时器事件等。通过分析这些事件的发生频率和顺序，可以帮助我们找出系统中的瓶颈和性能问题。 除了记录和分析跟踪信息外，ftrace 还提供了一些工具和接口，用于配置和控制跟踪功能。其中最常用的工具是 trace-cmd 和 trace-cmd-report，它们可以用来收集和分析跟踪数据。 二、ftrace 的使用1、常用信息ftrace...</div></div></div></a><a class="pagination-related" href="/2024/08/05/perf/" title="Linux 下 perf 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-05</div><div class="info-item-2">Linux 下 perf 的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事件的类型进行统计。 2、常用的工具集除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：  perf stat：用于收集和显示性能计数器统计信息，可以通过 perf stat 命令来监测进程或命令的整体性能指标，如指令数、缓存命中率、分支预测错误等。 perf record：用于采集程序执行期间的硬件性能计数器数据、事件和调用栈信息，并将其保存到数据文件中。可以使用 perf record 命令来启动采样，并通过 perf report 命令来分析采样数据。 perf report：用于分析通过 per...</div></div></div></a><a class="pagination-related" href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" title="Linux 下查看 CPU 使用率"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 下查看 CPU 使用率</div></div><div class="info-2"><div class="info-item-1">[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jiffies  记录了开机以来的节拍数。每发生一次时间中断，Jiffies 的值就加 1。节拍率 HZ 是内核的可配选项，可以设置为 100、250、1000 等。不同的系统可能设置不同数值。 Linux 通过 /proc 虚拟文件系统，向用户空间提供了系统内部状态的信息，而 /proc/stat 提供的就是系统的 CPU 和任务统计信息。比方说，如果你只关注 CPU 的话，可以执行下面的命令：  第一列表示的是 CPU 编号，如 cpu0、cpu1 ，而第一行没有编号的 cpu ，表示的是所有 CPU 的累加结果。其他列则表示不同场景下 CPU 的累加节拍数，它的单位是 USER_HZ，...</div></div></div></a><a class="pagination-related" href="/2024/08/06/iostatiotop/" title="Linux 利用 iostat 和 iotop 进行 IO 分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-06</div><div class="info-item-2">Linux 利用 iostat 和 iotop 进行 IO 分析</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 top 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。 我们可以在 Linux 中使用 iotop 和 iostat 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。 二、iostat1、下载iostat 工具是 sysstat 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。 对于 Fedora 系统，使用 DNF Com...</div></div></div></a><a class="pagination-related" href="/2024/08/05/ag/" title="Linux 下 ag 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-05</div><div class="info-item-2">Linux 下 ag 命令的使用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1sudo apt-get install silversearcher-ag  CentOS: 1sudo yum install the_silver_searcher  Fedora: 1sudo dnf install the_silver_searcher  Arch: 1sudo pacman -S the_silver_searcher  二、常用参数说明ag 目录的语法格式如下： 1ag [选项] [搜索模式] [文件/目录]  下面是一些常用的参数：  -i：忽略大小写进行搜索； -w：只匹配整个单词，而不是部分匹配； -r：递归搜索指定目录下的文件； -l：只列出匹配的...</div></div></div></a><a class="pagination-related" href="/2024/08/04/objdump/" title="Linux 下 objdump 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-04</div><div class="info-item-2">Linux 下 objdump 命令的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。  二、常用参数说明 -C 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。  -d 反汇编特定 section。 -D 反汇编所有 section。 -f 显示文件头信息。 -h 显示目标文件各个 section 的头部摘要信息。 -i 显示对于 -b 或者 -m 选项可用的架构和目标格式列表。 -j name 或 –section&#x3D;name 仅仅显示指定名称为 name 的 section 的信息 。 -m 指定反汇编目标文件时使用的架构，当待反汇编文件本身没有描述架构信息的时候（比如 S-rec...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85%E5%92%8C%E5%90%AF%E5%8A%A8-GDB"><span class="toc-number">1.1.</span> <span class="toc-text">1、安装和启动 GDB</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81-GDB-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">二、 GDB 常用命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%9F%A5%E7%9C%8B%E6%BA%90%E7%A0%81"><span class="toc-number">2.1.</span> <span class="toc-text">1、查看源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%96%AD%E7%82%B9"><span class="toc-number">2.2.</span> <span class="toc-text">2、断点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E8%AE%BE%E7%BD%AE%E6%96%AD%E7%82%B9"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 设置断点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%9F%A5%E7%9C%8B%E6%96%AD%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2 查看断点信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%88%A0%E9%99%A4%E6%96%AD%E7%82%B9"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.3 删除断点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E6%BF%80%E6%B4%BB-%E7%A6%81%E7%94%A8%E6%96%AD%E7%82%B9"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.4 激活&#x2F;禁用断点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E8%A7%82%E5%AF%9F%E6%96%AD%E7%82%B9"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.5 观察断点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E6%8D%95%E8%8E%B7%E4%BF%A1%E5%8F%B7"><span class="toc-number">2.2.6.</span> <span class="toc-text">2.6 捕获信号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E7%BA%BF%E7%A8%8B%E4%B8%AD%E6%96%AD"><span class="toc-number">2.2.7.</span> <span class="toc-text">2.7 线程中断</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E6%9F%A5%E7%9C%8B%E4%BF%A1%E6%81%AF"><span class="toc-number">2.3.</span> <span class="toc-text">3、查看信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE"><span class="toc-number">2.3.1.</span> <span class="toc-text">3.1 查看数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98"><span class="toc-number">2.3.2.</span> <span class="toc-text">3.2 查看内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%9F%A5%E7%9C%8B%E6%A0%88%E4%BF%A1%E6%81%AF"><span class="toc-number">2.3.3.</span> <span class="toc-text">3.3 查看栈信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%9F%A5%E7%9C%8B%E6%A0%88%E5%B8%A7%E4%BF%A1%E6%81%AF"><span class="toc-number">2.3.4.</span> <span class="toc-text">3.4 查看栈帧信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E8%BF%90%E8%A1%8C%E3%80%81%E8%B0%83%E8%AF%95"><span class="toc-number">2.4.</span> <span class="toc-text">4、运行、调试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E7%BC%96%E8%BE%91%E5%92%8C%E6%90%9C%E7%B4%A2"><span class="toc-number">2.4.1.</span> <span class="toc-text">5、编辑和搜索</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>分散加载文件 scatter files | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分散加载文件 scatter files">
+<meta property="og:url" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-10-02T06:39:55.000Z">
+<meta property="article:modified_time" content="2024-11-14T08:09:11.354Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "分散加载文件 scatter files",
+  "url": "http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-10-02T06:39:55.000Z",
+  "dateModified": "2024-11-14T08:09:11.354Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '分散加载文件 scatter files',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">分散加载文件 scatter files</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">分散加载文件 scatter files</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-02T06:39:55.000Z" title="发表于 2024-10-02 14:39:55">2024-10-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:09:11.354Z" title="更新于 2024-11-14 16:09:11">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<p>本文主要是对 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142633341">浅析 Keil 中的 sct 文件</a> 一文做进一步的补充和说明。</p>
+<h1 id="一、加载域和执行域"><a href="#一、加载域和执行域" class="headerlink" title="一、加载域和执行域"></a>一、加载域和执行域</h1><p>镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：</p>
+<p><img src="1.png"></p>
+<ul>
+<li><code>Load view</code>： 根据镜像在加载到内存中时所位于的地址（镜像执行开始前的位置），描述每个镜像域和节。</li>
+<li><code>Execution view</code>： 根据镜像执行过程中所位于的地址，描述每个镜像域和节。</li>
+</ul>
+<p>下面是两种视图的对比：</p>
+<table>
+<thead>
+<tr>
+<th>Load</th>
+<th>Description</th>
+<th>Execution</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>加载地址</td>
+<td>在包含分节或域的镜像开始执行之前，要加载到内存中的节或者域的地址。<br>节或者非根域的加载地址和他们执行地址可以不同</td>
+<td>执行地址</td>
+<td>当包含某个节或域的镜像被执行时，该节或域所在的地址</td>
+</tr>
+<tr>
+<td>加载域</td>
+<td>加载域描述在加载地址空间中连续内存块的布局</td>
+<td>执行域</td>
+<td>执行域描述在执行地址空间中的连续内存块的布局</td>
+</tr>
+</tbody></table>
+<h1 id="二、Image-entry-points"><a href="#二、Image-entry-points" class="headerlink" title="二、Image entry points"></a>二、Image entry points</h1><p>镜像中入口点（<em><strong>Image entry points</strong></em>）就是镜像中的一个位置（地址），该位置（地址）会被加载到 PC 寄存器。 它是程序执行开始的位置。 虽然镜像中可以有多个入口点，但在链接时只能指定一个入口点。并非每个 ELF 文件都必须有入口点。 不允许在单个 ELF 文件中存在多个入口点。</p>
+<p>对于嵌入式 Cortex-M 核的程序，程序的执行是从复位向量所在的位置（地址）开始执行。复位向量会被加载到 PC 寄存器中，且复位向量的位置（地址）并不固定。 通常，复位向量指向 <code>Reset_Handler</code> 函数。</p>
+<p>有两种不同类型的入口点：</p>
+<ul>
+<li>初始化入口点（<em><strong>Initial entry point</strong></em>）： 镜像的初始入口点是存储在 ELF 头文件中的单个值。 对于那些需要由操作系统或引导加载程序加载到 RAM 中的程序，加载程序通过将控制转移到镜像中的初始入口点来启动镜像执行。一个镜像只能有一个初始化入口点。初始入口点可以是 ENTRY 指令设置的入口点之一，但不是必需的。</li>
+<li>ENTRY 指令指定的入口点： ENTRY 指令可以为镜像从多个可能的入口点中选择其中一个。每个镜像只能有一个入口点。您可以在汇编程序文件中使用 ENTRY 指令在对象中创建入口点。 在嵌入式系统中，该指令的典型用途是标记进入处理器异常向量（例如 RESET，IRQ 和 FIQ）的代码。该指令使用 ENTRY 关键字标记输出代码部分，该关键字指示链接器在执行未使用的部分消除时不删除该部分。对于 C&#x2F;C++ 程序，C 库中的 <code>__main</code> 就是入口点。</li>
+</ul>
+<p>如果加载程序要使用嵌入式的镜像，则它必须在标头中指定一个初始入口点。 使用 <code>--entry</code> 命令行选项选择入口点。</p>
+<h1 id="三、映射符号"><a href="#三、映射符号" class="headerlink" title="三、映射符号"></a>三、映射符号</h1><p>映射符号由&#x3D;&#x3D;编译器&#x3D;&#x3D;和&#x3D;&#x3D;汇编器&#x3D;&#x3D;生成，以识别文字池边界处的代码和数据之间的内联转换，以及 ARM 代码和 Thumb 代码之间的内联转换。例如 ARM&#x2F;Thumb 交互操作胶合代码。其必须由 <code>armlink</code> 的参数 <code>--list_mapping_symbols</code> 和 <code>--no_list_mapping_symbols</code> 分别来控制显示与不显示。在默认情况下为 &#96;–no_list_mapping_symbols，即不显示这部分符号。映射符号有如下这些：</p>
+<ul>
+<li><code>$a</code>：一系列 <code>ARM</code> 指令的开始</li>
+<li><code>$t</code>：一系列 <code>Thumb</code> 指令的开始</li>
+<li><code>$t.x</code>：一系列 <code>ThumbEE</code> 指令的开始</li>
+<li><code>$d</code>：一系列数据项的开始，如文字池</li>
+</ul>
+<p>补充说明：</p>
+<ol>
+<li><strong>文字池</strong>：是代码段中存放常量数据的区域。因为没有一条指令可以生成一个 4 字节的常量，因此编译器将这些常量放到文字池中，然后生成从文字池加载这些常量的代码。</li>
+<li><strong>ARM&#x2F;Thumb交互</strong>（<em><strong>ARM&#x2F;Thumb interworking</strong></em>）：是指对汇编语言和 C&#x2F;C++ 语言的 ARM 和 Thumb 代码进行连接的方法，它进行两种状态（ARM 和 Thumb）间的切换。</li>
+<li><strong>胶合代码</strong>（<em><strong>Veneer</strong></em>）：在进行 ARM&#x2F;Thumb 交互时，有时需使用额外的代码，这些代码被称为 胶合代码（Veneer）。</li>
+<li><strong>AAPCS</strong>：定义了 ARM 和 Thumb 过程调用的标准。</li>
+</ol>
+<p>此外， armlink 还会生成 <code>$d.realdata</code> 映射符号，以告诉 fromelf 该数据是来自非可执行节区。因此， <code>fromelf -z</code> 输出的代码和数据大小与 <code>armlink --info sizes</code> 的输出相同。</p>
+<h1 id="四、链接器预定义符号"><a href="#四、链接器预定义符号" class="headerlink" title="四、链接器预定义符号"></a>四、链接器预定义符号</h1><p>当链接器创建镜像文件时，它会创建一些 ARM 预定义的与域或者节相关的符号。这些符号就代表了链接器创建创建镜像的依据。</p>
+<p>链接器定义了一些 ARM 保留的符号，我们可以在需要时访问这些符号。 这些符号是包含 <code>$$</code> 字符序列的符号以及所有其他包含 <code>$$</code> 字符序列的外部名称。我们可以导入这些符号地址，并将它们作为汇编语言程序的可重定位地址使用，或者将它们作为 C 或 C++ 源代码中的 <code>extern</code> 符号来引用。</p>
+<blockquote>
+<p>如果使用 <code>--strict</code> 编译器命令行选项，则编译器不接受包含 <code>$</code> 的符号名称。要重新启用支持，请在编译器命令行中包含 <code>--dollar</code> 选项。</p>
+</blockquote>
+<ul>
+<li>链接器定义的符号只有在代码引用它们时才会生成。</li>
+<li>如果存在仅执行（XO）节，则链接器定义的符号受以下约束：<ul>
+<li>不能对没有 XO 节的域或者空域定义 XO 连接器定义符号</li>
+<li>不能对仅包含 RO 节的域定义 XO 连接器定义符号</li>
+<li>对于仅包含 XO 节的域，不能定义 RO 连接器定义符号</li>
+</ul>
+</li>
+</ul>
+<h2 id="1、将符号引入到程序中"><a href="#1、将符号引入到程序中" class="headerlink" title="1、将符号引入到程序中"></a>1、将符号引入到程序中</h2><h3 id="1-1-引入到-C-C"><a href="#1-1-引入到-C-C" class="headerlink" title="1.1 引入到 C&#x2F;C++"></a>1.1 引入到 C&#x2F;C++</h3><p>可以通过 值引用 或 地址引用 这两种方式将链接器定义的符号导入到的 C 或 C++ 源代码中来供我们使用：</p>
+<ul>
+<li>值引用：<code>extern unsigned int symbol_name</code>;</li>
+<li>地址引用：<code>extern void *symbol_name</code>;</li>
+</ul>
+<blockquote>
+<p>注意，如果将符号声明为 int 类型的值引用，则必须使用寻址操作符（&amp;）来获得正确的值，如下例所示：</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Importing a linker-defined symbol</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">unsigned</span> <span class="type">int</span> Image$$ZI$$Limit;</span><br><span class="line">config.heap_base = (<span class="type">unsigned</span> <span class="type">int</span>) &amp;Image$$ZI$$Limit;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Importing symbols that define a ZI output section</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">unsigned</span> <span class="type">int</span> Image$$ZI$$Length;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">char</span> Image$$ZI$$Base[];</span><br><span class="line"><span class="built_in">memset</span>(Image$$ZI$$Base, <span class="number">0</span>, (<span class="type">unsigned</span> <span class="type">int</span>)&amp;Image$$ZI$$Length);</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-引入到汇编"><a href="#1-2-引入到汇编" class="headerlink" title="1.2 引入到汇编"></a>1.2 引入到汇编</h3><p>可以使用指令 <code>IMPORT</code> 将连接器定义的符号引入到 ARM 汇编文件中来供我们使用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IMPORT |Image$$ZI$$Limit|</span><br><span class="line">...</span><br><span class="line">zi_limit DCD |Image$$ZI$$Limit|</span><br><span class="line"></span><br><span class="line">LDR r1, zi_limit</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、域相关的符号"><a href="#2、域相关的符号" class="headerlink" title="2、域相关的符号"></a>2、域相关的符号</h2><p>链接器为镜像文件中的每个域生成不同类型的与域相关的符号，我们可以根据需要访问这些符号。域相关的符号主要有以下两种：</p>
+<ul>
+<li><code>Image$$</code> 或者 <code>Load$$</code> 开头的符号，用于各&#x3D;&#x3D;执行域&#x3D;&#x3D;</li>
+<li><code>Load$$LR$$</code> 开头的符号，用于各&#x3D;&#x3D;加载域&#x3D;&#x3D;</li>
+</ul>
+<p>如果未使用分散加载文件，则会以默认的 region 名称来生成域相关的符号。链接器默认的域名称如下：</p>
+<ul>
+<li><code>ER_XO</code> ：用于仅执行属性的执行域（如果存在）。</li>
+<li><code>ER_RO</code> ：用于只读执行域。</li>
+<li><code>ER_RW</code> ：用于可读写执行域。</li>
+<li><code>ER_ZI</code> ：用于零初始化的执行域。</li>
+</ul>
+<p>可以将这些名称插入 <code>Image$$</code> 和 <code>Load$$</code> 中以获取所需的地址，例如：<code>Load$$ER_RO$$Base</code> 就是只读域的基地址。</p>
+<p>使用分散加载时，连接器将使用分散加载文件中的名称来生成各种域相关的符号。分散加载文件可以实现以下功能：</p>
+<ul>
+<li>命名镜像中的所有执行域，并提供他们的加载和执行地址。</li>
+<li>定义堆栈和堆。 链接器还会生成特殊的栈和堆符号。</li>
+</ul>
+<blockquote>
+<p>注意一下几点：<br></p>
+<ol>
+<li>镜像的 ZI 输出节不是静态创建的，而是在运行时自动动态创建的。 因此，ZI 输出节没有加载地址符号。</li>
+<li>符号 <code>Load$$region_name</code> 仅适用于执行域。<code>Load$$LR$$load_region_name</code> 符号仅适用于加载域。</li>
+</ol>
+</blockquote>
+<h3 id="2-1-执行域符号-Image"><a href="#2-1-执行域符号-Image" class="headerlink" title="2.1 执行域符号 Image$$"></a>2.1 执行域符号 <code>Image$$</code></h3><p>链接器为镜像中存在的每个执行域生成符号 <code>Image$$</code>。下表列出了链接器为镜像中存在的每个执行域生成的符号。 初始化 C 库后，所有符号都指向执行地址。</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Image$$region_name$$Base</code></td>
+<td>执行域的地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$Length</code></td>
+<td>执行域长度（以字节为单位），不包括 ZI 的长度。</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$Limit</code></td>
+<td>超出执行域中非 ZI 部分末尾的字节的地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RO$$Base</code></td>
+<td>域中的输出节 RO 的执行地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RO$$Length</code></td>
+<td>RO 段输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RO$$Limit</code></td>
+<td>执行域中 RO 输出部分末尾以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RW$$Base</code></td>
+<td>该域中 RW 输出部分的执行地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RW$$Length</code></td>
+<td>RW 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$RW$$Limit</code></td>
+<td>执行域中 RW 输出部分末尾以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$XO$$Base</code></td>
+<td>该域内 XO 输出部分的执行地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$XO$$Length</code></td>
+<td>XO 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$XO$$Limit</code></td>
+<td>执行域中 XO 输出部分末端以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$ZI$$Base</code></td>
+<td>该域 ZI 输出部分的执行地址</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$ZI$$Length</code></td>
+<td>ZI 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Image$$region_name$$ZI$$Limit</code></td>
+<td>执行域中 ZI 输出部分末端以外字节的地址</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-执行域符号-Load"><a href="#2-2-执行域符号-Load" class="headerlink" title="2.2 执行域符号 Load$$"></a>2.2 执行域符号 <code>Load$$</code></h3><p>链接器为镜像中存在的每个执行域生成符号 <code>Load$$</code> 。下表列出了链接器为镜像中存在的每个 <code>Load$$</code> 执行域生成的符号。 初始化 C 库后，所有符号都指向加载地址。</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Load$$region_name$$Base	</code></td>
+<td>加载域地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$Length</code></td>
+<td>该域长度（字节）</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$Limit</code></td>
+<td>执行域末端以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RO$$Base</code></td>
+<td>该执行域中 RO 输出部分的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RO$$Length</code></td>
+<td>RO 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RO$$Limit</code></td>
+<td>执行域中 RO 输出部分末尾以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RW$$Base</code></td>
+<td>该执行域中 RW 输出部分的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RW$$Length</code></td>
+<td>RW 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$RW$$Limit</code></td>
+<td>执行域中 RW 输出部分末尾以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$XO$$Base</code></td>
+<td>该执行域中 XO 输出部分的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$XO$$Length</code></td>
+<td>XO 输出部分的长度（字节）</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$XO$$Limit</code></td>
+<td>执行域中 XO 输出部分末端以外字节的地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$ZI$$Base</code></td>
+<td>该执行域中 ZI 输出部分的加载地址</td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$ZI$$Length</code></td>
+<td>ZI 输出部分的加载长度（字节）。<br>除非 region_name 具有 ZEROPAD 分散加载关键字，否则 ZI 的加载长度为零。<br>如果设置了 ZEROPAD 则:<br>Load Length &#x3D; <code>Image$$region_name$$ZI$$Length</code></td>
+</tr>
+<tr>
+<td><code>Load$$region_name$$ZI$$Limit</code></td>
+<td>执行域 ZI 输出部分末端以外字节的加载地址</td>
+</tr>
+</tbody></table>
+<p>初始化 C 库之前，此表中的所有符号均指加载地址。请注意以下事项：</p>
+<ol>
+<li>这些符号是绝对的，因为相对于节的符号只能有执行地址。</li>
+<li>这些符号考虑了 RW 压缩。</li>
+<li>从 RW 压缩执行域引用的链接器定义的符号必须是在应用 RW 压缩之前可解析的符号。</li>
+<li>如果链接器检测到从 RW 压缩域到依赖于 RW 压缩的链接器定义符号的重定位，则链接器将禁用当前域的压缩。</li>
+<li>Limit 和 Length 值影响写入文件的任何零初始化数据。 使用 <code>ZEROPAD</code> 分散加载关键字时，零初始化数据将写入文件。</li>
+</ol>
+<h3 id="2-3-加载域符号-Load-LR"><a href="#2-3-加载域符号-Load-LR" class="headerlink" title="2.3 加载域符号 Load$$LR$$"></a>2.3 加载域符号 <code>Load$$LR$$</code></h3><p>链接器为镜像中存在的每个加载区生成符号 <code>Load$$LR$$</code> 。一个 <code>Load$$LR$$</code> 加载域可以包含许多执行域，因此没有单独的 <code>$$RO</code> 和 <code>$$RW</code> 部分。下表显示了链接器为镜像中存在的每个 <code>Load$$LR$$</code> 加载域生成的符号。</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Load$$LR$$load_region_name$$Base</code></td>
+<td>加载域的地址</td>
+</tr>
+<tr>
+<td><code>Load$$LR$$load_region_name$$Length</code></td>
+<td>加载域的长度</td>
+</tr>
+<tr>
+<td><code>Load$$LR$$load_region_name$$Limit</code></td>
+<td>加载域末端以外字节的地址</td>
+</tr>
+</tbody></table>
+<h3 id="2-4-节相关的符号"><a href="#2-4-节相关的符号" class="headerlink" title="2.4 节相关的符号"></a>2.4 节相关的符号</h3><p>与节相关的符号是链接器在创建没有使用分散加载文件的镜像时生成的符号。链接器会为输出和输入节生成不同类型的与节相关的符号：</p>
+<ul>
+<li>镜像符号（<em><strong>Image symbols</strong></em>）（如果不使用分散加载来创建简单的镜像文件）。 简单的镜像文件具有多达四个输出节（XO，RO，RW 和 ZI），用于生成相应的执行域。</li>
+<li>输入节符号（<em><strong>Input section symbols</strong></em>） 镜像中存在的每个输入节的输入节符号（<em><strong>Input section symbols</strong></em>）</li>
+</ul>
+<p>链接器首先按属性 RO，RW 或 ZI 对执行域内的节进行排序，然后按名称排序。 例如，所有 <code>.text</code> 节都放在一个连续的块中。 具有相同属性和名称的连续块部分称为合并节。</p>
+<blockquote>
+<p>ARM 建议优先使用与域相关的符号，而不是与节相关的符号。</p>
+</blockquote>
+<h3 id="2-5-镜像符号"><a href="#2-5-镜像符号" class="headerlink" title="2.5 镜像符号"></a>2.5 镜像符号</h3><p>当不使用分散加载文件来创建简单镜像时，镜像符号将由链接器生成。我们常用的 Keil 会默认生成分散加载文件的，所以基本没有不使用分散加载文件的情况。下表显示了镜像符号：</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Section type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Image$$RO$$Base</code></td>
+<td>Output</td>
+<td>RO 输出部分的起始地址</td>
+</tr>
+<tr>
+<td><code>Image$$RO$$Limit</code></td>
+<td>Output</td>
+<td>超出 RO 输出部分末尾的第一个字节的地址</td>
+</tr>
+<tr>
+<td><code>Image$$RW$$Base</code></td>
+<td>Output</td>
+<td>RW 输出部分的起始地址</td>
+</tr>
+<tr>
+<td><code>Image$$RW$$Limit</code></td>
+<td>Output</td>
+<td>超出 ZI 输出部分末端的字节地址<br>(选择 ZI 区域的末端而不是 RW 区域的末端，是为了保持与传统代码的兼容性)</td>
+</tr>
+<tr>
+<td><code>Image$$ZI$$Base</code></td>
+<td>Output</td>
+<td>ZI 输出部分的起始地址</td>
+</tr>
+<tr>
+<td><code>Image$$ZI$$Limit</code></td>
+<td>Output</td>
+<td>超出 ZI 输出部分末端的字节地址</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>如果存在 XO 节，那么还包含符号 <code>Image$$XO$$Base</code> 和 <code>Image$$XO$$Limit</code></p>
+</blockquote>
+<p>如果使用了分散加载文件，则上面这些镜像符号都将称为未定义的。 如果在代码中访问这些符号中的任何一个，则必须将它们视为弱引用(<code>__weak__</code>) 。<code>__user_setup_stackheap()</code> 的标准实现中就使用 <code>Image$$ZI$$Limit</code> 中的值，因此，如果您使用的是分散加载文件，则必须手动设置堆栈和堆。 方法主要有以下两种：</p>
+<ul>
+<li>在分散文件中使用下列方法之一<ul>
+<li>定义名为 <code>ARM_LIB_STACK</code> 和 <code>ARM_LIB_HEAP</code> 的单独的栈和单独的堆域。</li>
+<li>定义包含堆栈和堆的组合域，名为 <code>ARM_LIB_STACKHEAP</code>。</li>
+</ul>
+</li>
+<li>通过重新实现 <code>__user_setup_stackheap()</code> 来设置堆和堆栈边界。（在 STM32 的 <code>.s</code> 启动文件中，正是用的这种方法）</li>
+</ul>
+<h3 id="2-6-输入节符号"><a href="#2-6-输入节符号" class="headerlink" title="2.6 输入节符号"></a>2.6 输入节符号</h3><p>链接器为镜像中存在的每个输入节生成输入节符号。下表显示了链接器定义的输入节符号：</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Section type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SectionName$$Base</code></td>
+<td>Input</td>
+<td>称为SectionName的合并节的起始地址</td>
+</tr>
+<tr>
+<td><code>SectionName$$Length</code></td>
+<td>Input</td>
+<td>称为SectionName的合并节的长度(以字节为单位)</td>
+</tr>
+<tr>
+<td><code>SectionName$$Limit</code></td>
+<td>Input</td>
+<td>称为SectionName的合并节末尾以外的字节的地址</td>
+</tr>
+</tbody></table>
+<p>如果在你的代码引用输入节符号，则表示希望将镜像中具有相同名称的所有输入节都连续放置在镜像内存映射中。如果分散加载文件不连续地放置输入节，则链接器会发出错误。 这是因为在非连续存储器上将导致 Base 符号和 Limit 符号是不明确的。</p>
+<h1 id="五、分散加载机制"><a href="#五、分散加载机制" class="headerlink" title="五、分散加载机制"></a>五、分散加载机制</h1><p>镜像的内存映射由域和输出节组成。内存映射中的每个域可以具有不同的加载和执行地址。分散加载机制是 ARM 连接器 armlink 定义的一种特性。通过该机制，我们可以让连接器完全按照我们自己的描述来组织镜像文件的内存映射，以适应复杂的嵌入式环境。</p>
+<p>经过前面的介绍，相信大家对分散加载有了一定的认识。所谓的分散加载就是，&#x3D;&#x3D;在加载和执行时，多个内存域分散在内存映射中&#x3D;&#x3D;。</p>
+<p>分散加载机制规定需要把我们的要求描述在一个文本文件中，这个文件被称为 分散加载文件。<code>armlink</code> 通过参数 <code>--scatter</code> “分散加载文件名” 来引用我们的分散加载文件（在 ARM 官方文档中叫做 <code>Scatter File</code>）。</p>
+<p>对于简单的内存映射，可以使用以下与内存映射相关的连接器命令行（ <code>--partial</code>、<code>--ro_base</code>、<code>--rw_base</code>、<code>--ropi</code>、<code>--rosplit</code>、<code>--split</code>、<code>--reloc</code>、<code>--startup</code>、<code>--xo_base</code>、<code>--zi_base</code> ）参数来放置代码和数据。例如，如下的内存映射，我们可以使用连接器参数 <code>armlink --ro_base 0x0 --rw_base 0x10000</code> 来实现。</p>
+<p><img src="2.png"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">当然，也可以使用分散加载来实现，下面的示例显示了相应的分散加载描述，该描述将对象文件中的段加载到内存中：</span><br><span class="line"></span><br><span class="line">LOAD_ROM <span class="number">0x0000</span> <span class="number">0x8000</span>       ; Name of load <span class="title function_">region</span> <span class="params">(LOAD_ROM)</span>,</span><br><span class="line">                             ; Start address <span class="keyword">for</span> load <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span>,</span><br><span class="line">                             ; Maximum size of load <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM <span class="number">0x0000</span> <span class="number">0x8000</span>   ; Name of first exec <span class="title function_">region</span> <span class="params">(EXEC_ROM)</span>,</span><br><span class="line">                             ; Start address <span class="keyword">for</span> exec <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span>,</span><br><span class="line">                             ; Maximum size of first exec <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)              ; Place all code and RO data into</span><br><span class="line">                             ; this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    SRAM <span class="number">0x10000</span> <span class="number">0x6000</span>      ; Name of second exec <span class="title function_">region</span> <span class="params">(SRAM)</span>,</span><br><span class="line">                             ; Start address of second exec <span class="title function_">region</span> <span class="params">(<span class="number">0x10000</span>)</span>,</span><br><span class="line">                             ; Maximum size of second exec <span class="title function_">region</span> <span class="params">(<span class="number">0x6000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        * (+RW, +ZI)         ; Place all RW and ZI data into</span><br><span class="line">                             ; this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但需要注意，参数 <code>--scatter &quot;分散加载文件名&quot;</code> 是不能与上面这些一起使用的！</p>
+<p>分散加载通常只用于具有复杂内存映射的镜像中。对于具有复杂内存映射的镜像，不能仅使用链接器命令行选项指定内存映射。</p>
+<p><img src="3.png"></p>
+<p>如上图所示的内存映射，下面的示例显示了对应的分散加载描述，该描述将来自 <code>program1.o</code> 和 <code>program2.o</code> 文件的段加载到内存中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">LOAD_ROM_1 <span class="number">0x0000</span>              ; Start address <span class="keyword">for</span> first load <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM_1 <span class="number">0x0000</span>          ; Start address <span class="keyword">for</span> first exec <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        program1.o (+RO)       ; Place all code and RO data from</span><br><span class="line">                               ; program1.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    DRAM <span class="number">0x18000</span> <span class="number">0x8000</span>        ; Start address <span class="keyword">for</span> this exec <span class="title function_">region</span> <span class="params">(<span class="number">0x18000</span>)</span>,</span><br><span class="line">                               ; Maximum size of this exec <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        program1.o (+RW, +ZI)  ; Place all RW and ZI data from</span><br><span class="line">                               ; program1.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">LOAD_ROM_2 <span class="number">0x4000</span>              ; Start address <span class="keyword">for</span> second load <span class="title function_">region</span> <span class="params">(<span class="number">0x4000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM_2 <span class="number">0x4000</span></span><br><span class="line">    &#123;</span><br><span class="line">        program2.o (+RO)       ; Place all code and RO data from</span><br><span class="line">                               ; program2.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    SRAM <span class="number">0x8000</span> <span class="number">0x8000</span></span><br><span class="line">    &#123;</span><br><span class="line">        program2.o (+RW, +ZI)  ; Place all RW and ZI data from</span><br><span class="line">                               ; program2.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="六、根执行域"><a href="#六、根执行域" class="headerlink" title="六、根执行域"></a>六、根执行域</h1><blockquote>
+<p>有关分散加载文件的编写格式在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142633341">浅析 Keil 中的 sct 文件</a> 已经讲过，这里不再赘述</p>
+</blockquote>
+<p>所谓根执行域指的是&#x3D;&#x3D;加载域和执行域地址相同区域&#x3D;&#x3D;，程序入口必须在根域中，特别是 IDE 封装起来的一些文件和函数，比如 Flash 中的数据复制到 RAM 里的函数（<code>__main</code>）。</p>
+<p>像上文中出现的 <code>*(InRoot$$Sections)</code> 就表示的是根执行域。这个段出自 C 标准库函数 <code>__main</code>。它的主要作用是 COPY RW 区到RAM，然后在 RW 区后面创建 ZI 区。</p>
+<p>我们有以下方式指定根执行域：</p>
+<ol>
+<li>强制指定执行域的基地址 &#x3D; 加载域的基地址。例如：</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>          ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                      ; start of execution region descriptions       </span><br><span class="line">    ER_RO <span class="number">0x040000</span>     ; load address = execution address</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)        ; all RO <span class="title function_">sections</span> <span class="params">(must include section with </span></span><br><span class="line"><span class="params">                       ; initial entry point)</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...                ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>为加载域中的第一个执行域指定 +0 偏移量。例如：</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>          ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                      ; start of execution region descriptions      </span><br><span class="line">    ER_RO +<span class="number">0</span>     	   ; +offset</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)        ; all RO <span class="title function_">sections</span> <span class="params">(must include section with </span></span><br><span class="line"><span class="params">                       ; initial entry point)</span></span><br><span class="line">    &#125;</span><br><span class="line">    …                  ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果为加载域中的所有后续执行域指定了 0(+0) 的偏移量，那么所有不在包含 ZI 的执行域后面的执行域也都是根执行域。 </p>
+<ol start="3">
+<li>对执行域使用 <code>FIXED</code> 属性，以创建在固定地址加载和执行的根执行域。例如：</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>              ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                          ; start of execution region descriptions      </span><br><span class="line">    ER_RO <span class="number">0x040000</span>         ; load address = execution address</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)            ; RO sections other than those in init.o</span><br><span class="line">    &#125;</span><br><span class="line">    ER_INIT <span class="number">0x080000</span> FIXED ; load address and execution address of this</span><br><span class="line">                           ; execution region are fixed at <span class="number">0x80000</span></span><br><span class="line">    &#123;</span><br><span class="line">        init.o(+RO)        ; all RO sections from init.o</span><br><span class="line">    &#125;</span><br><span class="line">    …                      ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以用它来把一个函数或一个数据块，比如一个常量表或一个校验和，放在 ROM 中的一个固定地址上，这样就可以很容易地通过指针访问它。</p>
+<h1 id="七、未初始化变量的定义方法"><a href="#七、未初始化变量的定义方法" class="headerlink" title="七、未初始化变量的定义方法"></a>七、未初始化变量的定义方法</h1><p>现在，我有一段内存不想被初始化。在分散文件中，我将这个内存区域标记为 <code>UNINIT</code>，并使用 <code>__attribute__((section(&quot;&quot;)))</code> 将变量放在 <code>UNINIT</code> 区域中，见下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LR_IROM1 <span class="number">0x08000000</span> <span class="number">0x00080000</span>  &#123;    ; load region size_region</span><br><span class="line">  ER_IROM1 <span class="number">0x08000000</span> <span class="number">0x00080000</span>  &#123;  ; load address = execution address</span><br><span class="line">   *.o (RESET, +First)</span><br><span class="line">   *(InRoot$$Sections)</span><br><span class="line">   .ANY (+RO)</span><br><span class="line">  &#125;</span><br><span class="line">  RW_IRAM1 <span class="number">0x20000000</span> UNINIT <span class="number">0x00000100</span>  &#123; ;no init section</span><br><span class="line">        *(NoInit)</span><br><span class="line">   &#125;</span><br><span class="line">  RW_IRAM2 <span class="number">0x20000100</span> <span class="number">0x0000FFF0</span>  &#123;                ;all other rw data</span><br><span class="line">        .ANY(+RW +ZI)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> NI_longVar __attribute__( ( section( <span class="string">&quot;NoInit&quot;</span>) ) ) ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">( <span class="type">void</span> )</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">while</span>( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>原因如下：</p>
+<ol>
+<li>只有具有 UNINIT 属性的执行区域中的 ZI 数据没有被初始化。然而，具有 UNINIT 属性的执行区域中的任何 RW 数据都会被初始化。</li>
+<li>ARM Compiler 5 出于优化的原因，&#x3D;&#x3D;默认将 8 字节或更少的全局 ZI 变量放入 RW 数据段&#x3D;&#x3D;。由于上述代码示例中的变量小于 8 字节，因此将其从 ZI 更改为 RW，这将导致进行初始化。</li>
+</ol>
+<p>解决办法如下：</p>
+<ul>
+<li>在使用 ARM Compiler 5 时，为该变量添加 <code>zero_init</code> 属性以防止优化。这将保持变量为不初始化的 ZI 数据。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> NI_longVar __attribute__( ( section( <span class="string">&quot;NoInit&quot;</span>), zero_init) ) ;</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/">http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a><a class="pagination-related" href="/2024/10/02/ROM-RAM-Flash/" title="ROM、RAM 和 Flash 的区别"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">ROM、RAM 和 Flash 的区别</div></div><div class="info-2"><div class="info-item-1">[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带动，速度与CPU相比就显得慢的多。内存指的就是主板上的存储部件，是 CPU 直接与之沟通，并用其存储数据的部件，存放当前正在使用的（即执行中）的数据和程序，它的物理实质就是一组或多组具备数据输入输出和数据存储功能的集成电路，内存只用于暂时存放程序和数据，一旦关闭电源或发生断电，其中的程序和数据就会丢失。 存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是&#x3D;&#x3D;易失性存储器&#x3D;&#x3D;，蓝底是&#x3D;&#x3D;非易失性存储器&#x3D;&#x3D;x）：  本文主要针对 ROM、RAM、Flash 这三种存储器进行介绍。 一、ROMR...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-23</div><div class="info-item-2">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</div></div><div class="info-2"><div class="info-item-1">[toc]   I2C 相关知识可以参考 IIC 通信协议详解  一、AT24CXXX 系列存储器介绍1、基本信息下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量    AT24C01 1Kbit 128Byte   AT24C02 2Kbit 256Byte   AT24C04 4Kbit 512Byte   AT24C08 8Kbit 1024Byte   AT24C16 16Kbit 2048Byte   AT24C32 32Kbit 4096Byte   AT24C64 64Kbit 8192Byte   AT24C128 128Kbit 16384Byte   AT24C256 256Kbit 32768Byte   AT24C512 512Kbit 65536Byte   下表是 AT24CXXX 的页内单元数：  总容量(Byte容量) &#x3...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-10</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a><a class="pagination-related" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-01</div><div class="info-item-2">基于 STM32F407 的串口 IAP</div></div><div class="info-2"><div class="info-item-1">[toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主要介绍如何使用串口对固件进行升级。 这里有一点需要特殊注意，就是在 MCU 中，有一个特殊区域被称为 System memory 。在这块区域中存放了 ST 公司自己的 Bootloader 程序，它是在 MCU 出厂时，有 ST 固化到芯片中的，后续不能再更改。其中的 Bootloader 程序也可以对 MCU 进行升级（DFU 对芯片的编程应该就是用的这个 Bootloader）。而且，芯片不同，BootLoader 的功能也是有区别的。ST 官网对于这些也是有详细文档的。下图为部分芯片 BootLoader 版本及功能：  一、概述在学习 IAP 之前，最好先了解一下 SMT32 ...</div></div></div></a><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-18</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a><a class="pagination-related" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-08</div><div class="info-item-2">STM32 位带操作</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：  那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%8A%A0%E8%BD%BD%E5%9F%9F%E5%92%8C%E6%89%A7%E8%A1%8C%E5%9F%9F"><span class="toc-number">1.</span> <span class="toc-text">一、加载域和执行域</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Image-entry-points"><span class="toc-number">2.</span> <span class="toc-text">二、Image entry points</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%98%A0%E5%B0%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">3.</span> <span class="toc-text">三、映射符号</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%93%BE%E6%8E%A5%E5%99%A8%E9%A2%84%E5%AE%9A%E4%B9%89%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.</span> <span class="toc-text">四、链接器预定义符号</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%B0%86%E7%AC%A6%E5%8F%B7%E5%BC%95%E5%85%A5%E5%88%B0%E7%A8%8B%E5%BA%8F%E4%B8%AD"><span class="toc-number">4.1.</span> <span class="toc-text">1、将符号引入到程序中</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%BC%95%E5%85%A5%E5%88%B0-C-C"><span class="toc-number">4.1.1.</span> <span class="toc-text">1.1 引入到 C&#x2F;C++</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%BC%95%E5%85%A5%E5%88%B0%E6%B1%87%E7%BC%96"><span class="toc-number">4.1.2.</span> <span class="toc-text">1.2 引入到汇编</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%9F%9F%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.</span> <span class="toc-text">2、域相关的符号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%89%A7%E8%A1%8C%E5%9F%9F%E7%AC%A6%E5%8F%B7-Image"><span class="toc-number">4.2.1.</span> <span class="toc-text">2.1 执行域符号 Image$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%89%A7%E8%A1%8C%E5%9F%9F%E7%AC%A6%E5%8F%B7-Load"><span class="toc-number">4.2.2.</span> <span class="toc-text">2.2 执行域符号 Load$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%8A%A0%E8%BD%BD%E5%9F%9F%E7%AC%A6%E5%8F%B7-Load-LR"><span class="toc-number">4.2.3.</span> <span class="toc-text">2.3 加载域符号 Load$$LR$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E8%8A%82%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.4.</span> <span class="toc-text">2.4 节相关的符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E9%95%9C%E5%83%8F%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.5.</span> <span class="toc-text">2.5 镜像符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E8%BE%93%E5%85%A5%E8%8A%82%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.6.</span> <span class="toc-text">2.6 输入节符号</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">五、分散加载机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%A0%B9%E6%89%A7%E8%A1%8C%E5%9F%9F"><span class="toc-number">6.</span> <span class="toc-text">六、根执行域</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-number">7.</span> <span class="toc-text">七、未初始化变量的定义方法</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

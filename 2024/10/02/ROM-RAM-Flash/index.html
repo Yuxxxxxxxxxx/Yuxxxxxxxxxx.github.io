@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ROM、RAM 和 Flash 的区别 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROM、RAM 和 Flash 的区别">
+<meta property="og:url" content="http://example.com/2024/10/02/ROM-RAM-Flash/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-10-02T02:12:17.000Z">
+<meta property="article:modified_time" content="2024-11-14T08:07:04.396Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ROM、RAM 和 Flash 的区别",
+  "url": "http://example.com/2024/10/02/ROM-RAM-Flash/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-10-02T02:12:17.000Z",
+  "dateModified": "2024-11-14T08:07:04.396Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/02/ROM-RAM-Flash/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ROM、RAM 和 Flash 的区别',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">ROM、RAM 和 Flash 的区别</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">ROM、RAM 和 Flash 的区别</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-02T02:12:17.000Z" title="发表于 2024-10-02 10:12:17">2024-10-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:07:04.396Z" title="更新于 2024-11-14 16:07:04">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<p>在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带动，速度与CPU相比就显得慢的多。内存指的就是主板上的存储部件，是 CPU 直接与之沟通，并用其存储数据的部件，存放当前正在使用的（即执行中）的数据和程序，它的物理实质就是一组或多组具备数据输入输出和数据存储功能的集成电路，内存只用于暂时存放程序和数据，一旦关闭电源或发生断电，其中的程序和数据就会丢失。</p>
+<p>存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是&#x3D;&#x3D;易失性存储器&#x3D;&#x3D;，蓝底是&#x3D;&#x3D;非易失性存储器&#x3D;&#x3D;x）：</p>
+<p><img src="1.png"></p>
+<p>本文主要针对 ROM、RAM、Flash 这三种存储器进行介绍。</p>
+<h1 id="一、ROM"><a href="#一、ROM" class="headerlink" title="一、ROM"></a>一、ROM</h1><p>ROM（<em><strong>Read-Only Memory</strong></em>）是一种&#x3D;&#x3D;只读存储器&#x3D;&#x3D;，它的数据是在制造过程中被写入的，在工作是只能读出，用户无法对其进行修改，而不像随机存储器那样能快速地、方便地加以改写。ROM 可以存储固定的程序和数据，例如操作系统启动程序和固件程序等。由于其只读的特性，ROM 在电子设备中常用于存储固定程序和数据。</p>
+<p>ROM 特性如下：</p>
+<ol>
+<li>ROM数据不能随意更新，但在任何时候都可以读</li>
+<li>掉电可保留数据</li>
+</ol>
+<p>ROM 有很多种，PROM 是可编程的 ROM，PROM 和 EPROM（可擦除可编程 ROM）两者区别是，PROM 是一次性的，也就是软件灌入后，就无法修改了，这种是早期的产品，现在已经不可能使用了，而EPROM是通过紫外光的照射擦出原先的程序，是一种通用的存储器。另外一种 EEPROM 是通过电子擦出，价格很高，写入时间很长，写入很慢。</p>
+<p>ROM分类：</p>
+<ol>
+<li><code>MROM</code>：是一种特殊类型的 ROM，它使用金属线进行数据的编码和存储。</li>
+<li><code>PROM</code>：可编程一次性（无法修改的 ROM）</li>
+<li><code>EPROM</code>： 紫外线可擦除可编程的 ROM</li>
+<li><code>EEPROM</code>： 电可擦除可编程的 ROM<ul>
+<li>按字节进行删除和重写，所以写入时间很长，写入很慢</li>
+<li>可以随机访问和修改任何一个字节</li>
+<li>目前的 EEPROM 都是几十千字节到几百千字节的，绝少有超过 512k</li>
+</ul>
+</li>
+</ol>
+<h1 id="二、RAM"><a href="#二、RAM" class="headerlink" title="二、RAM"></a>二、RAM</h1><p>RAM（<em><strong>Random Access Memory</strong></em>）是一种随机存取存储器，它可以被任意读取和写入。RAM 是电子设备临时存储数据的地方，它的数据在设备上电之后才能被存储，&#x3D;&#x3D;断电后数据会被清空&#x3D;&#x3D;。RAM 的速度快，读取和写入速度都比较快，但是容量相对较小。</p>
+<p>RAM 分类：</p>
+<ol>
+<li>静态 RAM（<em><strong>static RAM&#x2F;SRAM</strong></em>）<ul>
+<li>SRAM 速度非常快，不需要刷新电路即能保存数据，是目前最快的存储设备</li>
+<li>集成度比较低，非常昂贵，多用于一级缓存、二级缓存（L1&#x2F;L2 Cache）</li>
+</ul>
+</li>
+<li>动态 RAM（<em><strong>Dynamic RAM&#x2F;DRAM</strong></em>）<ol>
+<li>DRAM 特点<ul>
+<li>DRAM 保留数据的时间很短，需要内存刷新电路，每隔一段时间，刷新充电一次，否则数据会消失</li>
+<li>速度比 SRAM 慢，不过它比任何 ROM 都要快</li>
+<li>价格便宜，内存一般都是 DRAM</li>
+</ul>
+</li>
+<li>DRAM 分类（有很多种，其中目前最流行的一种是 DDR RAM）<ul>
+<li>FPM DRAM（<em><strong>Fast page mode DRAM</strong></em>）：一种较旧类型的异步 DRAM，它通过允许以更快的速度重复访问单个“页面”内存来改进以前的类型。 1990 年代中期使用。</li>
+<li>EDO DRAM（<em><strong>Extended data out DRAM</strong></em>）：一种较旧类型的异步 DRAM，其访问时间比早期类型更快，因为它能够在上次访问的数据仍在传输的同时启动新的内存访问。在 1990 年代后期使用。</li>
+<li>DDR RAM（<em><strong>Date-Rate RAM</strong></em>）：这种 RAM 可以在一个时钟读写两次数据</li>
+<li>SDRAM：同步的 DRAM，即数据的读写需要时钟来同步</li>
+<li>DDR SDRAM（<strong>Double data rate SDRAM</strong>）：可以通过双泵（在时钟脉冲的上升沿和下降沿传输数据）在每个时钟周期传输两倍的数据（两个连续字）</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="1、内存工作原理"><a href="#1、内存工作原理" class="headerlink" title="1、内存工作原理"></a>1、内存工作原理</h2><p>内存是用来存放当前正在使用的（即执行中）的数据和程序，我们平常所提到的计算机的内存指的是动态内存（即 DRAM），动态内存中所谓的’动态’，指的是当我们将数据写入 DRAM 后，经过一段时间，数据会丢失，因此需要一个额外设电路进行内存刷新操作。</p>
+<p>具体的工作过程是这样的：一个 DRAM 的存储单元存储的是 0 还是 1 取决于电容是否有电荷，有电荷代表 1，无电荷代表 0。</p>
+<ul>
+<li>但时间一长，代表 1 的电容会放电，代表 0 的电容会吸收电荷，这就是数据丢失的原因；</li>
+<li>刷新操作定期对电容进行检查，若电量大于满电量的 1／2，则认为其代表 1，并把电容充满电；</li>
+<li>若电量小于1／2，则认为其代表 0，并把电容放电，藉此来保持数据的连续性。</li>
+</ul>
+<p>从一有计算机开始，就有内存。内存发展到今天也经历了很多次的技术改进，从最早的 DRAM 一直到 FPMDRAM、EDODRAM、SDRAM等，内存的速度一直在提高且容量也在不断的增加。</p>
+<h1 id="三、Flash"><a href="#三、Flash" class="headerlink" title="三、Flash"></a>三、Flash</h1><p>Flash 是一种可擦写的存储器，它结合了 ROM 和 RAM 的优点。它的数据可以被任意读取和写入，并且可以擦除和重新写入。Flash 的数据在断电后仍然能够保持，因此它可以作为长期存储器使用。Flash 的速度相对于 RAM 较慢，但相对于传统的硬盘存储器来说速度快得多。</p>
+<p>Flash特性：</p>
+<ol>
+<li>可擦除可编程，跟 EEPROM 一样</li>
+<li>断电不会丢失</li>
+<li>可以快速读取数据</li>
+<li>Flash 跟 EEPROM 最大的区别是 Flash 按扇区操作，相对于 EEPROM 的改进就是擦除时不再以字节为单位，而是以块为单位</li>
+</ol>
+<p>Flash 有两种：</p>
+<ol>
+<li>NOR Flash<ul>
+<li>用户可以直接运行装载在 NOR Flash 中的代码（主要是因为有 XIP 技术，片上执行，不像 NAND Flash 得将代码复制到 RAM 中才可以执行），这样可以减少 SRAM 的容量从而节约了成本。</li>
+<li>地址线和数据线分开，可以实现 RAM 一样的随机寻址，可以读取任意一个字节</li>
+<li>但擦除还是要以块为单位</li>
+</ul>
+</li>
+<li>NADN Flash<ul>
+<li>NAND Flash 没有采取内存的随机读取技术，它的读取是以一次读取一块的形式来进行的，通常是一次读取 512 个字节，采用这种技术的 Flash 比较廉价。用户不能直接运行 NAND Flash 上的代码，因此好多使用 NAND Flash 的开发板除了使用 NAND Flash 以外，还作上了一块小的 NOR Flash 来运行启动代码。</li>
+</ul>
+</li>
+</ol>
+<p>一般小容量的用 NOR Flash，因为其读取速度快，多用来存储操作系统等重要信息，而大容量的用 NAND FLASH，最常见的 NAND FLASH 应用是嵌入式系统采用的 DOC（Disk On Chip）和我们通常用的’闪盘’，可以在线擦除。目前市面上的 FLASH 主要来自 Intel，AMD，Fujitsu 和 Toshiba，而生产 NAND Flash 的主要厂家有 Samsung 和 Toshiba。</p>
+<p>总而言之，NOR Flash 和 NAND Flash 比较，NOR 可以支持随机访问，支持 XIP，NAND 不行；NOR 容量小，读的比 NAND 快；NAND 的容量较大，虽然读起来也快；NOR 写擦除都很慢，所以一般放代码段，而 NAND 写和擦除都很快，所以没有这个应用上的限制。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/02/ROM-RAM-Flash/">http://example.com/2024/10/02/ROM-RAM-Flash/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" title="分散加载文件 scatter files"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">分散加载文件 scatter files</div></div><div class="info-2"><div class="info-item-1">@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view： 根据镜像在加载到内存中时所位于的地址（镜像执行开始前的位置），描述每个镜像域和节。 Execution view： 根据镜像执行过程中所位于的地址，描述每个镜像域和节。  下面是两种视图的对比：    Load Description Execution Description    加载地址 在包含分节或域的镜像开始执行之前，要加载到内存中的节或者域的地址。节或者非根域的加载地址和他们执行地址可以不同 执行地址 当包含某个节或域的镜像被执行时，该节或域所在的地址   加载域 加载域描述在加载地址空间中连续内存块的布局 执行域 执行域描述在执行地址空间中的连续内存块的布局   二、I...</div></div></div></a><a class="pagination-related" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">基于 STM32F407 的串口 IAP</div></div><div class="info-2"><div class="info-item-1">[toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主要介绍如何使用串口对固件进行升级。 这里有一点需要特殊注意，就是在 MCU 中，有一个特殊区域被称为 System memory 。在这块区域中存放了 ST 公司自己的 Bootloader 程序，它是在 MCU 出厂时，有 ST 固化到芯片中的，后续不能再更改。其中的 Bootloader 程序也可以对 MCU 进行升级（DFU 对芯片的编程应该就是用的这个 Bootloader）。而且，芯片不同，BootLoader 的功能也是有区别的。ST 官网对于这些也是有详细文档的。下图为部分芯片 BootLoader 版本及功能：  一、概述在学习 IAP 之前，最好先了解一下 SMT32 ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/18/ESP32-IDF-USART/" title="ESP32-IDF USART 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-18</div><div class="info-item-2">ESP32-IDF USART 专题</div></div><div class="info-2"><div class="info-item-1">@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_uart/include/driver/uart.h。  1、配置结构体1.1 uart_config_t1234567891011121314typedef struct &#123;    int baud_rate;                      /*!&lt; UART baud rate*/    uart_word_length_t data_bits;       /*!&lt; UART byte size*/    uart_parity_t parity;               /*!&lt; UART parity mode*/    uart_stop_bits_t stop_bits;         /*!&lt; UART stop bits*/    uart_hw_flowcontrol_t flow_...</div></div></div></a><a class="pagination-related" href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" title="Cortex-M 内核的 OS 特性"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-13</div><div class="info-item-2">Cortex-M 内核的 OS 特性</div></div><div class="info-2"><div class="info-item-1">@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从高地址向低地址生长的，下面通过一个例子演示一下： 12345678__IO uint32_t a = 0x11111111;__IO uint32_t b = 0x22222222;__IO uint32_t c = 0x33333333;__IO uint32_t d = 0x44444444;__IO uint32_t e = 0x55555555;__IO uint32_t f = 0x66666666;__IO uint32_t g = 0x77777777;__IO uint32_t h = 0x88888888;   然后进入调试状态，可以看到现在 SP 指针是 0x20...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-10</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a><a class="pagination-related" href="/2024/10/17/ESP32-IDF-GPIO/" title="ESP32-IDF GPIO 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-17</div><div class="info-item-2">ESP32-IDF GPIO 专题</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_gpio/include/driver/gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情况下，第三方组件将直接呈现底层库的原始 API。 1、配置结构体 为确保应用程序与未来 ESP-IDF 版本的兼容性，请正确初始化配置结构体。  多数 ESP-IDF 中的初始化、配置和安装函数（通常以 ..._init()、 ..._config() 和 ..._install() 命名）都需要一个指向配置结构体的指针作为参数。例如： 1234567const esp_timer_create_args_t my_timer_args = &#123;    .callback = &amp;my_timer_callback,    .arg = callback_arg,    .n...</div></div></div></a><a class="pagination-related" href="/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/" title="STM32 时钟树（基于 STM32F407）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-25</div><div class="info-item-2">STM32 时钟树（基于 STM32F407）</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组合电路，在每一级输出结果前对各个信号进行采样，从而使得电路中某些信号即使出现延时也可以保证各个信号的同步，可以避免电路中发生的“毛刺现象”，达到精确控制输出的效果。 由于时序电路的重要性，因此在 MCU 设计时就设计了专门用于控制时序的电路，在芯片设计中称为时钟树设计。由此设计出来的时钟，可以精确控制我们的单片机系统。对于STM32F4 系列的芯片，正常工作的主频可以达到 168Mhz，但并不是所有外设都需要系统时钟这么高的频率，比如看门狗以及 RTC 只需要几十 Khz 的时钟即可。同一个电路，时钟越快功耗越大，同时抗电磁干扰能力也会越弱，所以对于较为复杂的 MCU 一般都是采取多时钟...</div></div></div></a><a class="pagination-related" href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" title="分散加载文件 scatter files"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-02</div><div class="info-item-2">分散加载文件 scatter files</div></div><div class="info-2"><div class="info-item-1">@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view： 根据镜像在加载到内存中时所位于的地址（镜像执行开始前的位置），描述每个镜像域和节。 Execution view： 根据镜像执行过程中所位于的地址，描述每个镜像域和节。  下面是两种视图的对比：    Load Description Execution Description    加载地址 在包含分节或域的镜像开始执行之前，要加载到内存中的节或者域的地址。节或者非根域的加载地址和他们执行地址可以不同 执行地址 当包含某个节或域的镜像被执行时，该节或域所在的地址   加载域 加载域描述在加载地址空间中连续内存块的布局 执行域 执行域描述在执行地址空间中的连续内存块的布局   二、I...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81ROM"><span class="toc-number">1.</span> <span class="toc-text">一、ROM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81RAM"><span class="toc-number">2.</span> <span class="toc-text">二、RAM</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%86%85%E5%AD%98%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text">1、内存工作原理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Flash"><span class="toc-number">3.</span> <span class="toc-text">三、Flash</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

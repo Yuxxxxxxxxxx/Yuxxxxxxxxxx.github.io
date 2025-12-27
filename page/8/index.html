@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Yuxxxxxxxxxx - Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="昨夜西风凋碧树，独上高楼，望尽天涯路">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Yuxxxxxxxxxx">
+<meta property="og:url" content="http://example.com/page/8/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="昨夜西风凋碧树，独上高楼，望尽天涯路">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:author" content="Yu xin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/page/8/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Yuxxxxxxxxxx',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="page" id="body-wrap"><header class="full_page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a></span><div id="menus"></div></nav><div id="site-info"><h1 id="site-title">Yuxxxxxxxxxx</h1></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/" title="Linux 进程调度（三）之进程的优先级">Linux 进程调度（三）之进程的优先级</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-10T08:46:04.000Z" title="发表于 2024-08-10 16:46:04">2024-08-10</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/">进程调度</a></span></div><div class="content">@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先级，可以通过 nice 命令来设置，范围为 -20 到 +19。较低的数值表示较高的优先级。例如，如果给一个进程设置了较低的优先级值如 -10，那么这个进程将具有较高的优先级。 动态优先级：动态优先级是根据进程的行为和运行情况自动调整的。在 Linux 中，使用调度算法来动态调整进程的优先级。当一个进程使用 CPU 时间较长时，系统会降低它的优先级，让其他进程有更多的执行时间。而当一个进程处于等待 IO 等待状态时，系统会提高它的优先级，以便快速完成 IO 操作。  2、优先级的意义因为 CPU 的空间归根结底还是寄存器， 而寄存器很小， 就注定了 CPU 的资源是有限的。 而进程的个数...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/" title="Linux 错误码">Linux 错误码</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-09T08:31:01.000Z" title="发表于 2024-08-09 16:31:01">2024-08-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a></span></div><div class="content">@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include/uapi/asm-generic/errno-base.h，还有一部分定义在 include/uapi/asm-generic/errno-base.h 中。 当函数执行发生错误的时候，操作系统会将这个错误所对应的编号赋值给 errno 变量，每一个进程都维护了自己的 errno 变量，它是程序中的全局变量，该变量用于存储&#x3D;&#x3D;就近&#x3D;&#x3D;发生的函数执行错误编号。  只有当系统调用或者调用 lib 函数时出错，才会置位errno！  二、含义   宏名称 Value Description 含义    EPERM 1 Operation not permitted 操作不允许   ENOENT 2 No such file or directory 没有这样的文件或...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/09/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2/" title="Linux 进程调度（二）之进程的上下文切换">Linux 进程调度（二）之进程的上下文切换</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-09T07:27:04.000Z" title="发表于 2024-08-09 15:27:04">2024-08-09</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/">进程调度</a></span></div><div class="content">@toc  一、概述进程的上下文切换是指在多任务操作系统中，当操作系统决定要切换当前运行的进程时，将当前进程的状态保存起来，并恢复下一个要运行的进程的状态。上下文切换是操作系统实现进程调度和实现多任务的关键机制之一。 操作系统一个非常重要的功能就是进程的管理，通过调度策略选择合适的进程来执行，对于单个 CPU 而言，进程是串行分时执行，这就需要内核支持进程切换，挂起一个正在 CPU 中执行的进程，恢复执行之前挂起的进程。 CPU 和寄存器是所有进程共用的，CPU 在运行任何 task 之前，必须地依赖一些环境，包括 CPU 寄存器和程序计数器，除此之外，进程运行过程中还需要用到虚拟内存。进程在切换过程中，主要的工作就是切换进程空间（虚拟内存）切换 CPU 寄存器和程序计数器。 二、上下文切换的实现进程切换由两部分组成：  切换页全局目录安装一个新的地址空间； 切换内核态堆栈及硬件上下文。  Linux 内核中由 context_switch 实现了上述两部分内容。  调用 switch_mm 完成用户空间切换； 调用 switch_to 完成内核栈及寄存器切换。  1、conte...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/08/%E5%8A%A8%E6%80%81%E6%89%93%E5%8D%B0/" title="Linux 调试之动态打印">Linux 调试之动态打印</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-08T08:09:31.000Z" title="发表于 2024-08-08 16:09:31">2024-08-08</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="content">[toc]  一、概述在 kernel 驱动代码中，使用动态输出是系统内核调试的重要手段之一，printk 打印是全局的，只能设置输出等级，而且使用 printk 每次都要重新编译内核，很不方便。。而动态输出可以在不需要重新编译内核的情况下，方便的打印出内核的 debug 信息。动态输出可以动态选择打开某个内核子系统的输出，可以有选择性地打开某些模块的输出，printk 被 dev_info，dev_dbg，dev_err 之类的函数代替，dev_xxx 函数的本质还是使用 printk 打印的，只是对 printk 进行了一层包装。 在系统运行时候，动态打印可以由系统维护者动态打开内核子系统的打印，可以有选择性地打开某些模块的打印。要使用动态打印，必须在内核配置时打开 CONFIG_DYNAMIC_DEBUG 宏。 12CONFIG_DEBUG_FS=yCONFIG_DYNAMIC_DEBUG=y  CONFIG_DYNAMIC_DEBUG 是配置动态输出，它依赖于 CONFIG_DEBUG_FS，而 CONFIG_DEBUG_FS 是 debugfs 文件系统。debugfs...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" title="Linux 下查看 CPU 使用率">Linux 下查看 CPU 使用率</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-07T12:50:54.000Z" title="发表于 2024-08-07 20:50:54">2024-08-07</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="content">[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jiffies  记录了开机以来的节拍数。每发生一次时间中断，Jiffies 的值就加 1。节拍率 HZ 是内核的可配选项，可以设置为 100、250、1000 等。不同的系统可能设置不同数值。 Linux 通过 /proc 虚拟文件系统，向用户空间提供了系统内部状态的信息，而 /proc/stat 提供的就是系统的 CPU 和任务统计信息。比方说，如果你只关注 CPU 的话，可以执行下面的命令：  第一列表示的是 CPU 编号，如 cpu0、cpu1 ，而第一行没有编号的 cpu ，表示的是所有 CPU 的累加结果。其他列则表示不同场景下 CPU 的累加节拍数，它的单位是 USER_HZ，...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/07/ftrace/" title="Linux 利用 ftrace 分析内核调用">Linux 利用 ftrace 分析内核调用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-07T08:27:35.000Z" title="发表于 2024-08-07 16:27:35">2024-08-07</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="content">[toc]  一、概述在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实现跟踪功能。其中一个关键的机制是函数预编译器，它会在每个内核函数的入口和出口处插入一些特殊的指令，用于记录函数的调用和返回信息。这些指令可以通过内核配置选项来启用或禁用。 此外，ftrace 还支持事件跟踪，可以记录系统中发生的各种事件，比如中断、系统调用、定时器事件等。通过分析这些事件的发生频率和顺序，可以帮助我们找出系统中的瓶颈和性能问题。 除了记录和分析跟踪信息外，ftrace 还提供了一些工具和接口，用于配置和控制跟踪功能。其中最常用的工具是 trace-cmd 和 trace-cmd-report，它们可以用来收集和分析跟踪数据。 二、ftrace 的使用1、常用信息ftrace...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/06/coredump/" title="Linux 中 core dump 异常的分析">Linux 中 core dump 异常的分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-06T13:52:00.000Z" title="发表于 2024-08-06 21:52:00">2024-08-06</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="content">[toc]  一、概述 在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dump 是指在程序异常终止时，操作系统将程序的内存映像保存到磁盘上的一种机制。 在 Linux 系统中，core dump 提供了一种调试程序错误的重要方式，它记录了程序在崩溃时的内存状态，可以帮助开发人员快速定位问题。当程序因为某种原因（如段错误、非法指令等）异常终止时，Linux 系统会尝试将程序在内存中的映像、程序计数器、寄存器状态等信息写入到一个名为 core 的文件中，这个文件就是所谓的 core dump。 以下是一些常见的导致 core dump 的错误：  段错误（Segmentation fault） 程序访问了无效的内存地址，比如试图访问未分配的内存或者已经释放的内存   空...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/06/iostatiotop/" title="Linux 利用 iostat 和 iotop 进行 IO 分析">Linux 利用 iostat 和 iotop 进行 IO 分析</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-06T10:18:55.000Z" title="发表于 2024-08-06 18:18:55">2024-08-06</time></span></div><div class="content">@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 top 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。 我们可以在 Linux 中使用 iotop 和 iostat 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。 二、iostat1、下载iostat 工具是 sysstat 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。 对于 Fedora 系统，使用 DNF Com...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/05/perf/" title="Linux 下 perf 的使用">Linux 下 perf 的使用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-05T14:38:19.000Z" title="发表于 2024-08-05 22:38:19">2024-08-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">性能优化/调试</a></span></div><div class="content">[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事件的类型进行统计。 2、常用的工具集除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：  perf stat：用于收集和显示性能计数器统计信息，可以通过 perf stat 命令来监测进程或命令的整体性能指标，如指令数、缓存命中率、分支预测错误等。 perf record：用于采集程序执行期间的硬件性能计数器数据、事件和调用栈信息，并将其保存到数据文件中。可以使用 perf record 命令来启动采样，并通过 perf report 命令来分析采样数据。 perf report：用于分析通过 per...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/2024/08/05/ag/" title="Linux 下 ag 命令的使用">Linux 下 ag 命令的使用</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2024-08-05T13:01:48.000Z" title="发表于 2024-08-05 21:01:48">2024-08-05</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right article-meta-link"></i><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/categories/Linux/Linux-%E5%91%BD%E4%BB%A4/">Linux 命令</a></span></div><div class="content">[toc]  一、概述1、功能在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher   Debian&#x2F;Ubuntu: 1sudo apt-get install silversearcher-ag  CentOS: 1sudo yum install the_silver_searcher  Fedora: 1sudo dnf install the_silver_searcher  Arch: 1sudo pacman -S the_silver_searcher  二、常用参数说明ag 目录的语法格式如下： 1ag [选项] [搜索模式] [文件/目录]  下面是一些常用的参数：  -i：忽略大小写进行搜索； -w：只匹配整个单词，而不是部分匹配； -r：递归搜索指定目录下的文件； -l：只列出匹配的...</div></div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/page/7/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/#content-inner">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/#content-inner">9</a><a class="page-number" href="/page/10/#content-inner">10</a><a class="extend next" rel="next" href="/page/9/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            <a class="card-more-btn" href="/categories/" title="查看更多">
+      <i class="fas fa-angle-right"></i></a>
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/C%E8%AF%AD%E8%A8%80/"><span class="card-category-list-name">C语言</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/"><span class="card-category-list-name">Linux</span><span class="card-category-list-count">29</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/Linux-%E5%91%BD%E4%BB%A4/"><span class="card-category-list-name">Linux 命令</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/"><span class="card-category-list-name">中断机制</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><span class="card-category-list-name">内存管理</span><span class="card-category-list-count">8</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/"><span class="card-category-list-name">性能优化/调试</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/"><span class="card-category-list-name">进程调度</span><span class="card-category-list-count">3</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/"><span class="card-category-list-name">嵌入式</span><span class="card-category-list-count">39</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/USB-%E5%8D%8F%E8%AE%AE/" style="font-size: 1.13em; color: #999a9c">USB 协议</a> <a href="/tags/MQTT/" style="font-size: 1.1em; color: #999">MQTT</a> <a href="/tags/%E7%BC%96%E8%AF%91/" style="font-size: 1.1em; color: #999">编译</a> <a href="/tags/UART/" style="font-size: 1.1em; color: #999">UART</a> <a href="/tags/ELF/" style="font-size: 1.1em; color: #999">ELF</a> <a href="/tags/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" style="font-size: 1.1em; color: #999">分页机制</a> <a href="/tags/CMake/" style="font-size: 1.17em; color: #999c9f">CMake</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" style="font-size: 1.5em; color: #99a9bf">嵌入式</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.4em; color: #99a5b6">通信协议</a> <a href="/tags/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/" style="font-size: 1.13em; color: #999a9c">中断机制</a> <a href="/tags/SPI/" style="font-size: 1.13em; color: #999a9c">SPI</a> <a href="/tags/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5/" style="font-size: 1.1em; color: #999">静态链接</a> <a href="/tags/Modbus/" style="font-size: 1.1em; color: #999">Modbus</a> <a href="/tags/%E9%94%99%E8%AF%AF%E7%A0%81/" style="font-size: 1.1em; color: #999">错误码</a> <a href="/tags/FreeRTOS/" style="font-size: 1.37em; color: #99a4b2">FreeRTOS</a> <a href="/tags/%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" style="font-size: 1.1em; color: #999">内存对齐</a> <a href="/tags/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E7%AE%97%E6%B3%95/" style="font-size: 1.1em; color: #999">伙伴系统算法</a> <a href="/tags/slab/" style="font-size: 1.1em; color: #999">slab</a> <a href="/tags/BLE/" style="font-size: 1.27em; color: #99a0a9">BLE</a> <a href="/tags/PAE/" style="font-size: 1.1em; color: #999">PAE</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.2em; color: #999da3">调试</a> <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" style="font-size: 1.1em; color: #999">动态链接</a> <a href="/tags/C%E8%AF%AD%E8%A8%80/" style="font-size: 1.13em; color: #999a9c">C语言</a> <a href="/tags/ESP32/" style="font-size: 1.23em; color: #999ea6">ESP32</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" style="font-size: 1.33em; color: #99a2af">内存管理</a> <a href="/tags/Linux-%E5%91%BD%E4%BB%A4/" style="font-size: 1.3em; color: #99a1ac">Linux 命令</a> <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" style="font-size: 1.17em; color: #999c9f">进程调度</a> <a href="/tags/Git/" style="font-size: 1.13em; color: #999a9c">Git</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 1.2em; color: #999da3">工具</a> <a href="/tags/STM32/" style="font-size: 1.43em; color: #99a6b9">STM32</a> <a href="/tags/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" style="font-size: 1.1em; color: #999">分段机制</a> <a href="/tags/TLB/" style="font-size: 1.1em; color: #999">TLB</a> <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" style="font-size: 1.27em; color: #99a0a9">性能优化/调试</a> <a href="/tags/Linux/" style="font-size: 1.47em; color: #99a8bc">Linux</a> <a href="/tags/I2C/" style="font-size: 1.13em; color: #999a9c">I2C</a> <a href="/tags/x86/" style="font-size: 1.1em; color: #999">x86</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/12/">
+            <span class="card-archive-list-date">
+              十二月 2024
+            </span>
+            <span class="card-archive-list-count">2</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/11/">
+            <span class="card-archive-list-date">
+              十一月 2024
+            </span>
+            <span class="card-archive-list-count">11</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/10/">
+            <span class="card-archive-list-date">
+              十月 2024
+            </span>
+            <span class="card-archive-list-count">20</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/09/">
+            <span class="card-archive-list-date">
+              九月 2024
+            </span>
+            <span class="card-archive-list-count">17</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/08/">
+            <span class="card-archive-list-date">
+              八月 2024
+            </span>
+            <span class="card-archive-list-count">31</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2024/07/">
+            <span class="card-archive-list-date">
+              七月 2024
+            </span>
+            <span class="card-archive-list-count">10</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">91</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-12-27T12:22:12.728Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>BLE 协议之链路层 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BLE 协议之链路层">
+<meta property="og:url" content="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-09-20T04:42:30.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:43:12.961Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="BLE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "BLE 协议之链路层",
+  "url": "http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-09-20T04:42:30.000Z",
+  "dateModified": "2024-11-14T01:43:12.961Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'BLE 协议之链路层',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">BLE 协议之链路层</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">BLE 协议之链路层</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-20T04:42:30.000Z" title="发表于 2024-09-20 12:42:30">2024-09-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T01:43:12.961Z" title="更新于 2024-11-14 09:43:12">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/">BLE</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<p><img src="1.png"></p>
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142311240">BLE 协议之物理层
+</a> 一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（<em><strong>Link Layer</strong></em>）了，它主要的功能，就是在这些 <code>Physical Channel</code> 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：</p>
+<ul>
+<li><strong>通道共享</strong> ： <code>Physical Layer</code> 仅仅提供了有限的 40 个 <code>Physical Channel</code>，而 BLE 中参与通信的实体的数量，肯定不是这个数量级。 <code>Link Layer</code> 需要解决 <code>Physical Channel</code> 的共享问题</li>
+<li><strong>抽象出逻辑链路</strong> ：通信是两个实体之间的事情，对这两个实体来说，它们希望看到一条为自己独享的传输通道（就是我们所熟悉的 逻辑链路，<em><strong>Logical Link</strong></em>）。这也是 <code>Link Layer</code> 需要解决的</li>
+<li><strong>可靠传输</strong> ： <code>Physical Channel</code> 是不可靠的，任何数据传输都可能由于干扰等问题而损毁、丢失，这对有些应用来说，是接受不了的。因此 <code>Link Layer</code> 需要提供校验、重传等机制，确保数据传输的可靠性</li>
+</ul>
+<p>接下来，就看一下链路层都做了哪些事。</p>
+<h1 id="二、状态和角色"><a href="#二、状态和角色" class="headerlink" title="二、状态和角色"></a>二、状态和角色</h1><p>BLE 协议在 <code>Link Layer</code> 层抽象出 5 种状态 ：</p>
+<ul>
+<li><code>Standby State</code> ：&#x3D;&#x3D;待机状态&#x3D;&#x3D;，不发送数据，也不接收数据。该状态可以由任何状态进入，也可以切换到除 <code>Connection State</code> 外的任意一种状态。</li>
+<li><code>Advertising State</code> ：&#x3D;&#x3D;广播状态&#x3D;&#x3D;，可以发送，监听，响应广播通道包，由 <code>Standby State</code> 进入。</li>
+<li><code>Scanning State</code> ：&#x3D;&#x3D;扫描状态&#x3D;&#x3D;，能够监听广播设备发送的广播包，由 <code>Standby State</code> 进入。</li>
+<li><code>Initiating State</code> ：&#x3D;&#x3D;初始化状态&#x3D;&#x3D;，监听指定设备的广播通道包，并且响应广播包，并发送连接请求，以便和广播设备建立连接。当连接成功后， Initiater 和对应的 Advertiser 都会切换到 <code>Connection State</code>。该状态由 <code>Standby State</code> 进入。</li>
+<li><code>Connection State</code> ：和某个实体&#x3D;&#x3D;建立了单独通道的状态&#x3D;&#x3D;，在通道建立之后，由 <code>Initiating State</code> 或 <code>Advertising State</code> 进入。通道断开后，会重新回到 <code>Standby State</code>。</li>
+</ul>
+<p><img src="2.png"></p>
+<p>进入 <code>Connect State</code> 后，又定义了两种角色 ：</p>
+<ul>
+<li><code>Master Role</code> ：由 <code>Initiating State</code> 进入的 <code>Connect State</code> ，连接成功后，变成了 <code>Master Role</code> 。</li>
+<li><code>Slave Role</code> ：由 <code>Advertising State</code> 进入的 <code>Connect State</code> ，连接成功后，变成了 <code>Slave Role</code> 。</li>
+</ul>
+<p>一个状态机在同一时刻有且只能处于一个状态。但是，一个 BLE 设备在同一时刻可以拥有多个独立的状态机！多个状态机并存的情况有限制条件。以下为几种有效的组合状态：</p>
+<ul>
+<li>Connection + Advertising</li>
+<li>Connection + Initiating</li>
+<li>Connection(Master) + Connection(Master)</li>
+</ul>
+<p>这也就意味着，BLE 协议栈是支持一主多从这种连接模式的。不过要注意，不支持一从多主模式，即一个从机同时与多个主机相连。并且，一个 BLE 设备在同一时刻不能同时为主机和从机角色。</p>
+<h1 id="三、Air-Interface-Packets"><a href="#三、Air-Interface-Packets" class="headerlink" title="三、Air Interface Packets"></a>三、Air Interface Packets</h1><p>状态和角色定义完成后，剩下的事情就简单了，主要包括两类：</p>
+<ul>
+<li>提供某一状态下，和其它实体对应状态之间的数据交换机制 ；</li>
+<li>根据上层实体的指令，以及当前的实际情况，负责状态之间的切换 。</li>
+</ul>
+<p>BLE 协议中，这些事情是由空中接口数据包（<em><strong>Air Interface Packets</strong></em>）完成的。</p>
+<p><code>Air Interface Packets</code> 定义了一种包的格式，主要用于描述 <code>LE Uncoded PHY</code>、<code>advertising channel</code> 和 <code>data channel</code> 的通信格式 。</p>
+<p>其格式如下：</p>
+<p><img src="3.png"></p>
+<blockquote>
+<p>见 <code>Core5.4 P2684</code></p>
+</blockquote>
+<p>下面对各个字段继续详细分析。</p>
+<h2 id="1、Preamble-字段"><a href="#1、Preamble-字段" class="headerlink" title="1、Preamble 字段"></a>1、Preamble 字段</h2><p><code>Preamble</code>（前导码）： 是 0 和 1 的交替序列：</p>
+<ul>
+<li>当物理通道为 <code>LE 1M PHY</code> 时，前导码为 1Byte ；</li>
+<li>当物理通道码为 <code>LE 2M PHY</code> 时，前导码为 2Byte 。</li>
+</ul>
+<p><img src="4.png"></p>
+<h2 id="2、Access-Address-字段"><a href="#2、Access-Address-字段" class="headerlink" title="2、Access Address 字段"></a>2、Access Address 字段</h2><p><code>Access Address</code> ：对于所有在广播通道发送的数据包，其值都为 <code>0x8E89BED6</code>。</p>
+<p>一旦链路层处于 <code>Initiating State</code> 状态时，会生成一个新的 <code>Access Address</code> 用于连接。该 <code>Access Address</code> 为一个 4Byte 的值。</p>
+<p>蓝牙使用 <code>Access Address</code> 来标识不同的设，<code>Access Address</code> 可以是一个公共的地址，也可以是一个随机的地址 ，无论是哪一种类型的地址，均为 48bits 长度。</p>
+<ul>
+<li>公共地址 ：官方定义的一些规范，通用的地址，这里不做解释。</li>
+<li>随机地址 ：可能是静态地址 ，或者是私有地址 。</li>
+</ul>
+<h3 id="2-1-静态地址"><a href="#2-1-静态地址" class="headerlink" title="2.1 静态地址"></a>2.1 静态地址</h3><blockquote>
+<p>见 <code>Core5.4 P2679</code></p>
+</blockquote>
+<p>静态地址一般都是随机生成的，但是需要满足下面的几点规则：</p>
+<ul>
+<li>地址的 两个最高有效位应该等于 1</li>
+<li>随机地址部分，至少有一位为 0</li>
+<li>随机地址部分，至少有一位为 1</li>
+</ul>
+<p><img src="5.png"></p>
+<blockquote>
+<p>大多数的设备（手机）都是在上电之后，初始化一次静态地址，一旦初始化后，静态地址就不变了；重新上电后，会生成新的静态地址。</p>
+</blockquote>
+<h3 id="2-2-私有地址"><a href="#2-2-私有地址" class="headerlink" title="2.2 私有地址"></a>2.2 私有地址</h3><blockquote>
+<p>见 <code>Core5.4 P2680</code></p>
+</blockquote>
+<p>私有地址又分为 ：不可解析私有地址和可解析的私有地址。</p>
+<ol>
+<li><font color="yellowgreen" size="5px">不可解析的私有地址</font></li>
+</ol>
+<p>不可解析私有地址，遵守以下生成规则：</p>
+<ul>
+<li>地址的两个最高有效位应该等于 0</li>
+<li>随机地址部分，至少有一位为 0</li>
+<li>随机地址部分，至少有一位为 1</li>
+<li>不能与公共地址有冲突</li>
+</ul>
+<p><img src="6.png"></p>
+<ol start="2">
+<li><font color="yellowgreen" size="5px">可解析的私有地址</font></li>
+</ol>
+<p>可解析的私有地址，说直白点就是带加密算法所生成的。设备需要有 <code>Local Identity Resolving Key</code>(<em><strong>IRK</strong></em>) 或者 <code>the Peer Identity Resolving Key</code> (<em><strong>IRK</strong></em>) 这两个密钥，生成 24bit 的号码，</p>
+<p>可解析的私有地址，遵守以下规则：</p>
+<ul>
+<li>地址的 两个最高有效位为 0 和 1</li>
+<li>随机地址部分，至少有一位为 0</li>
+<li>随机地址部分，至少有一位为 1</li>
+</ul>
+<p><img src="7.png"></p>
+<blockquote>
+<p>&#x3D;&#x3D;总结&#x3D;&#x3D;：<font color="bnlugreen" size="5px">最高有效位的前两位，代表了设备地址的类型</font></p>
+</blockquote>
+<h2 id="3、PDU-字段"><a href="#3、PDU-字段" class="headerlink" title="3、PDU 字段"></a>3、PDU 字段</h2><blockquote>
+<p>前面介绍过，<code>Physical Layer</code> 将通道分为广播通道和数据通道，那么 <code>Link Layer</code> 也随之对应划分了两种 PDU 类型。</p>
+</blockquote>
+<p><code>PDU</code>（<em><strong>Package Data Unit</strong></em>） ：分为两种：</p>
+<ul>
+<li>广播通道上传输（<em><strong>Advertising Channel PDU</strong></em>）；</li>
+<li>数据通道上传输（<em><strong>Data Channel PDU</strong></em>），长度为 2-257 字节。</li>
+</ul>
+<h3 id="3-1-Advertising-Channel-PDU"><a href="#3-1-Advertising-Channel-PDU" class="headerlink" title="3.1 Advertising Channel PDU"></a>3.1 Advertising Channel PDU</h3><p>广播通道 PDU ，包括 <code>Advertising PDU</code>、<code>Scanning PDU</code>、<code>Initiating PDU</code> 三种类型。</p>
+<p>广播通道的 PDU ，由 16bit 的数据头和 1-255Byte 的可变大小数据组成。</p>
+<p><img src="8.png"></p>
+<h4 id="3-1-1-Header-字段"><a href="#3-1-1-Header-字段" class="headerlink" title="3.1.1 Header 字段"></a>3.1.1 Header 字段</h4><p>下面是 16bit 的数据头格式：</p>
+<p><img src="9.png"></p>
+<blockquote>
+<p>PDU Type 有多种，详细参考 <code>core 5.0 P2690</code></p>
+</blockquote>
+<p><img src="10.png"></p>
+<p><img src="11.png"></p>
+<ul>
+<li><code>ChSel</code> ：该位为 1，支持 <code>LE Channel Selection Algorithm</code> ，即 LE通道选择算法 ，反之，不支持。</li>
+<li><code>TxAdd</code> ：该位为 0，表明 <code>Payload</code> 的 AdvA 字段为公共的；该位为 1，表明 Payload 的 AdvA 字段为随机的。</li>
+<li><code>Length</code> ：该字段表明了 Payload 的长度</li>
+</ul>
+<h4 id="3-1-2-Payload-字段"><a href="#3-1-2-Payload-字段" class="headerlink" title="3.1.2 Payload 字段"></a>3.1.2 Payload 字段</h4><p>Payload字段组成如下 ：</p>
+<blockquote>
+<p>常见的 <code>Advertising PDU</code> 有 ：</p>
+</blockquote>
+<ul>
+<li><p><code>ADV_IND</code> ：该 PDU 用于连接和扫描无定向的广播事件。</p>
+<p><img src="12.png"></p>
+</li>
+<li><p><code>ADV_DIRECT_IND</code> ：该 PDU 用于连接和扫描定向的广播事件。</p>
+</li>
+</ul>
+<p><img src="13.png"></p>
+<ul>
+<li><p><code>ADV_NONCONN_IND</code> ：该 PDU 用于不可连接和不可扫描的非定向广播事件</p>
+<p><img src="14.png"></p>
+</li>
+<li><p><code>ADV_SCAN_IND</code> ：该 PDU 仅可用于可扫描的非定向广播事件</p>
+<p><img src="15.png"></p>
+</li>
+</ul>
+<blockquote>
+<p>常见的 <code>Scaning PDU</code> 有 ：</p>
+</blockquote>
+<ul>
+<li><code>SCAN_REQ</code> ：该 PDU 为发送扫描请求</li>
+</ul>
+<p><img src="16.png"></p>
+<ul>
+<li><code>SCAN_RSP</code> ：该 PDU 包括了广播者的地址和返回的扫描响应数据。</li>
+</ul>
+<p><img src="17.png"></p>
+<blockquote>
+<p>常见的 <code>Initiating PDU</code> 有 ：</p>
+</blockquote>
+<ul>
+<li><code>CONNECT_IND</code> ：该 PDU 用于建立连接</li>
+</ul>
+<p><img src="18.png"></p>
+<p>  <img src="19.png"></p>
+<p>  综上可见，每一种 PDU Type ，都会定义自己的 Payload 组成。</p>
+<h3 id="3-2-Data-Channel-PDU"><a href="#3-2-Data-Channel-PDU" class="headerlink" title="3.2 Data Channel PDU"></a>3.2 Data Channel PDU</h3><p>数据通道 PDU 的格式，包括 16bit 的 Header ，可变大小的 Payload ，以及可选的消息完整性检查 MIC 字段。</p>
+<p>包的格式如下：</p>
+<p><img src="20.png"></p>
+<h4 id="3-2-1-Header-字段"><a href="#3-2-1-Header-字段" class="headerlink" title="3.2.1 Header 字段"></a>3.2.1 Header 字段</h4><ul>
+<li><code>Header</code> 包括：</li>
+</ul>
+<p><img src="21.png"></p>
+<ul>
+<li><code>LLID</code> ：该字段标识了这个包为 <code>LL Data PDU</code> 或者 <code>LL Control PDU</code></li>
+<li><code>NESN</code> ：下次期望的序列号</li>
+</ul>
+<p><img src="22.png"></p>
+<h4 id="3-2-2-Payload-字段"><a href="#3-2-2-Payload-字段" class="headerlink" title="3.2.2 Payload 字段"></a>3.2.2 Payload 字段</h4><p>根据 LLID 字段，<code>Data Channel PDU</code> 又分为 <code>LL Data PDU</code> 和 <code>LL Control PDU</code> 两种类型。</p>
+<ul>
+<li><code>LL Data PDU</code> ：该 PDU 用于发送链路层的数据。<ul>
+<li>当 LLID 为 01b 时，并且 Length&#x3D;0 时，表示一个 Empty PDU 。</li>
+<li>当 LLID 为 10b 时，则 Length 不能设置为 0。</li>
+</ul>
+</li>
+<li><code>LL Control PDU</code> ：该 PDU 用于控制链路层的连接。</li>
+</ul>
+<p><img src="23.png"></p>
+<p>Opcode 操作码也有多种：</p>
+<blockquote>
+<p>每一种操作码对应不同的数据长度。详细可见 <code>core5.0 P2716</code></p>
+<p><img src="24.png"></p>
+<p><img src="25.png"></p>
+</blockquote>
+<p><img src="26.png"></p>
+<h2 id="4、CRC-字段"><a href="#4、CRC-字段" class="headerlink" title="4、CRC 字段"></a>4、CRC 字段</h2><ul>
+<li><code>CRC</code> 字段：在链路层包的最后，校验所有的 PDU 数据，大小长度为 3Byte 。</li>
+</ul>
+<p>如果 PDU 数据加密，则 CRC 将会计算加密后的 PDU 数据。</p>
+<p>CRC 算法采用多项式求和的形式进行，感兴趣的可以自行查阅资料了解。</p>
+<h1 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h1><p><img src="27.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/">http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a><a class="post-meta__tags" href="/tags/BLE/">BLE</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" title="STM32 通过 SPI 驱动 W25Q128"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">STM32 通过 SPI 驱动 W25Q128</div></div><div class="info-2"><div class="info-item-1">[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1234567W25Q     STM32VCC  --&gt; VCCGND  --&gt; GNDDO   --&gt; PA6 (MISO)DI   --&gt; PA7 (MOSI)CLK  --&gt; PA5 (SCK)CS   --&gt; PA4 (CS)  2、时钟控制SCK 线的时钟信号，由波特率发生器根据“控制寄存器CR1”中的 BR[0:2] 位控制，该位是对 fpclk 时钟的分频因子， 对 fpclk 的分频结果就是 SCK 引脚的输出时钟频率，计算方法见下表：  其中的 fpclk 频率是指 SPI 所在的 APB 总线频率，APB1 为 fpclk1，APB...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" title="BLE 协议之传输层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-25</div><div class="info-item-2">BLE 协议之传输层</div></div><div class="info-2"><div class="info-item-1">[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。 上图即是 UART 传输层的功能框图。 一、HCI 简介 Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Controller 硬件上的 HCI Firmware 交换数据和命令，这就是 HCI 的功能。  HCI 提供了一种统一接口用来访问，控制 Controller ，传输层是透明的，独立于底层传输技术，并且无需关系 Host 传输给 Controller 的数据是什么内容. 在 HOST 与 Controller 之间，以 Command 与 Event 命令方式进行传输。 Host 发送 Command 信息到 Controller ， Controller 将 Command Status 和 Params 以 Event 的形式返回给 Host ，最后返回 Command Complete E...</div></div></div></a><a class="pagination-related" href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" title="BLE 协议之物理层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-17</div><div class="info-item-2">BLE 协议之物理层</div></div><div class="info-2"><div class="info-item-1">@toc   一、概述 物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym&#x2F;s 的无编码物理层 2M Sym&#x2F;s 的无编码物理层 1M Sym&#x2F;s 的编码物理层  其中 1M Sym&#x2F;s 的无编码物理层与 BLE v4 系列协议的物理层兼容，另外两种物理层则分别扩展了通信速率和通信距离。 二、Physical Channel1、物理通道任何一个通信系统，首先要确定的就是通信介质（物理通道，Physical Channel），BLE 也不例外。在 BLE 协议中，通信介质的定义是由 Physical Layer 负责。  大多数无线通信的频段需要申请授权才可以使用，不同地区开辟了少量免授权频段，只要产品满足当地无线电规范，即可免授权使用。下图展示了全球免授权的频段及其分布：  图中 2.4GHz 的频段很强...</div></div></div></a><a class="pagination-related" href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" title="BLE 协议之 L2CAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-01</div><div class="info-item-2">BLE 协议之 L2CAP</div></div><div class="info-2"><div class="info-item-1">[toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只有一条，而要利用它传输数据的上层应用却不止一个（例如上图中的 ATT 和 SMP），怎么复用？ Logical Channel 所能传输的有效 payload 长度最大只有 251bytes，怎是否意味着上层应用每次只能传输少于这个长度的数据？（显然不能！） Logical Channel 仅提供了简单的应答和流控机制，如果传输的数据出错怎么办？ ……  L2CAP 所具备的主要功能如下：  协议信道复用（Protocol&#x2F;channel multiplexing） ：能够区分高层协议，在信道建立时，协议复用功能用来 发送请求来连接正确的上层协议 ；在数据传输时，逻辑信道复用必...</div></div></div></a><a class="pagination-related" href="/2024/11/07/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BGATT/" title="BLE 协议之 GATT"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-07</div><div class="info-item-2">BLE 协议之 GATT</div></div><div class="info-2"><div class="info-item-1">[toc]  在上一节讲了什么是 ATT，ATT 之所以称作 protocol，是因为它还比较抽象，仅仅定义了一套机制，允许 Client 和 Server 通过 Attribute 的形式共享信息。而具体共享哪些信息，ATT 并不关心，因为这是由 GATT（Generic Attribute Profile）来控制。 GATT 相对 ATT 只多了一个 G，但含义却大不同，因为 GATT 是一个 profile（更准确的说是 profile framework）。 在蓝牙协议中，profile 一直是一个比较抽象的概念，我们可以将其理解为“应用场景、功能、使用方式”都被规定好的 Application。传统的BR&#x2F;EDR 如此，BLE 更甚。上面我们讲过，BLE很大一部分的应用场景是信息（Attribute）的共享，因此，BLE协议栈基于Attribute Protocol，定义了一个称作 GATT（Generic Attribute）的 profile framework（它本身也是一个 profile），用于提供通用的、信息的存储和共享等功能。 一、简介GATT（...</div></div></div></a><a class="pagination-related" href="/2024/11/05/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BATT/" title="BLE 协议之 ATT"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-05</div><div class="info-item-2">BLE 协议之 ATT</div></div><div class="info-2"><div class="info-item-1">[toc]   在前面的章节中，我们自低向上，分析了 BLE 协议栈中的 Physical Layer、Link Layer、L2CAP：  Physical Layer 负责提供一系列的 Physical Channel ； 基于这些 Physical Channel，Link Layer 可在两个设备之间建立用于点对点通信的 Logical Channel ； L2CAP 则将这个 Logical Channel 划分为一个个的 L2CAP Channel ，以便提供应用程序级别的通道复用。   在 L2CAP 之上，就是 ATT 协议了，下面就来看一下 ATT 是什么。 一、简介ATT (Attribute Protocol) ，BLE 属性协议，它是处于 L2CAP 协议层与 GATT 之间的一层属性操作协议，用于在一对蓝牙设备之间发现、读取、写入属性。 这一层的关键词是 Attribute(属性)。一个属性就是一条数据，属性是 BLE 数据提供单元，也是蓝牙空中传播数据的最上层，BLE 开发过程中接触最多的就是这一层。 属性协议允许称为服务器的设备向称为客户端的对等设备...</div></div></div></a><a class="pagination-related" href="/2024/08/27/BLE%E8%AF%A6%E8%A7%A3/" title="蓝牙BLE协议讲解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-27</div><div class="info-item-2">蓝牙BLE协议讲解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述蓝牙技术起源于爱立信在 1994 年提出的方案，旨在解决移动电话和其他配件之间进行低功耗、低成本的无线通信连接的方法。 1、发展历史 第一代蓝牙主要是指 90 年代的 V1.0～V1.2 版本，是关于短距离通信的早期探索，此时还存在许多问题，应用不是特别广泛 第二代蓝牙主要是 00 年中 V2.0～V2.1 版本，新增了 EDR（Enhanced Data Rate）技术提高传输速率，以及体验及安全 第三代蓝牙主要是 00 年末 V3.0 版本，新增了 802.11 WiFi 协议，引入了 AMP（Generic Alternate MAC&#x2F;PHY）交替射频技术，极大的提高了传输速率并降低功耗 第四代蓝牙是 10 年以来的 V4.0～V4.2 版本，主推 LE（Low Energy，低功耗），大约仅消耗十分之一，将三种规格，包括&#x3D;&#x3D;经典蓝牙&#x3D;&#x3D;、&#x3D;&#x3D;高速蓝牙&#x3D;&#x3D;、和&#x3D;&#x3D;低功耗蓝牙&#x3D;&#x3D;，集中在一起形成一套综合协议规范 第五代蓝牙是 ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8A%B6%E6%80%81%E5%92%8C%E8%A7%92%E8%89%B2"><span class="toc-number">2.</span> <span class="toc-text">二、状态和角色</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81Air-Interface-Packets"><span class="toc-number">3.</span> <span class="toc-text">三、Air Interface Packets</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Preamble-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.1.</span> <span class="toc-text">1、Preamble 字段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Access-Address-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.2.</span> <span class="toc-text">2、Access Address 字段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%9D%99%E6%80%81%E5%9C%B0%E5%9D%80"><span class="toc-number">3.2.1.</span> <span class="toc-text">2.1 静态地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%A7%81%E6%9C%89%E5%9C%B0%E5%9D%80"><span class="toc-number">3.2.2.</span> <span class="toc-text">2.2 私有地址</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81PDU-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.3.</span> <span class="toc-text">3、PDU 字段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Advertising-Channel-PDU"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.1 Advertising Channel PDU</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-1-Header-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">3.1.1 Header 字段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-2-Payload-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.3.1.2.</span> <span class="toc-text">3.1.2 Payload 字段</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Data-Channel-PDU"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.2 Data Channel PDU</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-Header-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.3.2.1.</span> <span class="toc-text">3.2.1 Header 字段</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-2-Payload-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.3.2.2.</span> <span class="toc-text">3.2.2 Payload 字段</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81CRC-%E5%AD%97%E6%AE%B5"><span class="toc-number">3.4.</span> <span class="toc-text">4、CRC 字段</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、小结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>FreeRTOS 快速入门（三）之任务管理 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、任务创建与删除1、什么是任务在 FreeRTOS 中，任务就是一个函数，原型如下： 1void ATaskFunction(void *pvParameters);  要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeRTOS 快速入门（三）之任务管理">
+<meta property="og:url" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、任务创建与删除1、什么是任务在 FreeRTOS 中，任务就是一个函数，原型如下： 1void ATaskFunction(void *pvParameters);  要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-20T02:20:53.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:29:34.869Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="FreeRTOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "FreeRTOS 快速入门（三）之任务管理",
+  "url": "http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-20T02:20:53.000Z",
+  "dateModified": "2024-11-14T00:29:34.869Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'FreeRTOS 快速入门（三）之任务管理',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">FreeRTOS 快速入门（三）之任务管理</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">FreeRTOS 快速入门（三）之任务管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-20T02:20:53.000Z" title="发表于 2024-08-20 10:20:53">2024-08-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T00:29:34.869Z" title="更新于 2024-11-14 08:29:34">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/">FreeRTOS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、任务创建与删除"><a href="#一、任务创建与删除" class="headerlink" title="一、任务创建与删除"></a>一、任务创建与删除</h1><h2 id="1、什么是任务"><a href="#1、什么是任务" class="headerlink" title="1、什么是任务"></a>1、什么是任务</h2><p>在 FreeRTOS 中，任务就是一个函数，原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">ATaskFunction</span><span class="params">(<span class="type">void</span> *pvParameters)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用全局变量、静态变量的话，只有一个副本：多个任务使用的是同一个副本。</p>
+<p>如下例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">ATaskFunction</span><span class="params">(<span class="type">void</span> *pvParameters)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/* 对于不同的任务，局部变量放在任务的栈里，有各自的副本 */</span></span><br><span class="line">	<span class="type">int32_t</span> lVariableExample = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 任务函数通常实现为一个无限循环 */</span></span><br><span class="line">	<span class="keyword">for</span>( ;; )</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/* 任务的代码 */</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 如果程序从循环中退出，一定要使用 vTaskDelete 删除自己</span></span><br><span class="line"><span class="comment">	 * NULL 表示删除的是自己</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	vTaskDelete( <span class="literal">NULL</span> );</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 程序不会执行到这里, 如果执行到这里就出错了 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、创建任务"><a href="#2、创建任务" class="headerlink" title="2、创建任务"></a>2、创建任务</h2><p>创建任务时使用的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  动态分配内存创建任务函数</span></span><br><span class="line"><span class="comment">  * @param  pvTaskCode：任务函数</span></span><br><span class="line"><span class="comment">  * @param  pcName：任务名称，单纯用于辅助调试</span></span><br><span class="line"><span class="comment">  * @param  usStackDepth：任务栈深度，单位为字（word）</span></span><br><span class="line"><span class="comment">  * @param  pvParameters：任务参数</span></span><br><span class="line"><span class="comment">  * @param  uxPriority：任务优先级</span></span><br><span class="line"><span class="comment">  * @param  pxCreatedTask：任务句柄，可通过该句柄进行删除/挂起任务等操作</span></span><br><span class="line"><span class="comment">  * @retval pdTRUE：创建成功，errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY：内存不足创建失败</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">BaseType_t <span class="title function_">xTaskCreate</span><span class="params">(TaskFunction_t pvTaskCode,</span></span><br><span class="line"><span class="params">					   <span class="type">const</span> <span class="type">char</span> * <span class="type">const</span> pcName,</span></span><br><span class="line"><span class="params">					   <span class="type">unsigned</span> <span class="type">short</span> usStackDepth,</span></span><br><span class="line"><span class="params">					   <span class="type">void</span> *pvParameters,</span></span><br><span class="line"><span class="params">					   UBaseType_t uxPriority,</span></span><br><span class="line"><span class="params">					   TaskHandle_t *pxCreatedTask)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  静态分配内存创建任务函数</span></span><br><span class="line"><span class="comment">  * @param  pvTaskCode：任务函数</span></span><br><span class="line"><span class="comment">  * @param  pcName：任务名称</span></span><br><span class="line"><span class="comment">  * @param  usStackDepth：任务栈深度，单位为字（word）</span></span><br><span class="line"><span class="comment">  * @param  pvParameters：任务参数</span></span><br><span class="line"><span class="comment">  * @param  uxPriority：任务优先级</span></span><br><span class="line"><span class="comment">  * @param  puxStackBuffer：任务栈空间数组</span></span><br><span class="line"><span class="comment">  * @param  pxTaskBuffer：任务控制块存储空间</span></span><br><span class="line"><span class="comment">  * @retval 创建成功的任务句柄</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHandle_t <span class="title function_">xTaskCreateStatic</span><span class="params">(TaskFunction_t pvTaskCode,</span></span><br><span class="line"><span class="params">							   <span class="type">const</span> <span class="type">char</span> * <span class="type">const</span> pcName,</span></span><br><span class="line"><span class="params">							   <span class="type">uint32_t</span> ulStackDepth,</span></span><br><span class="line"><span class="params">							   <span class="type">void</span> *pvParameters,</span></span><br><span class="line"><span class="params">							   UBaseType_t uxPriority,</span></span><br><span class="line"><span class="params">							   StackType_t * <span class="type">const</span> puxStackBuffer,</span></span><br><span class="line"><span class="params">							   StaticTask_t * <span class="type">const</span> pxTaskBuffer)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>上述两个任务创建函数有如下几点不同，之后如无特殊需要将一律使用动态分配内存的方式创建任务或其他实例</p>
+<ul>
+<li><code>xTaskCreateStatic</code> 创建任务时需要用户指定任务栈空间数组和任务控制块的存储空间，而 <code>xTaskCreate</code> 创建任务其存储空间被动态分配，无需用户指定</li>
+<li><code>xTaskCreateStatic</code> 创建任务函数的返回值为成功创建的任务句柄，而 <code>xTaskCreate</code> 成功创建任务的句柄需要以参数形式提前定义并指定，同时其函数返回值仅表示任务创建成功&#x2F;失败</li>
+</ul>
+<p>参数说明：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pvTaskCode</code></td>
+<td>函数指针，可以简单地认为任务就是一个 C 函数。<br>它稍微特殊一点：永远不退出，或者退出时要调用”vTaskDelete(NULL)”</td>
+</tr>
+<tr>
+<td><code>pcName</code></td>
+<td>任务的名字，FreeRTOS 内部不使用它，仅仅起调试作用。<br>长度为：configMAX_TASK_NAME_LEN</td>
+</tr>
+<tr>
+<td><code>usStackDepth</code></td>
+<td>每个任务都有自己的栈，这里指定栈大小。<br>单位是 word，比如传入 100，表示栈大小为 100 word，也就是 400 字节。<br>最大值为 uint16_t 的最大值。<br>怎么确定栈的大小，并不容易，很多时候是估计。<br>精确的办法是看反汇编码。</td>
+</tr>
+<tr>
+<td><code>pvParameters</code></td>
+<td>调用 pvTaskCode 函数指针时用到：pvTaskCode(pvParameters)</td>
+</tr>
+<tr>
+<td><code>uxPriority</code></td>
+<td>优先级范围：0~(configMAX_PRIORITIES – 1)<br>数值越小优先级越低，<br>如果传入过大的值，xTaskCreate 会把它调整为(configMAX_PRIORITIES – 1)</td>
+</tr>
+<tr>
+<td><code>pxCreatedTask</code></td>
+<td>用来保存 xTaskCreate 的输出结果：task handle。<br>以后如果想操作这个任务，比如修改它的优先级，就需要这个 handle。<br>如果不想使用该 handle，可以传入 NULL。</td>
+</tr>
+<tr>
+<td><code>返回值</code></td>
+<td>成功：pdPASS；<br>失败：errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY(失败原因只有内存不足)<br>注意：文档里都说失败时返回值是 pdFAIL，这不对。<br>pdFAIL 是 0，errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY 是-1。</td>
+</tr>
+</tbody></table>
+<h2 id="3、任务的删除"><a href="#3、任务的删除" class="headerlink" title="3、任务的删除"></a>3、任务的删除</h2><p>删除任务时使用的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vTaskDelete</span><span class="params">(TaskHandle_t xTaskToDelete)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pvTaskCode</code></td>
+<td>任务句柄，使用 xTaskCreate 创建任务时可以得到一个句柄。<br>也可传入 NULL，这表示删除自己。</td>
+</tr>
+</tbody></table>
+<p>例：</p>
+<ul>
+<li>自杀：vTaskDelete(NULL)</li>
+<li>被杀：别的任务执行 vTaskDelete(pvTaskCode) ，pvTaskCode 是自己的句柄</li>
+<li>杀人：执行 vTaskDelete(pvTaskCode) ，pvTaskCode 是别的任务的句柄</li>
+</ul>
+<h1 id="二、任务优先级和-Tick"><a href="#二、任务优先级和-Tick" class="headerlink" title="二、任务优先级和 Tick"></a>二、任务优先级和 Tick</h1><h2 id="1、任务优先级"><a href="#1、任务优先级" class="headerlink" title="1、任务优先级"></a>1、任务优先级</h2><p>高优先级的任务先运行。优先级的取值范围是：<code>0~(configMAX_PRIORITIES – 1)</code>，&#x3D;&#x3D;数值越大优先级越高&#x3D;&#x3D;。</p>
+<p>FreeRTOS 的调度器可以使用 2 种方法来快速找出优先级最高的、可以运行的任务。使用不同的方法时，<code>configMAX_PRIORITIES</code> 的取值有所不同。</p>
+<ol>
+<li>通用方法<ul>
+<li>使用 C 函数实现，对所有的架构都是同样的代码。对 <code>configMAX_PRIORITIES</code> 的取值没有限制。但是 <code>configMAX_PRIORITIES</code> 的取值还是尽量小，因为取值越大越浪费内存，也浪费时间。</li>
+<li><code>configUSE_PORT_OPTIMISED_TASK_SELECTION</code> 被定义为 0、或者未定义时，使用此方法。</li>
+</ul>
+</li>
+<li>架构相关的优化的方法<ul>
+<li>架构相关的汇编指令，可以从一个 32 位的数里快速地找出为 1 的最高位。使用这些指令，可以快速找出优先级最高的、可以运行的任务。</li>
+<li>使用这种方法时，<code>configMAX_PRIORITIES</code> 的取值不能超过 32。</li>
+<li><code>configUSE_PORT_OPTIMISED_TASK_SELECTION</code> 被定义为 1 时，使用此方法。</li>
+</ul>
+</li>
+</ol>
+<p>总而言之：</p>
+<ul>
+<li>FreeRTOS 会确保最高优先级的、可运行的任务，马上就能执行</li>
+<li>对于相同优先级的、可运行的任务，轮流执行</li>
+</ul>
+<h2 id="2、Tick"><a href="#2、Tick" class="headerlink" title="2、Tick"></a>2、Tick</h2><p>FreeRTOS 中也有心跳，它使用定时器产生固定间隔的中断。这叫 Tick、滴答，比如每 10ms 发生一次时钟中断。</p>
+<p>如下图：假设 t1、t2、t3 发生时钟中断，两次中断之间的时间被称为时间片(time slice、tick period)。时间片的长度由 <code>configTICK_RATE_HZ</code> 决定，假设 <code>configTICK_RATE_HZ</code> 为 100，那么时间片长度就是 10ms。</p>
+<p><img src="1.png"></p>
+<p>相同优先级的任务怎么切换呢？请看下图：</p>
+<p>任务 2 从 t1 执行到 t2，在 t2 发生 tick 中断，进入 tick 中断处理函数：选择下一个要运行的任务。执行完中断处理函数后，切换到新的任务：任务 1。任务 1 从 t2 执行到 t3，从图中可以看出，任务运行的时间并不是严格从 t1,t2,t3 哪里开始。</p>
+<p><img src="2.png"></p>
+<p>有了 Tick 的概念后，我们就可以使用 Tick 来衡量时间了，比如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vTaskDelay(<span class="number">2</span>); <span class="comment">// 等待2个Tick，假设configTICK_RATE_HZ=100, Tick周期时10ms, 等待20ms</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 还可以使用pdMS_TO_TICKS宏把ms转换为tick</span></span><br><span class="line">vTaskDelay(pdMS_TO_TICKS(<span class="number">100</span>)); <span class="comment">// 等待100ms</span></span><br></pre></td></tr></table></figure>
+
+<p>注意，基于 Tick 实现的延时并不精确，比如 vTaskDelay(2) 的本意是延迟 2 个 Tick 周期，有可能经过 1 个 Tick 多一点就返回了。如下图：</p>
+<p><img src="3.png"></p>
+<blockquote>
+<p>使用 vTaskDelay 函数时，建议以 ms 为单位，使用 pdMS_TO_TICKS 把时间转换为 Tick。<br>这样的代码就与 <code>configTICK_RATE_HZ</code> 无关，即使配置项 <code>configTICK_RATE_HZ</code> 改变了，我们也不用去修改代码。</p>
+</blockquote>
+<h2 id="3、-修改优先级"><a href="#3、-修改优先级" class="headerlink" title="3、 修改优先级"></a>3、 修改优先级</h2><p>我们使用 <code>uxTaskPriorityGet</code> 来获得任务的优先级：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UBaseType_t <span class="title function_">uxTaskPriorityGet</span><span class="params">( <span class="type">const</span> TaskHandle_t xTask )</span>;</span><br></pre></td></tr></table></figure>
+
+<p>使用参数 xTask 来指定任务，设置为 NULL 表示获取自己的优先级。</p>
+<p>通过使用 <code>vTaskPrioritySet</code> 来设置任务的优先级：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vTaskPrioritySet</span><span class="params">( TaskHandle_t xTask,</span></span><br><span class="line"><span class="params">					   UBaseType_t uxNewPriority )</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用参数 xTask 来指定任务，设置为 NULL 表示设置自己的优先级；</li>
+<li>参数 uxNewPriority 表示新的优先级，取值范围是 0~(configMAX_PRIORITIES – 1)。</li>
+</ul>
+<h1 id="三、任务状态"><a href="#三、任务状态" class="headerlink" title="三、任务状态"></a>三、任务状态</h1><h2 id="1、阻塞状态-Blocked"><a href="#1、阻塞状态-Blocked" class="headerlink" title="1、阻塞状态(Blocked)"></a>1、阻塞状态(Blocked)</h2><p>在实际产品中，我们不会让一个任务一直运行，而是使用”事件驱动”的方法让它运行：</p>
+<ul>
+<li>任务要等待某个事件，事件发生后它才能运行</li>
+<li>在等待事件过程中，它不消耗 CPU 资源</li>
+<li>在等待事件的过程中，这个任务就处于阻塞状态（<em><strong>Blocked</strong></em>）</li>
+</ul>
+<p>在阻塞状态的任务，它可以等待两种类型的事件：</p>
+<ul>
+<li>时间相关的事件<ul>
+<li>可以等待一段时间：我等 2 分钟</li>
+<li>也可以一直等待，直到某个绝对时间：我等到下午 3 点</li>
+</ul>
+</li>
+<li>同步事件：这事件由别的任务，或者是中断程序产生<ul>
+<li>例子 1：任务 A 等待任务 B 给它发送数据</li>
+<li>例子 2：任务 A 等待用户按下按键</li>
+<li>同步事件的来源有很多(这些概念在后面会细讲)：<ul>
+<li>队列(queue)</li>
+<li>二进制信号量(binary semaphores)</li>
+<li>计数信号量(counting semaphores)</li>
+<li>互斥量(mutexes)</li>
+<li>递归互斥量、递归锁(recursive mutexes)</li>
+<li>事件组(event groups)</li>
+<li>任务通知(task notifications)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>在等待一个同步事件时，可以加上超时时间。比如等待队里数据，超时时间设为 10ms：</p>
+<ul>
+<li>10ms 之内有数据到来：成功返回</li>
+<li>10ms 到了，还是没有数据：超时返回</li>
+</ul>
+<h2 id="2、暂停状态-Suspended"><a href="#2、暂停状态-Suspended" class="headerlink" title="2、暂停状态(Suspended)"></a>2、暂停状态(Suspended)</h2><p>FreeRTOS 中的任务也可以进入暂停状态，唯一的方法是通过 vTaskSuspend 函数。函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vTaskSuspend</span><span class="params">( TaskHandle_t xTaskToSuspend )</span>;</span><br></pre></td></tr></table></figure>
+
+<p>参数 xTaskToSuspend 表示要暂停的任务，如果为 NULL，表示暂停自己。</p>
+<p>要退出暂停状态，只能由别人来操作：</p>
+<ul>
+<li>别的任务调用：vTaskResume</li>
+<li>中断程序调用：xTaskResumeFromISR</li>
+</ul>
+<p>实际开发中，暂停状态用得不多。</p>
+<h2 id="3、就绪状态-Ready"><a href="#3、就绪状态-Ready" class="headerlink" title="3、就绪状态(Ready)"></a>3、就绪状态(Ready)</h2><p>这个任务完全准备好了，随时可以运行：只是还轮不到它。这时，它就处于就绪态（<em><strong>Ready</strong></em>）。</p>
+<h2 id="4、状态转换"><a href="#4、状态转换" class="headerlink" title="4、状态转换"></a>4、状态转换</h2><p><img src="4.png"></p>
+<ul>
+<li><strong>创建任务–&gt;就绪态</strong>：任务创建完成后进入就绪态，表明任务已准备就绪，随时可以运行，只等待调度器进行调度。</li>
+<li>就绪态→运行态：发生任务切换时，就绪列表中最高优先级的任务被执行，从而进入运态。</li>
+<li><strong>运行态–&gt;就绪态</strong>：有更高优先级任务创建或者恢复后，在滴答中断会发生任务调度，此刻最高优先级任务变为运行态，那么原先运行的任务由运行态变为就绪态，依然在就绪列表中，等待最高优先级的任务运行完毕继续运行原来的任务（此处可以看做是 CPU 使用权被更高优先级的任务抢占了）。</li>
+<li><strong>运行态–&gt;阻塞态</strong>：正在运行的任务发生阻塞（挂起、延时、读信号量等待）时，该任务会从就绪列表中删除，任务状态由运行态变成阻塞态，然后发生任务切换，运行就绪列表中当前最高优先级任务。</li>
+<li><strong>阻塞态–&gt;就绪态</strong>：阻塞的任务被恢复后（任务恢复、延时时间超时、读信号量超时或读到信号量等），此时被恢复的任务会被加入就绪列表，从而由阻塞态变成就绪态；如果此时被恢复任务的优先级高于正在运行任务的优先级，则会发生任务切换，将该任务将再次转换任务状态，由就绪态变成运行态。</li>
+<li><strong>就绪态–&gt;挂起态</strong>：任务可以通过调用 <code>vTaskSuspend()</code> 函数可以将处于就绪态的任务挂起，被挂起的任务得不到CPU 的使用权，也不会参与调度，除非它从挂起态中解除。</li>
+<li><strong>阻塞态–&gt;挂起态</strong>：同样，任务可以通过调用 <code>vTaskSuspend()</code> 函数将处于阻塞态的任务挂起。</li>
+<li><strong>运行态–&gt;挂起态</strong>：同样，任务可以通过调用 <code>vTaskSuspend()</code> 函数将处于运行态的任务挂起。总之，不管当前任务处于何种状态，调用 <code>vTaskSuspend()</code> 后都会将任务挂起。</li>
+<li><strong>挂起态–&gt;就绪态</strong>：把 一 个 挂 起 状态 的 任 务 恢复的 唯 一 途 径 就 是调 用 <code>vTaskResume()</code> 或 <code>vTaskResumeFromISR()</code>  函数，如果此时被恢复任务的优先级高于正在运行任务的优先级，则会发生任务切换，将该任务将再次转换任务状态，由就绪态变成运行态。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  查询一个任务当前处于什么状态</span></span><br><span class="line"><span class="comment">  * @param  pxTask：要查询任务状态的任务句柄，NULL查询自己</span></span><br><span class="line"><span class="comment">  * @retval 任务状态的枚举类型</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">eTaskState <span class="title function_">eTaskGetState</span><span class="params">(TaskHandle_t pxTask)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/*任务状态枚举类型返回值*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	eRunning = <span class="number">0</span>,	<span class="comment">/* 任务正在查询自身的状态，因此肯定是运行状态 */</span></span><br><span class="line">	eReady,			<span class="comment">/* 就绪状态 */</span></span><br><span class="line">	eBlocked,		<span class="comment">/* 阻塞状态 */</span></span><br><span class="line">	eSuspended,		<span class="comment">/* 挂起状态 */</span></span><br><span class="line">	eDeleted,		<span class="comment">/* 正在查询的任务已被删除，但其 TCB 尚未释放 */</span></span><br><span class="line">	eInvalid		<span class="comment">/* 无效状态 */</span></span><br><span class="line">&#125; eTaskState;</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  挂起某个任务</span></span><br><span class="line"><span class="comment">  * @param  pxTaskToSuspend：被挂起的任务的句柄，通过传入NULL来挂起自身</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskSuspend</span><span class="params">(TaskHandle_t pxTaskToSuspend)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  将某个任务从挂起状态恢复</span></span><br><span class="line"><span class="comment">  * @param  pxTaskToResume：正在恢复的任务的句柄</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskResume</span><span class="params">(TaskHandle_t pxTaskToResume)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  vTaskResume的中断安全版本</span></span><br><span class="line"><span class="comment">  * @param  pxTaskToResume：正在恢复的任务的句柄</span></span><br><span class="line"><span class="comment">  * @retval 返回退出中断之前是否需要进行上下文切换(pdTRUE/pdFALSE)</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">BaseType_t <span class="title function_">xTaskResumeFromISR</span><span class="params">(TaskHandle_t pxTaskToResume)</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、Delay-函数"><a href="#四、Delay-函数" class="headerlink" title="四、Delay 函数"></a>四、Delay 函数</h1><p>这里有两个 <code>Delay</code> 函数：</p>
+<ul>
+<li><code>vTaskDelay</code>：至少等待指定个数的 Tick Interrupt 才能变为就绪状态</li>
+<li><code>vTaskDelayUntil</code>：等待到指定的绝对时刻，才能变为就绪态。</li>
+</ul>
+<p>这 2 个函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vTaskDelay</span><span class="params">( <span class="type">const</span> TickType_t xTicksToDelay )</span>; <span class="comment">/* xTicksToDelay: 等待多少个</span></span><br><span class="line"><span class="comment">Tick */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* pxPreviousWakeTime: 上一次被唤醒的时间</span></span><br><span class="line"><span class="comment"> * xTimeIncrement: 要阻塞到(pxPreviousWakeTime + xTimeIncrement)</span></span><br><span class="line"><span class="comment"> * 单位都是Tick Count</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">BaseType_t <span class="title function_">xTaskDelayUntil</span><span class="params">( TickType_t * <span class="type">const</span> pxPreviousWakeTime,</span></span><br><span class="line"><span class="params">							<span class="type">const</span> TickType_t xTimeIncrement )</span>;</span><br></pre></td></tr></table></figure>
+
+<p>下面画图说明：</p>
+<ul>
+<li>使用 <code>vTaskDelay(n)</code> 时，进入、退出 <code>vTaskDelay</code> 的时间间隔至少是 n 个 Tick 中断</li>
+<li>使用 <code>xTaskDelayUntil(&amp;Pre, n)</code> 时，前后两次退出 <code>xTaskDelayUntil</code> 的时间至少是 n 个 Tick 中断<ul>
+<li>退出 <code>xTaskDelayUntil</code> 时任务就进入的就绪状态，一般都能得到执行机会</li>
+<li>所以可以使用 <code>xTaskDelayUntil</code> 来让任务周期性地运行</li>
+</ul>
+</li>
+</ul>
+<p><img src="5.png"></p>
+<h1 id="五、空闲任务及其钩子函数"><a href="#五、空闲任务及其钩子函数" class="headerlink" title="五、空闲任务及其钩子函数"></a>五、空闲任务及其钩子函数</h1><h2 id="1、介绍"><a href="#1、介绍" class="headerlink" title="1、介绍"></a>1、介绍</h2><p>一个良好的程序，它的任务都是事件驱动的：平时大部分时间处于阻塞状态。有可能我们自己创建的所有任务都无法执行，但是调度器必须能找到一个可以运行的任务：所以，我们要提供空闲任务。在使用 <code>vTaskStartScheduler()</code> 函数来创建、启动调度器时，这个函数内部会创建空闲任务：</p>
+<ul>
+<li>空闲任务优先级为 0：它不能阻碍用户任务运行</li>
+<li>空闲任务要么处于就绪态，要么处于运行态，永远不会阻塞</li>
+</ul>
+<p>空闲任务的优先级为 0，这以为着一旦某个用户的任务变为就绪态，那么空闲任务马上被切换出去，让这个用户任务运行。在这种情况下，我们说用户任务”抢占”(pre-empt)了空闲任务，这是由调度器实现的。</p>
+<p>要注意的是：如果使用 <code>vTaskDelete()</code> 来删除任务，那么你就要&#x3D;&#x3D;确保空闲任务有机会执行&#x3D;&#x3D;，否则就无法释放被删除任务的内存。</p>
+<p>我们可以添加一个空闲任务的钩子函数(Idle Task Hook Functions)，空闲任务的循环没执行一次，就会调用一次钩子函数。钩子函数的作用有这些：</p>
+<ul>
+<li>执行一些低优先级的、后台的、需要连续执行的函数</li>
+<li>测量系统的空闲时间：空闲任务能被执行就意味着所有的高优先级任务都停止了，所以测量空闲任务占据的时间，就可以算出处理器占用率。</li>
+<li>让系统进入省电模式：空闲任务能被执行就意味着没有重要的事情要做，当然可以进入省电模式了。</li>
+</ul>
+<p>空闲任务的钩子函数的限制：</p>
+<ul>
+<li>不能导致空闲任务进入阻塞状态、暂停状态</li>
+<li>如果你会使用 <code>vTaskDelete()</code> 来删除任务，那么钩子函数要非常高效地执行。如果空闲任务移植卡在钩子函数里的话，它就无法释放内存。</li>
+</ul>
+<h2 id="2、使用钩子函数的前提"><a href="#2、使用钩子函数的前提" class="headerlink" title="2、使用钩子函数的前提"></a>2、使用钩子函数的前提</h2><p>在 task.c 文件中：</p>
+<ol>
+<li>把这个宏定义为 1：<code>configUSE_IDLE_HOOK</code></li>
+<li>实现 <code>vApplicationIdleHook</code> 函数</li>
+</ol>
+<p><img src="6.png"></p>
+<h1 id="六、调度算法"><a href="#六、调度算法" class="headerlink" title="六、调度算法"></a>六、调度算法</h1><p>所谓调度算法，就是怎么确定哪个就绪态的任务可以切换为运行状态。</p>
+<p>通过配置文件 <code>FreeRTOSConfig.h</code> 的两个配置项来配置调度算法：<code>configUSE_PREEMPTION</code>、<code>configUSE_TIME_SLICING</code>。</p>
+<p>还有第三个配置项：<code>configUSE_TICKLESS_IDLE</code>，它是一个高级选项，用于关闭 Tick 中断来实现省电。</p>
+<p>调度算法的行为主要体现在两方面：高优先级的任务先运行、同优先级的就绪态任务如何被选中。调度算法要确保同优先级的就绪态任务，能”轮流”运行，策略是”轮转调度”(Round Robin Scheduling)。轮转调度并不保证任务的运行时间是公平分配的，我们还可以细化时间的分配方法。</p>
+<p>从 3 个角度统一理解多种调度算法：</p>
+<ul>
+<li>可否抢占？高优先级的任务能否优先执行(配置项: <code>configUSE_PREEMPTION</code>)<ul>
+<li>可以：被称作”可抢占调度”，高优先级的就绪任务马上执行，下面再细化。</li>
+<li>不可以：不能抢就只能协商了，被称作”合作调度模式”<ul>
+<li>当前任务执行时，更高优先级的任务就绪了也不能马上运行，只能等待当前任务主动让出 CPU 资源。</li>
+<li>其他同优先级的任务也只能等待：更高优先级的任务都不能抢占，平级的更应该老实点</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>可抢占的前提下，同优先级的任务是否轮流执行(配置项：<code>configUSE_TIME_SLICING</code>)<ul>
+<li>轮流执行：被称为”时间片轮转”，同优先级的任务轮流执行，你执行一个时间片、我再执行一个时间片</li>
+<li>不轮流执行：当前任务会一直执行，直到主动放弃、或者被高优先级任务抢占</li>
+</ul>
+</li>
+<li>在”可抢占”+”时间片轮转”的前提下，进一步细化：空闲任务是否让步于用户任务(配置项：<code>configIDLE_SHOULD_YIELD</code>)<ul>
+<li>空闲任务低人一等，每执行一次循环，就看看是否主动让位给用户任务</li>
+<li>空闲任务跟用户任务一样，大家轮流执行，没有谁更特殊</li>
+</ul>
+</li>
+</ul>
+<p>列表如下：</p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>configUSE_PREEMPTION</code></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>configUSE_TIME_SLICING</code></td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>X</td>
+</tr>
+<tr>
+<td><code>configIDLE_SHOULD_YIELD</code></td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>X</td>
+</tr>
+<tr>
+<td><code>说明</code></td>
+<td>常用</td>
+<td>很少用</td>
+<td>很少用</td>
+<td>很少用</td>
+<td>几乎不用</td>
+</tr>
+</tbody></table>
+<p>注：</p>
+<ul>
+<li>A：可抢占+时间片轮转+空闲任务让步</li>
+<li>B：可抢占+时间片轮转+空闲任务不让步</li>
+<li>C：可抢占+非时间片轮转+空闲任务让步</li>
+<li>D：可抢占+非时间片轮转+空闲任务不让步</li>
+<li>E：合作调度</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  启动调度器</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskStartScheduler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  停止调度器</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskEndScheduler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  挂起调度器</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskSuspendAll</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  恢复调度器</span></span><br><span class="line"><span class="comment">  * @retval 返回是否会导致发生挂起的上下文切换(pdTRUE/pdFALSE)</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">BaseType_t <span class="title function_">xTaskResumeAll</span><span class="params">(<span class="type">void</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>除了任务被时间片轮询切换或者高优先级抢占发生切换两种常见的调度方式外，还有其他的调度方式，比如任务自愿让出处理器给其他任务使用等函数，这些函数将在后续 “中断管理” 章节中被详细介绍，这里简单了解即可，如下所述</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  让位于另一项同等优先级的任务</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">taskYIELD</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  ISR 退出时是否执行上下文切换（汇编）</span></span><br><span class="line"><span class="comment">  * @param  xHigherPriorityTaskWoken：pdFASLE不请求上下文切换，反之请求上下文切换</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  ISR 退出时是否执行上下文切换（C语言）</span></span><br><span class="line"><span class="comment">  * @param  xHigherPriorityTaskWoken：pdFASLE不请求上下文切换，反之请求上下文切换</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">portYIELD_FROM_ISR(xHigherPriorityTaskWoken);</span><br></pre></td></tr></table></figure>
+
+<h1 id="七、工具函数"><a href="#七、工具函数" class="headerlink" title="七、工具函数"></a>七、工具函数</h1><p>任务相关的实用工具函数较多，官方网站上一共列出了 23 个 API 函数，这里仅简单介绍一些可能常用的 API 函数：</p>
+<h2 id="1、获取任务信息"><a href="#1、获取任务信息" class="headerlink" title="1、获取任务信息"></a>1、获取任务信息</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取一个任务的信息，需启用参数configUSE_TRACE_FACILITY（默认启用）</span></span><br><span class="line"><span class="comment">  * @param  xTask：需要查询的任务句柄，NULL查询自己</span></span><br><span class="line"><span class="comment">  * @param  pxTaskStatus：用于存储任务状态信息的TaskStatus_t结构体指针</span></span><br><span class="line"><span class="comment">  * @param  xGetFreeStackSpace：是否返回栈空间高水位值</span></span><br><span class="line"><span class="comment">  * @param  eState：指定查询信息时任务的状态，设置为eInvalid将自动获取任务状态</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskGetInfo</span><span class="params">(TaskHandle_t xTask,</span></span><br><span class="line"><span class="params">				  TaskStatus_t *pxTaskStatus,</span></span><br><span class="line"><span class="params">				  BaseType_t xGetFreeStackSpace,</span></span><br><span class="line"><span class="params">				  eTaskState eState)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取当前任务句柄</span></span><br><span class="line"><span class="comment">  * @retval 返回当前任务句柄</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHandle_t <span class="title function_">xTaskGetCurrentTaskHandle</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取任务句柄（运行时间较长，不宜大量使用）</span></span><br><span class="line"><span class="comment">  * @param  pcNameToQuery：要获取任务句柄的任务名称字符串</span></span><br><span class="line"><span class="comment">  * @retval 返回指定查询任务的句柄</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHandle_t <span class="title function_">xTaskGetHandle</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *pcNameToQuery)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取空闲任务句柄</span></span><br><span class="line"><span class="comment">  * @注意：需要设置 INCLUDE_xTaskGetIdleTaskHandle 为1，在CubeMX中不可调，需自行定义</span></span><br><span class="line"><span class="comment">  * @retval 返回空闲任务句柄</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHandle_t <span class="title function_">xTaskGetIdleTaskHandle</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取一个任务的高水位值（任务栈空间最少可用剩余空间大小，单位为字（word））</span></span><br><span class="line"><span class="comment">  * @param  xTask：要获取高水位值任务的句柄，NULL查询自己</span></span><br><span class="line"><span class="comment">  * @retval </span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">UBaseType_t <span class="title function_">uxTaskGetStackHighWaterMark</span><span class="params">(TaskHandle_t xTask)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取一个任务的任务名称字符串</span></span><br><span class="line"><span class="comment">  * @param  xTaskToQuery：要获取名称字符串的任务的句柄，NULL查询自己</span></span><br><span class="line"><span class="comment">  * @retval 返回一个任务的任务名称字符串</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">char</span>* <span class="title function_">pcTaskGetName</span><span class="params">(TaskHandle_t xTaskToQuery)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、获取内核信息"><a href="#2、获取内核信息" class="headerlink" title="2、获取内核信息"></a>2、获取内核信息</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取系统内所有任务状态，为每个任务返回一个TaskStatus_t结构体数组</span></span><br><span class="line"><span class="comment">  * @param  pxTaskStatusArray：数组的指针，数组每个成员都是TaskStatus_t类型，用于存储获取到的信息</span></span><br><span class="line"><span class="comment">  * @param  uxArraySize：设置数组pxTaskStatusArray的成员个数</span></span><br><span class="line"><span class="comment">  * @param  pulTotalRunTime：返回FreeRTOS运行后总的运行时间，NULL表示不返回该数据</span></span><br><span class="line"><span class="comment">  * @retval 返回实际获取的任务信息条数</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">UBaseType_t <span class="title function_">uxTaskGetSystemState</span><span class="params">(TaskStatus_t * <span class="type">const</span> pxTaskStatusArray,</span></span><br><span class="line"><span class="params">								 <span class="type">const</span> UBaseType_t uxArraySize,</span></span><br><span class="line"><span class="params">								 <span class="type">unsigned</span> <span class="type">long</span> * <span class="type">const</span> pulTotalRunTime)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  返回调度器状态</span></span><br><span class="line"><span class="comment">  * @retval 0：被挂起，1：未启动，2：正在运行</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">BaseType_t <span class="title function_">xTaskGetSchedulerState</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取内核当前管理的任务总数</span></span><br><span class="line"><span class="comment">  * @retval 返回内核当前管理的任务总数</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">UBaseType_t <span class="title function_">uxTaskGetNumberOfTasks</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取内核中所有任务的字符串列表信息</span></span><br><span class="line"><span class="comment">  * @param  pcWriteBuffer：字符数组指针，用于存储获取的字符串信息</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskList</span><span class="params">(<span class="type">char</span> *pcWriteBuffer)</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、其他函数"><a href="#3、其他函数" class="headerlink" title="3、其他函数"></a>3、其他函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取一个任务的标签值</span></span><br><span class="line"><span class="comment">  * @param  xTask：要获取任务标签值的任务句柄，NULL表示获取自己的标签值</span></span><br><span class="line"><span class="comment">  * @retval 返回任务的标签值</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHookFunction_t <span class="title function_">xTaskGetApplicationTaskTag</span><span class="params">(TaskHandle_t xTask)</span>; </span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  获取一个任务的标签值的中断安全版本函数</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">TaskHookFunction_t <span class="title function_">xTaskGetApplicationTaskTagFromISR</span><span class="params">(TaskHandle_t xTask)</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * @brief  设置一个任务的标签值，标签值保存在任务控制块中</span></span><br><span class="line"><span class="comment">  * @param  xTask：要设置标签值的任务的句柄，NULL表示设置自己</span></span><br><span class="line"><span class="comment">  * @param  pxTagValue：要设置的标签值</span></span><br><span class="line"><span class="comment">  * @retval None</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vTaskSetApplicationTaskTag</span><span class="params">(TaskHandle_t xTask, </span></span><br><span class="line"><span class="params">								TaskHookFunction_t pxTagValue)</span>;</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/">http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/FreeRTOS/">FreeRTOS</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">FreeRTOS 快速入门（四）之队列</div></div><div class="info-2"><div class="info-item-1">@toc  一、队列的特性1、数据存储一个队列能保存有限数量的固定大小的数据单元。一个队列能保存单元的最大数量叫做 “长度”。每个队列数据单元的长度与大小是在创建队列时设置的。 队列通常是一个先入先出（FIFO）的缓冲区，即数据在队列末尾（tail）被写入，在队列前部（head）移出。下图展示了数据被写入和移出作为 FIFO 使用的队列。也可以写入队列的前端，并覆盖已位于队列前端的数据。  2、传输数据的两种方法使用队列传输数据时有两种方法：  拷贝：把数据、把变量的值复制进队列里 引用：把数据、把变量的地址复制进队列里  FreeRTOS 使用&#x3D;&#x3D;拷贝值&#x3D;&#x3D;的方法，这更简单：  局部变量的值可以发送到队列中，后续即使函数退出、局部变量被回收，也不会影响队列中的数据 无需分配 buffer 来保存数据，队列中有 buffer 局部变量可以马上再次使用 发送任务、接收任务解耦：接收任务不需要知道这数据是谁的、也不需要发送任务来释放数据 如果数据实在太大，你还是可以使用队列传输它的地址 队列的空间有 FreeRTOS 内核分配，无需任务操心  ...</div></div></div></a><a class="pagination-related" href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" title="FreeRTOS 快速入门（二）之内存管理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">FreeRTOS 快速入门（二）之内存管理</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理解为电脑的硬盘。在这一 章中我们主要讨论内部存储空间（RAM）的管理——内存管理。 FreeRTOS 操作系统将内核与内存管理分开实现，操作系统内核仅规定了必要的内存管 理函数原型，而不关心这些内存管理函数是如何实现的，所以在 FreeRTOS 中提供了多种 内存分配算法（分配策略），但是上层接口（API）却是统一的。这样做可以增加系统的 灵活性：用户可以选择对自己更有利的内存管理策略，在不同的应用场合使用不同的内存 分配策略。 如果 FreeRTOS 对象是动态创建的，那么标准 C 库 malloc() 和 free() 函数有时可用于此目的，但是…它们在嵌入式系统上并不总是可用，占用...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/23/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AD/" title="FreeRTOS 快速入门（六）之互斥量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-23</div><div class="info-item-2">FreeRTOS 快速入门（六）之互斥量</div></div><div class="info-2"><div class="info-item-1">[toc]  一、互斥量1、基本概念互斥量又称互斥信号量（本质是信号量），是&#x3D;&#x3D;一种特殊的二值信号量&#x3D;&#x3D;，它和信号量不同的是，它支持互斥量所有权、递归访问以及防止优先级翻转的特性，用于实现对临界资源的独占式处理。 任意时刻互斥量的状态只有两种，开锁或闭锁。当互斥量被任务持有时，该互斥量处于闭锁状态，这个任务获得互斥量的所有权。当该任务释放这个互斥量时，该互斥量处于开锁状态，任务失去该互斥量的所有权。当一个任务持有互斥量时，其他任务将不能再对该互斥量进行开锁或持有。持有该互斥量的任务也能够再次获得这个锁而不被挂起，这就是递归访问，也就是递归互斥量的特性，这个特性与一般的信号量有很大的不同，在信号量中，由于已经不存在可用的信号量，任务递归获取信号量时会发生主动挂起任务最终形成死锁。 如果想要用于实现同步（任务之间或者任务与中断之间），二值信号量或许是更好的选择，虽然互斥量也可以用于任务与任务、任务与中断的同步，但是互斥量更多的是用于保护资源的互锁。 互斥锁可以被视为一个与正在共享的资源相关联的令牌，对于合法访问资源的任务，它必须首先成功 “获取...</div></div></div></a><a class="pagination-related" href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" title="FreeRTOS 快速入门（二）之内存管理"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-19</div><div class="info-item-2">FreeRTOS 快速入门（二）之内存管理</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理解为电脑的硬盘。在这一 章中我们主要讨论内部存储空间（RAM）的管理——内存管理。 FreeRTOS 操作系统将内核与内存管理分开实现，操作系统内核仅规定了必要的内存管 理函数原型，而不关心这些内存管理函数是如何实现的，所以在 FreeRTOS 中提供了多种 内存分配算法（分配策略），但是上层接口（API）却是统一的。这样做可以增加系统的 灵活性：用户可以选择对自己更有利的内存管理策略，在不同的应用场合使用不同的内存 分配策略。 如果 FreeRTOS 对象是动态创建的，那么标准 C 库 malloc() 和 free() 函数有时可用于此目的，但是…它们在嵌入式系统上并不总是可用，占用...</div></div></div></a><a class="pagination-related" href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-21</div><div class="info-item-2">FreeRTOS 快速入门（四）之队列</div></div><div class="info-2"><div class="info-item-1">@toc  一、队列的特性1、数据存储一个队列能保存有限数量的固定大小的数据单元。一个队列能保存单元的最大数量叫做 “长度”。每个队列数据单元的长度与大小是在创建队列时设置的。 队列通常是一个先入先出（FIFO）的缓冲区，即数据在队列末尾（tail）被写入，在队列前部（head）移出。下图展示了数据被写入和移出作为 FIFO 使用的队列。也可以写入队列的前端，并覆盖已位于队列前端的数据。  2、传输数据的两种方法使用队列传输数据时有两种方法：  拷贝：把数据、把变量的值复制进队列里 引用：把数据、把变量的地址复制进队列里  FreeRTOS 使用&#x3D;&#x3D;拷贝值&#x3D;&#x3D;的方法，这更简单：  局部变量的值可以发送到队列中，后续即使函数退出、局部变量被回收，也不会影响队列中的数据 无需分配 buffer 来保存数据，队列中有 buffer 局部变量可以马上再次使用 发送任务、接收任务解耦：接收任务不需要知道这数据是谁的、也不需要发送任务来释放数据 如果数据实在太大，你还是可以使用队列传输它的地址 队列的空间有 FreeRTOS 内核分配，无需任务操心  ...</div></div></div></a><a class="pagination-related" href="/2024/09/28/FreeRTOS-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS 内存管理源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-28</div><div class="info-item-2">FreeRTOS 内存管理源码解析</div></div><div class="info-2"><div class="info-item-1">[toc]  FreeRTOS 提供了 5 种不同的内存管理策略以应对不同的应用场景，本章将对这 5 种不同的内存管理策略的实现进行分析。  我参考的源码是：FreeRTOS-Kernel-10.4.3-LTS-Patch-3\portable\MemMang，该路径下记录了 heap_1.c、heap_2.c、heap_3.c、heap_4.c、heap_5.c，讲解会从这 5 个文件的源码入手。  一、heap_11、源码讲解首先，FreeRTOS 将堆定义为一个大数组，并使用变量 xNextFreeByte 记录已用内存大小。 1234567/* 字节对齐堆起始地址可能会丢失几个字节 */#define configADJUSTED_HEAP_SIZE    ( configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT )static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];/* Index into the ucHeap array. */static size_t xNextFreeByte = ( s...</div></div></div></a><a class="pagination-related" href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" title="FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-18</div><div class="info-item-2">FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则</div></div><div class="info-2"><div class="info-item-1">[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port 表示接口的意思，就是 FreeRTOS 要移植到这些处理器上需要这些接口文件来把它们连接在一起。 在 FreeRTOS 中，&#x3D;&#x3D;int 型从不使用，只使用 short 和 long 型&#x3D;&#x3D;。在 Cortex-M 内核的 MCU 中，short 为 16 位，long 为 32 位。 在 portmacro.h 文件中，有如下定义： 1234567891011121314151617181920/* Type definitions. */    #define portCHAR          char    #define portFLOAT ...</div></div></div></a><a class="pagination-related" href="/2024/08/24/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%83/" title="FreeRTOS 快速入门（七）之事件组"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-24</div><div class="info-item-2">FreeRTOS 快速入门（七）之事件组</div></div><div class="info-2"><div class="info-item-1">@toc  一、事件组的概念事件组可以简单地认为就是一个整数：  每一位表示一个事件 每一位事件的含义由程序员决定，比如：Bit0 表示用来串口是否就绪，Bit1 表示按键是否被按下。这些位，值为 1 表示事件发生了，值为 0 表示事件没发生 一个或多个任务、ISR 都可以去写这些位；一个或多个任务、ISR 都可以去读这些位 可以等待某一位、某些位中的任意一个，也可以等待多位   事件组用一个整数来表示，其中的高 8 位留给内核使用，只能用其他的位来表示事件。这个整数的位数由宏 configUSE_16_BIT_TICKS 决定：  如果 configUSE_16_BIT_TICKS 是 1，那么这个整数就是 16 位的，低 8 位用来表示事件 如果 configUSE_16_BIT_TICKS 是 0，那么这个整数就是 32 位的，低 24 位用来表示事件  configUSE_16_BIT_TICKS 是用来表示 Tick Count 的，怎么会影响事件组？这只是基于效率来考虑  如果 configUSE_16_BIT_TICKS 是 1，就表示该处理器使用 16 位更高效，...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%BB%E5%8A%A1%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%88%A0%E9%99%A4"><span class="toc-number">1.</span> <span class="toc-text">一、任务创建与删除</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%BB%E5%8A%A1"><span class="toc-number">1.1.</span> <span class="toc-text">1、什么是任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%9B%E5%BB%BA%E4%BB%BB%E5%8A%A1"><span class="toc-number">1.2.</span> <span class="toc-text">2、创建任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%88%A0%E9%99%A4"><span class="toc-number">1.3.</span> <span class="toc-text">3、任务的删除</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BB%BB%E5%8A%A1%E4%BC%98%E5%85%88%E7%BA%A7%E5%92%8C-Tick"><span class="toc-number">2.</span> <span class="toc-text">二、任务优先级和 Tick</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BB%BB%E5%8A%A1%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-number">2.1.</span> <span class="toc-text">1、任务优先级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Tick"><span class="toc-number">2.2.</span> <span class="toc-text">2、Tick</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81-%E4%BF%AE%E6%94%B9%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-number">2.3.</span> <span class="toc-text">3、 修改优先级</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%BB%E5%8A%A1%E7%8A%B6%E6%80%81"><span class="toc-number">3.</span> <span class="toc-text">三、任务状态</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%98%BB%E5%A1%9E%E7%8A%B6%E6%80%81-Blocked"><span class="toc-number">3.1.</span> <span class="toc-text">1、阻塞状态(Blocked)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%9A%82%E5%81%9C%E7%8A%B6%E6%80%81-Suspended"><span class="toc-number">3.2.</span> <span class="toc-text">2、暂停状态(Suspended)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%B0%B1%E7%BB%AA%E7%8A%B6%E6%80%81-Ready"><span class="toc-number">3.3.</span> <span class="toc-text">3、就绪状态(Ready)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2"><span class="toc-number">3.4.</span> <span class="toc-text">4、状态转换</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Delay-%E5%87%BD%E6%95%B0"><span class="toc-number">4.</span> <span class="toc-text">四、Delay 函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%A9%BA%E9%97%B2%E4%BB%BB%E5%8A%A1%E5%8F%8A%E5%85%B6%E9%92%A9%E5%AD%90%E5%87%BD%E6%95%B0"><span class="toc-number">5.</span> <span class="toc-text">五、空闲任务及其钩子函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="toc-number">5.1.</span> <span class="toc-text">1、介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%BD%BF%E7%94%A8%E9%92%A9%E5%AD%90%E5%87%BD%E6%95%B0%E7%9A%84%E5%89%8D%E6%8F%90"><span class="toc-number">5.2.</span> <span class="toc-text">2、使用钩子函数的前提</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">6.</span> <span class="toc-text">六、调度算法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0"><span class="toc-number">7.</span> <span class="toc-text">七、工具函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%8E%B7%E5%8F%96%E4%BB%BB%E5%8A%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">7.1.</span> <span class="toc-text">1、获取任务信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%8E%B7%E5%8F%96%E5%86%85%E6%A0%B8%E4%BF%A1%E6%81%AF"><span class="toc-number">7.2.</span> <span class="toc-text">2、获取内核信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%85%B6%E4%BB%96%E5%87%BD%E6%95%B0"><span class="toc-number">7.3.</span> <span class="toc-text">3、其他函数</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

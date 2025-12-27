@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ESP32-IDF 在 Ubuntu 下的配置 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。 一、安装准备参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev lib">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ESP32-IDF 在 Ubuntu 下的配置">
+<meta property="og:url" content="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。 一、安装准备参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev lib">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-08-23T12:29:54.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:42:28.124Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="ESP32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ESP32-IDF 在 Ubuntu 下的配置",
+  "url": "http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-08-23T12:29:54.000Z",
+  "dateModified": "2024-11-14T00:42:28.124Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ESP32-IDF 在 Ubuntu 下的配置',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">ESP32-IDF 在 Ubuntu 下的配置</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">ESP32-IDF 在 Ubuntu 下的配置</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-23T12:29:54.000Z" title="发表于 2024-08-23 20:29:54">2024-08-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T00:42:28.124Z" title="更新于 2024-11-14 08:42:28">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/">ESP32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+<hr>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://docs.espressif.com/projects/esp-idf/zh_CN/stable/esp32/get-started/linux-macos-setup.html">官方文档：Linux 和 macOS 平台工具链的标准设置</a>。</p>
+<h1 id="一、安装准备"><a href="#一、安装准备" class="headerlink" title="一、安装准备"></a>一、安装准备</h1><p>参照官方文档，首先下载编译 <code>ESP-IDF</code> 所需要的软件包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、获取-ESP-IDF"><a href="#二、获取-ESP-IDF" class="headerlink" title="二、获取 ESP-IDF"></a>二、获取 ESP-IDF</h1><p>首先创建一个目录用来作为 esp32 的工作目录：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~$ mkdir esp32_idf</span><br><span class="line">[projectsauron]:~$ cd esp32_idf/</span><br></pre></td></tr></table></figure>
+
+<p>为了解决国内开发者从 Github 克隆 esp 相关仓库慢的问题，官方已将 esp-idf 和部分重要仓库及其关联的子模块镜像到了 jihu，这些仓库将自动从原始仓库进行同步。</p>
+<p>所以先获取官方的工具：（相关信息见 <a target="_blank" rel="noopener" href="https://gitee.com/EspressifSystems/esp-gitee-tools">乐鑫开源&#x2F;esp-gitee-tools</a>）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ git clone https://gitee.com/EspressifSystems/esp-gitee-tools.git</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令即可使用镜像的 URL：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ . ./esp-gitee-tools/jihu-mirror.sh set </span><br></pre></td></tr></table></figure>
+
+<p>然后就可以克隆远程仓库了：（经过上面的设置后，很快就可以下好了）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、设置工具"><a href="#三、设置工具" class="headerlink" title="三、设置工具"></a>三、设置工具</h1><p>首先，如果 python 没有换国内源的话，下载速度会非常慢，而且很容易下载失败，所以先给 pip 换国内源：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip config <span class="built_in">set</span> <span class="keyword">global</span>.index-url http://mirrors.aliyun.com/pypi/simple</span><br><span class="line">pip config <span class="built_in">set</span> <span class="keyword">global</span>.trusted-host mirrors.aliyun.com</span><br></pre></td></tr></table></figure>
+
+<p>除了 <code>ESP-IDF</code> 本身，还需要为支持 ESP32 的项目安装 <code>ESP-IDF</code> 使用的各种工具，比如编译器、调试器、Python 包等。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ cd ~/esp/esp-idf</span><br><span class="line">[projectsauron]:~/esp32_idf/esp-idf$ ./install.sh espc3</span><br></pre></td></tr></table></figure>
+
+<p>注意，<code>./install.sh espc3</code> 后面跟的参数是你所要开发的 ESP32 的芯片型号；当然一次性也可以定多个目标，比如：<code>./install.sh esp32,esp32s2</code>；如果需要一次性为所有支持的目标芯片安装工具，可以运行如下命令：<code>./install.sh all</code>。</p>
+<blockquote>
+<p>可选的芯片如下：<code>esp32     esp32s2   esp32c3   esp32s3   esp32c2   esp32c6   esp32h2   esp32p4   esp32c5   esp32c61</code></p>
+</blockquote>
+<p>如果途中发送了错误，就执行如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf ~/.espressif/</span><br></pre></td></tr></table></figure>
+
+<p>然后再重新执行上面的下载脚本即可。</p>
+<p>下载完后，最终显示如下：</p>
+<p><img src="1.png"></p>
+<p> 注意，在每次刚打开终端是，先执行如下命令才能就行编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf/esp-idf$ . ./export.sh</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、使用案例"><a href="#四、使用案例" class="headerlink" title="四、使用案例"></a>四、使用案例</h1><p>我这里先直接使用官方的例程进行编译运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ cp -r ./esp-idf/examples/get-started/hello_world/ .</span><br><span class="line">[projectsauron]:~/esp32_idf$ cd hello_world/</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意，编译时要在对应的目录里进行</p>
+</blockquote>
+<p>首先要选择目标芯片（选择自己的芯片型号）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf/hello_world$ idf.py set-target esp32c3</span><br></pre></td></tr></table></figure>
+
+<p>然后运行工程配置工具 menuconfig：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf/hello_world$ idf.py menuconfig</span><br></pre></td></tr></table></figure>
+
+<p>大家根据自己的芯片信号进行配置，配置界面如下：</p>
+<p><img src="2.png"></p>
+<blockquote>
+<p>按下 J、K 键分别是向下、向上移动，H 键是返回键，L 键或空格键是选中。</p>
+</blockquote>
+<p>我的设备是 ESP32-C3，这里改一个配置就可以了：进入 <code>Serial flasher config -&gt; Flash size(2MB)</code>：</p>
+<p><img src="3.png"><br>将光标移到 4 MB，按下空格即可。</p>
+<p>然后按 S 键保存，再按下 ESC 键或 q 键即可退出。</p>
+<p>现在就配置完成，可以进行编译了，运行如下命令可以编译应用程序和所有 ESP-IDF 组件，接着生成引导加载程序、分区表和应用程序二进制文件。：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf/hello_world$ idf.py build</span><br></pre></td></tr></table></figure>
+
+<p>编译完成结果如下：</p>
+<p><img src="4.png"><br>然后将开发板连接到电脑（我是在 VMware 下运行的 Ubuntu）：</p>
+<p>连接上开发板后，VMware 弹出如下窗口，选中连接到主机：</p>
+<p><img src="5.png"></p>
+<p>点击 VMware 右下角的图标，就可以将开发板连接到虚拟机了：</p>
+<p><img src="6.png"></p>
+<p><img src="7.png"><br><img src="8.png"></p>
+<p>最后，通过如下命令将刚才生成的二进制文件烧录到开发板上，并同时打开监视器，监视 “hello_world” 工程的运行情况。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf/hello_world$ idf.py flash monitor</span><br></pre></td></tr></table></figure>
+
+<p>结果如下则表示烧录成功：</p>
+<p><img src="9.png"></p>
+<p>最后，按下 <code>Ctrl+]</code> 即可退出。 </p>
+<br>
+
+<p>如果想自己创建一个工程项目，可以使用如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[projectsauron]:~/esp32_idf$ idf.py create-project test</span><br></pre></td></tr></table></figure>
+
+<p>该命令表示创建一个名为 test 的工程，然后在文件 <code>,./test/main/test.c</code> 下写自己的代码即可。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/">http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/ESP32/">ESP32</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/24/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%83/" title="FreeRTOS 快速入门（七）之事件组"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">FreeRTOS 快速入门（七）之事件组</div></div><div class="info-2"><div class="info-item-1">@toc  一、事件组的概念事件组可以简单地认为就是一个整数：  每一位表示一个事件 每一位事件的含义由程序员决定，比如：Bit0 表示用来串口是否就绪，Bit1 表示按键是否被按下。这些位，值为 1 表示事件发生了，值为 0 表示事件没发生 一个或多个任务、ISR 都可以去写这些位；一个或多个任务、ISR 都可以去读这些位 可以等待某一位、某些位中的任意一个，也可以等待多位   事件组用一个整数来表示，其中的高 8 位留给内核使用，只能用其他的位来表示事件。这个整数的位数由宏 configUSE_16_BIT_TICKS 决定：  如果 configUSE_16_BIT_TICKS 是 1，那么这个整数就是 16 位的，低 8 位用来表示事件 如果 configUSE_16_BIT_TICKS 是 0，那么这个整数就是 32 位的，低 24 位用来表示事件  configUSE_16_BIT_TICKS 是用来表示 Tick Count 的，怎么会影响事件组？这只是基于效率来考虑  如果 configUSE_16_BIT_TICKS 是 1，就表示该处理器使用 16 位更高效，...</div></div></div></a><a class="pagination-related" href="/2024/08/23/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AD/" title="FreeRTOS 快速入门（六）之互斥量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">FreeRTOS 快速入门（六）之互斥量</div></div><div class="info-2"><div class="info-item-1">[toc]  一、互斥量1、基本概念互斥量又称互斥信号量（本质是信号量），是&#x3D;&#x3D;一种特殊的二值信号量&#x3D;&#x3D;，它和信号量不同的是，它支持互斥量所有权、递归访问以及防止优先级翻转的特性，用于实现对临界资源的独占式处理。 任意时刻互斥量的状态只有两种，开锁或闭锁。当互斥量被任务持有时，该互斥量处于闭锁状态，这个任务获得互斥量的所有权。当该任务释放这个互斥量时，该互斥量处于开锁状态，任务失去该互斥量的所有权。当一个任务持有互斥量时，其他任务将不能再对该互斥量进行开锁或持有。持有该互斥量的任务也能够再次获得这个锁而不被挂起，这就是递归访问，也就是递归互斥量的特性，这个特性与一般的信号量有很大的不同，在信号量中，由于已经不存在可用的信号量，任务递归获取信号量时会发生主动挂起任务最终形成死锁。 如果想要用于实现同步（任务之间或者任务与中断之间），二值信号量或许是更好的选择，虽然互斥量也可以用于任务与任务、任务与中断的同步，但是互斥量更多的是用于保护资源的互锁。 互斥锁可以被视为一个与正在共享的资源相关联的令牌，对于合法访问资源的任务，它必须首先成功 “获取...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" title="ESP32-IDF 分区表"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-20</div><div class="info-item-2">ESP32-IDF 分区表</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体1.1 esp_partition_t1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the partition resides */    esp_partition_type_t type;          /*!&lt; partition type (app/data) */    esp_partition_subtype_t subtype;    /*!&lt; partition subtype */    uint32_t address;                   /*!&lt; starting address of the partition in flash */    uint32_t size;                      /*!...</div></div></div></a><a class="pagination-related" href="/2024/10/19/ESP32-IDF-GPTimer/" title="ESP32-IDF 通用定时器 GPTimer"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-19</div><div class="info-item-2">ESP32-IDF 通用定时器 GPTimer</div></div><div class="info-2"><div class="info-item-1">@toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      /*!&lt; GPTimer clock source */    gptimer_count_direction_t direction; /*!&lt; Count direction */    uint32_t resolution_hz;              /*!&lt; Counter resolution (working frequency) in Hz,                                              hence, the step size of each count tick equals to (1 / resolution_hz) seconds */    int intr_priority;                   /*!&lt; GPTimer in...</div></div></div></a><a class="pagination-related" href="/2024/10/18/ESP32-IDF-USART/" title="ESP32-IDF USART 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-18</div><div class="info-item-2">ESP32-IDF USART 专题</div></div><div class="info-2"><div class="info-item-1">@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_uart/include/driver/uart.h。  1、配置结构体1.1 uart_config_t1234567891011121314typedef struct &#123;    int baud_rate;                      /*!&lt; UART baud rate*/    uart_word_length_t data_bits;       /*!&lt; UART byte size*/    uart_parity_t parity;               /*!&lt; UART parity mode*/    uart_stop_bits_t stop_bits;         /*!&lt; UART stop bits*/    uart_hw_flowcontrol_t flow_...</div></div></div></a><a class="pagination-related" href="/2024/10/17/ESP32-IDF-GPIO/" title="ESP32-IDF GPIO 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-17</div><div class="info-item-2">ESP32-IDF GPIO 专题</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_gpio/include/driver/gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情况下，第三方组件将直接呈现底层库的原始 API。 1、配置结构体 为确保应用程序与未来 ESP-IDF 版本的兼容性，请正确初始化配置结构体。  多数 ESP-IDF 中的初始化、配置和安装函数（通常以 ..._init()、 ..._config() 和 ..._install() 命名）都需要一个指向配置结构体的指针作为参数。例如： 1234567const esp_timer_create_args_t my_timer_args = &#123;    .callback = &amp;my_timer_callback,    .arg = callback_arg,    .n...</div></div></div></a><a class="pagination-related" href="/2024/10/21/ESP32-IDF-NVS/" title="ESP32-IDF 非易失存储 NVS"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-21</div><div class="info-item-2">ESP32-IDF 非易失存储 NVS</div></div><div class="info-2"><div class="info-item-1">@toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我们要先指定一个地址，然后对这个地址执行擦除操作，然后才能写入；读取的时候也需要根据这个地址，然后指定读取长度。如果我们要存的项比较多，又在代码中比较分散，我们对 Flash 的地址就很难管理。因为我们很难知道要存的内容与其他地址有没冲突，会不会误擦除。存在诸多问题。所以需要一个机制，方便帮我们把这些检测判断活都干了，不需要我们指定地址操作。文件系统就是这样的，但 NVS 操作更加轻量级。 在 NVS 中，我们要存一个值，我们不需要指定地址，但需要指定一个“键” key，然后我们在这个“键”索引下存我们的值 value。假设我们要存 WIFI 的 SSID 和 pasword，我们可以在 ...</div></div></div></a><a class="pagination-related" href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" title="单片机内存区域划分"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-01</div><div class="info-item-2">单片机内存区域划分</div></div><div class="info-2"><div class="info-item-1">@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&#x3D;&#x3D;时确定，速度快，但自由性差，最大空间不大。 栈区是先进后出原则（LIFO），其操作方式数据结构中的栈是一样的。  存放内容：  临时创建的&#x3D;&#x3D;局部变量&#x3D;&#x3D;存放在栈区。 函数调用时，其&#x3D;&#x3D;入口参数&#x3D;&#x3D;存放在栈区。 函数返回时，其&#x3D;&#x3D;返回值&#x3D;&#x3D;存放在栈区。 &#x3D;&#x3D;const 定义的局部变量&#x3D;&#x3D;存放在栈区。   栈的大小是有限的，通常 Visual C++ 编译器的默认栈的大小为 1MB，所以不要定义 int a[1...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">一、安装准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%8E%B7%E5%8F%96-ESP-IDF"><span class="toc-number">2.</span> <span class="toc-text">二、获取 ESP-IDF</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%AE%BE%E7%BD%AE%E5%B7%A5%E5%85%B7"><span class="toc-number">3.</span> <span class="toc-text">三、设置工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">四、使用案例</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

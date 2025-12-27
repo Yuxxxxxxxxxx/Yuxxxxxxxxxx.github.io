@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>x86/x86_64 下的 CPU 控制寄存器 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[TOC]  前言x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。 一、CR0 寄存器CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="x86&#x2F;x86_64 下的 CPU 控制寄存器">
+<meta property="og:url" content="http://example.com/2024/07/20/x86-crx/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[TOC]  前言x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。 一、CR0 寄存器CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-07-20T15:14:37.000Z">
+<meta property="article:modified_time" content="2024-11-13T16:35:34.292Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="x86">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "x86/x86_64 下的 CPU 控制寄存器",
+  "url": "http://example.com/2024/07/20/x86-crx/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-07-20T15:14:37.000Z",
+  "dateModified": "2024-11-13T16:35:34.292Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/07/20/x86-crx/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'x86/x86_64 下的 CPU 控制寄存器',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">x86/x86_64 下的 CPU 控制寄存器</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">x86/x86_64 下的 CPU 控制寄存器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-07-20T15:14:37.000Z" title="发表于 2024-07-20 23:14:37">2024-07-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-13T16:35:34.292Z" title="更新于 2024-11-14 00:35:34">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[TOC]</p>
+<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。</p>
+<p>CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。</p>
+<h1 id="一、CR0-寄存器"><a href="#一、CR0-寄存器" class="headerlink" title="一、CR0 寄存器"></a>一、CR0 寄存器</h1><p>CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处理器的操作模式和特性。CR0 寄存器中的位字段包含了各种系统和处理器状态的控制位，具体功能如下：</p>
+<p><img src="1.png" alt="CR0 寄存器结构"></p>
+<ul>
+<li><strong>PE</strong>：保护使能（<em>Protection Enable</em>），该位用于控制处理器的保护模式。<ul>
+<li>当 PE &#x3D; 1 时，处理器运行在保护模式下，可以使用内存保护等功能。</li>
+<li>当 PE &#x3D; 0时，处理器运行在实模式下。</li>
+</ul>
+</li>
+<li><strong>MP</strong>：监视协处理器（<em>Monitor Coprocessor</em>），该位用于控制对协处理器的监控。<ul>
+<li>当 MP &#x3D; 1 时，处理器监视协处理器的使用情况，当发生对协处理器的操作时，会触发异常。</li>
+<li>当 MP &#x3D; 0 时，处理器不监视协处理器。</li>
+</ul>
+</li>
+<li><strong>EM</strong>：模拟（<em>Emulation</em>），该位用于控制协处理器的模拟。<ul>
+<li>当 EM &#x3D; 1 时，处理器不支持协处理器指令，会将协处理器指令转为软件模拟执行。</li>
+<li>当 EM &#x3D; 0 时，处理器支持协处理器指令。</li>
+</ul>
+</li>
+<li><strong>TS</strong>：任务切换（<em>Extension Type</em>），该位用于指示处理器是否支持处理器扩展。<ul>
+<li>当 ET &#x3D; 1 时，表示处理器支持处理器扩展。</li>
+<li>当 ET &#x3D; 0 时，表示不支持处理器扩展。</li>
+</ul>
+</li>
+<li><strong>ET</strong>：扩展类型（Extension Type），该位用于指示处理器是否支持处理器扩展。<ul>
+<li>当 ET &#x3D; 1 时，表示处理器支持处理器扩展。</li>
+<li>当 ET &#x3D; 0 时，表示不支持处理器扩展。</li>
+</ul>
+</li>
+<li><strong>NE</strong>：数值错误（<em>Numeric Error</em>），该位用于控制浮点异常的处理方式。<ul>
+<li>当 NE &#x3D; 1 时，处理器会将浮点异常的错误码保存到浮点异常状态寄存器中。</li>
+<li>当 NE &#x3D; 0 时，处理器在浮点异常发生时不保存错误码。</li>
+</ul>
+</li>
+<li><strong>WP</strong>：写保护（Write Protect），该位用于控制写保护。<ul>
+<li>当 WP &#x3D; 1 时，处理器会禁止用户态程序向只读页面写数据。</li>
+<li>当 WP &#x3D; 0 时，处理器不会执行写保护。</li>
+</ul>
+</li>
+<li><strong>AM</strong>：对齐掩码（Alignment Mask），该位用于控制内存对齐检查。<ul>
+<li>当 AM &#x3D; 1 时，处理器会执行内存对齐检查。</li>
+<li>当 AM &#x3D; 0 时，处理器不会执行对齐检查。</li>
+</ul>
+</li>
+<li><strong>NW</strong>：不直写（<em>Not Write-through</em>），该位用于控制写缓冲的写策略。<ul>
+<li>当 NW &#x3D; 1 时，处理器执行不通过写缓冲进行写操作，而直接写入内存。</li>
+<li>当 NW &#x3D; 0 时，处理器使用写缓冲进行写操作。</li>
+</ul>
+</li>
+<li><strong>CD</strong>：缓存禁用（<em>Cache Disable</em>），该位用于控制处理器的缓存。<ul>
+<li>当 CD 为 1 时，处理器禁用数据缓存。</li>
+<li>当 CD 为 0 时，处理器启用数据缓存。</li>
+</ul>
+</li>
+<li><strong>PG</strong>：分页（<em>Paging</em>），该位用于控制分页功能。<ul>
+<li>当 PG &#x3D; 1 时，处理器启用分页机制。</li>
+<li>当 PG &#x3D; 0 时，处理器禁用分页机制。</li>
+</ul>
+</li>
+</ul>
+<p>注意，这些字段的设置和读取需要在特权级别为 0（内核态）的情况下进行。</p>
+<h1 id="二、CR1-寄存器"><a href="#二、CR1-寄存器" class="headerlink" title="二、CR1 寄存器"></a>二、CR1 寄存器</h1><p>CR1是未定义的控制寄存器，供将来的处理器使用。</p>
+<h1 id="三、CR2-寄存器"><a href="#三、CR2-寄存器" class="headerlink" title="三、CR2 寄存器"></a>三、CR2 寄存器</h1><p>CR2是页故障线性地址寄存器，保存最后一次出现页故障（<em>Page Fault</em>）的全 32（或 64） 位线性地址。</p>
+<p><img src="1.png" alt="CR2 寄存器结构"></p>
+<h1 id="四、CR3-寄存器"><a href="#四、CR3-寄存器" class="headerlink" title="四、CR3 寄存器"></a>四、CR3 寄存器</h1><p>CR3 是页目录基址寄存器，也叫做：PDBR（<em>Page Table Base Register</em>），用于保存页目录表的物理地址，页目录表总是放在以 4K 字节为单位的存储器边界上，因此，它的地址的低 12 位总为 0，不起作用，即使写上内容，也不会被理会。</p>
+<p>每个任务(程序)都有自己的页目录和页表，页目录表的地址被记录在任务的 TSS 段中。</p>
+<p>当操作系统调度任务的时候，处理器就会找到即将执行的新任务的 TSS 段信息，然后把新任务的页目录开始地址更新到 CR3 寄存器中。</p>
+<p>每当用 <code>MOV</code> 指令重置 CR3 的值时，会导致分页机制高速缓冲区的内容无效，用此方法，可以在启用分页机制之前，即把 CR0 的 PG 位置 1之前，预先刷新分页机制的高速缓存。CR3 寄存器即使在 CR0 寄存器的 PG 位或 PE 位为 0 时也可装入，如在实模式下也可设置 CR3，以便进行分页机制的初始化。在任务切换时，CR3 要被改变，但是如果新任务中 CR3 的值与原任务中 CR3 的值相同，那么处理器不刷新分页高速缓存，以便当任务共享页表时有较快的执行速度。</p>
+<p><img src="1.png" alt="CR3 寄存器结构"></p>
+<ul>
+<li><strong>PWT</strong>：页级写穿标志位（<em>Page-Level Write-Through</em>），用于指定页表是否应用写穿策略。</li>
+<li><em>PCD</em>：页级高速缓存禁用标志位（<em>Page-Level Cache Disable</em>），用于指定页表是否应用高速缓存禁用策略。</li>
+<li><strong>Page Directory Base Address</strong>：这些位存储了页目录表（Page Directory Table）的物理地址的高20位，用于指定页目录表的起始物理地址。 <ul>
+<li>如果是 64 位的话 CR3 寄存器的第 32 位到第 52 位是 Page Directory Base Address 的扩展位，用于指定页目录表的起始物理地址的剩余 12 位。</li>
+</ul>
+</li>
+</ul>
+<h1 id="五、CR4-寄存器"><a href="#五、CR4-寄存器" class="headerlink" title="五、CR4 寄存器"></a>五、CR4 寄存器</h1><p>CR4 包含了一些扩展控制位，用于控制和配置处理器的高级功能。</p>
+<p><img src="1.png" alt="CR4 寄存器结构"><br>各个字段如下：</p>
+<ul>
+<li><strong>VME</strong>：允许使用虚拟 8086 模式扩展。</li>
+<li><strong>PVI</strong>：保护模式虚拟中断。</li>
+<li><strong>TSD</strong>：禁用处理器在启动过程中使用时间戳计数器。</li>
+<li><strong>DE</strong>：允许调试扩展。</li>
+<li><strong>PSE</strong>：启用超级页（2MB页）</li>
+<li><strong>PAE</strong>：启用物理地址扩展，支持大于4GB的物理内存。<ul>
+<li>当 PAE &#x3D; 1 时，是 2-9-9-12 分页。</li>
+<li>当 PAE &#x3D; 0 时， 是 10-10-12 分页。</li>
+</ul>
+</li>
+<li><strong>MCE</strong>：启用机器检查异常。</li>
+<li><strong>PGE</strong>：启用全局页表。</li>
+<li><strong>PCE</strong>：启用性能监控计数器。</li>
+<li><strong>OSFXSR</strong>：允许操作系统使用 FXSAVE 和 FXRSTOR 指令进行 XMM 寄存器的保存和恢复。</li>
+<li><strong>OSXMMEXCPT</strong>：允许操作系统使用 SSE 指令集的浮点异常。</li>
+<li><strong>UMIP</strong>：防止用户模式下执行特权指令。</li>
+<li><strong>VMXE</strong>：启用虚拟机扩展。</li>
+<li><strong>SMXE</strong>：启用安全模式扩展。</li>
+<li><strong>FSGSBASE</strong>：启用 FS、GS 寄存器的基址存储。</li>
+<li><strong>PCIDE</strong>：启用 PCID（Process Context Identifier）。</li>
+<li><strong>OSXSAVE</strong>：启用 XSAVE 和 XRSTOR 指令。</li>
+<li><strong>SMEP</strong>：启用用户模式执行保护。</li>
+<li><strong>SMAP</strong>：启用内核空间和用户空间地址映射的严格分离。</li>
+</ul>
+<h1 id="六、CR8-寄存器"><a href="#六、CR8-寄存器" class="headerlink" title="六、CR8 寄存器"></a>六、CR8 寄存器</h1><p>CR8-提供对任务优先级寄存器（<em>Task Priority Register</em>, <em>TPR</em>）的读写访问。它指定优先级值，操作系统用于控制允许中断处理器的外部中断的优先级类别。此寄存器仅在 64 位模式下可用。但是，中断过滤在兼容模式下继续应用。</p>
+<blockquote>
+<p>任务优先级寄存器存储了当前任务的优先级级别。优先级级别是一个 0 到 15 的值，其中 0 表示最高优先级，15 表示最低优先级。处理器使用该寄存器中的值来确定任务的调度顺序和优先级。</p>
+</blockquote>
+<p>更多信息可以查阅 Intel 手册。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/07/20/x86-crx/">http://example.com/2024/07/20/x86-crx/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/x86/">x86</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" title="Linux 内存管理（三）之分页机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Linux 内存管理（三）之分页机制</div></div><div class="info-2"><div class="info-item-1">[TOC]  前言在早期的操作系统中，分段机制被广泛采用，但随着技术的发展，分页机制逐渐成为主流选择。接下来，我们将深入探讨分页机制的原理、工作方式以及与其他内存管理机制的比较。  分段机制部分的内容可以看：Linux 内存管理（一）之分段机制。   本文涉及到的 cr0、cr2、cr3、cr4 这四个控制寄存器可以参考：x86&#x2F;x86_64 下的 CPU 控制寄存器   本文还提及了 PAE（物理地址扩展），可以参考 Linux 内存管理（四）之物理地址扩展（PAE）。  一、分页机制的由来1、内存碎片内存碎片（Memory Fragmentation）是指内存中存在的未被利用或浪费的空间，它分为两种形式：内部碎片（Internal Fragmentation）和外部碎片（External Fragmentation）。  内部碎片发生在内存块被分配出去后，剩余的未使用空间无法被其他请求利用。 外部碎片则是指多次内存分配和释放后，内存中留下许多小的、不连续的空闲区域，这些区域太小，无法满足新的内存请求，尽管总的空闲内存量可能足够。  如图，如果到达了一个 160KB ...</div></div></div></a><a class="pagination-related" href="/2024/07/20/GDTLDT/" title="Linux 内存管理（二）之GDT与LDT"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux 内存管理（二）之GDT与LDT</div></div><div class="info-2"><div class="info-item-1">[TOC]  前言在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT1、什么是 GDT全局描述符表（Global Descriptor Table，GDT）。在单处理器系统中只有一个 GDT，而在多处理器系统中每个 CPU 对应一个 GDT。 GDT 可以放置在内存的任何位置。当程序员通过段寄存器引用一个段描述符时，CPU 必须知道 GDT 的入口地址，即基地址放在何处。为此，Intel 的设计者提供了一个 GDTR 寄存器，用于存放GDT的基地址。程序员将 GDT 设定在内存的某个位置后，可以通过 LGDT 指令将 GDT 的基地址加载到 GDTR 寄存器中。从此，CPU 便根据 GDTR 寄存器中的内容作为 GDT 的入口来访问 GDT。  GDTR 寄存器长度为 6 字节，前两个字节为 GDT 界限，后 4 个字节为 GDT 表的基地址。所以说，...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/07/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" title="Linux 内存管理（一）之分段机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-19</div><div class="info-item-2">Linux 内存管理（一）之分段机制</div></div><div class="info-2"><div class="info-item-1">@TOC  前言Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进程存储在连续的物理内存地址上。 本文将介绍 Linux 的分段机制，包括分段的基本概念、分段表的组织方式和进程访问内存的原理。我们还将讨论 Linux 中的段选择子和段描述符，以及如何使用它们来管理进程的内存空间。  一、内存地址1、逻辑地址（logical address）逻辑地址是由程序生成的地址。在程序运行时，每个程序都会有自己的逻辑地址空间。逻辑地址是相对于程序自身的地址，程序可以使用逻辑地址来访问自己的数据和代码。 每一个逻辑地址都由一个段（segment）和偏移量（offset）组成，偏移量指明了从段开始的地方到实际地址之间的距离。 2、线性地址（linear address）线性地址是操作系统对逻辑地址进行转换后得到的地址，也可以叫做虚拟地址（virtual address）。是一个 32 位无符号整数，可以用来表示高达 $4294967296$（4GB）个内存单元。线性地址通常用十六机制数字表示，值的范围从 $0x00000000$ 到 $0...</div></div></div></a><a class="pagination-related" href="/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/" title="Linux 中断机制（一）之中断和异常"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-12</div><div class="info-item-2">Linux 中断机制（一）之中断和异常</div></div><div class="info-2"><div class="info-item-1">@toc  一、什么是中断1、概述中断（interrupt）是指在 CPU 正常运行期间， 由外部或内部事件引起的一种机制。 当中断发生时，CPU 会停止当前正在执行的程序，并转而执行触发该中断的中断处理程序。处理完中断处理程序后，CPU 会返回到中断发生的地方， 继续执行被中断的程序。中断机制允许 CPU 在实时响应外部或内部事件的同时，保持对其他任务的处理能力。 中断的流程图如下：  2、中断的分类中断通常被定义为一个事件，该事件改变处理器执行的指令顺序。这样的事件与 CPU 芯片内外部硬件电路产生的电信号相对应。 中断通常分为同步（synchronous）中断和异步（asynchronous）中断：  同步中断是当指令执行时由 CPU 控制单元产生的，之所以称为同步，是因为只有在一条指令终止执行后CPU才会发出中断； 异步中断是由其他硬件设备依照 CPU 时钟信号随机产生的。   在 Intel 微处理器手册中,把同步和异步中断分别称为异常（exception）和中断（interrupt）我们也采用这种分类，当然有时我们也用术语“中断信号”指这两种类型(同步及异步)。  二...</div></div></div></a><a class="pagination-related" href="/2024/08/11/valgrind/" title="Linux 下利用 Valgrind 进行内存调试"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-11</div><div class="info-item-2">Linux 下利用 Valgrind 进行内存调试</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述Valgrind 是一个开源的内存调试和性能分析工具，用于帮助开发者找出程序中的内存错误，如内存泄漏、使用未初始化的内存、非法内存访问等问题。它在 Linux 平台上广泛使用，并且支持下多种处理器架构。 二、Valgrind 的使用1、基本格式1valgrind --tool=memcheck -–gen-suppressions=all -–show-leak-kinds=all --log-file=&lt;filename&gt; --leak-check=yes ./your_app arg1 arg2...   valgrind：这是一个内存调试工具集，其中的 memcheck 是其中的一个工具，它用于检查内存相关的错误。 -–gen-suppressions&#x3D;all：误报是内存泄漏排查中的常见现象。使用该参数，我们可以标记那些误报，生成抑制规则，让 Valgrind 在后续的检查中忽略这些特定的情况。 –show-leak-kinds&#x3D;all：显示所有的内存泄漏信息。 **–log-file&#x3D;&lt;filename...</div></div></div></a><a class="pagination-related" href="/2024/08/04/objdump/" title="Linux 下 objdump 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-04</div><div class="info-item-2">Linux 下 objdump 命令的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。  二、常用参数说明 -C 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。  -d 反汇编特定 section。 -D 反汇编所有 section。 -f 显示文件头信息。 -h 显示目标文件各个 section 的头部摘要信息。 -i 显示对于 -b 或者 -m 选项可用的架构和目标格式列表。 -j name 或 –section&#x3D;name 仅仅显示指定名称为 name 的 section 的信息 。 -m 指定反汇编目标文件时使用的架构，当待反汇编文件本身没有描述架构信息的时候（比如 S-rec...</div></div></div></a><a class="pagination-related" href="/2024/07/21/PAE/" title="Linux 内存管理（四）之物理地址扩展（PAE）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-21</div><div class="info-item-2">Linux 内存管理（四）之物理地址扩展（PAE）</div></div><div class="info-2"><div class="info-item-1">[TOC]  前言在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示 $2^{32}$ 个不同的地址，即 4GB 的地址空间。这意味着无论实际物理内存有多大，操作系统最多只能寻址 4GB 的物理内存。 然而，在实际应用中，特别是在服务器和高性能计算领域，需要处理大型数据集和运行大规模应用程序的情况下，4GB 的内存往往不够用。因此，引入 PAE 机制可以扩展物理地址空间，使操作系统能够支持更大的物理内存。  有关 Linux 分页机制的部分可以参考 Linux 内存管理（三）之分页机制。  一、什么是 PAEPAE（Physical Address Extension，物理地址扩展）是一种扩展物理地址寻址空间的技术，它允许 32 位的 x86 计算机处理超过 4GB 物理内存的容量。在  PAE 技术的支持下，可以使用 32 位的内核和 64 位的 CPU，全面兼容各种物理地址大于 4GB 的计算设备。因此，它被广泛应用于高性能计算、服务器集群、虚拟化等领域。 通过设置 cr4 控制寄存器中第五位 PAE 标志激活 PAE。页目录项中的页大小标志 PS 启用大尺寸页（...</div></div></div></a><a class="pagination-related" href="/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/" title="Linux 错误码"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-09</div><div class="info-item-2">Linux 错误码</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include/uapi/asm-generic/errno-base.h，还有一部分定义在 include/uapi/asm-generic/errno-base.h 中。 当函数执行发生错误的时候，操作系统会将这个错误所对应的编号赋值给 errno 变量，每一个进程都维护了自己的 errno 变量，它是程序中的全局变量，该变量用于存储&#x3D;&#x3D;就近&#x3D;&#x3D;发生的函数执行错误编号。  只有当系统调用或者调用 lib 函数时出错，才会置位errno！  二、含义   宏名称 Value Description 含义    EPERM 1 Operation not permitted 操作不允许   ENOENT 2 No such file or directory 没有这样的文件或...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81CR0-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">一、CR0 寄存器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81CR1-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">二、CR1 寄存器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81CR2-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">4.</span> <span class="toc-text">三、CR2 寄存器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81CR3-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">5.</span> <span class="toc-text">四、CR3 寄存器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81CR4-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">6.</span> <span class="toc-text">五、CR4 寄存器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81CR8-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">7.</span> <span class="toc-text">六、CR8 寄存器</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

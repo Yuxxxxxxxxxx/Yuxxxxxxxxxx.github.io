@@ -1,0 +1,288 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>单片机内存区域划分 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单片机内存区域划分">
+<meta property="og:url" content="http://example.com/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/butterfly-icon.png">
+<meta property="article:published_time" content="2024-09-01T10:09:25.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:05:50.144Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "单片机内存区域划分",
+  "url": "http://example.com/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/",
+  "image": "http://example.com/img/butterfly-icon.png",
+  "datePublished": "2024-09-01T10:09:25.000Z",
+  "dateModified": "2024-11-14T01:05:50.144Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Yu xin",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '单片机内存区域划分',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">单片机内存区域划分</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">单片机内存区域划分</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-01T10:09:25.000Z" title="发表于 2024-09-01 18:09:25">2024-09-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T01:05:50.144Z" title="更新于 2024-11-14 09:05:50">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、C-语言内存分区"><a href="#一、C-语言内存分区" class="headerlink" title="一、C 语言内存分区"></a>一、C 语言内存分区</h1><p>C 语言在内存中一共分为如下几个区域，分别是：</p>
+<p><img src="1.png"></p>
+<p>下面分别介绍各个区域。</p>
+<h2 id="1、栈区"><a href="#1、栈区" class="headerlink" title="1、栈区"></a>1、栈区</h2><p>栈区介绍：</p>
+<ul>
+<li>栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。</li>
+<li>栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。</li>
+<li>栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。</li>
+<li>栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&#x3D;&#x3D;时确定，速度快，但自由性差，最大空间不大。</li>
+<li>栈区是先进后出原则（LIFO），其操作方式数据结构中的栈是一样的。</li>
+</ul>
+<p>存放内容：</p>
+<ul>
+<li>临时创建的&#x3D;&#x3D;局部变量&#x3D;&#x3D;存放在栈区。</li>
+<li>函数调用时，其&#x3D;&#x3D;入口参数&#x3D;&#x3D;存放在栈区。</li>
+<li>函数返回时，其&#x3D;&#x3D;返回值&#x3D;&#x3D;存放在栈区。</li>
+<li>&#x3D;&#x3D;const 定义的局部变量&#x3D;&#x3D;存放在栈区。</li>
+</ul>
+<blockquote>
+<p>栈的大小是有限的，通常 Visual C++ 编译器的默认栈的大小为 1MB，所以不要定义 <code>int a[1000000]</code> 这样的超大数组。</p>
+</blockquote>
+<h2 id="2、堆区"><a href="#2、堆区" class="headerlink" title="2、堆区"></a>2、堆区</h2><ul>
+<li>堆区按内存地址由低到高方向生长，其大小由系统内存&#x2F;虚拟内存上限决定，速度较慢，但自由性大，可用空间大。</li>
+<li>堆区用于存放程序运行中被动态分布的内存段，可增可减。</li>
+<li>可以有 malloc 等函数实现动态分布内存，不过它的存储空间一般是不连续的，所以会产生内存碎片。</li>
+<li>有 malloc 函数分布的内存，必须用 free 进行内存释放，否则会造成内存泄漏。</li>
+<li>注意它与数据结构中的堆是两回事，不过分配方式类似于链表。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span>* p = new <span class="type">char</span>[<span class="number">20</span>];</span><br><span class="line"><span class="comment">// 这行代码在Heap中开辟了20个char长度的空间，同时在Stack上压入了p，</span></span><br><span class="line"><span class="comment">// 指针变量p存在于栈上，其值为刚刚在堆上开辟的空间的首地址。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3、全局区（静态区）"><a href="#3、全局区（静态区）" class="headerlink" title="3、全局区（静态区）"></a>3、全局区（静态区）</h2><p>全局区由 <code>.bss</code> 段和 <code>.data</code> 段组成，可读可写。</p>
+<p>通常是用于那些在&#x3D;&#x3D;编译期间&#x3D;&#x3D;就能确定存储大小的变量的存储区，但它用于的是在整个程序运行期间都可见的全局变量和静态变量。</p>
+<ul>
+<li><code>.bss 段</code> ——未初始化<ul>
+<li>未初始化的全局变量和未初始化的静态变量存放在 <code>.bss段</code>。</li>
+<li>初始化为 0 的全局变量和初始化为0的静态变量存放在 <code>.bss段</code>。</li>
+<li><code>.bss段</code> 不占用可执行文件空间，其内容由操作系统初始化。</li>
+</ul>
+</li>
+<li><code>.data段</code> ——已初始化<ul>
+<li>已初始化的全局变量存放在 <code>.data段</code>。</li>
+<li>已初始化的静态变量存放在 <code>.data段</code>。</li>
+<li><code>.data段</code> 占用可执行文件空间，其内容由程序初始化。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>注意，<code>.bss段</code> 只占&#x3D;&#x3D;运行时的内存空间&#x3D;&#x3D;而不占文件空间。在程序运行的整个周期内，<code>.bss段</code> 的数据一直存在</p>
+</blockquote>
+<h2 id="4、常量区"><a href="#4、常量区" class="headerlink" title="4、常量区"></a>4、常量区</h2><p>同样，常量区也是用于那些在&#x3D;&#x3D;编译期间&#x3D;&#x3D;就能确定存储大小的常量的存储区，并且在程序运行期间，存储区内的常量是全局可见的。这是一块比较特殊的存储去，他们里面存放的是常量，不允许被修改。</p>
+<ul>
+<li>&#x3D;&#x3D;字符串&#x3D;&#x3D;、&#x3D;&#x3D;数字&#x3D;&#x3D;等常量存放在常量区。</li>
+<li>&#x3D;&#x3D;const 修饰的全局变量&#x3D;&#x3D;存放在常量区。</li>
+<li>程序运行期间，常量区的内容不可以被修改。</li>
+</ul>
+<p>常量数据段叫做 <code>.rodata</code>，即 read only，表示常量数据是不可修改的。一旦程序中对其修改将会出现段错误： </p>
+<ul>
+<li>程序中的常量不一定就放在 <code>.rodata</code> 中，有的立即数和指令编码放在 <code>.text</code> 中</li>
+<li>对于字符串常量，若程序中存在重复的字符串，编译器会保证只存在一个 </li>
+<li><code>.rodata</code> 是在多个进程间共享的  </li>
+<li>有的嵌入式系统，<code>.rodata</code> 放在 ROM（或者 NOR FLASH）中，运行时直接读取无需加载至 RAM。想要将数据放在 <code>.rodata</code> 只需要加上 const 属性修饰即可。</li>
+</ul>
+<h2 id="5、代码区"><a href="#5、代码区" class="headerlink" title="5、代码区"></a>5、代码区</h2><ul>
+<li>程序执行代码存放在代码区，其值不能修改（若修改则会出现错误）。</li>
+<li>字符串常量和 define 定义的常量也有可能存放在代码区。</li>
+</ul>
+<h2 id="6、总结"><a href="#6、总结" class="headerlink" title="6、总结"></a>6、总结</h2><p>下面已一段代码来看一下各部分存储：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">unsigned</span> <span class="type">int</span> val1 = <span class="number">1</span>;         <span class="comment">// val1存放在.data段</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> val2 = <span class="number">1</span>;                <span class="comment">// 初始化的全局变量存放在.data段</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> val3 ;                   <span class="comment">// 未初始化的全局变量存放在.bss段</span></span><br><span class="line"><span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> val4 = <span class="number">1</span>;          <span class="comment">// val4存放在.rodata（只读数据段）</span></span><br><span class="line"></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> <span class="title function_">Demo</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> num)</span>  <span class="comment">// num 存放在栈区</span></span><br><span class="line">&#123;  </span><br><span class="line">	<span class="type">char</span> var = <span class="string">&quot;123456&quot;</span>;              <span class="comment">// var存放在栈区，&quot;123456&quot;存放在常量区  </span></span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> num1 = <span class="number">1</span> ;           <span class="comment">// num1存放在栈区  </span></span><br><span class="line">	<span class="type">static</span> <span class="type">unsigned</span> <span class="type">int</span> num2 = <span class="number">0</span>;     <span class="comment">// num2存放在.data段  </span></span><br><span class="line">	<span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> num3 = <span class="number">7</span>;      <span class="comment">// num3存放在栈区  </span></span><br><span class="line">	<span class="type">void</span> *p;  </span><br><span class="line">	p = <span class="built_in">malloc</span>(<span class="number">8</span>);                    <span class="comment">// p存放在堆区  </span></span><br><span class="line">	<span class="built_in">free</span>(p); </span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;  </span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> num = <span class="number">0</span> ;  </span><br><span class="line">	num = Demo(num);                  <span class="comment">// Demo()函数的返回值存放在栈区。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<blockquote>
+<p>注意：静态局部变量和静态全局变量<br><br><br>属于静态存储方式的量不一定就是静态变量。<br><br><br>例如：全局变量虽属于静态存储方式，但不一定是静态变量，必须由 static 加以定义后才能成为静态外部变量，或称静态全局变量。</p>
+<ul>
+<li>把局部变量改变为静态变量后是改变了它的存储方式，即改变了它的生存期。</li>
+<li>把全局变量改变为静态变量后是改变了它的作用域，限制了它的使用范围。</li>
+</ul>
+</blockquote>
+<p>假设现在有一个程序，它的函数调用顺序如下：</p>
+<p><code>main(...) -&gt; func_1(...) -&gt; func_2(...) -&gt; func_3(...)</code>，即：主函数 main 调用函数 func_1; 函数 func_1 调用函数 func_2; 函数 func_2 调用函数 func_3。</p>
+<p>当一个程序被操作系统调入内存运行, 其对应的进程在内存中的映射如下图所示：</p>
+<p><img src="2.png"></p>
+<h1 id="二、单片机存储分配"><a href="#二、单片机存储分配" class="headerlink" title="二、单片机存储分配"></a>二、单片机存储分配</h1><p>首先来看一下 RAM 和 ROM、Flash Memory 的物理特性。</p>
+<h2 id="1、存储器"><a href="#1、存储器" class="headerlink" title="1、存储器"></a>1、存储器</h2><h3 id="1-1-RAM"><a href="#1-1-RAM" class="headerlink" title="1.1 RAM"></a>1.1 RAM</h3><p>RAM 是与 CPU 直接交换数据的内部存储器，也叫主存（内存）。它可以随时读写，而且速度很快，通常作为操作系统或其他正在运行中的程序的临时数据存储媒介。</p>
+<p>RAM 又称随机存取存储器，存储的内容可通过指令随机读写访问。RAM 中的存储的数据在&#x3D;&#x3D;掉电是会丢失&#x3D;&#x3D;，因而只能在开机运行时存储数据。其中 RAM 又可以分为两种：</p>
+<ul>
+<li>一种是 <code>Dynamic RAM</code>（DRAM，动态随机存储器）</li>
+<li>另一种是 <code>Static RAM</code>（SRAM，静态随机存储器）。</li>
+</ul>
+<h3 id="1-2-ROM"><a href="#1-2-ROM" class="headerlink" title="1.2 ROM"></a>1.2 ROM</h3><p>ROM 又称只读存储器，只能从里面读出数据而不能任意写入数据。ROM 与 RAM 相比，具有读写速度慢的缺点。但由于其具有&#x3D;&#x3D;掉电后数据可保持不变&#x3D;&#x3D;的优点，因此常用也存放一次性写入的程序和数据，比如主版的 BIOS 程序的芯片就是 ROM 存储器。</p>
+<h3 id="1-3-Flash-Memory"><a href="#1-3-Flash-Memory" class="headerlink" title="1.3 Flash Memory"></a>1.3 Flash Memory</h3><p>由于 ROM 具有不易更改的特性，后面就发展了 Flash Memory。Flash Memory 不仅具有 ROM 掉电不丢失数据的特点，又可以在需要的时候对数据进行更改，不过价格比 ROM 要高。</p>
+<h3 id="1-4-不同数据的存放位置"><a href="#1-4-不同数据的存放位置" class="headerlink" title="1.4 不同数据的存放位置"></a>1.4 不同数据的存放位置</h3><p>由前面的分析我们知道，代码区和常量区的内容是不允许被修改的，ROM（STM32 就是 Flash Memory）也是不允许被修改的，所以<strong>代码区</strong>和<strong>常量区</strong>的内容编译后存储在 ROM 中。</p>
+<p>而<strong>栈</strong>、<strong>堆</strong>、<strong>全局区</strong>（<code>.bss段</code>、<code>.data段</code>）都是存放在 RAM 中。</p>
+<p>以 STM32F407 芯片为例：</p>
+<p><img src="3.png"></p>
+<ul>
+<li>ROM 区域是 <code>0x8000000</code> 开始，大小是 <code>0x10000</code>，这片区域是<strong>只读区域</strong>，不可修改，存放<strong>代码区</strong>和<strong>常量区</strong>。</li>
+<li>第一个 RAM 区域是 <code>0x20000000</code> 开始，大小是 <code>0x2000</code>，这片区域是<strong>可读写区域</strong>，存放的是<strong>全局(静态)区</strong>、<strong>堆区</strong>和<strong>栈区</strong>。</li>
+</ul>
+<p><img src="4.png"></p>
+<h2 id="2、程序占用内存大小"><a href="#2、程序占用内存大小" class="headerlink" title="2、程序占用内存大小"></a>2、程序占用内存大小</h2><p>下面是 Keil 的 Build Output 窗口：</p>
+<p><img src="5.png"></p>
+<p>如上图，存在 <code>Code</code>、<code>RO-data</code>、<code>RW-data</code>、<code>ZI-data</code> 四个代码段大小。</p>
+<ul>
+<li><code>Code</code>：代码，也就是编译之后产生的机器指令。</li>
+<li><code>RO_data</code>：<code>Read Only data</code>，只读数据域，指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。这部分在程序运行过程中不能被更改，因此在运行时只需要来读取即可，无需占用 RAM 空间。</li>
+<li><code>RW_data</code>：<code>Read Write data</code>，可读写数据域，指初始化为“非 0 值”的可读写数据，程序刚运行时，这些数据具有非 0 的初始值，且运行的时候它们会常驻在 RAM 区，因而应用程序可以修改其内容。</li>
+<li><code>ZI_data</code>：<code>Zero Initialie data</code>，即 0 初始化数据，它指初始化为“0 值”的可读写数据域。它与 <code>RW-data</code> 的区别是程序刚运行时这些数据初始值全都为 0，而后续运行过程与 <code>RW-data</code> 的性质一样，它们也常驻在 RAM 区，因而应用程序可以更改其内容。</li>
+</ul>
+<p>从生成的 map 文件可以非常方便地看到相关信息：</p>
+<p><img src="6.png"></p>
+<p>$$<br>RAM  &#x3D; RW-data + ZI-data \<br>ROM &#x3D; Code + RO-data + RW-data<br>$$</p>
+<p>可以看到：对于 RAM 的空间，程序启动时首先需要把 Flash 中的 RW_data（RW）复制到 RAM 中，然后把 ZI_data 加载到 RAM中。</p>
+<p><img src="7.png"></p>
+<p>对应到具体的内存上，结合启动流程如下图所示。</p>
+<p><img src="8.png"></p>
+<p>因此，想要让一个程序正常运行。</p>
+<ul>
+<li>芯片的 Flash 大小 要大于 $Code + RO-data + RW-data$ 的大小；</li>
+<li>芯片的 RAM 大小 要大于 $RW-data + ZI_data$ 的大小。</li>
+</ul>
+<blockquote>
+<p>在MDK中（其实是 <code>ARM Compiler</code> 中），默认情况下，所有尺寸小于 8 个字节、本应放在 <code>.bss</code> 段的 <code>ZI Data</code>，都会被作为普通 RW Data 放在 “<code>.bss</code>” 段——之所以这么做是因为编译器觉得：通过循环赋值的方法给这帮小变量初始化成 0 太不划算了，初始化他们的程序都比变量本身还大呢，干脆放几个 0 到 RW 的初始值表里，由 RW 数据的初始化程序顺手处理好了——说了这么多，如果不好理解，简单理解成出于优化的目的就行了。　　<br><br>要想关闭这个优化，在命令行中加入“<code>--bss_threshold=0</code>” 就可以了。顺便说下，默认设置相当于“<code>--bss_threshold=8</code>”。<br><br><code>.data section</code> 和 <code>.bss section</code> 是两个默认的 section，我们还可以定义自己的 section，并自己指定将哪些变量放到里面。具体怎么实现，请查阅对应编译器的使用手册。记住：&#x3D;&#x3D;变量和代码都是放在段里面的，段具体放在哪里（什么地址上）则是由 linker 的脚本控制的&#x3D;&#x3D;。<br><br>在 MDK 中（也就是 <code>ARM Compiler</code> 中），这个脚本叫做 <code>scatter-loading file</code>；在 IAR 和 GCC 也有对应的 <code>LinkerScript</code>，只不过语法规则不同，感兴趣的人可以查阅对应的手册。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/">http://example.com/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/" title="ELF 文件格式"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">ELF 文件格式</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。 二、种类ELF文件主要有四种类型  可执行文件（Executable File）：包含可执行的机器代码，可以直接在操作系统中运行。 可重定位文件（Relocatable File）：机器代码和数据，但其地址空间是相对的，需要进行重定位才能正确运行。可重定位文件通常用于静态库和动态库的编译过程。 共享对象文件（Shared Object File）：这种类型的 ELF 文件是一种动态链接库（DLL），它包含了可共享的代码和数据，可以在运行时被多个进程共享。 核心转储文件（Core Dump File）：这种类型的 ELF 文件是操作系统在程序崩溃或异常终止时生成的，它包含了程序在崩溃时的内存状态和寄存器信息，用于调试和故障排除。  在内核中有如下定义（/include/uapi/linux/elf.h）： 1234#define  ET_REL   1#...</div></div></div></a><a class="pagination-related" href="/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS 列表 List 源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">FreeRTOS 列表 List 源码解析</div></div><div class="info-2"><div class="info-item-1">@toc  链表是 FreeRTOS 的核心数据结构，有关任务调度、延时、阻塞、事件等操作都是通过对链表进行操作进而实现的。本节将详细分析源码文件 list.c，list.h 的内容，为后续的任务队列等的实现奠定基础。 一、链表及链表项的定义FreeRTOS 使用的链表结构是环形的双向链表，而关于链表节点的数据结构都在 list.h 中定义。 1、链表节点数据结构 xList_ITEM首先来看链表节点数据结构定义： 12345678910111213struct xLIST_ITEM&#123;	// 第一个和最后一个成员值	// 当 configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES 被使能的时候会被设定为一个固定值，用来检验一个列表项数据是否完整    listFIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE                 configLIST_VOLATILE TickType_t xItemValue;           // 辅助值，用于帮助节点做顺序排列    struct xLIST_IT...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" title="STM32 通过 SPI 驱动 W25Q128"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-21</div><div class="info-item-2">STM32 通过 SPI 驱动 W25Q128</div></div><div class="info-2"><div class="info-item-1">[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1234567W25Q     STM32VCC  --&gt; VCCGND  --&gt; GNDDO   --&gt; PA6 (MISO)DI   --&gt; PA7 (MOSI)CLK  --&gt; PA5 (SCK)CS   --&gt; PA4 (CS)  2、时钟控制SCK 线的时钟信号，由波特率发生器根据“控制寄存器CR1”中的 BR[0:2] 位控制，该位是对 fpclk 时钟的分频因子， 对 fpclk 的分频结果就是 SCK 引脚的输出时钟频率，计算方法见下表：  其中的 fpclk 频率是指 SPI 所在的 APB 总线频率，APB1 为 fpclk1，APB...</div></div></div></a><a class="pagination-related" href="/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/" title="STM32 时钟树（基于 STM32F407）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-25</div><div class="info-item-2">STM32 时钟树（基于 STM32F407）</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组合电路，在每一级输出结果前对各个信号进行采样，从而使得电路中某些信号即使出现延时也可以保证各个信号的同步，可以避免电路中发生的“毛刺现象”，达到精确控制输出的效果。 由于时序电路的重要性，因此在 MCU 设计时就设计了专门用于控制时序的电路，在芯片设计中称为时钟树设计。由此设计出来的时钟，可以精确控制我们的单片机系统。对于STM32F4 系列的芯片，正常工作的主频可以达到 168Mhz，但并不是所有外设都需要系统时钟这么高的频率，比如看门狗以及 RTC 只需要几十 Khz 的时钟即可。同一个电路，时钟越快功耗越大，同时抗电磁干扰能力也会越弱，所以对于较为复杂的 MCU 一般都是采取多时钟...</div></div></div></a><a class="pagination-related" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-08</div><div class="info-item-2">STM32 位带操作</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：  那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-10</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a><a class="pagination-related" href="/2024/09/29/sct-%E6%96%87%E4%BB%B6/" title="浅析 Keil 中的 sct 文件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-29</div><div class="info-item-2">浅析 Keil 中的 sct 文件</div></div><div class="info-2"><div class="info-item-1">[toc]  一、程序的存储与运行1、存储程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  **Code**：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 **RO-data**：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。 例如 C 语言中 const 关键字定义的变量就是典型的 RO-data。   **RW-data**：Read Write data，即可读写数据域，它指初始化为”非0值”的可读写数据，程序刚运行时，这些数据具有非0的初始值，且运行的时候它们会常驻在RAM区，因而应用程序可以修改其内容。 例如 C 语言中使用定义的全局变量，且定义时赋予”非 0 值”给该变量进行初始化。   **ZI-data**：Zero Initialie data，即 0 初始化数据，它指初始化为”0 值”的可读写数据域，它与 RW-data 的区别是程序刚运行时这些数据初始值全都为 0，...</div></div></div></a><a class="pagination-related" href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" title="【STM32】通过 DWT 实现毫秒级延时"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-02</div><div class="info-item-2">【STM32】通过 DWT 实现毫秒级延时</div></div><div class="info-2"><div class="info-item-1">[toc]  零、前言在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容     在 Cortex-M 内核内核中里面有一个外设叫 DWT(Data Watchpoint and Trace)，是用于系统调试及跟踪。 它有一个 32 位的寄存器叫 CYCCNT，它是一个&#x3D;&#x3D;向上&#x3D;&#x3D;的计数器，记录的是内核时钟运行的个数，内核时钟跳动一次，该计数器就加 1。 它的精度非常高，取决于内核的频率是多少，如果是 F103 系列，内核时钟是 72M，那精度就是 $1&#x2F;72M &#x3D; 14ns$，而程序的运行时间都是微秒级别的，所以 14ns 的精度是远远够的。最长能记录的时间为：$60s &#x3D; 2^{32}&#x...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81C-%E8%AF%AD%E8%A8%80%E5%86%85%E5%AD%98%E5%88%86%E5%8C%BA"><span class="toc-number">1.</span> <span class="toc-text">一、C 语言内存分区</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A0%88%E5%8C%BA"><span class="toc-number">1.1.</span> <span class="toc-text">1、栈区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%A0%86%E5%8C%BA"><span class="toc-number">1.2.</span> <span class="toc-text">2、堆区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%85%A8%E5%B1%80%E5%8C%BA%EF%BC%88%E9%9D%99%E6%80%81%E5%8C%BA%EF%BC%89"><span class="toc-number">1.3.</span> <span class="toc-text">3、全局区（静态区）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%B8%B8%E9%87%8F%E5%8C%BA"><span class="toc-number">1.4.</span> <span class="toc-text">4、常量区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%BB%A3%E7%A0%81%E5%8C%BA"><span class="toc-number">1.5.</span> <span class="toc-text">5、代码区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.</span> <span class="toc-text">6、总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%8D%95%E7%89%87%E6%9C%BA%E5%AD%98%E5%82%A8%E5%88%86%E9%85%8D"><span class="toc-number">2.</span> <span class="toc-text">二、单片机存储分配</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%AD%98%E5%82%A8%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">1、存储器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-RAM"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 RAM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-ROM"><span class="toc-number">2.1.2.</span> <span class="toc-text">1.2 ROM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Flash-Memory"><span class="toc-number">2.1.3.</span> <span class="toc-text">1.3 Flash Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E4%B8%8D%E5%90%8C%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AD%98%E6%94%BE%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.1.4.</span> <span class="toc-text">1.4 不同数据的存放位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%A8%8B%E5%BA%8F%E5%8D%A0%E7%94%A8%E5%86%85%E5%AD%98%E5%A4%A7%E5%B0%8F"><span class="toc-number">2.2.</span> <span class="toc-text">2、程序占用内存大小</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="工控机网口连接PC">工控机网口连接PC</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
