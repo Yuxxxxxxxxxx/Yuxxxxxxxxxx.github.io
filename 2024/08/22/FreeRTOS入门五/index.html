@@ -1,166 +1,283 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>FreeRTOS 快速入门（五）之信号量 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、信号量的特性信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。 1、信号量跟队列的对比差异列表如下：    队列 信号量    可以容纳多个数据，创建队列时有两部分内存: 队列结构体、存储数据的空间 只有计数值，无法容纳其">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、信号量的特性信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。 1、信号量跟队列的对比差异列表如下：    队列 信号量    可以容纳多个数据，创建队列时有两部分内存: 队列结构体、存储数据的空间 只有计数值，无法容纳其">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FreeRTOS 快速入门（五）之信号量">
 <meta property="og:url" content="http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="@toc  一、信号量的特性信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。 1、信号量跟队列的对比差异列表如下：    队列 信号量    可以容纳多个数据，创建队列时有两部分内存: 队列结构体、存储数据的空间 只有计数值，无法容纳其">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
 <meta property="article:published_time" content="2024-08-22T03:26:55.000Z">
 <meta property="article:modified_time" content="2024-11-14T00:32:28.397Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="FreeRTOS">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "FreeRTOS 快速入门（五）之信号量",
-  "url": "http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-08-22T03:26:55.000Z",
-  "dateModified": "2024-11-14T00:32:28.397Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>FreeRTOS 快速入门（五）之信号量 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeRTOS 快速入门（五）之信号量"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-22 11:26" pubdate>
+          星期四, 八月 22日 2024, 11:26 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'FreeRTOS 快速入门（五）之信号量',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">FreeRTOS 快速入门（五）之信号量</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">FreeRTOS 快速入门（五）之信号量</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-22T03:26:55.000Z" title="发表于 2024-08-22 11:26:55">2024-08-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T00:32:28.397Z" title="更新于 2024-11-14 08:32:28">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/">FreeRTOS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FreeRTOS 快速入门（五）之信号量</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
 <h1 id="一、信号量的特性"><a href="#一、信号量的特性" class="headerlink" title="一、信号量的特性"></a>一、信号量的特性</h1><p>信号量（<em><strong>Semaphore</strong></em>）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。</p>
 <h2 id="1、信号量跟队列的对比"><a href="#1、信号量跟队列的对比" class="headerlink" title="1、信号量跟队列的对比"></a>1、信号量跟队列的对比</h2><p>差异列表如下：</p>
@@ -214,7 +331,7 @@
 <p>把这种只有 0 和 1 两种情况的信号量称之为二值信号量。</p>
 <p>由于二值信号量就是特殊的队列，其实它的运转机制就是利用了队列的阻塞机，从而达到实现任务之间的同步与互斥(有优先级反转的缺陷)。</p>
 <h3 id="1-1-二值信号量用于同步"><a href="#1-1-二值信号量用于同步" class="headerlink" title="1.1 二值信号量用于同步"></a>1.1 二值信号量用于同步</h3><p>在多任务系统中，经常会使用二值信号量来实现任务之间或者任务与中断之间的同步，比如，某个任务需要等待一个标记，那么任务可以在轮询中查询这个标记有没有被置位，则任务在等待的过程也会消耗 CPU 的资源，如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任务一</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Task1Function</span><span class="params">(<span class="type">void</span> *param)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">volatile</span> <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>)  &#123;</span><br><span class="line">		<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10000000</span>; ++i) &#123;</span><br><span class="line">			sumj++;</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		flagCalcEnd = <span class="number">1</span>;</span><br><span class="line">		vTaskDelete(<span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务二</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Task2Function</span><span class="params">(<span class="type">void</span> *param)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		<span class="keyword">if</span> (flagCalcEnd)</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;sum = %d\r\n&quot;</span>, sum);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 任务一</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task1Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)  &#123;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>			sumj++;<br>		&#125;<br>	<br>		flagCalcEnd = <span class="hljs-number">1</span>;<br>		vTaskDelete(<span class="hljs-literal">NULL</span>);<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 任务二</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task2Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>		<span class="hljs-keyword">if</span> (flagCalcEnd)<br>			<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;sum = %d\r\n&quot;</span>, sum);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>总体工作流程如下：任务二等待任务一（等待 <code>flagCalcEnd</code> 置一），计算完（sum 的值累加一百万次）。然后进行数据处理（这里简单打印 sum 的值）。</p>
 <p>上面的代码看似没问题，其实存在有两个问题：</p>
@@ -223,7 +340,7 @@
 <li>任务二在等待任务一计算完 sum 的值的过程中，任务二也会参与任务调度消耗 CPU 资源（假设只有这两个任务，优先级相同，且支持时间片轮转，则在任务一在计算 sum 值的过程中，任务一与任务二轮流执行相同时间片，只不过任务二就一直判断 <code>flagCalcEnd</code> 的值是否为1，相当于就是浪费 CPU 的资源)</li>
 </ol>
 <p>所以二值信号量就可以解决这个问题，在任务一计算 sum 的值的过程中，任务二应该进入阻塞态让出 CPU 的使用权，在任务二阻塞期间任务一就可以独占 CPU 全速计算 sum 的值，代码如下所示：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任务一</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Task1Function</span><span class="params">(<span class="type">void</span> *param)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">volatile</span> <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>)  &#123;</span><br><span class="line">		<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10000000</span>; ++i) &#123;</span><br><span class="line">			sumj++;</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		<span class="comment">// 等待 sum 计算完成释放信号量，信号量计数值 uxMessagesWaiting 加 1</span></span><br><span class="line">		xSemaphoreGive(xSemcalc); </span><br><span class="line">		vTaskDelete(<span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务二</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Task2Function</span><span class="params">(<span class="type">void</span> *param)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">		flagCalcEnd = <span class="number">0</span>;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 若 sum 未计算完成，则获取信号量失败，任务会进入阻塞状态，其他任务得以调度</span></span><br><span class="line">		<span class="comment">// 若 sum 计算完成（信号量为 1），则任务被唤醒 sum 得以打印</span></span><br><span class="line">		xSemaphoreTake(xSemcalc, portMAX_DELAY);</span><br><span class="line">		flagCalcEnd = <span class="number">1</span>;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;sum = %d\r\n&quot;</span>, sum);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 任务一</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task1Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)  &#123;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>			sumj++;<br>		&#125;<br>	<br>		<span class="hljs-comment">// 等待 sum 计算完成释放信号量，信号量计数值 uxMessagesWaiting 加 1</span><br>		xSemaphoreGive(xSemcalc); <br>		vTaskDelete(<span class="hljs-literal">NULL</span>);<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 任务二</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task2Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>		flagCalcEnd = <span class="hljs-number">0</span>;<br>		<br>		<span class="hljs-comment">// 若 sum 未计算完成，则获取信号量失败，任务会进入阻塞状态，其他任务得以调度</span><br>		<span class="hljs-comment">// 若 sum 计算完成（信号量为 1），则任务被唤醒 sum 得以打印</span><br>		xSemaphoreTake(xSemcalc, portMAX_DELAY);<br>		flagCalcEnd = <span class="hljs-number">1</span>;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;sum = %d\r\n&quot;</span>, sum);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="1-2-二值信号量用于互斥"><a href="#1-2-二值信号量用于互斥" class="headerlink" title="1.2 二值信号量用于互斥"></a>1.2 二值信号量用于互斥</h3><p>我们在串口接收中，我们并不知道什么时候有数据发送过来（等数据过来标记一次），还有一个处理串口接收到的数据，在任务系统中不可能时时刻刻去判断是否有串口有数据过来（判断标志位），所以在这种情况下使用二值信号量是很好的办法，当没有数据到来的时候，任务就进入阻塞态，不参与任务的调度，等到数据到来了，释放一个二值信号量，任务就立即从阻塞态中解除，进入就绪态，然后运行的时候处理数据，这样子系统的资源就会很好的被利用起来。</p>
 <p>二值信号量一般不用于任务之间的互斥（任务之间互斥的访问一个临界资源，同一时间只能一个任务可以使用），因为它有优先级反转的缺点，解决互斥的方式就是使用互斥信号量（具有优先级继承的机制能减少优先级反转的影响），关于优先级反转，优先级继承等下一讲讲互斥量的时候在讲。</p>
@@ -260,13 +377,13 @@
 </tr>
 </tbody></table>
 <p>创建二值信号量的函数原型如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 创建一个二值信号量，返回它的句柄。</span></span><br><span class="line"><span class="comment"> * 此函数内部会分配信号量结构体</span></span><br><span class="line"><span class="comment"> * 返回值: 返回句柄，非NULL表示成功</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SemaphoreHandle_t <span class="title function_">xSemaphoreCreateBinary</span><span class="params">( <span class="type">void</span> )</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 创建一个二值信号量，返回它的句柄。</span></span><br><span class="line"><span class="comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span></span><br><span class="line"><span class="comment"> * 返回值: 返回句柄，非NULL表示成功</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SemaphoreHandle_t <span class="title function_">xSemaphoreCreateBinaryStatic</span><span class="params">( StaticSemaphore_t</span></span><br><span class="line"><span class="params">									*pxSemaphoreBuffer )</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 创建一个二值信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数内部会分配信号量结构体</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateBinary</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br><br><span class="hljs-comment">/* 创建一个二值信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateBinaryStatic</span><span class="hljs-params">( StaticSemaphore_t</span><br><span class="hljs-params">									*pxSemaphoreBuffer )</span>;<br></code></pre></td></tr></table></figure>
 
 <p>创建计数型信号量的函数原型如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 创建一个计数型信号量，返回它的句柄。</span></span><br><span class="line"><span class="comment"> * 此函数内部会分配信号量结构体</span></span><br><span class="line"><span class="comment"> * uxMaxCount: 最大计数值</span></span><br><span class="line"><span class="comment"> * uxInitialCount: 初始计数值</span></span><br><span class="line"><span class="comment"> * 返回值: 返回句柄，非NULL表示成功</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SemaphoreHandle_t <span class="title function_">xSemaphoreCreateCounting</span><span class="params">(UBaseType_t uxMaxCount, UBaseType_t</span></span><br><span class="line"><span class="params">									uxInitialCount)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 创建一个计数型信号量，返回它的句柄。</span></span><br><span class="line"><span class="comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span></span><br><span class="line"><span class="comment"> * uxMaxCount: 最大计数值</span></span><br><span class="line"><span class="comment"> * uxInitialCount: 初始计数值</span></span><br><span class="line"><span class="comment"> * pxSemaphoreBuffer: StaticSemaphore_t结构体指针</span></span><br><span class="line"><span class="comment"> * 返回值: 返回句柄，非NULL表示成功</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">SemaphoreHandle_t <span class="title function_">xSemaphoreCreateCountingStatic</span><span class="params">( UBaseType_t uxMaxCount,</span></span><br><span class="line"><span class="params">											UBaseType_t uxInitialCount,</span></span><br><span class="line"><span class="params">											StaticSemaphore_t</span></span><br><span class="line"><span class="params">											*pxSemaphoreBuffer )</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 创建一个计数型信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数内部会分配信号量结构体</span><br><span class="hljs-comment"> * uxMaxCount: 最大计数值</span><br><span class="hljs-comment"> * uxInitialCount: 初始计数值</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateCounting</span><span class="hljs-params">(UBaseType_t uxMaxCount, UBaseType_t</span><br><span class="hljs-params">									uxInitialCount)</span>;<br><br><span class="hljs-comment">/* 创建一个计数型信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span><br><span class="hljs-comment"> * uxMaxCount: 最大计数值</span><br><span class="hljs-comment"> * uxInitialCount: 初始计数值</span><br><span class="hljs-comment"> * pxSemaphoreBuffer: StaticSemaphore_t结构体指针</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateCountingStatic</span><span class="hljs-params">( UBaseType_t uxMaxCount,</span><br><span class="hljs-params">											UBaseType_t uxInitialCount,</span><br><span class="hljs-params">											StaticSemaphore_t</span><br><span class="hljs-params">											*pxSemaphoreBuffer )</span>;<br></code></pre></td></tr></table></figure>
 
 <h2 id="2、删除"><a href="#2、删除" class="headerlink" title="2、删除"></a>2、删除</h2><p>对于动态创建的信号量，不再需要它们时，可以删除它们以回收内存。<code>vSemaphoreDelete</code> 可以用来删除二值信号量、计数型信号量，函数原型如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * xSemaphore: 信号量句柄，你要删除哪个信号量</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">vSemaphoreDelete</span><span class="params">( SemaphoreHandle_t xSemaphore )</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xSemaphore: 信号量句柄，你要删除哪个信号量</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vSemaphoreDelete</span><span class="hljs-params">( SemaphoreHandle_t xSemaphore )</span>;<br></code></pre></td></tr></table></figure>
 
 <h2 id="3、give-take"><a href="#3、give-take" class="headerlink" title="3、give&#x2F;take"></a>3、give&#x2F;take</h2><p>二值信号量、计数型信号量的 give、take 操作函数是一样的。这些函数也分为 2 个版本：给任务使用，给 ISR 使用。列表如下：</p>
 <table>
@@ -291,7 +408,7 @@
 <ol>
 <li><code>xSemaphoreGive</code> 的函数原型如下：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BaseType_t <span class="title function_">xSemaphoreGive</span><span class="params">( SemaphoreHandle_t xSemaphore )</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreGive</span><span class="hljs-params">( SemaphoreHandle_t xSemaphore )</span>;<br></code></pre></td></tr></table></figure>
 
 <table>
 <thead>
@@ -312,7 +429,7 @@
 <ol start="2">
 <li><code>xSemaphoreGiveFromISR</code> 的函数原型如下：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BaseType_t <span class="title function_">xSemaphoreGiveFromISR</span><span class="params">(</span></span><br><span class="line"><span class="params">							SemaphoreHandle_t xSemaphore,</span></span><br><span class="line"><span class="params">							BaseType_t *pxHigherPriorityTaskWoken</span></span><br><span class="line"><span class="params">						)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreGiveFromISR</span><span class="hljs-params">(</span><br><span class="hljs-params">							SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">							BaseType_t *pxHigherPriorityTaskWoken</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
 
 <table>
 <thead>
@@ -337,7 +454,7 @@
 <ol start="3">
 <li><code>xSemaphoreTake</code> 的函数原型如下：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BaseType_t <span class="title function_">xSemaphoreTake</span><span class="params">(</span></span><br><span class="line"><span class="params">					SemaphoreHandle_t xSemaphore,</span></span><br><span class="line"><span class="params">					TickType_t xTicksToWait</span></span><br><span class="line"><span class="params">				)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreTake</span><span class="hljs-params">(</span><br><span class="hljs-params">					SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">					TickType_t xTicksToWait</span><br><span class="hljs-params">				)</span>;<br></code></pre></td></tr></table></figure>
 
 <table>
 <thead>
@@ -362,7 +479,7 @@
 <ol start="4">
 <li><code>xSemaphoreTakeFromISR</code> 的函数原型如下：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BaseType_t <span class="title function_">xSemaphoreTakeFromISR</span><span class="params">(</span></span><br><span class="line"><span class="params">							SemaphoreHandle_t xSemaphore,</span></span><br><span class="line"><span class="params">							BaseType_t *pxHigherPriorityTaskWoken</span></span><br><span class="line"><span class="params">						)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreTakeFromISR</span><span class="hljs-params">(</span><br><span class="hljs-params">							SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">							BaseType_t *pxHigherPriorityTaskWoken</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
 
 <table>
 <thead>
@@ -384,8 +501,381 @@
 <td>pdTRUE 表示成功</td>
 </tr>
 </tbody></table>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/">http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/FreeRTOS/">FreeRTOS</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/23/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AD/" title="FreeRTOS 快速入门（六）之互斥量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">FreeRTOS 快速入门（六）之互斥量</div></div><div class="info-2"><div class="info-item-1">[toc]  一、互斥量1、基本概念互斥量又称互斥信号量（本质是信号量），是&#x3D;&#x3D;一种特殊的二值信号量&#x3D;&#x3D;，它和信号量不同的是，它支持互斥量所有权、递归访问以及防止优先级翻转的特性，用于实现对临界资源的独占式处理。 任意时刻互斥量的状态只有两种，开锁或闭锁。当互斥量被任务持有时，该互斥量处于闭锁状态，这个任务获得互斥量的所有权。当该任务释放这个互斥量时，该互斥量处于开锁状态，任务失去该互斥量的所有权。当一个任务持有互斥量时，其他任务将不能再对该互斥量进行开锁或持有。持有该互斥量的任务也能够再次获得这个锁而不被挂起，这就是递归访问，也就是递归互斥量的特性，这个特性与一般的信号量有很大的不同，在信号量中，由于已经不存在可用的信号量，任务递归获取信号量时会发生主动挂起任务最终形成死锁。 如果想要用于实现同步（任务之间或者任务与中断之间），二值信号量或许是更好的选择，虽然互斥量也可以用于任务与任务、任务与中断的同步，但是互斥量更多的是用于保护资源的互锁。 互斥锁可以被视为一个与正在共享的资源相关联的令牌，对于合法访问资源的任务，它必须首先成功 “获取...</div></div></div></a><a class="pagination-related" href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">FreeRTOS 快速入门（四）之队列</div></div><div class="info-2"><div class="info-item-1">@toc  一、队列的特性1、数据存储一个队列能保存有限数量的固定大小的数据单元。一个队列能保存单元的最大数量叫做 “长度”。每个队列数据单元的长度与大小是在创建队列时设置的。 队列通常是一个先入先出（FIFO）的缓冲区，即数据在队列末尾（tail）被写入，在队列前部（head）移出。下图展示了数据被写入和移出作为 FIFO 使用的队列。也可以写入队列的前端，并覆盖已位于队列前端的数据。  2、传输数据的两种方法使用队列传输数据时有两种方法：  拷贝：把数据、把变量的值复制进队列里 引用：把数据、把变量的地址复制进队列里  FreeRTOS 使用&#x3D;&#x3D;拷贝值&#x3D;&#x3D;的方法，这更简单：  局部变量的值可以发送到队列中，后续即使函数退出、局部变量被回收，也不会影响队列中的数据 无需分配 buffer 来保存数据，队列中有 buffer 局部变量可以马上再次使用 发送任务、接收任务解耦：接收任务不需要知道这数据是谁的、也不需要发送任务来释放数据 如果数据实在太大，你还是可以使用队列传输它的地址 队列的空间有 FreeRTOS 内核分配，无需任务操心  ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" title="FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-18</div><div class="info-item-2">FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则</div></div><div class="info-2"><div class="info-item-1">[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port 表示接口的意思，就是 FreeRTOS 要移植到这些处理器上需要这些接口文件来把它们连接在一起。 在 FreeRTOS 中，&#x3D;&#x3D;int 型从不使用，只使用 short 和 long 型&#x3D;&#x3D;。在 Cortex-M 内核的 MCU 中，short 为 16 位，long 为 32 位。 在 portmacro.h 文件中，有如下定义： 1234567891011121314151617181920/* Type definitions. */    #define portCHAR          char    #define portFLOAT ...</div></div></div></a><a class="pagination-related" href="/2024/08/25/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AB/" title="FreeRTOS 快速入门（八）之任务通知"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-25</div><div class="info-item-2">FreeRTOS 快速入门（八）之任务通知</div></div><div class="info-2"><div class="info-item-1">[toc]  一、任务通知1、基本概念FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然更灵活。按照 FreeRTOS 官方的说法，使用任务通知比通过信号量等 ICP 通信方式解除阻塞的任务要快 45%，并且更加省 RAM 内存空间（使用 GCC 编译器，-o2 优化级别），任务通知的使用无需创建队列。  想要使用任务通知，必须将 FreeRTOSConfig.h 中的宏定义 configUSE_TASK_NOTIFICATIONS 设置为 1，其实FreeRTOS 默认是为 1 的，所以任务通知是默认使能的。 FreeRTOS 提供以下几种方式发送通知给任务 ：  发送通知给任务， 如果有通知未读，不覆盖通知值。 发送通知给任务，直接覆盖通知值。 发送通知给任务，设置通知...</div></div></div></a><a class="pagination-related" href="/2024/08/23/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AD/" title="FreeRTOS 快速入门（六）之互斥量"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-23</div><div class="info-item-2">FreeRTOS 快速入门（六）之互斥量</div></div><div class="info-2"><div class="info-item-1">[toc]  一、互斥量1、基本概念互斥量又称互斥信号量（本质是信号量），是&#x3D;&#x3D;一种特殊的二值信号量&#x3D;&#x3D;，它和信号量不同的是，它支持互斥量所有权、递归访问以及防止优先级翻转的特性，用于实现对临界资源的独占式处理。 任意时刻互斥量的状态只有两种，开锁或闭锁。当互斥量被任务持有时，该互斥量处于闭锁状态，这个任务获得互斥量的所有权。当该任务释放这个互斥量时，该互斥量处于开锁状态，任务失去该互斥量的所有权。当一个任务持有互斥量时，其他任务将不能再对该互斥量进行开锁或持有。持有该互斥量的任务也能够再次获得这个锁而不被挂起，这就是递归访问，也就是递归互斥量的特性，这个特性与一般的信号量有很大的不同，在信号量中，由于已经不存在可用的信号量，任务递归获取信号量时会发生主动挂起任务最终形成死锁。 如果想要用于实现同步（任务之间或者任务与中断之间），二值信号量或许是更好的选择，虽然互斥量也可以用于任务与任务、任务与中断的同步，但是互斥量更多的是用于保护资源的互锁。 互斥锁可以被视为一个与正在共享的资源相关联的令牌，对于合法访问资源的任务，它必须首先成功 “获取...</div></div></div></a><a class="pagination-related" href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-21</div><div class="info-item-2">FreeRTOS 快速入门（四）之队列</div></div><div class="info-2"><div class="info-item-1">@toc  一、队列的特性1、数据存储一个队列能保存有限数量的固定大小的数据单元。一个队列能保存单元的最大数量叫做 “长度”。每个队列数据单元的长度与大小是在创建队列时设置的。 队列通常是一个先入先出（FIFO）的缓冲区，即数据在队列末尾（tail）被写入，在队列前部（head）移出。下图展示了数据被写入和移出作为 FIFO 使用的队列。也可以写入队列的前端，并覆盖已位于队列前端的数据。  2、传输数据的两种方法使用队列传输数据时有两种方法：  拷贝：把数据、把变量的值复制进队列里 引用：把数据、把变量的地址复制进队列里  FreeRTOS 使用&#x3D;&#x3D;拷贝值&#x3D;&#x3D;的方法，这更简单：  局部变量的值可以发送到队列中，后续即使函数退出、局部变量被回收，也不会影响队列中的数据 无需分配 buffer 来保存数据，队列中有 buffer 局部变量可以马上再次使用 发送任务、接收任务解耦：接收任务不需要知道这数据是谁的、也不需要发送任务来释放数据 如果数据实在太大，你还是可以使用队列传输它的地址 队列的空间有 FreeRTOS 内核分配，无需任务操心  ...</div></div></div></a><a class="pagination-related" href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS 队列 Queue 源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-06</div><div class="info-item-2">FreeRTOS 队列 Queue 源码解析</div></div><div class="info-2"><div class="info-item-1">[toc]  在 FreeRTOS 快速入门（四）之队列 一文中，我简单地叙述了 FreeRTOS 中队列的工作机制和基本使用。这一节我将依据 FreeRTOS V10.4.3 的源码深入地去探究队列是如何实现的。学好队列对我们后续学习信号量等知识的时候有很大的帮助。 一、队列1、队列结构体队列结构体定义在目录 queue.c 下： 1234567891011121314151617181920212223242526272829303132333435363738typedef struct QueueDefinition&#123;    int8_t * pcHead;     // 指向队列存储区的头部和下一个可写入的位置    int8_t * pcWriteTo;  // 指向队列存储区下一个可写入的位置    union    &#123;        QueuePointers_t xQueue;      // 当该结构体用作队列时所需的独有数据        SemaphoreData_t xSemaphore;  // 当该结构体用作信号量时所需的独有数据...</div></div></div></a><a class="pagination-related" href="/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS 列表 List 源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-29</div><div class="info-item-2">FreeRTOS 列表 List 源码解析</div></div><div class="info-2"><div class="info-item-1">@toc  链表是 FreeRTOS 的核心数据结构，有关任务调度、延时、阻塞、事件等操作都是通过对链表进行操作进而实现的。本节将详细分析源码文件 list.c，list.h 的内容，为后续的任务队列等的实现奠定基础。 一、链表及链表项的定义FreeRTOS 使用的链表结构是环形的双向链表，而关于链表节点的数据结构都在 list.h 中定义。 1、链表节点数据结构 xList_ITEM首先来看链表节点数据结构定义： 12345678910111213struct xLIST_ITEM&#123;	// 第一个和最后一个成员值	// 当 configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES 被使能的时候会被设定为一个固定值，用来检验一个列表项数据是否完整    listFIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE                 configLIST_VOLATILE TickType_t xItemValue;           // 辅助值，用于帮助节点做顺序排列    struct xLIST_IT...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E7%89%B9%E6%80%A7"><span class="toc-number">1.</span> <span class="toc-text">一、信号量的特性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BF%A1%E5%8F%B7%E9%87%8F%E8%B7%9F%E9%98%9F%E5%88%97%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-number">1.1.</span> <span class="toc-text">1、信号量跟队列的对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E4%B8%A4%E7%A7%8D%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-number">1.2.</span> <span class="toc-text">2、两种信号量的对比</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-number">2.</span> <span class="toc-text">二、信号量</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-number">2.1.</span> <span class="toc-text">1、二值信号量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%94%A8%E4%BA%8E%E5%90%8C%E6%AD%A5"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 二值信号量用于同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%94%A8%E4%BA%8E%E4%BA%92%E6%96%A5"><span class="toc-number">2.1.2.</span> <span class="toc-text">1.2 二值信号量用于互斥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-number">2.2.</span> <span class="toc-text">2、计数信号量</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BF%A1%E5%8F%B7%E9%87%8F%E5%87%BD%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">三、信号量函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%88%9B%E5%BB%BA"><span class="toc-number">3.1.</span> <span class="toc-text">1、创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%88%A0%E9%99%A4"><span class="toc-number">3.2.</span> <span class="toc-text">2、删除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81give-take"><span class="toc-number">3.3.</span> <span class="toc-text">3、give&#x2F;take</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/FreeRTOS/" class="print-no-link">#FreeRTOS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeRTOS 快速入门（五）之信号量</div>
+      <div>http://example.com/2024/08/22/FreeRTOS入门五/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/23/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AD/" title="FreeRTOS 快速入门（六）之互斥量">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FreeRTOS 快速入门（六）之互斥量</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列">
+                        <span class="hidden-mobile">FreeRTOS 快速入门（四）之队列</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

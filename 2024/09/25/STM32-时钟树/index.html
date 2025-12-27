@@ -1,173 +1,299 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STM32 时钟树（基于 STM32F407） | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 时钟树（基于 STM32F407）">
 <meta property="og:url" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/1.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/2.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/3.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/4.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/5.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/6.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/7.png">
+<meta property="og:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/8.png">
 <meta property="article:published_time" content="2024-09-25T07:32:02.000Z">
 <meta property="article:modified_time" content="2024-11-14T07:38:22.199Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="STM32">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "STM32 时钟树（基于 STM32F407）",
-  "url": "http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-09-25T07:32:02.000Z",
-  "dateModified": "2024-11-14T07:38:22.199Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>STM32 时钟树（基于 STM32F407） - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="STM32 时钟树（基于 STM32F407）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-25 15:32" pubdate>
+          星期三, 九月 25日 2024, 3:32 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'STM32 时钟树（基于 STM32F407）',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">STM32 时钟树（基于 STM32F407）</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">STM32 时钟树（基于 STM32F407）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-25T07:32:02.000Z" title="发表于 2024-09-25 15:32:02">2024-09-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T07:38:22.199Z" title="更新于 2024-11-14 15:38:22">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">STM32 时钟树（基于 STM32F407）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
 <hr>
 <h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组合电路，在每一级输出结果前对各个信号进行采样，从而使得电路中某些信号即使出现延时也可以保证各个信号的同步，可以避免电路中发生的“毛刺现象”，达到精确控制输出的效果。</p>
 <p>由于时序电路的重要性，因此在 MCU 设计时就设计了专门用于控制时序的电路，在芯片设计中称为时钟树设计。由此设计出来的时钟，可以精确控制我们的单片机系统。对于STM32F4 系列的芯片，正常工作的主频可以达到 168Mhz，但并不是所有外设都需要系统时钟这么高的频率，比如看门狗以及 RTC 只需要几十 Khz 的时钟即可。同一个电路，时钟越快功耗越大，同时抗电磁干扰能力也会越弱，所以对于较为复杂的 MCU 一般都是采取多时钟源的方法来解决这些问题。</p>
 <p>STM32 本身非常复杂，外设非常的多，为了保持低功耗工作，STM32 的主控默认不开启这些外设功能。用户可以根据自己的需要决定STM32 芯片要使用的功能，这个功能开关在 STM32 主控中也就是各个外设的时钟。</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="二、时钟树框图"><a href="#二、时钟树框图" class="headerlink" title="二、时钟树框图"></a>二、时钟树框图</h1><p>下图选自 STM32F4xx 参考手册：</p>
-<p><img src="2.png"></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面来详细讨论上图中红框中的内容。</p>
 <h2 id="1、时钟源"><a href="#1、时钟源" class="headerlink" title="1、时钟源"></a>1、时钟源</h2><p>对于 STM32F4，输入时钟源主要包括 <code>HSI</code>，<code>HSE</code>，<code>LSI</code>，<code>LSE</code>。其中，从时钟频率来分可以分为高速时钟源和低速时钟源，其中 <code>HSI</code>、<code>HSE</code> 是高速时钟，<code>LSI</code> 和 <code>LSE</code> 是低速时钟。从来源可分为外部时钟源和内部时钟源，外部时钟源就是从外部通过接晶振的方式获取时钟源，其中 <code>HSE</code> 和 <code>LSE</code> 是外部时钟源；其他是内部时钟源，芯片上电即可产生，不需要借助外部电路。</p>
 <ul>
@@ -193,14 +319,14 @@
 <li>专用 PLL(<code>PLLI2S</code>)用于生成精确时钟，从而在 <code>I2S</code> 接口实现高品质音频性能。</li>
 </ol>
 <p>这里我们着重看看主PLL时钟第一个高速时钟输出PLLP的计算方法。如图：</p>
-<p><img src="3.png"><br>主 PLL 时钟的时钟源要先经过一个分频系数为 M 的分频器，然后经过倍频系数为 N 的倍频器出来之后的时候还需要经过一个分频系数为 P（第一个输出 PLLP）或者 Q（第二个输出 PLLQ）的分频器分频之后，最后才生成最终的主 PLL 时钟。</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>主 PLL 时钟的时钟源要先经过一个分频系数为 M 的分频器，然后经过倍频系数为 N 的倍频器出来之后的时候还需要经过一个分频系数为 P（第一个输出 PLLP）或者 Q（第二个输出 PLLQ）的分频器分频之后，最后才生成最终的主 PLL 时钟。</p>
 <p>例如我们的外部晶振选择 8MHz。同时我们设置相应的分频器 M&#x3D;8，倍频器倍频系数 N&#x3D;336，分频器分频系数 P&#x3D;2，那么主 PLL 生成的第一个输出高速时钟 PLLP 为：</p>
 <p>$$<br>PLL&#x3D;8MHz* N&#x2F; (M<em>P)&#x3D;8MHz</em> 336 &#x2F;(8*2) &#x3D; 168MHz<br>$$</p>
 <p>如果我们选择 HSE 为 PLL 时钟源，同时 SYSCLK 时钟源为 PLL，那么 SYSCLK 时钟为 168MHz。</p>
 <h2 id="3、系统时钟"><a href="#3、系统时钟" class="headerlink" title="3、系统时钟"></a>3、系统时钟</h2><p>STM32 的系统时钟 SYSCLK 为整个芯片提供了时序信号。</p>
 <p>讲解 PLL 作为系统时钟时，讲到了如何把主频通过 PLL 设置为 168MHz。从上面的时钟树图可知，AHB、APB1、APB2、内核时钟等时钟通过系统时钟分频得到。根据得到的这个系统时钟，下面我们结合外设来看一看各个外设时钟源。</p>
 <p>下面结合 STM32CubeMX 的时钟树来看：</p>
-<p><img src="4.png"></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <p>可以看到，系统时钟输入源可选时钟信号有外部高速时钟 HSE(8M)、内部高速时钟 HSI(16M)和经过倍频的 PLL CLK(168M)。这里选择 PLL CLK 作为系统时钟，此时系统时钟的频率为 168MHz。</p>
 <p>然后是 AHB 预分频器，其中可选择的分频系数为1，2，4，8，16，32，64，128，256，512，我们选择不分频，所以 AHB 总线时钟达到最大的 168MHz。</p>
 <p>然后看由 AHB 总线时钟得到的时钟：</p>
@@ -209,7 +335,7 @@
 <li><strong>APB2 总线时钟</strong>，由 HCLK 经过标号 APB2 预分频器得到，分频因子可以选择1，2，4，8，16，这里我们选择的是 2 分频，所以APB2 总线时钟频率为 84M。与 APB2 高速总线连接的外设有定时器 1&#x2F;8&#x2F;9&#x2F;10&#x2F;11、SPI1、USART1 和 USART6、3 个 ADC 和 SDIO 接口。</li>
 <li><strong>AHB 总线时钟</strong> 直接作为 GPIO(A\B\C\D\E\F\G\H\I)、以太网、DCMI、FSMC、AHB 总线、Cortex 内核、存储器和 DMA 的 HCLK 时钟，并作为 Cortex 内核自由运行时钟 FCLK。</li>
 </ol>
-<h2 id="4、时钟信号输出-MCO"><a href="#4、时钟信号输出-MCO" class="headerlink" title="4、时钟信号输出 MCO"></a>4、时钟信号输出 MCO</h2><p><img src="5.png"><br>MCO 时钟输出的作用是为外部器件提供时钟。STM32 允许通过设置，通过 MCO 引脚输出一个稳定的时钟信号。</p>
+<h2 id="4、时钟信号输出-MCO"><a href="#4、时钟信号输出-MCO" class="headerlink" title="4、时钟信号输出 MCO"></a>4、时钟信号输出 MCO</h2><p><img src="5.png" srcset="/img/loading.gif" lazyload><br>MCO 时钟输出的作用是为外部器件提供时钟。STM32 允许通过设置，通过 MCO 引脚输出一个稳定的时钟信号。</p>
 <p>从右向左依次为：</p>
 <ul>
 <li>MCO1\MCO2 时钟源选择器<ul>
@@ -226,23 +352,23 @@
 <h1 id="三、时钟配置"><a href="#三、时钟配置" class="headerlink" title="三、时钟配置"></a>三、时钟配置</h1><p>STM32F407 默认的情况下（比如：串口 IAP 时或者是未初始化时钟时），使用的是内部 8M 的 HSI 作为时钟源，所以不需要外部晶振也可以下载和运行代码的。</p>
 <p>下面就来讲解如何让 STM32F407 芯片在 168MHz 的频率下工作，168MHz 是官方推荐使用的最高的稳定时钟频率。</p>
 <h2 id="1、修改主频"><a href="#1、修改主频" class="headerlink" title="1、修改主频"></a>1、修改主频</h2><h3 id="1-1-配置-HSE-VALUE"><a href="#1-1-配置-HSE-VALUE" class="headerlink" title="1.1 配置 HSE_VALUE"></a>1.1 配置 HSE_VALUE</h3><p>在文件 <code>stm32f4xx.h</code> 有如下内容：</p>
-<p><img src="6.png"></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <p>宏定义 <code>HSE_VALUE</code> 匹配我们实际硬件的高速晶振频率（我的板子是 8MHz），代码中通过使用宏定义的方式来选择 <code>HSE_VALUE</code> 的值是 25M 或者 8M。</p>
 <p>或者直接在 Keil 中添加宏定义也可以：</p>
-<p><img src="7.png"></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="1-2-调用-SystemInit-函数"><a href="#1-2-调用-SystemInit-函数" class="headerlink" title="1.2 调用 SystemInit 函数"></a>1.2 调用 SystemInit 函数</h3><p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142333178">STM32 芯片启动过程</a> 一文中我提到过 <code>SystemInit</code> 函数。该函数定义在文件 <code>system_stm32f4xx.c</code> 中，源码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">SystemInit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* FPU settings ------------------------------------------------------------*/</span></span><br><span class="line">  <span class="meta">#<span class="keyword">if</span> (__FPU_PRESENT == 1) &amp;&amp; (__FPU_USED == 1)</span></span><br><span class="line">    SCB-&gt;CPACR |= ((<span class="number">3UL</span> &lt;&lt; <span class="number">10</span>*<span class="number">2</span>)|(<span class="number">3UL</span> &lt;&lt; <span class="number">11</span>*<span class="number">2</span>));  <span class="comment">/* set CP10 and CP11 Full Access */</span></span><br><span class="line">  <span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">  <span class="comment">/* Reset the RCC clock configuration to the default reset state ------------*/</span></span><br><span class="line">  <span class="comment">/* Set HSION bit */</span></span><br><span class="line">  RCC-&gt;CR |= (<span class="type">uint32_t</span>)<span class="number">0x00000001</span>;  <span class="comment">// HSI 振荡器打开</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Reset CFGR register */</span></span><br><span class="line">  RCC-&gt;CFGR = <span class="number">0x00000000</span>;  </span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Reset HSEON, CSSON and PLLON bits */</span></span><br><span class="line">  RCC-&gt;CR &amp;= (<span class="type">uint32_t</span>)<span class="number">0xFEF6FFFF</span>;  <span class="comment">// 关闭PLL，关闭时钟监测器，关闭 HSE振荡器</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Reset PLLCFGR register */</span></span><br><span class="line">  RCC-&gt;PLLCFGR = <span class="number">0x24003010</span>; </span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Reset HSEBYP bit */</span></span><br><span class="line">  RCC-&gt;CR &amp;= (<span class="type">uint32_t</span>)<span class="number">0xFFFBFFFF</span>;  <span class="comment">// 不旁路 HSE 振荡器</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Disable all interrupts */</span></span><br><span class="line">  RCC-&gt;CIR = <span class="number">0x00000000</span>;  <span class="comment">// 关闭所有中断</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(DATA_IN_ExtSRAM) || defined(DATA_IN_ExtSDRAM)</span></span><br><span class="line">  SystemInit_ExtMemCtl(); </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */</span></span></span><br><span class="line">         </span><br><span class="line">  <span class="comment">/* Configure the System clock source, PLL Multiplier and Divider factors, </span></span><br><span class="line"><span class="comment">     AHB/APBx prescalers and Flash settings ----------------------------------*/</span></span><br><span class="line">  SetSysClock();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Configure the Vector Table location add offset address ------------------*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> VECT_TAB_SRAM</span></span><br><span class="line">  SCB-&gt;VTOR = SRAM_BASE | VECT_TAB_OFFSET; <span class="comment">/* Vector Table Relocation in Internal SRAM */</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">  SCB-&gt;VTOR = FLASH_BASE | VECT_TAB_OFFSET; <span class="comment">/* Vector Table Relocation in Internal FLASH */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">SystemInit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-comment">/* FPU settings ------------------------------------------------------------*/</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">if</span> (__FPU_PRESENT == 1) &amp;&amp; (__FPU_USED == 1)</span><br>    SCB-&gt;CPACR |= ((<span class="hljs-number">3UL</span> &lt;&lt; <span class="hljs-number">10</span>*<span class="hljs-number">2</span>)|(<span class="hljs-number">3UL</span> &lt;&lt; <span class="hljs-number">11</span>*<span class="hljs-number">2</span>));  <span class="hljs-comment">/* set CP10 and CP11 Full Access */</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>  <span class="hljs-comment">/* Reset the RCC clock configuration to the default reset state ------------*/</span><br>  <span class="hljs-comment">/* Set HSION bit */</span><br>  RCC-&gt;CR |= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x00000001</span>;  <span class="hljs-comment">// HSI 振荡器打开</span><br><br>  <span class="hljs-comment">/* Reset CFGR register */</span><br>  RCC-&gt;CFGR = <span class="hljs-number">0x00000000</span>;  <br><br>  <span class="hljs-comment">/* Reset HSEON, CSSON and PLLON bits */</span><br>  RCC-&gt;CR &amp;= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFEF6FFFF</span>;  <span class="hljs-comment">// 关闭PLL，关闭时钟监测器，关闭 HSE振荡器</span><br><br>  <span class="hljs-comment">/* Reset PLLCFGR register */</span><br>  RCC-&gt;PLLCFGR = <span class="hljs-number">0x24003010</span>; <br><br>  <span class="hljs-comment">/* Reset HSEBYP bit */</span><br>  RCC-&gt;CR &amp;= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFFFBFFFF</span>;  <span class="hljs-comment">// 不旁路 HSE 振荡器</span><br><br>  <span class="hljs-comment">/* Disable all interrupts */</span><br>  RCC-&gt;CIR = <span class="hljs-number">0x00000000</span>;  <span class="hljs-comment">// 关闭所有中断</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(DATA_IN_ExtSRAM) || defined(DATA_IN_ExtSDRAM)</span><br>  SystemInit_ExtMemCtl(); <br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */</span></span><br>         <br>  <span class="hljs-comment">/* Configure the System clock source, PLL Multiplier and Divider factors, </span><br><span class="hljs-comment">     AHB/APBx prescalers and Flash settings ----------------------------------*/</span><br>  SetSysClock();<br><br>  <span class="hljs-comment">/* Configure the Vector Table location add offset address ------------------*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> VECT_TAB_SRAM</span><br>  SCB-&gt;VTOR = SRAM_BASE | VECT_TAB_OFFSET; <span class="hljs-comment">/* Vector Table Relocation in Internal SRAM */</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>  SCB-&gt;VTOR = FLASH_BASE | VECT_TAB_OFFSET; <span class="hljs-comment">/* Vector Table Relocation in Internal FLASH */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>最主要的工作都是在函数 <code>SetSysClock</code> 里进行的，它进行了系统时钟源配置和各个分频器的设置。精简后如下（<code>STM32F40_41xxx</code>）：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">SetSysClock</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="comment">/******************************************************************************/</span></span><br><span class="line"><span class="comment">/*            PLL (clocked by HSE) used as System clock source                */</span></span><br><span class="line"><span class="comment">/******************************************************************************/</span></span><br><span class="line">  __IO <span class="type">uint32_t</span> StartUpCounter = <span class="number">0</span>, HSEStatus = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/* Enable HSE */</span></span><br><span class="line">  RCC-&gt;CR |= ((<span class="type">uint32_t</span>)RCC_CR_HSEON);  <span class="comment">// 打开 HSE 振荡器</span></span><br><span class="line"> </span><br><span class="line">  <span class="comment">/* Wait till HSE is ready and if Time out is reached exit */</span></span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    HSEStatus = RCC-&gt;CR &amp; RCC_CR_HSERDY;  <span class="comment">// 等待 HSE 振荡器就绪</span></span><br><span class="line">    StartUpCounter++;				      <span class="comment">// 超时时间：0x05000</span></span><br><span class="line">  &#125; <span class="keyword">while</span>((HSEStatus == <span class="number">0</span>) &amp;&amp; (StartUpCounter != HSE_STARTUP_TIMEOUT));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 判断是否超时 </span></span><br><span class="line">  <span class="keyword">if</span> ((RCC-&gt;CR &amp; RCC_CR_HSERDY) != RESET) <span class="comment">// HSE 振荡器已就绪</span></span><br><span class="line">  &#123;</span><br><span class="line">    HSEStatus = (<span class="type">uint32_t</span>)<span class="number">0x01</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span>  <span class="comment">// HSE 振荡器未就绪</span></span><br><span class="line">  &#123;</span><br><span class="line">    HSEStatus = (<span class="type">uint32_t</span>)<span class="number">0x00</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (HSEStatus == (<span class="type">uint32_t</span>)<span class="number">0x01</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">/* Select regulator voltage output Scale 1 mode */</span></span><br><span class="line">    <span class="comment">// 使能电源时钟</span></span><br><span class="line">    RCC-&gt;APB1ENR |= RCC_APB1ENR_PWREN;  </span><br><span class="line">    PWR-&gt;CR |= PWR_CR_VOS;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* HCLK = SYSCLK / 1*/</span></span><br><span class="line">    RCC-&gt;CFGR |= RCC_CFGR_HPRE_DIV1;  <span class="comment">// 不进行分频</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* PCLK2 = HCLK / 2*/</span></span><br><span class="line">    RCC-&gt;CFGR |= RCC_CFGR_PPRE2_DIV2;  <span class="comment">// 设置AHB时钟 2分频，即 APB2=AHB/2</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* PCLK1 = HCLK / 4*/</span></span><br><span class="line">    RCC-&gt;CFGR |= RCC_CFGR_PPRE1_DIV4;  <span class="comment">// 设置AHB时钟 4分频 APB1 = AHB/4</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* Configure the main PLL */</span></span><br><span class="line">	<span class="comment">// 设置 PLL 分频器</span></span><br><span class="line">    RCC-&gt;PLLCFGR = PLL_M | (PLL_N &lt;&lt; <span class="number">6</span>) | (((PLL_P &gt;&gt; <span class="number">1</span>) <span class="number">-1</span>) &lt;&lt; <span class="number">16</span>) |</span><br><span class="line">                   (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q &lt;&lt; <span class="number">24</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Enable the main PLL */</span></span><br><span class="line">    RCC-&gt;CR |= RCC_CR_PLLON;  <span class="comment">// 开启 PLL</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Wait till the main PLL is ready */</span></span><br><span class="line">    <span class="comment">// 等待主PLL时钟就绪</span></span><br><span class="line">    <span class="keyword">while</span>((RCC-&gt;CR &amp; RCC_CR_PLLRDY) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Configure Flash prefetch, Instruction cache, Data cache and wait state */</span></span><br><span class="line">    FLASH-&gt;ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Select the main PLL as system clock source */</span></span><br><span class="line">	<span class="comment">// 选择 PLL 作为系统时钟</span></span><br><span class="line">    RCC-&gt;CFGR &amp;= (<span class="type">uint32_t</span>)((<span class="type">uint32_t</span>)~(RCC_CFGR_SW));</span><br><span class="line">    RCC-&gt;CFGR |= RCC_CFGR_SW_PLL;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Wait till the main PLL is used as system clock source */</span></span><br><span class="line">    <span class="comment">// 等待PLL时钟设置完成</span></span><br><span class="line">    <span class="keyword">while</span> ((RCC-&gt;CFGR &amp; (<span class="type">uint32_t</span>)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123; <span class="comment">/* If HSE fails to start-up, the application will have wrong clock</span></span><br><span class="line"><span class="comment">         configuration. User can add here some code to deal with this error */</span></span><br><span class="line">    <span class="comment">// 时钟开启失败</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">SetSysClock</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br><span class="hljs-comment">/******************************************************************************/</span><br><span class="hljs-comment">/*            PLL (clocked by HSE) used as System clock source                */</span><br><span class="hljs-comment">/******************************************************************************/</span><br>  __IO <span class="hljs-type">uint32_t</span> StartUpCounter = <span class="hljs-number">0</span>, HSEStatus = <span class="hljs-number">0</span>;<br>  <br>  <span class="hljs-comment">/* Enable HSE */</span><br>  RCC-&gt;CR |= ((<span class="hljs-type">uint32_t</span>)RCC_CR_HSEON);  <span class="hljs-comment">// 打开 HSE 振荡器</span><br> <br>  <span class="hljs-comment">/* Wait till HSE is ready and if Time out is reached exit */</span><br>  <span class="hljs-keyword">do</span><br>  &#123;<br>    HSEStatus = RCC-&gt;CR &amp; RCC_CR_HSERDY;  <span class="hljs-comment">// 等待 HSE 振荡器就绪</span><br>    StartUpCounter++;				      <span class="hljs-comment">// 超时时间：0x05000</span><br>  &#125; <span class="hljs-keyword">while</span>((HSEStatus == <span class="hljs-number">0</span>) &amp;&amp; (StartUpCounter != HSE_STARTUP_TIMEOUT));<br><br>  <span class="hljs-comment">// 判断是否超时 </span><br>  <span class="hljs-keyword">if</span> ((RCC-&gt;CR &amp; RCC_CR_HSERDY) != RESET) <span class="hljs-comment">// HSE 振荡器已就绪</span><br>  &#123;<br>    HSEStatus = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x01</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span>  <span class="hljs-comment">// HSE 振荡器未就绪</span><br>  &#123;<br>    HSEStatus = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x00</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">if</span> (HSEStatus == (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x01</span>)<br>  &#123;<br>    <span class="hljs-comment">/* Select regulator voltage output Scale 1 mode */</span><br>    <span class="hljs-comment">// 使能电源时钟</span><br>    RCC-&gt;APB1ENR |= RCC_APB1ENR_PWREN;  <br>    PWR-&gt;CR |= PWR_CR_VOS;<br><br>    <span class="hljs-comment">/* HCLK = SYSCLK / 1*/</span><br>    RCC-&gt;CFGR |= RCC_CFGR_HPRE_DIV1;  <span class="hljs-comment">// 不进行分频</span><br><br>    <span class="hljs-comment">/* PCLK2 = HCLK / 2*/</span><br>    RCC-&gt;CFGR |= RCC_CFGR_PPRE2_DIV2;  <span class="hljs-comment">// 设置AHB时钟 2分频，即 APB2=AHB/2</span><br>    <br>    <span class="hljs-comment">/* PCLK1 = HCLK / 4*/</span><br>    RCC-&gt;CFGR |= RCC_CFGR_PPRE1_DIV4;  <span class="hljs-comment">// 设置AHB时钟 4分频 APB1 = AHB/4</span><br>	<br>	<span class="hljs-comment">/* Configure the main PLL */</span><br>	<span class="hljs-comment">// 设置 PLL 分频器</span><br>    RCC-&gt;PLLCFGR = PLL_M | (PLL_N &lt;&lt; <span class="hljs-number">6</span>) | (((PLL_P &gt;&gt; <span class="hljs-number">1</span>) <span class="hljs-number">-1</span>) &lt;&lt; <span class="hljs-number">16</span>) |<br>                   (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q &lt;&lt; <span class="hljs-number">24</span>);<br><br>	<span class="hljs-comment">/* Enable the main PLL */</span><br>    RCC-&gt;CR |= RCC_CR_PLLON;  <span class="hljs-comment">// 开启 PLL</span><br><br>    <span class="hljs-comment">/* Wait till the main PLL is ready */</span><br>    <span class="hljs-comment">// 等待主PLL时钟就绪</span><br>    <span class="hljs-keyword">while</span>((RCC-&gt;CR &amp; RCC_CR_PLLRDY) == <span class="hljs-number">0</span>)<br>    &#123;<br>    &#125;<br><br>	<span class="hljs-comment">/* Configure Flash prefetch, Instruction cache, Data cache and wait state */</span><br>    FLASH-&gt;ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;<br><br>	<span class="hljs-comment">/* Select the main PLL as system clock source */</span><br>	<span class="hljs-comment">// 选择 PLL 作为系统时钟</span><br>    RCC-&gt;CFGR &amp;= (<span class="hljs-type">uint32_t</span>)((<span class="hljs-type">uint32_t</span>)~(RCC_CFGR_SW));<br>    RCC-&gt;CFGR |= RCC_CFGR_SW_PLL;<br><br>    <span class="hljs-comment">/* Wait till the main PLL is used as system clock source */</span><br>    <span class="hljs-comment">// 等待PLL时钟设置完成</span><br>    <span class="hljs-keyword">while</span> ((RCC-&gt;CFGR &amp; (<span class="hljs-type">uint32_t</span>)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);<br>    &#123;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123; <span class="hljs-comment">/* If HSE fails to start-up, the application will have wrong clock</span><br><span class="hljs-comment">         configuration. User can add here some code to deal with this error */</span><br>    <span class="hljs-comment">// 时钟开启失败</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>单独说一下这段：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RCC-&gt;PLLCFGR = PLL_M | (PLL_N &lt;&lt; <span class="number">6</span>) | (((PLL_P &gt;&gt; <span class="number">1</span>) <span class="number">-1</span>) &lt;&lt; <span class="number">16</span>) |</span><br><span class="line">               (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q &lt;&lt; <span class="number">24</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">RCC-&gt;PLLCFGR = PLL_M | (PLL_N &lt;&lt; <span class="hljs-number">6</span>) | (((PLL_P &gt;&gt; <span class="hljs-number">1</span>) <span class="hljs-number">-1</span>) &lt;&lt; <span class="hljs-number">16</span>) |<br>               (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q &lt;&lt; <span class="hljs-number">24</span>);<br></code></pre></td></tr></table></figure>
 
 <p>对于 RCC_PLLCFGR 寄存器，官方文档说明如下：</p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <p>而代码中的各个宏的值如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PLL_M 8</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PLL_N 336</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PLL_P 2</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RCC_PLLCFGR_PLLSRC_HSE ((uint32_t)0x00400000)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PLL_Q 7</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_M 8</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_N 336</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_P 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RCC_PLLCFGR_PLLSRC_HSE ((uint32_t)0x00400000)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_Q 7</span><br></code></pre></td></tr></table></figure>
 
 <p>算出来这里的 <code>RCC-&gt;PLLCFGR</code> 的结果为：$0740 5408$，设置结果为：</p>
 <ul>
@@ -255,17 +381,390 @@
 <p>时钟配置相关的内容就告一段落了。</p>
 <h2 id="2、STM32F4-时钟使能和配置"><a href="#2、STM32F4-时钟使能和配置" class="headerlink" title="2、STM32F4 时钟使能和配置"></a>2、STM32F4 时钟使能和配置</h2><p>在配置好时钟系统之后，如果我们要使用某些外设，例如 GPIO，ADC 等，我们还要使能这些外设时钟。这里需要注意，如果在使用外设之前没有使能外设时钟，这个外设是不可能正常运行的。STM32 的外设时钟使能是在 RCC 相关寄存器中配置的。</p>
 <p>下面以 AHB1 总线上的外设的时钟使能函数为例：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">RCC_AHB1PeriphClockCmd</span><span class="params">(<span class="type">uint32_t</span> RCC_AHB1Periph, FunctionalState NewState)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* Check the parameters */</span></span><br><span class="line">  assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));</span><br><span class="line"></span><br><span class="line">  assert_param(IS_FUNCTIONAL_STATE(NewState));</span><br><span class="line">  <span class="keyword">if</span> (NewState != DISABLE)</span><br><span class="line">  &#123;</span><br><span class="line">    RCC-&gt;AHB1ENR |= RCC_AHB1Periph;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    RCC-&gt;AHB1ENR &amp;= ~RCC_AHB1Periph;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_AHB1PeriphClockCmd</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> RCC_AHB1Periph, FunctionalState NewState)</span><br>&#123;<br>  <span class="hljs-comment">/* Check the parameters */</span><br>  assert_param(IS_RCC_AHB1_CLOCK_PERIPH(RCC_AHB1Periph));<br><br>  assert_param(IS_FUNCTIONAL_STATE(NewState));<br>  <span class="hljs-keyword">if</span> (NewState != DISABLE)<br>  &#123;<br>    RCC-&gt;AHB1ENR |= RCC_AHB1Periph;<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br>    RCC-&gt;AHB1ENR &amp;= ~RCC_AHB1Periph;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>如果我们想用 GPIOA，就用如下语句来使能其时钟：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);<br></code></pre></td></tr></table></figure>
 
 <p>其它总线类似：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">RCC_AHB2PeriphClockCmd</span><span class="params">(<span class="type">uint32_t</span> RCC_AHB2Periph, FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_AHB3PeriphClockCmd</span><span class="params">(<span class="type">uint32_t</span> RCC_AHB3Periph, FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_APB1PeriphClockCmd</span><span class="params">(<span class="type">uint32_t</span> RCC_APB1Periph, FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_APB2PeriphClockCmd</span><span class="params">(<span class="type">uint32_t</span> RCC_APB2Periph, FunctionalState NewState)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_AHB2PeriphClockCmd</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> RCC_AHB2Periph, FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_AHB3PeriphClockCmd</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> RCC_AHB3Periph, FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_APB1PeriphClockCmd</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> RCC_APB1Periph, FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_APB2PeriphClockCmd</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> RCC_APB2Periph, FunctionalState NewState)</span><br></code></pre></td></tr></table></figure>
 
 <p>时钟源使能函数共有六个：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">RCC_HSICmd</span><span class="params">(FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_LSICmd</span><span class="params">(FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_PLLCmd</span><span class="params">(FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_PLLI2SCmd</span><span class="params">(FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_PLLSAICmd</span><span class="params">(FunctionalState NewState)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">RCC_RTCCLKCmd</span><span class="params">(FunctionalState NewState)</span>;</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/">http://example.com/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/26/Git-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" title="Git 基本操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Git 基本操作</div></div><div class="info-2"><div class="info-item-1">[toc]   一、基本概念Git 是一种分布式版本控制系统，用于跟踪和管理代码的变更。它最初是由 Linus Torvalds 开发的，用于管理 Linux 内核的源代码。 Git 在软件开发中被广泛应用，尤其是在团队协作和开源项目中。通过使用 Git，开发人员可以更好地管理代码、协同工作、追踪问题和版本发布等。 1、工作区域Git 管理项目时，文件流转的三个工作区域：Git 的工作目录，暂存区域，以及本地仓库。  你的本地仓库由 Git 维护的三棵”树”组成。  工作目录：它持有实际文件； 暂存区（Index）：它像个缓存区域，临时保存你的改动； 本地仓库（Respository）：可以把本地仓库理解成一个目录，这个目录中所有的文件都可以被Git管理起来每个文件的删除、修改、新增操作都可以被 Git 跟踪到以便任何时候，都可以追踪历史或者还原到之前的某一个版本  2、文件状态对于任何一个文件，在 Git 内都只有三种状态：已修改（modified），已暂存（staged）和已提交（committed）。  已修改表示修改了某个文件，但还没有提交保存； 已暂存表示把已修改的文件...</div></div></div></a><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-18</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a><a class="pagination-related" href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" title="【STM32】通过 DWT 实现毫秒级延时"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-02</div><div class="info-item-2">【STM32】通过 DWT 实现毫秒级延时</div></div><div class="info-2"><div class="info-item-1">[toc]  零、前言在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容     在 Cortex-M 内核内核中里面有一个外设叫 DWT(Data Watchpoint and Trace)，是用于系统调试及跟踪。 它有一个 32 位的寄存器叫 CYCCNT，它是一个&#x3D;&#x3D;向上&#x3D;&#x3D;的计数器，记录的是内核时钟运行的个数，内核时钟跳动一次，该计数器就加 1。 它的精度非常高，取决于内核的频率是多少，如果是 F103 系列，内核时钟是 72M，那精度就是 $1&#x2F;72M &#x3D; 14ns$，而程序的运行时间都是微秒级别的，所以 14ns 的精度是远远够的。最长能记录的时间为：$60s &#x3D; 2^{32}&#x...</div></div></div></a><a class="pagination-related" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-23</div><div class="info-item-2">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</div></div><div class="info-2"><div class="info-item-1">[toc]   I2C 相关知识可以参考 IIC 通信协议详解  一、AT24CXXX 系列存储器介绍1、基本信息下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量    AT24C01 1Kbit 128Byte   AT24C02 2Kbit 256Byte   AT24C04 4Kbit 512Byte   AT24C08 8Kbit 1024Byte   AT24C16 16Kbit 2048Byte   AT24C32 32Kbit 4096Byte   AT24C64 64Kbit 8192Byte   AT24C128 128Kbit 16384Byte   AT24C256 256Kbit 32768Byte   AT24C512 512Kbit 65536Byte   下表是 AT24CXXX 的页内单元数：  总容量(Byte容量) &#x3...</div></div></div></a><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-06</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a><a class="pagination-related" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" title="STM32 通过 SPI 驱动 W25Q128"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-21</div><div class="info-item-2">STM32 通过 SPI 驱动 W25Q128</div></div><div class="info-2"><div class="info-item-1">[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1234567W25Q     STM32VCC  --&gt; VCCGND  --&gt; GNDDO   --&gt; PA6 (MISO)DI   --&gt; PA7 (MOSI)CLK  --&gt; PA5 (SCK)CS   --&gt; PA4 (CS)  2、时钟控制SCK 线的时钟信号，由波特率发生器根据“控制寄存器CR1”中的 BR[0:2] 位控制，该位是对 fpclk 时钟的分频因子， 对 fpclk 的分频结果就是 SCK 引脚的输出时钟频率，计算方法见下表：  其中的 fpclk 频率是指 SPI 所在的 APB 总线频率，APB1 为 fpclk1，APB...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%97%B6%E9%92%9F%E6%A0%91%E6%A1%86%E5%9B%BE"><span class="toc-number">2.</span> <span class="toc-text">二、时钟树框图</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%97%B6%E9%92%9F%E6%BA%90"><span class="toc-number">2.1.</span> <span class="toc-text">1、时钟源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E9%94%81%E7%9B%B8%E7%8E%AF"><span class="toc-number">2.2.</span> <span class="toc-text">2、锁相环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F"><span class="toc-number">2.3.</span> <span class="toc-text">3、系统时钟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%97%B6%E9%92%9F%E4%BF%A1%E5%8F%B7%E8%BE%93%E5%87%BA-MCO"><span class="toc-number">2.4.</span> <span class="toc-text">4、时钟信号输出 MCO</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%97%B6%E9%92%9F%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text">三、时钟配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%BF%AE%E6%94%B9%E4%B8%BB%E9%A2%91"><span class="toc-number">3.1.</span> <span class="toc-text">1、修改主频</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E9%85%8D%E7%BD%AE-HSE-VALUE"><span class="toc-number">3.1.1.</span> <span class="toc-text">1.1 配置 HSE_VALUE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E8%B0%83%E7%94%A8-SystemInit-%E5%87%BD%E6%95%B0"><span class="toc-number">3.1.2.</span> <span class="toc-text">1.2 调用 SystemInit 函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81STM32F4-%E6%97%B6%E9%92%9F%E4%BD%BF%E8%83%BD%E5%92%8C%E9%85%8D%E7%BD%AE"><span class="toc-number">3.2.</span> <span class="toc-text">2、STM32F4 时钟使能和配置</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_HSICmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_LSICmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_PLLCmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_PLLI2SCmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_PLLSAICmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">RCC_RTCCLKCmd</span><span class="hljs-params">(FunctionalState NewState)</span>;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>STM32 时钟树（基于 STM32F407）</div>
+      <div>http://example.com/2024/09/25/STM32-时钟树/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/26/Git-%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" title="Git 基本操作">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Git 基本操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析">
+                        <span class="hidden-mobile">STM32 map 文件浅析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

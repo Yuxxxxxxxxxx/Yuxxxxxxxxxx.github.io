@@ -1,170 +1,291 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>分散加载文件 scatter files | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分散加载文件 scatter files">
 <meta property="og:url" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/1.png">
+<meta property="og:image" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/2.png">
+<meta property="og:image" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/3.png">
 <meta property="article:published_time" content="2024-10-02T06:39:55.000Z">
 <meta property="article:modified_time" content="2024-11-14T08:09:11.354Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="STM32">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "分散加载文件 scatter files",
-  "url": "http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-10-02T06:39:55.000Z",
-  "dateModified": "2024-11-14T08:09:11.354Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>分散加载文件 scatter files - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="分散加载文件 scatter files"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-02 14:39" pubdate>
+          星期三, 十月 2日 2024, 2:39 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          43 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: '分散加载文件 scatter files',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">分散加载文件 scatter files</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">分散加载文件 scatter files</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-02T06:39:55.000Z" title="发表于 2024-10-02 14:39:55">2024-10-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:09:11.354Z" title="更新于 2024-11-14 16:09:11">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">分散加载文件 scatter files</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
 <p>本文主要是对 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142633341">浅析 Keil 中的 sct 文件</a> 一文做进一步的补充和说明。</p>
 <h1 id="一、加载域和执行域"><a href="#一、加载域和执行域" class="headerlink" title="一、加载域和执行域"></a>一、加载域和执行域</h1><p>镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>Load view</code>： 根据镜像在加载到内存中时所位于的地址（镜像执行开始前的位置），描述每个镜像域和节。</li>
 <li><code>Execution view</code>： 根据镜像执行过程中所位于的地址，描述每个镜像域和节。</li>
@@ -237,10 +358,10 @@
 <blockquote>
 <p>注意，如果将符号声明为 int 类型的值引用，则必须使用寻址操作符（&amp;）来获得正确的值，如下例所示：</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Importing a linker-defined symbol</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">unsigned</span> <span class="type">int</span> Image$$ZI$$Limit;</span><br><span class="line">config.heap_base = (<span class="type">unsigned</span> <span class="type">int</span>) &amp;Image$$ZI$$Limit;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Importing symbols that define a ZI output section</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">unsigned</span> <span class="type">int</span> Image$$ZI$$Length;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">char</span> Image$$ZI$$Base[];</span><br><span class="line"><span class="built_in">memset</span>(Image$$ZI$$Base, <span class="number">0</span>, (<span class="type">unsigned</span> <span class="type">int</span>)&amp;Image$$ZI$$Length);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Importing a linker-defined symbol</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> Image$$ZI$$Limit;<br>config.heap_base = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>) &amp;Image$$ZI$$Limit;<br><br><span class="hljs-comment">// Importing symbols that define a ZI output section</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> Image$$ZI$$Length;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">char</span> Image$$ZI$$Base[];<br><span class="hljs-built_in">memset</span>(Image$$ZI$$Base, <span class="hljs-number">0</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)&amp;Image$$ZI$$Length);<br></code></pre></td></tr></table></figure>
 
 <h3 id="1-2-引入到汇编"><a href="#1-2-引入到汇编" class="headerlink" title="1.2 引入到汇编"></a>1.2 引入到汇编</h3><p>可以使用指令 <code>IMPORT</code> 将连接器定义的符号引入到 ARM 汇编文件中来供我们使用：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IMPORT |Image$$ZI$$Limit|</span><br><span class="line">...</span><br><span class="line">zi_limit DCD |Image$$ZI$$Limit|</span><br><span class="line"></span><br><span class="line">LDR r1, zi_limit</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">IMPORT |Image$$ZI$$Limit|<br>...<br>zi_limit DCD |Image$$ZI$$Limit|<br><br>LDR r1, zi_limit<br></code></pre></td></tr></table></figure>
 
 <h2 id="2、域相关的符号"><a href="#2、域相关的符号" class="headerlink" title="2、域相关的符号"></a>2、域相关的符号</h2><p>链接器为镜像文件中的每个域生成不同类型的与域相关的符号，我们可以根据需要访问这些符号。域相关的符号主要有以下两种：</p>
 <ul>
@@ -525,14 +646,14 @@
 <p>经过前面的介绍，相信大家对分散加载有了一定的认识。所谓的分散加载就是，&#x3D;&#x3D;在加载和执行时，多个内存域分散在内存映射中&#x3D;&#x3D;。</p>
 <p>分散加载机制规定需要把我们的要求描述在一个文本文件中，这个文件被称为 分散加载文件。<code>armlink</code> 通过参数 <code>--scatter</code> “分散加载文件名” 来引用我们的分散加载文件（在 ARM 官方文档中叫做 <code>Scatter File</code>）。</p>
 <p>对于简单的内存映射，可以使用以下与内存映射相关的连接器命令行（ <code>--partial</code>、<code>--ro_base</code>、<code>--rw_base</code>、<code>--ropi</code>、<code>--rosplit</code>、<code>--split</code>、<code>--reloc</code>、<code>--startup</code>、<code>--xo_base</code>、<code>--zi_base</code> ）参数来放置代码和数据。例如，如下的内存映射，我们可以使用连接器参数 <code>armlink --ro_base 0x0 --rw_base 0x10000</code> 来实现。</p>
-<p><img src="2.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">当然，也可以使用分散加载来实现，下面的示例显示了相应的分散加载描述，该描述将对象文件中的段加载到内存中：</span><br><span class="line"></span><br><span class="line">LOAD_ROM <span class="number">0x0000</span> <span class="number">0x8000</span>       ; Name of load <span class="title function_">region</span> <span class="params">(LOAD_ROM)</span>,</span><br><span class="line">                             ; Start address <span class="keyword">for</span> load <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span>,</span><br><span class="line">                             ; Maximum size of load <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM <span class="number">0x0000</span> <span class="number">0x8000</span>   ; Name of first exec <span class="title function_">region</span> <span class="params">(EXEC_ROM)</span>,</span><br><span class="line">                             ; Start address <span class="keyword">for</span> exec <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span>,</span><br><span class="line">                             ; Maximum size of first exec <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)              ; Place all code and RO data into</span><br><span class="line">                             ; this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    SRAM <span class="number">0x10000</span> <span class="number">0x6000</span>      ; Name of second exec <span class="title function_">region</span> <span class="params">(SRAM)</span>,</span><br><span class="line">                             ; Start address of second exec <span class="title function_">region</span> <span class="params">(<span class="number">0x10000</span>)</span>,</span><br><span class="line">                             ; Maximum size of second exec <span class="title function_">region</span> <span class="params">(<span class="number">0x6000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        * (+RW, +ZI)         ; Place all RW and ZI data into</span><br><span class="line">                             ; this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">当然，也可以使用分散加载来实现，下面的示例显示了相应的分散加载描述，该描述将对象文件中的段加载到内存中：<br><br>LOAD_ROM <span class="hljs-number">0x0000</span> <span class="hljs-number">0x8000</span>       ; Name of load <span class="hljs-title function_">region</span> <span class="hljs-params">(LOAD_ROM)</span>,<br>                             ; Start address <span class="hljs-keyword">for</span> load <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x0000</span>)</span>,<br>                             ; Maximum size of load <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x8000</span>)</span><br>&#123;<br>    EXEC_ROM <span class="hljs-number">0x0000</span> <span class="hljs-number">0x8000</span>   ; Name of first exec <span class="hljs-title function_">region</span> <span class="hljs-params">(EXEC_ROM)</span>,<br>                             ; Start address <span class="hljs-keyword">for</span> exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x0000</span>)</span>,<br>                             ; Maximum size of first exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x8000</span>)</span><br>    &#123;<br>        * (+RO)              ; Place all code and RO data into<br>                             ; this exec region<br>    &#125;<br>    SRAM <span class="hljs-number">0x10000</span> <span class="hljs-number">0x6000</span>      ; Name of second exec <span class="hljs-title function_">region</span> <span class="hljs-params">(SRAM)</span>,<br>                             ; Start address of second exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x10000</span>)</span>,<br>                             ; Maximum size of second exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x6000</span>)</span><br>    &#123;<br>        * (+RW, +ZI)         ; Place all RW and ZI data into<br>                             ; this exec region<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>但需要注意，参数 <code>--scatter &quot;分散加载文件名&quot;</code> 是不能与上面这些一起使用的！</p>
 <p>分散加载通常只用于具有复杂内存映射的镜像中。对于具有复杂内存映射的镜像，不能仅使用链接器命令行选项指定内存映射。</p>
-<p><img src="3.png"></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
 <p>如上图所示的内存映射，下面的示例显示了对应的分散加载描述，该描述将来自 <code>program1.o</code> 和 <code>program2.o</code> 文件的段加载到内存中：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">LOAD_ROM_1 <span class="number">0x0000</span>              ; Start address <span class="keyword">for</span> first load <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM_1 <span class="number">0x0000</span>          ; Start address <span class="keyword">for</span> first exec <span class="title function_">region</span> <span class="params">(<span class="number">0x0000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        program1.o (+RO)       ; Place all code and RO data from</span><br><span class="line">                               ; program1.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    DRAM <span class="number">0x18000</span> <span class="number">0x8000</span>        ; Start address <span class="keyword">for</span> this exec <span class="title function_">region</span> <span class="params">(<span class="number">0x18000</span>)</span>,</span><br><span class="line">                               ; Maximum size of this exec <span class="title function_">region</span> <span class="params">(<span class="number">0x8000</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        program1.o (+RW, +ZI)  ; Place all RW and ZI data from</span><br><span class="line">                               ; program1.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">LOAD_ROM_2 <span class="number">0x4000</span>              ; Start address <span class="keyword">for</span> second load <span class="title function_">region</span> <span class="params">(<span class="number">0x4000</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    EXEC_ROM_2 <span class="number">0x4000</span></span><br><span class="line">    &#123;</span><br><span class="line">        program2.o (+RO)       ; Place all code and RO data from</span><br><span class="line">                               ; program2.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">    SRAM <span class="number">0x8000</span> <span class="number">0x8000</span></span><br><span class="line">    &#123;</span><br><span class="line">        program2.o (+RW, +ZI)  ; Place all RW and ZI data from</span><br><span class="line">                               ; program2.o into this exec region</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c">LOAD_ROM_1 <span class="hljs-number">0x0000</span>              ; Start address <span class="hljs-keyword">for</span> first load <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x0000</span>)</span><br>&#123;<br>    EXEC_ROM_1 <span class="hljs-number">0x0000</span>          ; Start address <span class="hljs-keyword">for</span> first exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x0000</span>)</span><br>    &#123;<br>        program1.o (+RO)       ; Place all code and RO data from<br>                               ; program1.o into this exec region<br>    &#125;<br>    DRAM <span class="hljs-number">0x18000</span> <span class="hljs-number">0x8000</span>        ; Start address <span class="hljs-keyword">for</span> this exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x18000</span>)</span>,<br>                               ; Maximum size of this exec <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x8000</span>)</span><br>    &#123;<br>        program1.o (+RW, +ZI)  ; Place all RW and ZI data from<br>                               ; program1.o into this exec region<br>    &#125;<br>&#125;<br>LOAD_ROM_2 <span class="hljs-number">0x4000</span>              ; Start address <span class="hljs-keyword">for</span> second load <span class="hljs-title function_">region</span> <span class="hljs-params">(<span class="hljs-number">0x4000</span>)</span><br>&#123;<br>    EXEC_ROM_2 <span class="hljs-number">0x4000</span><br>    &#123;<br>        program2.o (+RO)       ; Place all code and RO data from<br>                               ; program2.o into this exec region<br>    &#125;<br>    SRAM <span class="hljs-number">0x8000</span> <span class="hljs-number">0x8000</span><br>    &#123;<br>        program2.o (+RW, +ZI)  ; Place all RW and ZI data from<br>                               ; program2.o into this exec region<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h1 id="六、根执行域"><a href="#六、根执行域" class="headerlink" title="六、根执行域"></a>六、根执行域</h1><blockquote>
 <p>有关分散加载文件的编写格式在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142633341">浅析 Keil 中的 sct 文件</a> 已经讲过，这里不再赘述</p>
@@ -543,24 +664,24 @@
 <ol>
 <li>强制指定执行域的基地址 &#x3D; 加载域的基地址。例如：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>          ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                      ; start of execution region descriptions       </span><br><span class="line">    ER_RO <span class="number">0x040000</span>     ; load address = execution address</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)        ; all RO <span class="title function_">sections</span> <span class="params">(must include section with </span></span><br><span class="line"><span class="params">                       ; initial entry point)</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...                ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">LR_1 <span class="hljs-number">0x040000</span>          ; load region starts at <span class="hljs-number">0x40000</span>   <br>&#123;                      ; start of execution region descriptions       <br>    ER_RO <span class="hljs-number">0x040000</span>     ; load address = execution address<br>    &#123;<br>        * (+RO)        ; all RO <span class="hljs-title function_">sections</span> <span class="hljs-params">(must include section with </span><br><span class="hljs-params">                       ; initial entry point)</span><br>    &#125;<br>    ...                ; rest of scatter-loading description<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <ol start="2">
 <li>为加载域中的第一个执行域指定 +0 偏移量。例如：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>          ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                      ; start of execution region descriptions      </span><br><span class="line">    ER_RO +<span class="number">0</span>     	   ; +offset</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)        ; all RO <span class="title function_">sections</span> <span class="params">(must include section with </span></span><br><span class="line"><span class="params">                       ; initial entry point)</span></span><br><span class="line">    &#125;</span><br><span class="line">    …                  ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">LR_1 <span class="hljs-number">0x040000</span>          ; load region starts at <span class="hljs-number">0x40000</span>   <br>&#123;                      ; start of execution region descriptions      <br>    ER_RO +<span class="hljs-number">0</span>     	   ; +offset<br>    &#123;<br>        * (+RO)        ; all RO <span class="hljs-title function_">sections</span> <span class="hljs-params">(must include section with </span><br><span class="hljs-params">                       ; initial entry point)</span><br>    &#125;<br>    …                  ; rest of scatter-loading description<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>如果为加载域中的所有后续执行域指定了 0(+0) 的偏移量，那么所有不在包含 ZI 的执行域后面的执行域也都是根执行域。 </p>
 <ol start="3">
 <li>对执行域使用 <code>FIXED</code> 属性，以创建在固定地址加载和执行的根执行域。例如：</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LR_1 <span class="number">0x040000</span>              ; load region starts at <span class="number">0x40000</span>   </span><br><span class="line">&#123;                          ; start of execution region descriptions      </span><br><span class="line">    ER_RO <span class="number">0x040000</span>         ; load address = execution address</span><br><span class="line">    &#123;</span><br><span class="line">        * (+RO)            ; RO sections other than those in init.o</span><br><span class="line">    &#125;</span><br><span class="line">    ER_INIT <span class="number">0x080000</span> FIXED ; load address and execution address of this</span><br><span class="line">                           ; execution region are fixed at <span class="number">0x80000</span></span><br><span class="line">    &#123;</span><br><span class="line">        init.o(+RO)        ; all RO sections from init.o</span><br><span class="line">    &#125;</span><br><span class="line">    …                      ; rest of scatter-loading description</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">LR_1 <span class="hljs-number">0x040000</span>              ; load region starts at <span class="hljs-number">0x40000</span>   <br>&#123;                          ; start of execution region descriptions      <br>    ER_RO <span class="hljs-number">0x040000</span>         ; load address = execution address<br>    &#123;<br>        * (+RO)            ; RO sections other than those in init.o<br>    &#125;<br>    ER_INIT <span class="hljs-number">0x080000</span> FIXED ; load address and execution address of this<br>                           ; execution region are fixed at <span class="hljs-number">0x80000</span><br>    &#123;<br>        init.o(+RO)        ; all RO sections from init.o<br>    &#125;<br>    …                      ; rest of scatter-loading description<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>可以用它来把一个函数或一个数据块，比如一个常量表或一个校验和，放在 ROM 中的一个固定地址上，这样就可以很容易地通过指针访问它。</p>
 <h1 id="七、未初始化变量的定义方法"><a href="#七、未初始化变量的定义方法" class="headerlink" title="七、未初始化变量的定义方法"></a>七、未初始化变量的定义方法</h1><p>现在，我有一段内存不想被初始化。在分散文件中，我将这个内存区域标记为 <code>UNINIT</code>，并使用 <code>__attribute__((section(&quot;&quot;)))</code> 将变量放在 <code>UNINIT</code> 区域中，见下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LR_IROM1 <span class="number">0x08000000</span> <span class="number">0x00080000</span>  &#123;    ; load region size_region</span><br><span class="line">  ER_IROM1 <span class="number">0x08000000</span> <span class="number">0x00080000</span>  &#123;  ; load address = execution address</span><br><span class="line">   *.o (RESET, +First)</span><br><span class="line">   *(InRoot$$Sections)</span><br><span class="line">   .ANY (+RO)</span><br><span class="line">  &#125;</span><br><span class="line">  RW_IRAM1 <span class="number">0x20000000</span> UNINIT <span class="number">0x00000100</span>  &#123; ;no init section</span><br><span class="line">        *(NoInit)</span><br><span class="line">   &#125;</span><br><span class="line">  RW_IRAM2 <span class="number">0x20000100</span> <span class="number">0x0000FFF0</span>  &#123;                ;all other rw data</span><br><span class="line">        .ANY(+RW +ZI)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">LR_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00080000</span>  &#123;    ; load region size_region<br>  ER_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00080000</span>  &#123;  ; load address = execution address<br>   *.o (RESET, +First)<br>   *(InRoot$$Sections)<br>   .ANY (+RO)<br>  &#125;<br>  RW_IRAM1 <span class="hljs-number">0x20000000</span> UNINIT <span class="hljs-number">0x00000100</span>  &#123; ;no init section<br>        *(NoInit)<br>   &#125;<br>  RW_IRAM2 <span class="hljs-number">0x20000100</span> <span class="hljs-number">0x0000FFF0</span>  &#123;                ;all other rw data<br>        .ANY(+RW +ZI)<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> NI_longVar __attribute__( ( section( <span class="string">&quot;NoInit&quot;</span>) ) ) ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">( <span class="type">void</span> )</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">while</span>( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> NI_longVar __attribute__( ( section( <span class="hljs-string">&quot;NoInit&quot;</span>) ) ) ;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span><br>&#123;<br>  <span class="hljs-keyword">while</span>( <span class="hljs-number">1</span> )<br>  &#123;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>原因如下：</p>
 <ol>
@@ -571,8 +692,381 @@
 <ul>
 <li>在使用 ARM Compiler 5 时，为该变量添加 <code>zero_init</code> 属性以防止优化。这将保持变量为不初始化的 ZI 数据。</li>
 </ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="type">long</span> NI_longVar __attribute__( ( section( <span class="string">&quot;NoInit&quot;</span>), zero_init) ) ;</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/">http://example.com/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a><a class="pagination-related" href="/2024/10/02/ROM-RAM-Flash/" title="ROM、RAM 和 Flash 的区别"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">ROM、RAM 和 Flash 的区别</div></div><div class="info-2"><div class="info-item-1">[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带动，速度与CPU相比就显得慢的多。内存指的就是主板上的存储部件，是 CPU 直接与之沟通，并用其存储数据的部件，存放当前正在使用的（即执行中）的数据和程序，它的物理实质就是一组或多组具备数据输入输出和数据存储功能的集成电路，内存只用于暂时存放程序和数据，一旦关闭电源或发生断电，其中的程序和数据就会丢失。 存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是&#x3D;&#x3D;易失性存储器&#x3D;&#x3D;，蓝底是&#x3D;&#x3D;非易失性存储器&#x3D;&#x3D;x）：  本文主要针对 ROM、RAM、Flash 这三种存储器进行介绍。 一、ROMR...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/" title="STM32 时钟树（基于 STM32F407）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-25</div><div class="info-item-2">STM32 时钟树（基于 STM32F407）</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述STM32 内部也是由多种多样的电路模块组合在一起实现的。当一个电路越复杂，在达到正确的输出结果前，它可能因为延时会有一些短暂的中间状态，而这些中间状态有时会导致输出结果会有一个短暂的错误，这叫做电路中的“毛刺现象”，如果电路需要运行得足够快，那么这些错误状态会被其它电路作为输入采样，最终形成一系列的系统错误。为了解决这个问题，在单片机系统中，设计时以时序电路控制替代纯粹的组合电路，在每一级输出结果前对各个信号进行采样，从而使得电路中某些信号即使出现延时也可以保证各个信号的同步，可以避免电路中发生的“毛刺现象”，达到精确控制输出的效果。 由于时序电路的重要性，因此在 MCU 设计时就设计了专门用于控制时序的电路，在芯片设计中称为时钟树设计。由此设计出来的时钟，可以精确控制我们的单片机系统。对于STM32F4 系列的芯片，正常工作的主频可以达到 168Mhz，但并不是所有外设都需要系统时钟这么高的频率，比如看门狗以及 RTC 只需要几十 Khz 的时钟即可。同一个电路，时钟越快功耗越大，同时抗电磁干扰能力也会越弱，所以对于较为复杂的 MCU 一般都是采取多时钟...</div></div></div></a><a class="pagination-related" href="/2024/10/24/STM32-Backtrace/" title="STM32 调试之栈回溯和 CmBacktrace 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-24</div><div class="info-item-2">STM32 调试之栈回溯和 CmBacktrace 的使用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、栈回溯1、寄存器知识在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP PSP(SP_process) MSP(SP_main)   1 个链接寄存器 LR(r14) 1 个程序计数器（PC） 1 个程序状态寄存器（xPSR）  在不同的模式下，R0-R12、SP、LR 是各有一份的，所以这样算下来，总共是 32 个寄存器，但是在不同的模式下，并不能完全看到这 32 个寄存器的状态，只能看到其中的一部分。  通用寄存器 R0-R12  上图将通用寄存器分为 low register 和 high registers 就是根据指令集来说的，对于 Thumb 指令，是 16 位的，只能访问到 low register，也就是 R0-R7，而对于 32 位的 Arm 指令，是所有的指令都可以访问到。所以有这样的划分。  栈指针SP ...</div></div></div></a><a class="pagination-related" href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" title="Cortex-M 内核的 OS 特性"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-13</div><div class="info-item-2">Cortex-M 内核的 OS 特性</div></div><div class="info-2"><div class="info-item-1">@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从高地址向低地址生长的，下面通过一个例子演示一下： 12345678__IO uint32_t a = 0x11111111;__IO uint32_t b = 0x22222222;__IO uint32_t c = 0x33333333;__IO uint32_t d = 0x44444444;__IO uint32_t e = 0x55555555;__IO uint32_t f = 0x66666666;__IO uint32_t g = 0x77777777;__IO uint32_t h = 0x88888888;   然后进入调试状态，可以看到现在 SP 指针是 0x20...</div></div></div></a><a class="pagination-related" href="/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/" title="Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-07</div><div class="info-item-2">Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其他异常机制无法管理异常而触发。 MemManage（内存管理故障）：检测内存管理单元(MPU)中定义的区域的内存访问违规；例如，在一个只有读&#x2F;写访问权限的内存区域中执行代码。 BusFault（总线故障）：在指令取指、数据读&#x2F;写、中断向量取指和寄存器入栈(保存&#x2F;恢复)中断(进入&#x2F;退出)时检测内存访问错误。 UsageFault（使用故障）：检测未定义指令的执行，加载&#x2F;存储多个未对齐的内存访问。启用时，将检测除 0 和其他非对齐内存访问。  2、异常优先级每个异常都有一个相关联的异常号和一个相关联的优先级号。为简化软件层，CMSIS 只使用...</div></div></div></a><a class="pagination-related" href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" title="单片机内存区域划分"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-01</div><div class="info-item-2">单片机内存区域划分</div></div><div class="info-2"><div class="info-item-1">@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&#x3D;&#x3D;时确定，速度快，但自由性差，最大空间不大。 栈区是先进后出原则（LIFO），其操作方式数据结构中的栈是一样的。  存放内容：  临时创建的&#x3D;&#x3D;局部变量&#x3D;&#x3D;存放在栈区。 函数调用时，其&#x3D;&#x3D;入口参数&#x3D;&#x3D;存放在栈区。 函数返回时，其&#x3D;&#x3D;返回值&#x3D;&#x3D;存放在栈区。 &#x3D;&#x3D;const 定义的局部变量&#x3D;&#x3D;存放在栈区。   栈的大小是有限的，通常 Visual C++ 编译器的默认栈的大小为 1MB，所以不要定义 int a[1...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-18</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%8A%A0%E8%BD%BD%E5%9F%9F%E5%92%8C%E6%89%A7%E8%A1%8C%E5%9F%9F"><span class="toc-number">1.</span> <span class="toc-text">一、加载域和执行域</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Image-entry-points"><span class="toc-number">2.</span> <span class="toc-text">二、Image entry points</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%98%A0%E5%B0%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">3.</span> <span class="toc-text">三、映射符号</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%93%BE%E6%8E%A5%E5%99%A8%E9%A2%84%E5%AE%9A%E4%B9%89%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.</span> <span class="toc-text">四、链接器预定义符号</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%B0%86%E7%AC%A6%E5%8F%B7%E5%BC%95%E5%85%A5%E5%88%B0%E7%A8%8B%E5%BA%8F%E4%B8%AD"><span class="toc-number">4.1.</span> <span class="toc-text">1、将符号引入到程序中</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%BC%95%E5%85%A5%E5%88%B0-C-C"><span class="toc-number">4.1.1.</span> <span class="toc-text">1.1 引入到 C&#x2F;C++</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%BC%95%E5%85%A5%E5%88%B0%E6%B1%87%E7%BC%96"><span class="toc-number">4.1.2.</span> <span class="toc-text">1.2 引入到汇编</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%9F%9F%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.</span> <span class="toc-text">2、域相关的符号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%89%A7%E8%A1%8C%E5%9F%9F%E7%AC%A6%E5%8F%B7-Image"><span class="toc-number">4.2.1.</span> <span class="toc-text">2.1 执行域符号 Image$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%89%A7%E8%A1%8C%E5%9F%9F%E7%AC%A6%E5%8F%B7-Load"><span class="toc-number">4.2.2.</span> <span class="toc-text">2.2 执行域符号 Load$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%8A%A0%E8%BD%BD%E5%9F%9F%E7%AC%A6%E5%8F%B7-Load-LR"><span class="toc-number">4.2.3.</span> <span class="toc-text">2.3 加载域符号 Load$$LR$$</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E8%8A%82%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.4.</span> <span class="toc-text">2.4 节相关的符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E9%95%9C%E5%83%8F%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.5.</span> <span class="toc-text">2.5 镜像符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E8%BE%93%E5%85%A5%E8%8A%82%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.2.6.</span> <span class="toc-text">2.6 输入节符号</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="toc-number">5.</span> <span class="toc-text">五、分散加载机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%A0%B9%E6%89%A7%E8%A1%8C%E5%9F%9F"><span class="toc-number">6.</span> <span class="toc-text">六、根执行域</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%9A%E4%B9%89%E6%96%B9%E6%B3%95"><span class="toc-number">7.</span> <span class="toc-text">七、未初始化变量的定义方法</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> NI_longVar __attribute__( ( section( <span class="hljs-string">&quot;NoInit&quot;</span>), zero_init) ) ;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>分散加载文件 scatter files</div>
+      <div>http://example.com/2024/10/02/分散加载文件/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">基于 STM32F407 的 SPI Flash下载算法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/02/ROM-RAM-Flash/" title="ROM、RAM 和 Flash 的区别">
+                        <span class="hidden-mobile">ROM、RAM 和 Flash 的区别</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

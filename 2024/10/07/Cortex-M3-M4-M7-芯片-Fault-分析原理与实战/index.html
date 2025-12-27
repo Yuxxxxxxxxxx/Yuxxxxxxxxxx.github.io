@@ -1,166 +1,319 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Cortex-M3/M4/M7 芯片 Fault 分析原理与实战 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战">
 <meta property="og:url" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/1.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/2.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/3.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/4.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/5.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/6.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/7.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/8.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/9.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/10.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/11.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/12.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/13.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/14.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/15.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/16.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/17.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/18.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/19.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/20.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/21.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/22.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/23.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/24.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/25.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/26.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/27.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/29.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/30.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/31.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/32.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/33.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/34.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/35.png">
+<meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/36.png">
 <meta property="article:published_time" content="2024-10-07T11:38:58.000Z">
 <meta property="article:modified_time" content="2024-11-14T08:30:26.635Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="STM32">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Cortex-M3/M4/M7 芯片 Fault 分析原理与实战",
-  "url": "http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-10-07T11:38:58.000Z",
-  "dateModified": "2024-11-14T08:30:26.635Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>Cortex-M3/M4/M7 芯片 Fault 分析原理与实战 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Cortex-M3/M4/M7 芯片 Fault 分析原理与实战"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-07 19:38" pubdate>
+          星期一, 十月 7日 2024, 7:38 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          59 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Cortex-M3/M4/M7 芯片 Fault 分析原理与实战',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Cortex-M3/M4/M7 芯片 Fault 分析原理与实战</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Cortex-M3/M4/M7 芯片 Fault 分析原理与实战</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-07T11:38:58.000Z" title="发表于 2024-10-07 19:38:58">2024-10-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:30:26.635Z" title="更新于 2024-11-14 16:30:26">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Cortex-M3/M4/M7 芯片 Fault 分析原理与实战</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
 <hr>
 <h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><h2 id="1、异常类型"><a href="#1、异常类型" class="headerlink" title="1、异常类型"></a>1、异常类型</h2><p><code>HardFault</code>（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 <code>HardFault_Handler</code> 函数中，引发程序故障进而影响程序的正常运行。</p>
 <p>一般而言，我们遇到的错误有如下几种：</p>
@@ -212,7 +365,7 @@
 </tbody></table>
 <p>由这张表可以看出，<code>HardFault</code> 异常总是启用的，并且具有固定的优先级(高于其他中断和异常，但低于不可屏蔽中断 NMI)。因此，在禁用故障异常或在执行故障异常处理程序期间发生故障的情况下，将执行 <code>HardFault</code> 异常。通过下面的例子来理解一下这段话。</p>
 <p>在 <code>stm32f4xx_it.c</code> 文件中有如下几个中断服务程序：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">NMI_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">HardFault_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">MemManage_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">BusFault_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">UsageFault_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">SVC_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">DebugMon_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">PendSV_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">SysTick_Handler</span><span class="params">(<span class="type">void</span>)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">NMI_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">HardFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">MemManage_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">BusFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">UsageFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">SVC_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">DebugMon_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">PendSV_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">SysTick_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br></code></pre></td></tr></table></figure>
 
 <p>以 <code>MemManage_Handler</code> 为例，如果你没有使能这个中断的话，那它肯定也不会进入这个中断，而是会进入 <code>HardFault_Handler</code>，也就是硬件异常！这也是下面要讲的&#x3D;&#x3D;优先级提升&#x3D;&#x3D;。</p>
 <p>而所有其他故障异常(<code>MemManage fault</code>、<code>Bus Fault</code> 和 <code>Usage Fault</code>)都具有可编程优先级。重置后，这些异常被禁用，可以在系统或应用软件中使用系统控制块(SCB)中的寄存器启用。</p>
@@ -226,7 +379,7 @@
 <p>如果在入栈过程中进入 BusFault handler 时发生 <code>BusFault</code>，<code>BusFault</code> 不会升级为 <code>HardFault</code>。这意味着，如果崩溃的栈导致了错误，即使处理程序的入栈失败，也会执行错误处理程序。错误处理程序正常运行，但栈内容已损坏。</p>
 <blockquote>
 <p>注意：只有 &#x3D;&#x3D;Reset&#x3D;&#x3D;(复位中断) 和 &#x3D;&#x3D;NMI&#x3D;&#x3D;(不可屏蔽中断) 可以抢占固定优先级的 <code>HardFault</code>。<code>HardFault</code> 可以抢占除 Reset、NMI 或其他 HardFault 之外的任何异常。如下图所示：</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 </blockquote>
 <h2 id="3、同步异步问题"><a href="#3、同步异步问题" class="headerlink" title="3、同步异步问题"></a>3、同步异步问题</h2><p><code>BusFault</code> 错误处理程序可以使用 <code>BFSR</code> 来确定错误是异步的(<em><strong>IMPRECISERR</strong></em>，不精确的)还是同步的(<em><strong>PRECISERR</strong></em>，精确的)。</p>
 <p>同步总线故障也被称为精确总线故障。何谓精确？就是总线触发异常之后，我们可以找到它触发异常的地址。如果同步总线故障发生在 NMI 或 HardFault 处理程序内，则会升级为锁定。缓存维护操作也可能触发总线故障。调试访问也可能触发总线故障。调试器的加载或存储访问是同步的，并且仅对调试器接口可见。</p>
@@ -399,7 +552,7 @@
 <td>表示硬故障原因的位</td>
 </tr>
 </tbody></table>
-<h3 id="1-1-CCR"><a href="#1-1-CCR" class="headerlink" title="1.1 CCR"></a>1.1 CCR</h3><p><img src="2.png"></p>
+<h3 id="1-1-CCR"><a href="#1-1-CCR" class="headerlink" title="1.1 CCR"></a>1.1 CCR</h3><p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>DIV_0_TRP</code>：在处理器执行除数为 0 的 <code>SDIV</code> 或 <code>UDIV</code> 指令时启用 <code>Usage Fault</code><ul>
 <li>0：除 0 不触发；除以 0 得到的商是 0 </li>
@@ -420,12 +573,12 @@
 <li><code>SHP[2]</code>：<code>Usage Fault</code> 的优先级</li>
 </ul>
 <p>对于编程中断和异常优先级，CMSIS 提供了 <code>NVIC_SetPriority</code> 和 <code>NVIC_GetPriority</code> 函数。故障异常的优先级可以修改如下:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NVIC_SetPriority (MemoryManagement_IRQn, <span class="number">0x0F</span>);</span><br><span class="line">NVIC_SetPriority (BusFault_IRQn, <span class="number">0x08</span>);</span><br><span class="line">NVIC_SetPriority (UsageFault_IRQn, <span class="number">0x01</span>);</span><br><span class="line">...</span><br><span class="line">UsageFault_prio = NVIC_GetPriority (UsageFault_IRQn);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">NVIC_SetPriority (MemoryManagement_IRQn, <span class="hljs-number">0x0F</span>);<br>NVIC_SetPriority (BusFault_IRQn, <span class="hljs-number">0x08</span>);<br>NVIC_SetPriority (UsageFault_IRQn, <span class="hljs-number">0x01</span>);<br>...<br>UsageFault_prio = NVIC_GetPriority (UsageFault_IRQn);<br></code></pre></td></tr></table></figure>
 
 <p>函数原型如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">__STATIC_INLINE <span class="type">void</span> <span class="title function_">NVIC_SetPriority</span><span class="params">(IRQn_Type IRQn, <span class="type">uint32_t</span> priority)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>((<span class="type">int32_t</span>)IRQn &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    SCB-&gt;SHP[(((<span class="type">uint32_t</span>)(<span class="type">int32_t</span>)IRQn) &amp; <span class="number">0xF</span>UL)<span class="number">-4UL</span>] = (<span class="type">uint8_t</span>)((priority &lt;&lt; (<span class="number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="type">uint32_t</span>)<span class="number">0xFF</span>UL);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    NVIC-&gt;IP[((<span class="type">uint32_t</span>)(<span class="type">int32_t</span>)IRQn)]               = (<span class="type">uint8_t</span>)((priority &lt;&lt; (<span class="number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="type">uint32_t</span>)<span class="number">0xFF</span>UL);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">__STATIC_INLINE <span class="type">uint32_t</span> <span class="title function_">NVIC_GetPriority</span><span class="params">(IRQn_Type IRQn)</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((<span class="type">int32_t</span>)IRQn &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span>(((<span class="type">uint32_t</span>)SCB-&gt;SHP[(((<span class="type">uint32_t</span>)(<span class="type">int32_t</span>)IRQn) &amp; <span class="number">0xF</span>UL)<span class="number">-4UL</span>] &gt;&gt; (<span class="number">8</span> - __NVIC_PRIO_BITS)));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span>(((<span class="type">uint32_t</span>)NVIC-&gt;IP[((<span class="type">uint32_t</span>)(<span class="type">int32_t</span>)IRQn)]               &gt;&gt; (<span class="number">8</span> - __NVIC_PRIO_BITS)));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">__STATIC_INLINE <span class="hljs-type">void</span> <span class="hljs-title function_">NVIC_SetPriority</span><span class="hljs-params">(IRQn_Type IRQn, <span class="hljs-type">uint32_t</span> priority)</span><br>&#123;<br>  <span class="hljs-keyword">if</span>((<span class="hljs-type">int32_t</span>)IRQn &lt; <span class="hljs-number">0</span>) &#123;<br>    SCB-&gt;SHP[(((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn) &amp; <span class="hljs-number">0xF</span>UL)<span class="hljs-number">-4UL</span>] = (<span class="hljs-type">uint8_t</span>)((priority &lt;&lt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFF</span>UL);<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    NVIC-&gt;IP[((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn)]               = (<span class="hljs-type">uint8_t</span>)((priority &lt;&lt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFF</span>UL);<br>  &#125;<br>&#125;<br><br>__STATIC_INLINE <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">NVIC_GetPriority</span><span class="hljs-params">(IRQn_Type IRQn)</span><br>&#123;<br><br>  <span class="hljs-keyword">if</span>((<span class="hljs-type">int32_t</span>)IRQn &lt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span>(((<span class="hljs-type">uint32_t</span>)SCB-&gt;SHP[(((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn) &amp; <span class="hljs-number">0xF</span>UL)<span class="hljs-number">-4UL</span>] &gt;&gt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)));<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">return</span>(((<span class="hljs-type">uint32_t</span>)NVIC-&gt;IP[((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn)]               &gt;&gt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)));<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="1-3-SHCSR"><a href="#1-3-SHCSR" class="headerlink" title="1.3 SHCSR"></a>1.3 SHCSR</h3><p><img src="3.png"><br>SHCSR 寄存器的以下几位属于异常：</p>
+<h3 id="1-3-SHCSR"><a href="#1-3-SHCSR" class="headerlink" title="1.3 SHCSR"></a>1.3 SHCSR</h3><p><img src="3.png" srcset="/img/loading.gif" lazyload><br>SHCSR 寄存器的以下几位属于异常：</p>
 <ul>
 <li>MEMFAULTACT：<code>Memory Management Fault</code> 激活位，如果异常被激活则为1。</li>
 <li><code>BUSFAULTACT</code>：<code>Bus Fault</code> 激活位，如果异常被激活则为 1。</li>
@@ -438,7 +591,7 @@
 <li><code>USGFAULTENA</code>：<code>Usage Fault</code> 启用位，设置为 1 表示启用；设置为 0 表示禁用。</li>
 </ul>
 <p>虽然可以写入 SHCSR 寄存器的所有位，但在大多数软件应用程序中，只有向启用位写入才有意义。<code>Memory Management Fault</code>、<code>Bus Fault</code> 和 <code>Usage Fault</code> 可以通过以下语句启用：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SCB-&gt;SHCSR |= SCB_SHCSR_USGFAULTENA_Msk</span><br><span class="line">		    | SCB_SHCSR_BUSFAULTENA_Msk</span><br><span class="line">		    | SCB_SHCSR_MEMFAULTENA_Msk; <span class="comment">//enable Usage-/Bus-/MPU Fault</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">SCB-&gt;SHCSR |= SCB_SHCSR_USGFAULTENA_Msk<br>		    | SCB_SHCSR_BUSFAULTENA_Msk<br>		    | SCB_SHCSR_MEMFAULTENA_Msk; <span class="hljs-comment">//enable Usage-/Bus-/MPU Fault</span><br></code></pre></td></tr></table></figure>
 
 
 <h2 id="2、Status-and-address-registers"><a href="#2、Status-and-address-registers" class="headerlink" title="2、Status and address registers"></a>2、Status and address registers</h2><p>下表列出了故障状态寄存器和故障地址寄存器的名称，并列出了每个寄存器的内存地址：</p>
@@ -495,7 +648,7 @@
 <td>Auxiliary BusFault Status Register. Only for Cortex-M7</td>
 </tr>
 </tbody></table>
-<h3 id="2-1-HardFault-Status-Register——HSFR"><a href="#2-1-HardFault-Status-Register——HSFR" class="headerlink" title="2.1 HardFault Status Register——HSFR"></a>2.1 HardFault Status Register——HSFR</h3><p><img src="4.png"></p>
+<h3 id="2-1-HardFault-Status-Register——HSFR"><a href="#2-1-HardFault-Status-Register——HSFR" class="headerlink" title="2.1 HardFault Status Register——HSFR"></a>2.1 HardFault Status Register——HSFR</h3><p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>VECTTBL</code>：表示在异常处理期间读向量表的总线故障：<ul>
 <li>0：向量表读无总线故障</li>
@@ -511,9 +664,9 @@
 </li>
 <li><code>DEBUGEVT</code>：保留用于调试。当写入寄存器时，&#x3D;&#x3D;必须将该位写入 0&#x3D;&#x3D;，否则行为将不可预测。</li>
 </ul>
-<h3 id="2-2-Configurable-Fault-Status-Register——CFSR"><a href="#2-2-Configurable-Fault-Status-Register——CFSR" class="headerlink" title="2.2 Configurable Fault Status Register——CFSR"></a>2.2 Configurable Fault Status Register——CFSR</h3><p><img src="5.png"></p>
+<h3 id="2-2-Configurable-Fault-Status-Register——CFSR"><a href="#2-2-Configurable-Fault-Status-Register——CFSR" class="headerlink" title="2.2 Configurable Fault Status Register——CFSR"></a>2.2 Configurable Fault Status Register——CFSR</h3><p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
 <p>CSFR 寄存器可以分为三种状态寄存器：<code>Usage Fault</code>、<code>Bus Fault</code> 和 <code>Memory Management Fault</code>。</p>
-<h3 id="2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR"><a href="#2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR" class="headerlink" title="2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)"></a>2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)</h3><h4 id="2-3-1-MemManage-Status-Register——MMFSR"><a href="#2-3-1-MemManage-Status-Register——MMFSR" class="headerlink" title="2.3.1 MemManage Status Register——MMFSR"></a>2.3.1 MemManage Status Register——MMFSR</h4><p><img src="6.png"></p>
+<h3 id="2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR"><a href="#2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR" class="headerlink" title="2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)"></a>2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)</h3><h4 id="2-3-1-MemManage-Status-Register——MMFSR"><a href="#2-3-1-MemManage-Status-Register——MMFSR" class="headerlink" title="2.3.1 MemManage Status Register——MMFSR"></a>2.3.1 MemManage Status Register——MMFSR</h4><p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><p><code>IACCVIOL</code>：非法指令访问标志:</p>
 <ul>
@@ -574,12 +727,12 @@
 </li>
 </ul>
 <h4 id="2-3-2-MemManage-Address-Register——MMFAR"><a href="#2-3-2-MemManage-Address-Register——MMFAR" class="headerlink" title="2.3.2 MemManage Address Register——MMFAR"></a>2.3.2 MemManage Address Register——MMFAR</h4><p>BFAR 地址与精确数据访问总线故障关联。只允许特权访问。&#x3D;&#x3D;非特权访问产生总线错误&#x3D;&#x3D;。</p>
-<p><img src="7.png"></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>ADDRESS</code>：<code>MemManage Fault</code> 的数据地址。该寄存器被更新为产生 <code>MemManage Fault</code>的位置的地址。MMFSR 显示故障原因。该字段仅在MMFSR 时有效。设置 <code>MMARVALID</code>。在没有唯一 BFAR 和 MMFAR 寄存器的实现中，如果是 BFSR，则该寄存器的值是未知的。设置<code>BFARVALID</code>。</li>
 </ul>
 <h3 id="2-4-BusFault-Status-and-Address-Register-BFSR-BFAR"><a href="#2-4-BusFault-Status-and-Address-Register-BFSR-BFAR" class="headerlink" title="2.4 BusFault Status and Address Register (BFSR; BFAR)"></a>2.4 BusFault Status and Address Register (BFSR; BFAR)</h3><h4 id="2-4-1-BusFault-Status-Register——BFSR"><a href="#2-4-1-BusFault-Status-Register——BFSR" class="headerlink" title="2.4.1 BusFault Status Register——BFSR"></a>2.4.1 BusFault Status Register——BFSR</h4><p>总线故障状态寄存器（BFSR）显示由指令获取和数据访问导致的总线错误的状态，并指示在总线操作期间检测到的内存访问故障。只允许特权访问。&#x3D;&#x3D;非特权访问将产生总线故障&#x3D;&#x3D;。</p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>IBUSERR</code>：指令总线错误。记录指令预取是否发生总线故障。<ul>
 <li>0：没有指令总线错误</li>
@@ -637,11 +790,11 @@
 </li>
 </ul>
 <h4 id="2-4-2-BusFault-Address-Register——BFAR"><a href="#2-4-2-BusFault-Address-Register——BFAR" class="headerlink" title="2.4.2 BusFault Address Register——BFAR"></a>2.4.2 BusFault Address Register——BFAR</h4><p>BFAR 地址与精确数据访问总线故障关联。只允许特权访问。非特权访问产生总线错误。</p>
-<p><img src="9.png"></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>ADDRESS</code>：精确总线故障的数据地址。用产生总线故障的位置的地址更新该寄存器。BFSR 表示故障原因。该字段仅在 BFSR 时有效。设置 BFARVALID。在没有唯一 BFAR 和 MMFAR 寄存器的实现中，如果是 MMFSR，则该寄存器的值是未知的。设置 MMARVALID。</li>
 </ul>
-<h3 id="2-5-UsageFault-Status-Register——UFSR"><a href="#2-5-UsageFault-Status-Register——UFSR" class="headerlink" title="2.5 UsageFault Status Register——UFSR"></a>2.5 UsageFault Status Register——UFSR</h3><p><img src="10.png"><br><code>Usage Fault</code> 状态寄存器 UFSR包含一些指令执行故障和数据访问的状态。只允许特权访问。非特权访问产生总线错误。</p>
+<h3 id="2-5-UsageFault-Status-Register——UFSR"><a href="#2-5-UsageFault-Status-Register——UFSR" class="headerlink" title="2.5 UsageFault Status Register——UFSR"></a>2.5 UsageFault Status Register——UFSR</h3><p><img src="10.png" srcset="/img/loading.gif" lazyload><br><code>Usage Fault</code> 状态寄存器 UFSR包含一些指令执行故障和数据访问的状态。只允许特权访问。非特权访问产生总线错误。</p>
 <p>该寄存器分配了下列比特位：</p>
 <ul>
 <li><code>UNDEFINSTR</code>：未定义指令。<ul>
@@ -734,7 +887,7 @@
 <p>注意，<code>UsageFault</code> 状态寄存器的位是粘滞的。这意味着，当一个或多个异常发生时，相关的比特位设置为 1。设置为 1 的比特位只能通过向该比特位写入 1 或复位来清除为 0。</p>
 </blockquote>
 <h3 id="2-6-Auxiliary-Bus-Fault-Status-Register——ABFSR-Cortex-M7-only"><a href="#2-6-Auxiliary-Bus-Fault-Status-Register——ABFSR-Cortex-M7-only" class="headerlink" title="2.6 Auxiliary Bus Fault Status Register——ABFSR (Cortex-M7 only)"></a>2.6 Auxiliary Bus Fault Status Register——ABFSR (Cortex-M7 only)</h3><p>辅助总线故障状态寄存器（ABFSR）存储了异步总线故障源的信息。如果发生了总线故障，故障处理程序可以读取该寄存器以确定哪个总线接口触发了故障，如果源是 AXIM 接口，则接收到哪个错误类型。<code>ABFSR[4:0]</code> 字段在用任何值写入 ABFSR 之前都是有效的。ASBFSR 比特分配如下:</p>
-<p><img src="11.png"></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><code>AXIMTYPE</code>：AXIM接口的故障类型。该值仅在 <code>AXIM=1</code> 时有效。<ul>
 <li>0b00 &#x3D; OKAY</li>
@@ -754,26 +907,26 @@
 </blockquote>
 <h1 id="四、Fault-Handlers-的实现"><a href="#四、Fault-Handlers-的实现" class="headerlink" title="四、Fault Handlers 的实现"></a>四、Fault Handlers 的实现</h1><p>错误处理程序有多种用法。它们可以用来安全关闭系统，通知用户遇到的问题，或者触发整个系统的自测。</p>
 <p>符合 CMSIS 规范的启动文件(<code>startup_device.s</code>)定义了设备的所有异常和中断向量。这些向量定义了异常或中断处理程序函数的入口地址。下列代码清单显示了一个典型的向量表：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">__Vectors DCD __initial_sp 	     ; Top of Stack</span><br><span class="line">	   	  DCD Reset_Handler      ; Reset Handler</span><br><span class="line">		  DCD NMI_Handler        ; NMI Handler</span><br><span class="line">		  DCD HardFault_Handler  ; Hard Fault Handler</span><br><span class="line">		  DCD MemManage_Handler  ; MPU Fault Handler</span><br><span class="line">		  DCD BusFault_Handler   ; Bus Fault Handler</span><br><span class="line">		  DCD UsageFault_Handler ; Usage Fault Handler</span><br><span class="line">		  DCD <span class="number">0</span> 				 ; Reserved</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">__Vectors DCD __initial_sp 	     ; Top of Stack<br>	   	  DCD Reset_Handler      ; Reset Handler<br>		  DCD NMI_Handler        ; NMI Handler<br>		  DCD HardFault_Handler  ; Hard Fault Handler<br>		  DCD MemManage_Handler  ; MPU Fault Handler<br>		  DCD BusFault_Handler   ; Bus Fault Handler<br>		  DCD UsageFault_Handler ; Usage Fault Handler<br>		  DCD <span class="hljs-number">0</span> 				 ; Reserved<br>......<br></code></pre></td></tr></table></figure>
 
 <p>在调试期间，错误处理程序可能只是导致调试器停止的 BKPT(断点)指令。一般来说，所有错误都会升级为 <code>HardFault</code>，因此在 <code>HardFault</code> 处理程序中添加断点指令就足够了。当使用 MDK 和符合 CMSIS 规范的设备包含文件时，可以用自己的代码覆盖(例如 <code>stm32f4xx_it.c</code> 中的) <code>HardFault</code> 处理程序。</p>
 <h1 id="五、补充"><a href="#五、补充" class="headerlink" title="五、补充"></a>五、补充</h1><p>下面使用到了 Segger 调试工具，下载地址：<a target="_blank" rel="noopener" href="https://www.armbbs.cn/forum.php?mod=attachment&aid=MTQ5NTR8YjhkZTcyMTd8MTcyODI5OTkzOXw3MzI0N3wyMTk0MA==">HardFaultHandler.zip</a></p>
 <p>里面只有一个 .c 文件和一个 .s 文件，直接移植到你的项目工程即可。本质上就是实现了一个 <code>Hard Fault Handler</code>，并保存了上面提到的一系列寄存器，方便我们分析。</p>
 <p>下面介绍一下它的原理。</p>
-<p><img src="12.png"></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
 <p>LR 寄存器在上面刚讲过，在中断中它用作 <code>EXC_RETURN</code>。而它的第二位就是判断使用的是 MSP 还是 PSP。</p>
 <p>右边的那个栈保存的是 R0、R1、R2、R3、R12、LR（R14）、PC（R15）、XPSR。这几个寄存器会&#x3D;&#x3D;自动&#x3D;&#x3D;地硬件入栈，入栈之后，进入中断服务程序，然后做进一步处理。而其它的寄存器需要用户来处理，由于我们使用的是 C 编译器，所以这些工作就有编译器来处理，也就是不需要我们管了。</p>
 <h1 id="六、实例讲解"><a href="#六、实例讲解" class="headerlink" title="六、实例讲解"></a>六、实例讲解</h1><h2 id="1、观察出入栈"><a href="#1、观察出入栈" class="headerlink" title="1、观察出入栈"></a>1、观察出入栈</h2><p>例程说明：</p>
-<p><img src="13.png"></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面就进入 Keil 的调试模式：</p>
 <p>到这里，在触发 PendSV 中断前，记住这几个会自动入栈的寄存器：</p>
-<p><img src="14.png"></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
 <p>单步执行，然后直接跳转到 <code>PendSV_Handler</code> 里，这里我加了一个断点指令(<code>__BKPT</code>)：</p>
-<p><img src="15.png"></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
 <p>现在主栈指针 MSP 的值为 <code>0x20000458</code>，我们看一下这个地址的内容：</p>
-<p><img src="16.png"></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
 <p>正如前面所言，这几个寄存器会自动入栈，不过这里 LR、PC 的值似乎对不上。因为它们会在退出时，重新赋值：</p>
-<p><img src="17.png"></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="2、Fault-演示"><a href="#2、Fault-演示" class="headerlink" title="2、Fault 演示"></a>2、Fault 演示</h2><p>在接下来的例程中，我将对以下五种情况的 Fault 进行演示：</p>
 <ol>
 <li>非法读取</li>
@@ -783,76 +936,449 @@
 <li>除 0 的问题</li>
 </ol>
 <p>在调试的时候，还要打开如下窗口：</p>
-<p><img src="18.png"></p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
 <p>可以看到，这就是我们前面所讲到的寄存器：</p>
-<p><img src="19.png"></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
 <p>核心代码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (UART_RX_BUF_BIN[CNT])</span><br><span class="line">&#123;   </span><br><span class="line">	<span class="comment">/* 非法读取 */</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&#x27;1&#x27;</span>: </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span>* p;</span><br><span class="line">			<span class="type">unsigned</span> <span class="type">int</span> n;</span><br><span class="line">			p = (<span class="type">unsigned</span> <span class="type">int</span>*)<span class="number">0xCCCCCCCC</span>;</span><br><span class="line">			n = *p;</span><br><span class="line">			</span><br><span class="line">			(<span class="type">void</span>)n;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 非对齐访问 */</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&#x27;2&#x27;</span>: </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="type">float</span> *ptr;</span><br><span class="line">                     <span class="type">float</span> fTest;</span><br><span class="line">                     </span><br><span class="line">                     ptr = (<span class="type">float</span> *)(<span class="number">0x20010002</span>);</span><br><span class="line">                     *ptr = <span class="number">0.2f</span>;</span><br><span class="line">                     *ptr +=<span class="number">0.1f</span>;</span><br><span class="line">                     </span><br><span class="line">                     fTest = *ptr;</span><br><span class="line">                     (<span class="type">void</span>)fTest;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/* 非法写入 */</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&#x27;3&#x27;</span>: </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span>* p;</span><br><span class="line">                     <span class="type">unsigned</span> <span class="type">int</span> n;</span><br><span class="line">                     p = (<span class="type">unsigned</span> <span class="type">int</span>*)<span class="number">0xCCCCCCCC</span>;</span><br><span class="line">                     *p = <span class="number">100</span>;</span><br><span class="line">                     </span><br><span class="line">                     (<span class="type">void</span>)n;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">		</span><br><span class="line">	<span class="comment">/* 非法函数状态 */</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&#x27;4&#x27;</span>: </span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">typedef</span> <span class="title function_">void</span> <span class="params">(*t_funcPtr)</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line">                     t_funcPtr MyFunc = (t_funcPtr)(<span class="number">0x0001000</span> | <span class="number">0x0</span>); <span class="comment">/* LSB不能是0*/</span>                                              </span><br><span class="line">                     MyFunc();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>; </span><br><span class="line">                 </span><br><span class="line">             <span class="comment">/* 除以0的问题 */</span></span><br><span class="line">	<span class="keyword">case</span> <span class="string">&#x27;5&#x27;</span>: </span><br><span class="line">		&#123;</span><br><span class="line">                     <span class="type">int</span> r;</span><br><span class="line">                     <span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line">                     <span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> b;</span><br><span class="line">                     </span><br><span class="line">                     a = <span class="number">1</span>;</span><br><span class="line">                     b = <span class="number">0</span>;</span><br><span class="line">                     r = a / b;</span><br><span class="line">                     </span><br><span class="line">                     (<span class="type">void</span>)r;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">default</span>: <span class="built_in">printf</span>(<span class="string">&quot;Error Num!\r\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">switch</span> (UART_RX_BUF_BIN[CNT])<br>&#123;   <br>	<span class="hljs-comment">/* 非法读取 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;1&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br>			<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>			p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>			n = *p;<br>			<br>			(<span class="hljs-type">void</span>)n;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>	<br>	<span class="hljs-comment">/* 非对齐访问 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;2&#x27;</span>: <br>		&#123;<br>			<span class="hljs-type">float</span> *ptr;<br>                     <span class="hljs-type">float</span> fTest;<br>                     <br>                     ptr = (<span class="hljs-type">float</span> *)(<span class="hljs-number">0x20010002</span>);<br>                     *ptr = <span class="hljs-number">0.2f</span>;<br>                     *ptr +=<span class="hljs-number">0.1f</span>;<br>                     <br>                     fTest = *ptr;<br>                     (<span class="hljs-type">void</span>)fTest;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>	<br>	<span class="hljs-comment">/* 非法写入 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;3&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br>                     <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>                     p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>                     *p = <span class="hljs-number">100</span>;<br>                     <br>                     (<span class="hljs-type">void</span>)n;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>		<br>	<span class="hljs-comment">/* 非法函数状态 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;4&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*t_funcPtr)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br>                     t_funcPtr MyFunc = (t_funcPtr)(<span class="hljs-number">0x0001000</span> | <span class="hljs-number">0x0</span>); <span class="hljs-comment">/* LSB不能是0*/</span>                                              <br>                     MyFunc();<br>		&#125;<br>		<span class="hljs-keyword">break</span>; <br>                 <br>             <span class="hljs-comment">/* 除以0的问题 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;5&#x27;</span>: <br>		&#123;<br>                     <span class="hljs-type">int</span> r;<br>                     <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a;<br>                     <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> b;<br>                     <br>                     a = <span class="hljs-number">1</span>;<br>                     b = <span class="hljs-number">0</span>;<br>                     r = a / b;<br>                     <br>                     (<span class="hljs-type">void</span>)r;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>		<br>	<span class="hljs-keyword">default</span>: <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Error Num!\r\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>主要是从串口读入一个数字，然后进行相应的操作。</p>
-<h3 id="2-1-非法读取"><a href="#2-1-非法读取" class="headerlink" title="2.1 非法读取"></a>2.1 非法读取</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span>* p;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> n;</span><br><span class="line">p = (<span class="type">unsigned</span> <span class="type">int</span>*)<span class="number">0xCCCCCCCC</span>;</span><br><span class="line">n = *p;</span><br><span class="line"></span><br><span class="line">(<span class="type">void</span>)n;</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-非法读取"><a href="#2-1-非法读取" class="headerlink" title="2.1 非法读取"></a>2.1 非法读取</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>n = *p;<br><br>(<span class="hljs-type">void</span>)n;<br></code></pre></td></tr></table></figure>
 
 <p><code>0xCCCCCCCC</code> 没有别的含义，主要用作演示。因为它的最低位是 0，所以会出错——非法读取（地址）。</p>
 <p>现在点击全速运行，并通过串口助手发送一个 ‘1’ 给 STM32：</p>
 <p>然后进入到 Segger 中实现的 <code>HardFaultHandler</code>：</p>
-<p><img src="20.png"></p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面在 Watch 窗口看一下 <code>HardFaultRegs</code> 的值：</p>
 <blockquote>
 <p><code>HardFaultRegs</code> 是 <code>SEGGER_HardFaultHandler.c</code> 文件中的一个结构体，保存了一系列寄存器的值，非常好用</p>
 </blockquote>
-<p><img src="21.png"></p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
 <p>既然已经发生了错误，所以接下来的工作就是锁定发生错误的位置。</p>
 <p>Keil 有一个很简单且方便的方法，见下：</p>
 <p>首先在窗口打开 <code>Call Stack Window</code>：</p>
-<p><img src="22.png"></p>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后，在 <code>Call Stack Window</code> 面板里的 <code>HardFaultHandler</code> 右键单击，选择 <code>Show Caller Code</code>：</p>
-<p><img src="23.png"></p>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后就直接跳转到这个地方：</p>
-<p><img src="24.png"></p>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload></p>
 <p>这也这是发生非法读取错误的地方！</p>
 <p>通过 Segger，还有另一种办法：</p>
 <p>回到这个</p>
-<p><img src="25.png"></p>
+<p><img src="25.png" srcset="/img/loading.gif" lazyload></p>
 <p>LR 记录的是进入中断前的最近一次 LR 寄存器的返回值，而 PC 记录的是进入中断前下一条指令的地址。</p>
 <p>现在复制 PC 的值，然后在汇编指令面板中右键，选择：</p>
-<p><img src="26.png"></p>
+<p><img src="26.png" srcset="/img/loading.gif" lazyload></p>
 <p>输入刚才复制的 PC 的值，现在程序跳转到：</p>
-<p><img src="27.png"></p>
+<p><img src="27.png" srcset="/img/loading.gif" lazyload></p>
 <p>而它上一条指令也正是发生错误的那条语句。</p>
-<h3 id="2-2-非对齐访问"><a href="#2-2-非对齐访问" class="headerlink" title="2.2 非对齐访问"></a>2.2 非对齐访问</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> *ptr;</span><br><span class="line"><span class="type">float</span> fTest;</span><br><span class="line"></span><br><span class="line">ptr = (<span class="type">float</span> *)(<span class="number">0x20010002</span>);</span><br><span class="line">*ptr = <span class="number">0.2f</span>;</span><br><span class="line">*ptr +=<span class="number">0.1f</span>;</span><br><span class="line"></span><br><span class="line">fTest = *ptr;</span><br><span class="line">(<span class="type">void</span>)fTest;</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-非对齐访问"><a href="#2-2-非对齐访问" class="headerlink" title="2.2 非对齐访问"></a>2.2 非对齐访问</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">float</span> *ptr;<br><span class="hljs-type">float</span> fTest;<br><br>ptr = (<span class="hljs-type">float</span> *)(<span class="hljs-number">0x20010002</span>);<br>*ptr = <span class="hljs-number">0.2f</span>;<br>*ptr +=<span class="hljs-number">0.1f</span>;<br><br>fTest = *ptr;<br>(<span class="hljs-type">void</span>)fTest;<br></code></pre></td></tr></table></figure>
 
 <p>主要是这句：<code>ptr = (float *)(0x20010002);</code>，这里开启了硬件浮点。前文中提到，开启了硬件浮点，则地址必须是四字节对齐。显而易见，这里并不是四字节对齐，也就触发了非对齐访问错误。</p>
 <p>和一类似，进入到异常处理程序：</p>
-<p><img src="29.png"></p>
+<p><img src="29.png" srcset="/img/loading.gif" lazyload></p>
 <p>从右边的 <code>Fault Reports</code> 就可以看出这里触发的是非对齐访问异常。而 FORCED 则是由于我的程序中没有开启 <code>Usage Fault</code>，所以就强制升级为 <code>Hard Fault</code>。</p>
 <p>这里的分析方法和一类似，就不过多介绍了。</p>
-<h3 id="2-3-非法写入"><a href="#2-3-非法写入" class="headerlink" title="2.3 非法写入"></a>2.3 非法写入</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span>* p;</span><br><span class="line"><span class="type">unsigned</span> <span class="type">int</span> n;</span><br><span class="line">p = (<span class="type">unsigned</span> <span class="type">int</span>*)<span class="number">0xCCCCCCCC</span>;</span><br><span class="line">*p = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">(<span class="type">void</span>)n;</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-非法写入"><a href="#2-3-非法写入" class="headerlink" title="2.3 非法写入"></a>2.3 非法写入</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>*p = <span class="hljs-number">100</span>;<br><br>(<span class="hljs-type">void</span>)n;<br></code></pre></td></tr></table></figure>
 
 <p>触发中断：</p>
-<p><img src="30.png"></p>
+<p><img src="30.png" srcset="/img/loading.gif" lazyload></p>
 <p>这里就比较特殊了，因为这是一个不精确的总线异常，前面介绍过，这种异常是找不到错误位置的，刚才讲到的方法也都用不上了。</p>
 <p>这里就只能细心一点，逐一排查了。</p>
-<h3 id="2-4-非法函数状态"><a href="#2-4-非法函数状态" class="headerlink" title="2.4 非法函数状态"></a>2.4 非法函数状态</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span> <span class="params">(*t_funcPtr)</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line">t_funcPtr MyFunc = (t_funcPtr)(<span class="number">0x0001000</span> | <span class="number">0x0</span>); <span class="comment">/* LSB不能是0*/</span>                                              </span><br><span class="line">MyFunc();</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-非法函数状态"><a href="#2-4-非法函数状态" class="headerlink" title="2.4 非法函数状态"></a>2.4 非法函数状态</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*t_funcPtr)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br>t_funcPtr MyFunc = (t_funcPtr)(<span class="hljs-number">0x0001000</span> | <span class="hljs-number">0x0</span>); <span class="hljs-comment">/* LSB不能是0*/</span>                                              <br>MyFunc();<br></code></pre></td></tr></table></figure>
 
-<p><img src="31.png"></p>
+<p><img src="31.png" srcset="/img/loading.gif" lazyload></p>
 <p>再通过刚才的方法去找一下错误位置：</p>
-<p><img src="32.png"></p>
+<p><img src="32.png" srcset="/img/loading.gif" lazyload></p>
 <p>出来的却是这个：</p>
-<p><img src="33.png"></p>
+<p><img src="33.png" srcset="/img/loading.gif" lazyload></p>
 <p>看下 PC 指针：</p>
-<p><img src="34.png"></p>
+<p><img src="34.png" srcset="/img/loading.gif" lazyload></p>
 <p>这是表明这段代码地址是无效的。Cortex-M 内核只有 Thumb 状态，而没有 ARM 状态，如果我们强行让地址执行 ARM 状态，它就会触发异常，就像这里一样。</p>
 <p>我们就只能通过这里的 <code>0x00001000</code> 来锁定程序出错的位置：<code>t_funcPtr MyFunc = (t_funcPtr)(0x0001000 | 0x0);</code>。</p>
-<h3 id="2-5-除-0-的问题"><a href="#2-5-除-0-的问题" class="headerlink" title="2.5 除 0 的问题"></a>2.5 除 0 的问题</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> r;</span><br><span class="line"><span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> a;</span><br><span class="line"><span class="keyword">volatile</span> <span class="type">unsigned</span> <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line">a = <span class="number">1</span>;</span><br><span class="line">b = <span class="number">0</span>;</span><br><span class="line">r = a / b;</span><br><span class="line"></span><br><span class="line">(<span class="type">void</span>)r;</span><br></pre></td></tr></table></figure>
+<h3 id="2-5-除-0-的问题"><a href="#2-5-除-0-的问题" class="headerlink" title="2.5 除 0 的问题"></a>2.5 除 0 的问题</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> r;<br><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a;<br><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> b;<br><br>a = <span class="hljs-number">1</span>;<br>b = <span class="hljs-number">0</span>;<br>r = a / b;<br><br>(<span class="hljs-type">void</span>)r;<br></code></pre></td></tr></table></figure>
 
 <p>注意，触发除 0 的错误需要单独使能，否则就会如前面所说的得到商为 0 的结果而不会报错！</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SCB-&gt;CCR = <span class="number">0x210</span>;  <span class="comment">/* 使能除 0 的错误 */</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">SCB-&gt;CCR = <span class="hljs-number">0x210</span>;  <span class="hljs-comment">/* 使能除 0 的错误 */</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="35.png"></p>
+<p><img src="35.png" srcset="/img/loading.gif" lazyload></p>
 <p>和一二类似，通过提到的两种方法可以找到发生除 0 错误的地址：</p>
-<p><img src="36.png"></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/">http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">STM32 位带操作</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：  那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是...</div></div></div></a><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" title="分散加载文件 scatter files"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-02</div><div class="info-item-2">分散加载文件 scatter files</div></div><div class="info-2"><div class="info-item-1">@toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view： 根据镜像在加载到内存中时所位于的地址（镜像执行开始前的位置），描述每个镜像域和节。 Execution view： 根据镜像执行过程中所位于的地址，描述每个镜像域和节。  下面是两种视图的对比：    Load Description Execution Description    加载地址 在包含分节或域的镜像开始执行之前，要加载到内存中的节或者域的地址。节或者非根域的加载地址和他们执行地址可以不同 执行地址 当包含某个节或域的镜像被执行时，该节或域所在的地址   加载域 加载域描述在加载地址空间中连续内存块的布局 执行域 执行域描述在执行地址空间中的连续内存块的布局   二、I...</div></div></div></a><a class="pagination-related" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-08</div><div class="info-item-2">STM32 位带操作</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：  那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是...</div></div></div></a><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-06</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a><a class="pagination-related" href="/2024/09/29/sct-%E6%96%87%E4%BB%B6/" title="浅析 Keil 中的 sct 文件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-29</div><div class="info-item-2">浅析 Keil 中的 sct 文件</div></div><div class="info-2"><div class="info-item-1">[toc]  一、程序的存储与运行1、存储程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  **Code**：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 **RO-data**：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。 例如 C 语言中 const 关键字定义的变量就是典型的 RO-data。   **RW-data**：Read Write data，即可读写数据域，它指初始化为”非0值”的可读写数据，程序刚运行时，这些数据具有非0的初始值，且运行的时候它们会常驻在RAM区，因而应用程序可以修改其内容。 例如 C 语言中使用定义的全局变量，且定义时赋予”非 0 值”给该变量进行初始化。   **ZI-data**：Zero Initialie data，即 0 初始化数据，它指初始化为”0 值”的可读写数据域，它与 RW-data 的区别是程序刚运行时这些数据初始值全都为 0，...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-18</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">一、简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%BC%82%E5%B8%B8%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">1、异常类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%BC%82%E5%B8%B8%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-number">1.2.</span> <span class="toc-text">2、异常优先级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5%E9%97%AE%E9%A2%98"><span class="toc-number">1.3.</span> <span class="toc-text">3、同步异步问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%BC%82%E5%B8%B8%E5%85%B7%E4%BD%93%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.4.</span> <span class="toc-text">4、异常具体类型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Fault-exception-registers"><span class="toc-number">2.</span> <span class="toc-text">二、Fault exception registers</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81Control-registers"><span class="toc-number">2.1.</span> <span class="toc-text">1、Control registers</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-CCR"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 CCR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-SHP"><span class="toc-number">2.1.2.</span> <span class="toc-text">1.2 SHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-SHCSR"><span class="toc-number">2.1.3.</span> <span class="toc-text">1.3 SHCSR</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Status-and-address-registers"><span class="toc-number">2.2.</span> <span class="toc-text">2、Status and address registers</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-HardFault-Status-Register%E2%80%94%E2%80%94HSFR"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 HardFault Status Register——HSFR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Configurable-Fault-Status-Register%E2%80%94%E2%80%94CFSR"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2 Configurable Fault Status Register——CFSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-1-MemManage-Status-Register%E2%80%94%E2%80%94MMFSR"><span class="toc-number">2.2.3.1.</span> <span class="toc-text">2.3.1 MemManage Status Register——MMFSR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-2-MemManage-Address-Register%E2%80%94%E2%80%94MMFAR"><span class="toc-number">2.2.3.2.</span> <span class="toc-text">2.3.2 MemManage Address Register——MMFAR</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-BusFault-Status-and-Address-Register-BFSR-BFAR"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.4 BusFault Status and Address Register (BFSR; BFAR)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-1-BusFault-Status-Register%E2%80%94%E2%80%94BFSR"><span class="toc-number">2.2.4.1.</span> <span class="toc-text">2.4.1 BusFault Status Register——BFSR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-2-BusFault-Address-Register%E2%80%94%E2%80%94BFAR"><span class="toc-number">2.2.4.2.</span> <span class="toc-text">2.4.2 BusFault Address Register——BFAR</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-UsageFault-Status-Register%E2%80%94%E2%80%94UFSR"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.5 UsageFault Status Register——UFSR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-Auxiliary-Bus-Fault-Status-Register%E2%80%94%E2%80%94ABFSR-Cortex-M7-only"><span class="toc-number">2.2.6.</span> <span class="toc-text">2.6 Auxiliary Bus Fault Status Register——ABFSR (Cortex-M7 only)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Fault-Handlers-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">四、Fault Handlers 的实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%A1%A5%E5%85%85"><span class="toc-number">4.</span> <span class="toc-text">五、补充</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%AE%9E%E4%BE%8B%E8%AE%B2%E8%A7%A3"><span class="toc-number">5.</span> <span class="toc-text">六、实例讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%A7%82%E5%AF%9F%E5%87%BA%E5%85%A5%E6%A0%88"><span class="toc-number">5.1.</span> <span class="toc-text">1、观察出入栈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Fault-%E6%BC%94%E7%A4%BA"><span class="toc-number">5.2.</span> <span class="toc-text">2、Fault 演示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E9%9D%9E%E6%B3%95%E8%AF%BB%E5%8F%96"><span class="toc-number">5.2.1.</span> <span class="toc-text">2.1 非法读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E9%9D%9E%E5%AF%B9%E9%BD%90%E8%AE%BF%E9%97%AE"><span class="toc-number">5.2.2.</span> <span class="toc-text">2.2 非对齐访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E9%9D%9E%E6%B3%95%E5%86%99%E5%85%A5"><span class="toc-number">5.2.3.</span> <span class="toc-text">2.3 非法写入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E9%9D%9E%E6%B3%95%E5%87%BD%E6%95%B0%E7%8A%B6%E6%80%81"><span class="toc-number">5.2.4.</span> <span class="toc-text">2.4 非法函数状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E9%99%A4-0-%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">5.2.5.</span> <span class="toc-text">2.5 除 0 的问题</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<p><img src="36.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Cortex-M3/M4/M7 芯片 Fault 分析原理与实战</div>
+      <div>http://example.com/2024/10/07/Cortex-M3-M4-M7-芯片-Fault-分析原理与实战/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 位带操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法">
+                        <span class="hidden-mobile">基于 STM32F407 的 SPI Flash下载算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

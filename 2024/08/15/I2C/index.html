@@ -1,171 +1,307 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>IIC 通信协议详解 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  一、概述IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）线">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、概述IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）线">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IIC 通信协议详解">
 <meta property="og:url" content="http://example.com/2024/08/15/I2C/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[toc]  一、概述IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）线">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/1.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/10.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/2.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/11.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/12.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/3.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/4.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/5.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/6.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/7.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/8.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/9.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/13.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/14.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/15.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/16.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/17.png">
+<meta property="og:image" content="http://example.com/2024/08/15/I2C/18.png">
 <meta property="article:published_time" content="2024-08-15T12:12:03.000Z">
 <meta property="article:modified_time" content="2024-11-27T12:47:26.196Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="通信协议">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="I2C">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "IIC 通信协议详解",
-  "url": "http://example.com/2024/08/15/I2C/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-08-15T12:12:03.000Z",
-  "dateModified": "2024-11-27T12:47:26.196Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/08/15/I2C/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/15/I2C/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>IIC 通信协议详解 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="IIC 通信协议详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-15 20:12" pubdate>
+          星期四, 八月 15日 2024, 8:12 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'IIC 通信协议详解',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">IIC 通信协议详解</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">IIC 通信协议详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-08-15T12:12:03.000Z" title="发表于 2024-08-15 20:12:03">2024-08-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-27T12:47:26.196Z" title="更新于 2024-11-27 20:47:26">2024-11-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">IIC 通信协议详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
 <hr>
 <h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>IIC 协议（<em><strong>Inter-Integrated Circuit</strong></em>，可简写为 <em><strong>I2C</strong></em>），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。</p>
 <p><code>I2C</code> 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（<em><strong>Serial Data</strong></em>）线用于双向数据传输，而 SCL（<em><strong>Serial Clock</strong></em>）线则用于同步数据传输的时钟信号。通信始终由主设备（<em><strong>Master</strong></em>）控制，从设备（<em><strong>Slave</strong></em>）被动接收和回应。这种简单的线路连接方式使得设备之间的互连变得非常容易。下图即是 <code>I2C</code> 的基本结构：</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>I2C</code> 协议具有广泛的应用范围，如连接传感器、存储器、显示器等设备，常用于微控制器和嵌入式系统中，因为它使用的引脚较少，可以同时连接多个设备，并且具有简单的硬件和软件实现。</p>
 <p>串行、8 位方向的双向数据传输在 <code>Standard-mode</code> 下最高可达 100 kbit&#x2F;s；在 <code> Fast-mode</code> 下最高可达 400 kbit&#x2F;s；在 <code> Fast-mode Plus</code> 下最高可达 1 Mbit&#x2F;s；在 <code>High-speed mode</code> 下最高可达 3.4 Mbit&#x2F;s。</p>
 <p> 在 <code> Ultra Fast-mode</code> 下，串行、8 位方向、单向数据传输速度高达 5 Mbit&#x2F;s。</p>
@@ -206,7 +342,7 @@
 <td>同步两个或多个器件的时钟信号的过程</td>
 </tr>
 </tbody></table>
-<p><img src="10.png"></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="二、I2C-详解"><a href="#二、I2C-详解" class="headerlink" title="二、I2C 详解"></a>二、I2C 详解</h1><h2 id="1、I2C-总线简介"><a href="#1、I2C-总线简介" class="headerlink" title="1、I2C 总线简介"></a>1、I2C 总线简介</h2><p><code>I2C</code> 总线是一种多主机总线，连接在 <code>I2C</code> 总线上的器件分为 <code>Master</code> 和 <code>Slaver</code>。</p>
 <ul>
 <li>主机有权发起和结束一次通信，从机只能被动呼叫；</li>
@@ -217,12 +353,12 @@
 <p><code>I2C</code> 总线可以通过外部连线进行在线检测，便于系统故障诊断和调试，故障可以立即被寻址，软件也有利于标准化和模块化，缩短开发时间。</p>
 <p><code>I2C</code> 总线上可挂接的设备数量受总线的最大电容 400pF 限制。</p>
 <p>总线具有极低的电流消耗，抗噪声干扰能力强，增加总线驱动器可以使总线电容扩大 10 倍，传输距离达到 15m；兼容不同电压等级的器件，工作温度范围宽。</p>
-<p><img src="2.png"><br>上图就是 <code>I2C</code> 总线如何同多台设备进行通信，在 <code>I2C</code> 总线上，每个从机都有其唯一的设备地址。所以我们只需要知道器件的地址，根据时序就可以实现微控制器与器件之间的通信。</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload><br>上图就是 <code>I2C</code> 总线如何同多台设备进行通信，在 <code>I2C</code> 总线上，每个从机都有其唯一的设备地址。所以我们只需要知道器件的地址，根据时序就可以实现微控制器与器件之间的通信。</p>
 <p>注意，按照实际设计中经验大概是不超过 <code>8</code> 个器件。</p>
 <p>这是由 <code>I2C</code> 地址决定：8 位地址，减去 1 位广播地址，是 7 位地址，$2^7&#x3D;128$，但是地址 0x00 不用，那就是 127 个地址， 所以理论上可以挂 127 个从器件。但是，<code>I2C</code> 协议没有规定总线上设备最大数目，但是规定了 <code>总线电容不能超过 400pF</code>。管脚都是有输入电容的，PCB 上也会有寄生电容，所以会有一个限制。实际设计中经验值大概是不超过 8 个器件。</p>
 <p>总线之所以规定电容大小是因为，<code>I2C</code> 的 OD（漏极输出， 漏极开路或集电极开路 ）要求外部有电阻上拉，这样才能执行线与逻辑。电阻和总线电容产生了一个 RC 延时效应，电容越大信号的边沿就越缓，有可能带来信号质量风险。传输速度越快，信号的窗口就越小，上升沿下降沿时间要求更短更陡峭，所以 RC 乘积必须更小。</p>
-<p><img src="11.png"></p>
-<p><img src="12.png"></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="1-1-I2C-中为什么要有上拉电阻"><a href="#1-1-I2C-中为什么要有上拉电阻" class="headerlink" title="1.1 I2C 中为什么要有上拉电阻"></a>1.1 I2C 中为什么要有上拉电阻</h3><p><code>I2C</code> 支持多个主设备与多个从设备连接在同一根总线上，如果不开漏输出，会出现短路现象。 但是，采用开漏输出时，如果没有上拉电阻的存在，只能输出低电位，无法输出高点位，也就是说，连接上拉电阻后，才可以输出高电位。 </p>
 <ul>
 <li>当从端驱动 SDA&#x2F;SCL 为低（0）时，从端会直接给 SDA&#x2F;SCL 一个0值；</li>
@@ -245,11 +381,11 @@
 </li>
 </ul>
 <h2 id="2、I2C-协议相关知识"><a href="#2、I2C-协议相关知识" class="headerlink" title="2、I2C 协议相关知识"></a>2、I2C 协议相关知识</h2><h3 id="2-1-起始位"><a href="#2-1-起始位" class="headerlink" title="2.1 起始位"></a>2.1 起始位</h3><p>如下图，就是 <code>I2C</code> 通信起始标志，通过这个起始位就可以告诉 <code>I2C</code> 从机，主机要开始进行 <code>I2C</code> 通信了。&#x3D;&#x3D;在 SCL 为高电平的时候，SDA 出现下降沿就表示为起始位&#x3D;&#x3D;：</p>
-<p><img src="3.png"></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="2-2-停止位"><a href="#2-2-停止位" class="headerlink" title="2.2 停止位"></a>2.2 停止位</h3><p>如下图，就是停止 <code>I2C</code> 通信的标志位，和起始位的功能相反。&#x3D;&#x3D;在 SCL 位高电平的时候，SDA 出现上升沿就表示为停止位&#x3D;&#x3D;：</p>
-<p><img src="4.png"></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="2-3-数据传输"><a href="#2-3-数据传输" class="headerlink" title="2.3 数据传输"></a>2.3 数据传输</h3><p>如下图，<code>I2C</code> 总线在数据传输的时候要保证在 SCL 高电平期间，SDA 上的数据稳定，即 &#x3D;&#x3D;SDA 上的数据变化只能在 SCL 低电平期间发生&#x3D;&#x3D;：</p>
-<p><img src="5.png"></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="2-4-应答信号"><a href="#2-4-应答信号" class="headerlink" title="2.4 应答信号"></a>2.4 应答信号</h3><p>当 <code>I2C</code> 主机发送完 8 位数据以后会将 SDA 设置为输入状态，等待 <code>I2C</code> 从机应答，也就是等到 <code>I2C</code> 从机告诉主机它接收到数据了。应答信号是由从机发出的，主机需要提供应答信号所需的时钟，主机发送完 8 位数据以后紧跟着的一个时钟信号就是给应答信号使用的。从机通过将 SDA 拉低来表示发出应答信号，表示通信成功，否则表示通信失败。</p>
 <h3 id="2-5-I2C-设备地址格式"><a href="#2-5-I2C-设备地址格式" class="headerlink" title="2.5 I2C 设备地址格式"></a>2.5 I2C 设备地址格式</h3><p><code>I2C</code> 设备的地址为 8 位，但是时序操作时最后一位不属于地址，而是 R&#x2F;W 状态位。所以有用的是前 7 位，使用时地址整体右移一位处理即可。</p>
 <p>除此之位，一个设备地址的前四位是固定的，是厂家用来表示设备类型的：</p>
@@ -258,7 +394,7 @@
 <li>EEPROM 存储器地址前四位一般为 1010 即 AX；</li>
 <li>oled屏地址前四位一般为 0111 即 7X 等。</li>
 </ul>
-<h3 id="2-5-I2C-时序图"><a href="#2-5-I2C-时序图" class="headerlink" title="2.5 I2C 时序图"></a>2.5 I2C 时序图</h3><p><img src="6.png"></p>
+<h3 id="2-5-I2C-时序图"><a href="#2-5-I2C-时序图" class="headerlink" title="2.5 I2C 时序图"></a>2.5 I2C 时序图</h3><p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面结合图例，将前面所提到的信息整合一下：</p>
 <ol>
 <li>起始信号</li>
@@ -294,7 +430,7 @@
 <p><code>IIC</code> 总线的 SDA 和 SCL 两条信号线同时处于高电平时，规定为总线的空闲状态。此时各个器件的输出级场效应管均处在截止状态，即释放总线，由两条信号线各自的上拉电阻把电平拉高。</p>
 <h4 id="2-5-1-I2C-写时序"><a href="#2-5-1-I2C-写时序" class="headerlink" title="2.5.1 I2C 写时序"></a>2.5.1 I2C 写时序</h4><p>要在 <code>I2C</code> 总线上写入，主机将在总线上发送：一个启动开始标志、从机地址、最后一位（R&#x2F;W位）设置为 0，这表示写入。</p>
 <p>从设备发送 ACK 响应确认后，主设备将发送其希望写入的寄存器的寄存器地址。从设备将再次确认，让主设备知道它已准备就绪。在此之后，主机将开始向从机发送寄存器数据，直到主机发送了它需要的所有数据（有时这只是一个字节），并且主机将以停止条件终止传输。</p>
-<p><img src="7.png"></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 <p>具体步骤如下：</p>
 <ol>
 <li>开始信号。</li>
@@ -311,7 +447,7 @@
 <h4 id="2-5-2-I2C-读时序"><a href="#2-5-2-I2C-读时序" class="headerlink" title="2.5.2 I2C 读时序"></a>2.5.2 I2C 读时序</h4><p>主机为了读取从设备的数据，主机必须首先指出希望从从设备的哪个寄存器读取数据。这是由主机写入从设备的“写操作”类似的方式开始传输，通过发送 R&#x2F;W 位等于 0 的地址（表示写入），然后是它希望从中读取的寄存器地址来完成的。</p>
 <p>一旦从设备确认该寄存器地址，主机将再次发送启动条件，然后发送从设备地址，R&#x2F;W 位设置为 1（表示读取）。这一次，从设备将确认读取请求，主机释放 SDA 总线，但将继续向从设备提供时钟。在这部分事务中，主机将成为主“接收器”，将成为从“发射器”。</p>
 <p>主机将继续发送时钟脉冲 SCL，但会释放 SDA，以便从设备可以传输数据。在数据的每个字节结束时，主机将向从设备发送 ACK，让从设备知道它已准备好接收更多数据。一旦主机接收到预期的字节数，它将发送一个 NACK，向从设备发送信号以停止通信并释放总线。之后，主机将设置停止条件。 </p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>I2C</code> 单字节读时序比写时序要复杂一点，读时序分为四个步骤，第一步是发送设备地址，第二步是发送要读取的寄存器地址，第三步重新发送设备地址，最后一步就是 <code>I2C</code> 从器件输出要读取的寄存器值，我们具体来看一下这步。</p>
 <ol>
 <li>主机发送起始信号。</li>
@@ -329,7 +465,7 @@
 <li>主机发出 NACK 信号，表示读取完成，不需要从机再发送 ACK 信号了。</li>
 <li>主机发出 STOP 信号，停止 <code>I2C</code> 通信。</li>
 </ol>
-<h4 id="2-5-3-单个-多个字节的写入-读取"><a href="#2-5-3-单个-多个字节的写入-读取" class="headerlink" title="2.5.3 单个&#x2F;多个字节的写入&#x2F;读取"></a>2.5.3 单个&#x2F;多个字节的写入&#x2F;读取</h4><p><img src="9.png"></p>
+<h4 id="2-5-3-单个-多个字节的写入-读取"><a href="#2-5-3-单个-多个字节的写入-读取" class="headerlink" title="2.5.3 单个&#x2F;多个字节的写入&#x2F;读取"></a>2.5.3 单个&#x2F;多个字节的写入&#x2F;读取</h4><p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
 <ul>
 <li><p>写入单个字节<br>  向从机设备的某一个寄存器写一个字节数据：<code>开始信号+设备地址(7位)+读/写(1位)+等待从机应答+寄存器地址(8位)+等待从机应答+要写的数据(8位)+等待从机应答+终止信号</code>。</p>
 </li>
@@ -342,7 +478,7 @@
 </ul>
 <h2 id="3、时钟同步和仲裁"><a href="#3、时钟同步和仲裁" class="headerlink" title="3、时钟同步和仲裁"></a>3、时钟同步和仲裁</h2><p>两个控制器可以同时在空闲总线上开始传输，并且必须有一种方法来决定哪个控制器控制总线并完成其传输。这是通过时钟同步和时钟仲裁完成的。在单处理器系统中，不需要时钟同步和时钟仲裁。 </p>
 <h3 id="3-1-时钟同步"><a href="#3-1-时钟同步" class="headerlink" title="3.1  时钟同步"></a>3.1  时钟同步</h3><p>I2C 接口的时钟同步是通过将所有接口连接到 SCL 线上的“线与”连接来实现的。这意味着 SCL 线上的高电平到低电平的转换会使相关控制器开始计数它们的低电平周期，一旦某个控制器的时钟变为低电平，它会保持 SCL 线在该状态，直到达到时钟的高电平状态（见下图）。然而，如果另一个时钟仍在其低电平周期内，该时钟的低电平到高电平的转换可能不会改变 SCL 线的状态。因此，具有最长低电平周期的控制器会保持 SCL 线为低电平。具有较短低电平周期的控制器在此期间会进入高电平等待状态。</p>
-<p><img src="13.png"></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>简单来说，如果有多个主机同时产生时钟，那么&#x3D;&#x3D;只有所有主机都发送高电平时，SCL 上才表现为高电平，否则 SCL 都表现为低电平&#x3D;&#x3D;。</p>
 </blockquote>
@@ -362,7 +498,7 @@
 <p>当一个控制器第一次尝试发送高电平但检测到 SDA 电平为<strong>低电平</strong>时，该控制器知道它已经输掉了仲裁，并关闭其 SDA 输出驱动器；另一个控制器则继续完成其事务。在仲裁过程中没有信息丢失。输掉仲裁的控制器可以在其输掉仲裁的字节结束之前生成时钟脉冲，并且必须<strong>在总线空闲时重新启动其传输</strong>。</p>
 <p>如果一个控制器还具有目标功能，并且在寻址阶段输掉了仲裁，可能获胜的控制器正在尝试寻址它。因此，输掉仲裁的控制器必须立即切换到其目标模式。</p>
 <p>下图展示了两个控制器的仲裁过程，具体涉及的控制器数量取决于连接到总线的控制器数量。当生成 DATA1 的控制器的内部数据水平与 SDA 线上实际水平之间出现差异时，DATA1 输出被关闭。这不会影响由获胜控制器发起的数据传输。</p>
-<p><img src="14.png"></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
 <p>由于 <code>I2C</code> 总线的控制完全由竞争控制器发送的地址和数据决定，因此不存在中央控制器，也没有总线的优先级顺序。如果仲裁过程仍在进行中，而某个控制器发送重复的 START 条件或 STOP 条件时，另一控制器仍在发送数据，就会出现不确定状态。换句话说，以下组合会导致不确定状态：</p>
 <ul>
 <li>控制器 1 发送重复的 START 条件，而控制器 2 发送数据位。</li>
@@ -370,25 +506,393 @@
 <li>控制器 1 发送重复的 START 条件，而控制器 2 发送 STOP 条件。</li>
 </ul>
 <h2 id="4、目标地址和-R-W-位"><a href="#4、目标地址和-R-W-位" class="headerlink" title="4、目标地址和 R&#x2F;W 位"></a>4、目标地址和 R&#x2F;W 位</h2><p>数据传输遵循如下图的格式：</p>
-<p><img src="15.png"></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
 <p>在 START 信号后，紧跟的是 7 位的目标地址，后跟第 8 位，即数据方向位（R&#x2F;W）——“0” - WRITE，“1” - READ。数据传输始终由 STOP 信号终止。 但是，如果控制器仍然希望在总线上通信，它可以生成重复的 START 条件并寻址另一个目标，而无需先生成 STOP 条件。在这种传输中，读&#x2F;写格式的各种组合是可能的。</p>
 <p> 如下是几种可能的数据格式：</p>
 <ol>
 <li><p>发射器向接收器发送信号，传输方向不变，接受器确认每个字节</p>
-<p><img src="16.png"></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
 </li>
 <li><p>控制器在每一个字节后立即读取目标。在第一次确认的那一刻，发射器成为接收器，接收器成为发射器。 此第一个确认仍由目标生成。控制器生成后续确认。STOP 条件由控制器生成，控制器在 STOP 条件之前发送 NACK</p>
-<p><img src="17.png"></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
 </li>
 <li><p>组合格式。在传输中更改方向期间，START 条件和目标地址都重复，但 R&#x2F;W 位相反。如果控制器接收器发送重复的 START 条件，它会在重复的 START 条件之前发送 NACK</p>
 </li>
 </ol>
-<p>   <img src="18.png"></p>
+<p>   <img src="18.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>START 条件后跟 STOP 条件（空消息）是非法格式。然而，许多设备被设计为在这种情况下正常运行 </p>
 </blockquote>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/08/15/I2C/">http://example.com/2024/08/15/I2C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">通信协议</a><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/I2C/">I2C</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/08/16/UART/" title="UART 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">UART 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述UART (Universal Asynchronous Receiver&#x2F;Transmitter，通用异步收发器) 是一种常用的串行通信协议，用于在计算机和外部设备之间传输数据。它是一种异步通信协议，也就是说数据的传输不需要事先建立好同步时钟信号。 UART 协议定义了数据传输的格式和通信规则。它包括一系列的控制信号和数据线来实现双向的串行通信。常见的 UART 协议有 RS-232、RS-422 和 RS-485 等。 UART 协议的数据传输是基于帧（Frame）的概念的。每个数据帧由一个起始位、若干个数据位、一个可选的奇偶校验位和一个或多个停止位组成。起始位用于指示数据帧的开始，数据位用于传输实际的数据，奇偶校验位用于检测数据的正确性，停止位用于指示数据帧的结束。 UART 协议的工作方式是通过不断发送和接收数据来实现通信。发送方将数据按照一定的格式组织成数据帧，并通过数据线发送出去。接收方接收到数据后，解析数据帧，并进行相应的处理。 UART 协议的优点是简单、成本低廉且广泛应用。它可以通过简单的硬件电路实现，并且在嵌入式系统、通信设备、...</div></div></div></a><a class="pagination-related" href="/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/" title="Linux 中断机制（二）之中断子系统框架"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux 中断机制（二）之中断子系统框架</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的代码在所有硬件平台上都是通用的，不依赖于具体的硬件架构或中断控制器。 通用层提供了统一的接口和功能， 用于管理和处理中断， 使得驱动程序能够在不同的硬件平台上复用。 硬件相关层：硬件相关层包含两部分代码。 一部分是与特定处理器架构相关的代码，比如 ARM64 处理器的中断处理相关代码。 这些代码负责处理特定架构的中断机制， 包括中断向量表、 中断处理程序等。 另一部分是中断控制器的驱动代码， 用于与中断控制器进行通信和配置。这些代码与具体的中断控制器硬件相关。 硬件层：硬件层位于最底层， 与具体的硬件连接相关。 它包括外设与 SoC（系统片上芯片）的物理连接部分。 中断信号从外设传递到中断控...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/17/SPI/" title="SPI 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-17</div><div class="info-item-2">SPI 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述SPI（Serial Peripheral interface，串行外围设备接口） 通信协议是 Motorola 公司首先在其MC68HCXX 系列处理器上定义的。SPI 接口是一种高速的全双工同步的通信总线，已经广泛应用在众多 MCU、存储芯片、AD 转换器和 LCD 之间。 由 SPI 连成的串行总线是一种三线同步总线，总线上可以连接多个可作为主机的 MCU，装有 SPI 接口的输出设备，输入设备如液晶驱动、A&#x2F;D 转换等外设，也可以简单连接到单个 TTL 移位寄存器的3芯片。总线上允许连接多个能作主机的设备，但在任一瞬间只允许有一个设备作为主机。总线的时钟线 SCK 由主机控制，另外两根分别是：主机输入&#x2F;从机输出线（MISO）和主机输出&#x2F;从机输入线（MOSI）。下图就是 SPI 总线的典型结构图：  系统可以简单，也可以复杂，主要有以下几种形式：  一台主机 MCU 和若干台从机 MCU。 多台 MCU 互相连接成一个多主机系统。 一台主机 MCU 和若干台从机外围设备。  二、SPI 详解1、基本信息1.1 SPI 的引...</div></div></div></a><a class="pagination-related" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-23</div><div class="info-item-2">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</div></div><div class="info-2"><div class="info-item-1">[toc]   I2C 相关知识可以参考 IIC 通信协议详解  一、AT24CXXX 系列存储器介绍1、基本信息下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量    AT24C01 1Kbit 128Byte   AT24C02 2Kbit 256Byte   AT24C04 4Kbit 512Byte   AT24C08 8Kbit 1024Byte   AT24C16 16Kbit 2048Byte   AT24C32 32Kbit 4096Byte   AT24C64 64Kbit 8192Byte   AT24C128 128Kbit 16384Byte   AT24C256 256Kbit 32768Byte   AT24C512 512Kbit 65536Byte   下表是 AT24CXXX 的页内单元数：  总容量(Byte容量) &#x3...</div></div></div></a><a class="pagination-related" href="/2024/08/18/Modbus/" title="Modbus 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-18</div><div class="info-item-2">Modbus 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施耐德公司已将 Modbus 协议的所有权移交给 IDA（Interface for Distributed Automation，分布式自动化接口）组织，并成立了 Modbus-IDA 组织，为 Modbus 今后的发展奠定了基础。 在中国，Modbus 已经成为国家标准，并有专业的规范文档，感兴趣的可以去查阅相关的文件，详情如下：标准编号为:GB&#x2F;T19582-2008文件名称:《基于 Modbus 协议的工业自动化网络规范》，主要包含三个部分：  GB-T19582.1-2008 第 1 部分：Modbus 应用协议 GB-T19582.1-2008 第 2 部分：Modbu...</div></div></div></a><a class="pagination-related" href="/2024/08/16/UART/" title="UART 通信协议详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-16</div><div class="info-item-2">UART 通信协议详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述UART (Universal Asynchronous Receiver&#x2F;Transmitter，通用异步收发器) 是一种常用的串行通信协议，用于在计算机和外部设备之间传输数据。它是一种异步通信协议，也就是说数据的传输不需要事先建立好同步时钟信号。 UART 协议定义了数据传输的格式和通信规则。它包括一系列的控制信号和数据线来实现双向的串行通信。常见的 UART 协议有 RS-232、RS-422 和 RS-485 等。 UART 协议的数据传输是基于帧（Frame）的概念的。每个数据帧由一个起始位、若干个数据位、一个可选的奇偶校验位和一个或多个停止位组成。起始位用于指示数据帧的开始，数据位用于传输实际的数据，奇偶校验位用于检测数据的正确性，停止位用于指示数据帧的结束。 UART 协议的工作方式是通过不断发送和接收数据来实现通信。发送方将数据按照一定的格式组织成数据帧，并通过数据线发送出去。接收方接收到数据后，解析数据帧，并进行相应的处理。 UART 协议的优点是简单、成本低廉且广泛应用。它可以通过简单的硬件电路实现，并且在嵌入式系统、通信设备、...</div></div></div></a><a class="pagination-related" href="/2024/10/17/ESP32-IDF-GPIO/" title="ESP32-IDF GPIO 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-17</div><div class="info-item-2">ESP32-IDF GPIO 专题</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_gpio/include/driver/gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情况下，第三方组件将直接呈现底层库的原始 API。 1、配置结构体 为确保应用程序与未来 ESP-IDF 版本的兼容性，请正确初始化配置结构体。  多数 ESP-IDF 中的初始化、配置和安装函数（通常以 ..._init()、 ..._config() 和 ..._install() 命名）都需要一个指向配置结构体的指针作为参数。例如： 1234567const esp_timer_create_args_t my_timer_args = &#123;    .callback = &amp;my_timer_callback,    .arg = callback_arg,    .n...</div></div></div></a><a class="pagination-related" href="/2024/09/29/sct-%E6%96%87%E4%BB%B6/" title="浅析 Keil 中的 sct 文件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-29</div><div class="info-item-2">浅析 Keil 中的 sct 文件</div></div><div class="info-2"><div class="info-item-1">[toc]  一、程序的存储与运行1、存储程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  **Code**：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 **RO-data**：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。 例如 C 语言中 const 关键字定义的变量就是典型的 RO-data。   **RW-data**：Read Write data，即可读写数据域，它指初始化为”非0值”的可读写数据，程序刚运行时，这些数据具有非0的初始值，且运行的时候它们会常驻在RAM区，因而应用程序可以修改其内容。 例如 C 语言中使用定义的全局变量，且定义时赋予”非 0 值”给该变量进行初始化。   **ZI-data**：Zero Initialie data，即 0 初始化数据，它指初始化为”0 值”的可读写数据域，它与 RW-data 的区别是程序刚运行时这些数据初始值全都为 0，...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81I2C-%E8%AF%A6%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">二、I2C 详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81I2C-%E6%80%BB%E7%BA%BF%E7%AE%80%E4%BB%8B"><span class="toc-number">2.1.</span> <span class="toc-text">1、I2C 总线简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-I2C-%E4%B8%AD%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%9C%89%E4%B8%8A%E6%8B%89%E7%94%B5%E9%98%BB"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 I2C 中为什么要有上拉电阻</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81I2C-%E5%8D%8F%E8%AE%AE%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="toc-number">2.2.</span> <span class="toc-text">2、I2C 协议相关知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E8%B5%B7%E5%A7%8B%E4%BD%8D"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 起始位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%81%9C%E6%AD%A2%E4%BD%8D"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2 停止位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.3 数据传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%BA%94%E7%AD%94%E4%BF%A1%E5%8F%B7"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.4 应答信号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-I2C-%E8%AE%BE%E5%A4%87%E5%9C%B0%E5%9D%80%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.5 I2C 设备地址格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-I2C-%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="toc-number">2.2.6.</span> <span class="toc-text">2.5 I2C 时序图</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-1-I2C-%E5%86%99%E6%97%B6%E5%BA%8F"><span class="toc-number">2.2.6.1.</span> <span class="toc-text">2.5.1 I2C 写时序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-2-I2C-%E8%AF%BB%E6%97%B6%E5%BA%8F"><span class="toc-number">2.2.6.2.</span> <span class="toc-text">2.5.2 I2C 读时序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-3-%E5%8D%95%E4%B8%AA-%E5%A4%9A%E4%B8%AA%E5%AD%97%E8%8A%82%E7%9A%84%E5%86%99%E5%85%A5-%E8%AF%BB%E5%8F%96"><span class="toc-number">2.2.6.3.</span> <span class="toc-text">2.5.3 单个&#x2F;多个字节的写入&#x2F;读取</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E6%97%B6%E9%92%9F%E5%90%8C%E6%AD%A5%E5%92%8C%E4%BB%B2%E8%A3%81"><span class="toc-number">2.3.</span> <span class="toc-text">3、时钟同步和仲裁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%97%B6%E9%92%9F%E5%90%8C%E6%AD%A5"><span class="toc-number">2.3.1.</span> <span class="toc-text">3.1  时钟同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%97%B6%E9%92%9F%E4%BB%B2%E8%A3%81"><span class="toc-number">2.3.2.</span> <span class="toc-text">3.2 时钟仲裁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%9B%AE%E6%A0%87%E5%9C%B0%E5%9D%80%E5%92%8C-R-W-%E4%BD%8D"><span class="toc-number">2.4.</span> <span class="toc-text">4、目标地址和 R&#x2F;W 位</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="print-no-link">#通信协议</a>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/I2C/" class="print-no-link">#I2C</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>IIC 通信协议详解</div>
+      <div>http://example.com/2024/08/15/I2C/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/16/UART/" title="UART 通信协议详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">UART 通信协议详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/" title="Linux 中断机制（二）之中断子系统框架">
+                        <span class="hidden-mobile">Linux 中断机制（二）之中断子系统框架</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

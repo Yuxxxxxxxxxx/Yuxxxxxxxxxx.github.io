@@ -1,183 +1,323 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Cortex-M 内核的 OS 特性 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cortex-M 内核的 OS 特性">
 <meta property="og:url" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="@toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/1.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/2.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/3.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/4.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/5.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/6.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/7.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/8.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/9.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/10.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/11.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/12.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/13.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/14.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/15.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/16.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/17.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/18.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/19.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/20.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/21.png">
+<meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/22.png">
 <meta property="article:published_time" content="2024-10-13T05:08:07.000Z">
 <meta property="article:modified_time" content="2024-11-14T08:40:42.041Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="STM32">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Cortex-M 内核的 OS 特性",
-  "url": "http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-10-13T05:08:07.000Z",
-  "dateModified": "2024-11-14T08:40:42.041Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>Cortex-M 内核的 OS 特性 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Cortex-M 内核的 OS 特性"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-13 13:08" pubdate>
+          星期日, 十月 13日 2024, 1:08 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Cortex-M 内核的 OS 特性',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">Cortex-M 内核的 OS 特性</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Cortex-M 内核的 OS 特性</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-13T05:08:07.000Z" title="发表于 2024-10-13 13:08:07">2024-10-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:40:42.041Z" title="更新于 2024-11-14 16:40:42">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Cortex-M 内核的 OS 特性</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
 <h1 id="一、通用堆栈知识"><a href="#一、通用堆栈知识" class="headerlink" title="一、通用堆栈知识"></a>一、通用堆栈知识</h1><p>在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>Heap</code> 主要用于 Malloc、Free，动态内存申请和释放。</p>
 <p><code>Stack</code> 也非常重要，程序编译后所包含的大量 <code>PUSH</code> 和 <code>POP</code> 指令操作，系统根据 <code>SP</code>（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从高地址向低地址生长的，下面通过一个例子演示一下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__IO <span class="type">uint32_t</span> a = <span class="number">0x11111111</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> b = <span class="number">0x22222222</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> c = <span class="number">0x33333333</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> d = <span class="number">0x44444444</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> e = <span class="number">0x55555555</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> f = <span class="number">0x66666666</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> g = <span class="number">0x77777777</span>;</span><br><span class="line">__IO <span class="type">uint32_t</span> h = <span class="number">0x88888888</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">__IO <span class="hljs-type">uint32_t</span> a = <span class="hljs-number">0x11111111</span>;<br>__IO <span class="hljs-type">uint32_t</span> b = <span class="hljs-number">0x22222222</span>;<br>__IO <span class="hljs-type">uint32_t</span> c = <span class="hljs-number">0x33333333</span>;<br>__IO <span class="hljs-type">uint32_t</span> d = <span class="hljs-number">0x44444444</span>;<br>__IO <span class="hljs-type">uint32_t</span> e = <span class="hljs-number">0x55555555</span>;<br>__IO <span class="hljs-type">uint32_t</span> f = <span class="hljs-number">0x66666666</span>;<br>__IO <span class="hljs-type">uint32_t</span> g = <span class="hljs-number">0x77777777</span>;<br>__IO <span class="hljs-type">uint32_t</span> h = <span class="hljs-number">0x88888888</span>;<br></code></pre></td></tr></table></figure>
 
-<p><img src="2.png"></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后进入调试状态，可以看到现在 SP 指针是 <code>0x20000618</code>。</p>
-<p><img src="3.png"></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
 <p>可当我们实际点击单步调试的时候，SP 指针现在又变成了 <code>0x200005F8</code>，<code>0x20000618</code> - <code>0x200005F8</code> 等于十进制的 32。也就是说少了 32 个字节。这里是因为程序一来就把这 8 个数据，共 32 个字节的内存分配好了。</p>
 <p>当你把 <code>__IO</code> 去掉后，就不会出现以上的情况。<code>__IO</code> 其实就是 <code>volatile</code>，所以在这里就是告诉编译器它后面所定义的变量随时都有可能改变，因此编译后的程序每次需要存储或读取这个变量的时候，告诉编译器对该变量不做优化，都会直接从变量内存地址中读取数据，从而可以提供对特殊地址的稳定访问。</p>
 <p>下面继续执行，可以看到，数据是从高地址向低地址存储的。</p>
-<p><img src="4.png"></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <p>当然，内存空间只是连续字节数据的抽象，本身并不区分堆和栈的概念，它做的只是存储和读写信息。因此，如何定义堆栈、初始化建立堆栈环境，在嵌入式软件运行前便显得尤为重要。这涉及到处理器提供的堆栈机制、操作系统内存管理和进程切换等方方面面。</p>
 <h1 id="二、双堆栈用法"><a href="#二、双堆栈用法" class="headerlink" title="二、双堆栈用法"></a>二、双堆栈用法</h1><p>下图取自权威指南：</p>
-<p><img src="5.png"></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
 <p>在搭载实时操作系统内核的嵌入式软件中，栈往往分为两大类，除了满足系统基本的主栈（main stack）外，往往还需要进程&#x2F;线程栈（process stack）。这两部分内存空间是独立存在的：</p>
 <ul>
 <li>主栈位于系统的栈区（stack）</li>
@@ -197,20 +337,20 @@
 <p>在一些简单的应用中，例如裸机程序，可以从头到尾都只使用主堆栈，只要确保分配足够的空间即可。</p>
 </blockquote>
 <p>还是一样，通过例程来看，在刚才的程序下面添加：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">__set_PSP(__get_MSP()); <span class="comment">/* 设置PSP位置 */</span></span><br><span class="line">__set_CONTROL(<span class="number">0x02</span>);    <span class="comment">/* bit1 = 1表示使用PSP，bit1 = 0表示使用MSP */</span> </span><br><span class="line">&#123;</span><br><span class="line">    __IO <span class="type">uint32_t</span> a1 = <span class="number">0x11111111</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> b1 = <span class="number">0x22222222</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> c1 = <span class="number">0x33333333</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> d1 = <span class="number">0x44444444</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> e1 = <span class="number">0x55555555</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> f1 = <span class="number">0x66666666</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> g1 = <span class="number">0x77777777</span>;</span><br><span class="line">    __IO <span class="type">uint32_t</span> h1 = <span class="number">0x88888888</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a1 = %x, b1 = %x\r\n&quot;</span>, a1, b1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">__set_PSP(__get_MSP()); <span class="hljs-comment">/* 设置PSP位置 */</span><br>__set_CONTROL(<span class="hljs-number">0x02</span>);    <span class="hljs-comment">/* bit1 = 1表示使用PSP，bit1 = 0表示使用MSP */</span> <br>&#123;<br>    __IO <span class="hljs-type">uint32_t</span> a1 = <span class="hljs-number">0x11111111</span>;<br>    __IO <span class="hljs-type">uint32_t</span> b1 = <span class="hljs-number">0x22222222</span>;<br>    __IO <span class="hljs-type">uint32_t</span> c1 = <span class="hljs-number">0x33333333</span>;<br>    __IO <span class="hljs-type">uint32_t</span> d1 = <span class="hljs-number">0x44444444</span>;<br>    __IO <span class="hljs-type">uint32_t</span> e1 = <span class="hljs-number">0x55555555</span>;<br>    __IO <span class="hljs-type">uint32_t</span> f1 = <span class="hljs-number">0x66666666</span>;<br>    __IO <span class="hljs-type">uint32_t</span> g1 = <span class="hljs-number">0x77777777</span>;<br>    __IO <span class="hljs-type">uint32_t</span> h1 = <span class="hljs-number">0x88888888</span>;<br>    <br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;a1 = %x, b1 = %x\r\n&quot;</span>, a1, b1);<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="6.png"></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面继续执行：</p>
-<p><img src="7.png"></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 <p>这里将 PSP 指向 MSP 一样的地址，然后设置使用 PSP：</p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后继续执行：</p>
-<p><img src="9.png"></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
 <p>可以看到，现在只是改成使用 PSP 了，其它和 MSP 没有什么区别。</p>
 <p>下面我在我的 <code>SysTick_Handler</code> 函数中打一个断点，然后全速执行：</p>
-<p><img src="10.png"></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
 <p>栈指针又切换回 MSP 了。而退出中断后，又会自动切换回 PSP：</p>
-<p><img src="11.png"></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
 <p>这也印证了刚才所说的，在任务中使用 PSP，在中断中使用 MSP。使用双堆栈，把任务和中断使用的栈区分开，这样安全性会更好一些。</p>
 <h1 id="三、PendSV-中断介绍和用法"><a href="#三、PendSV-中断介绍和用法" class="headerlink" title="三、PendSV 中断介绍和用法"></a>三、PendSV 中断介绍和用法</h1><p><code>PendSV</code> 典型使用场合是在上下文切换时（在不同任务之间切换）。上下文切换的本质就是保存当前执行现场 A，切换到另一个任务 B 里面。切换回来时又要恢复执行现场 A（将一系列的寄存器入栈、出栈）。</p>
 <p>由于 <code>PendSV</code> 的特点就是支持&#x3D;&#x3D;缓期执行&#x3D;&#x3D;，所以 RTOS 可以利用它这个特点，进行任务调度过程的上下文切换。而为什么要使用&#x3D;&#x3D;缓期执行&#x3D;&#x3D;的特点来进行上下文切换呢？简单的说就是任何 RTOS，都需要尽量不打断外设中断。 我们来举例说明，假如一个系统中有两个就绪的任务，上下文切换被切换的场合可以是：</p>
@@ -219,9 +359,9 @@
 <li>系统滴答定时器 SYSTICK 中断，触发了任务的调度。</li>
 </ol>
 <p>假如我们在 Systick 中断服务程序中，启动上下文切换，流程图如下：</p>
-<p><img src="12.png"></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
 <p>但若在产生 SysTick 异常时正在响应一个中断，则 SysTick 异常会抢占其ISR。在这种情况下，OS 是不能执行上下文切换的，否则将使中断请求被延迟，而且在真实系统中延迟时间还往往不可预知——任何有一丁点实时要求的系统都决不能容忍这种事。因此，在 CM3 中也是，如果 OS 在某中断活跃时尝试切入线程模式，将触犯用法 fault 异常。</p>
-<p><img src="13.png"></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
 <p>为解决此问题，早期的 OS 大多会检测当前是否有中断在活跃中，只有在无任何中断需要响应时，才执行上下文切换（切换期间无法响应中断）。然而，这种方法的弊端在于，它可以把任务切换动作拖延很久（因为如果抢占了 IRQ，则本次 SysTick 在执行后不得作上下文切换，只能等待下一次 SysTick 异常），尤其是当某中断源的频率和 SysTick 异常的频率比较接近时，会发生“共振”，使上下文切换迟迟不能进行。</p>
 <p>如果将 SysTick 的优先级设置为最低，然后在 SysTick 中进行上下文切换，然后任务调度。这样不会触发 Fault。但是也有一个问题：</p>
 <ul>
@@ -229,25 +369,25 @@
 </ul>
 <p>而现在有了 <code>PendSV</code>，<code>PendSV</code> 异常会自动延迟上下文切换的请求（&#x3D;&#x3D;缓期执行&#x3D;&#x3D;），直到其它的 ISR 都完成了处理后才放行。为实现这个机制，需要把<code>PendSV</code> 为最低优先级的异常。</p>
 <p>如果 OS 检测到某 IRQ 正在活动并且被 SysTick 抢占，它将悬起一个 PendSV 异常，以便缓期执行上下文切换。</p>
-<p><img src="14.png"></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
 <p>下面用一个数组模拟栈空间，来展示一下函数的切换：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span>  PspStack[<span class="number">100</span>];  <span class="comment">/* PspStack栈空间 */</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	...</span><br><span class="line">	</span><br><span class="line">	p_stk = &amp;PspStack[<span class="number">100</span>];</span><br><span class="line">	    </span><br><span class="line">	<span class="comment">/* 硬件自动入栈 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x01000000</span>;  <span class="comment">/* xPSR    */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)PrintfLogo;  <span class="comment">/* PC  */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x00000000</span>;  <span class="comment">/* R14 (LR) */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0xAAAAAAAA</span>;  <span class="comment">/* R12 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0xBBBBBBBB</span>;  <span class="comment">/* R3  */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0xCCCCCCCC</span>;  <span class="comment">/* R2  */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0xDDDDDDDD</span>;  <span class="comment">/* R1  */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0xEEEEEEEE</span>;  <span class="comment">/* R0 : argument */</span></span><br><span class="line">	  </span><br><span class="line">	<span class="comment">/* 根据需要手动入栈的 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x11111111</span>;  <span class="comment">/* R11*/</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x22222222</span>;  <span class="comment">/* R10*/</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x33333333</span>;  <span class="comment">/* R9 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x44444444</span>;  <span class="comment">/* R8 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x55555555</span>;  <span class="comment">/* R7 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x66666666</span>;  <span class="comment">/* R6 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x77777777</span>;  <span class="comment">/* R5 */</span></span><br><span class="line">	*(--p_stk) = (<span class="type">uint32_t</span>)<span class="number">0x88888888</span>;  <span class="comment">/* R4 */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 使能PendSV中断 */</span></span><br><span class="line">	SCB-&gt;ICSR |= SCB_ICSR_PENDSVSET_Msk;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/*##- 测试SVC软中断 ####################################################*/</span></span><br><span class="line">    SVCTest(<span class="number">0x11223344</span>, <span class="number">0x55667788</span>, <span class="number">0xaabbddee</span>);</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">PendSV_Handler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	__asm(<span class="string">&quot;BKPT 0&quot;</span>);</span><br><span class="line">	__set_PSP((<span class="type">uint32_t</span>)&amp;PspStack[<span class="number">92</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">uint32_t</span>  PspStack[<span class="hljs-number">100</span>];  <span class="hljs-comment">/* PspStack栈空间 */</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	...<br>	<br>	p_stk = &amp;PspStack[<span class="hljs-number">100</span>];<br>	    <br>	<span class="hljs-comment">/* 硬件自动入栈 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x01000000</span>;  <span class="hljs-comment">/* xPSR    */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)PrintfLogo;  <span class="hljs-comment">/* PC  */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x00000000</span>;  <span class="hljs-comment">/* R14 (LR) */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xAAAAAAAA</span>;  <span class="hljs-comment">/* R12 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xBBBBBBBB</span>;  <span class="hljs-comment">/* R3  */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xCCCCCCCC</span>;  <span class="hljs-comment">/* R2  */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xDDDDDDDD</span>;  <span class="hljs-comment">/* R1  */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xEEEEEEEE</span>;  <span class="hljs-comment">/* R0 : argument */</span><br>	  <br>	<span class="hljs-comment">/* 根据需要手动入栈的 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x11111111</span>;  <span class="hljs-comment">/* R11*/</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x22222222</span>;  <span class="hljs-comment">/* R10*/</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x33333333</span>;  <span class="hljs-comment">/* R9 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x44444444</span>;  <span class="hljs-comment">/* R8 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x55555555</span>;  <span class="hljs-comment">/* R7 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x66666666</span>;  <span class="hljs-comment">/* R6 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x77777777</span>;  <span class="hljs-comment">/* R5 */</span><br>	*(--p_stk) = (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x88888888</span>;  <span class="hljs-comment">/* R4 */</span><br><br>	<span class="hljs-comment">/* 使能PendSV中断 */</span><br>	SCB-&gt;ICSR |= SCB_ICSR_PENDSVSET_Msk;<br>	<br>	<span class="hljs-comment">/*##- 测试SVC软中断 ####################################################*/</span><br>    SVCTest(<span class="hljs-number">0x11223344</span>, <span class="hljs-number">0x55667788</span>, <span class="hljs-number">0xaabbddee</span>);<br>	...<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">PendSV_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	__asm(<span class="hljs-string">&quot;BKPT 0&quot;</span>);<br>	__set_PSP((<span class="hljs-type">uint32_t</span>)&amp;PspStack[<span class="hljs-number">92</span>]);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>在 M 内核，R0、R1、R2、R3、R12、R14（LR）、R15（PC）、xPSR，这 8 个寄存器是自动入栈的。而其余的寄存器是手动入栈的。</p>
 <p>开启了 <code>PendSV</code> 中断后，当来到 <code>SVCTest</code>（后面会介绍）时就会触发 <code>PendSV</code> 异常。</p>
 <p>在 <code>PendSV_Handler</code> 函数中，我们使 PSP 指向 <code>&amp;PspStack[92]</code>，也就是 <code>PrintfLogo</code>。所以当触发 <code>PendSV</code> 中断的时候，我们会将 PSP 指针指向 <code>PrintfLogo</code> 函数。也就是说，原本正常情况下，PC 指针保存的是当前 main 函数中下一条指令的地址，这里我们手动将其修改成了另一个函数的地址。这就是任务切换的本质。</p>
 <p>来看现象：</p>
-<p><img src="15.png"></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
 <p>再执行一步的时候就会跳转到 <code>PendSV_Handler</code>。</p>
 <p>当跳出 <code>PendSV_Handler</code> 函数后，正常情况下我们应该继续在 main 函数中向后执行，而这里会跳转到 <code>PrintfLogo</code> 函数中：</p>
-<p><img src="16.png"></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
 <p>旁边的寄存器的值和我们硬件自动入栈的值也是对应的：</p>
-<p><img src="17.png"></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="四、SVC-软中断介绍和用法"><a href="#四、SVC-软中断介绍和用法" class="headerlink" title="四、SVC 软中断介绍和用法"></a>四、SVC 软中断介绍和用法</h1><p><code>SVC</code> 用于生成系统函数调用的请求，例如，用户程序不允许直接访问硬件，操作系统可以通过 <code>SVC</code> 提供对硬件的访问。因此，当用户程序想要使用某些硬件时，可以使用 <code>SVC</code> 指令，然后执行操作系统中的软件异常处理程序，并提供用户应用程序请求的服务。通过这种方式，对硬件的访问由操作系统控制，操作系统可以阻止用户应用程序直接访问硬件，从而提供更可靠的系统。</p>
 <p><code>SVC</code> 还可以使软件更具可移植性，因为用户程序不需要知道硬件的编程细节。用户程序只需要知道应用程序编程接口(API)函数 ID 和参数，而实际的硬件级编程是由设备驱动程序处理的。</p>
-<p><img src="18.png"></p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>SVC</code> 异常由 <code>SVC</code> 指令产生，该指令需要一个立即数作为参数，根据这个参数执行不同的 <code>SVC</code> 处理函数。例：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SVC #<span class="number">0x3</span> ;  调用SVC 函数<span class="number">3</span></span><br><span class="line">SVC <span class="number">0x3</span> ;   传统的语法(没有#)也可行</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">SVC #<span class="hljs-number">0x3</span> ;  调用SVC 函数<span class="hljs-number">3</span><br>SVC <span class="hljs-number">0x3</span> ;   传统的语法(没有#)也可行<br></code></pre></td></tr></table></figure>
 
 <p>在 C 语言中，可以使用编译器关键字函数 <code>__svc</code> 或者使用内联汇编代码来执行 <code>SVC</code> 指令。</p>
 <p>对于操作系统来说，当 <code>SVC</code> 处理程序被执行时，我们可以通过读取堆栈中的 <code>PC</code> 值来确定 <code>SVC</code> 指令中的立即数据值，然后从该地址读取指令并屏蔽不需要的位。如果使用的PSP堆栈，则还需要通过LR寄存器判断当前使用的是哪个堆栈。</p>
@@ -257,20 +397,20 @@
 <blockquote>
 <p><code>__svc</code> 是 MDK 内置的一个定义前缀，用于设置 SVC 软中断的序号（0~255），可以用来区分不同的使用场景</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __svc(<span class="number">0</span>)  SVCTest(<span class="type">uint32_t</span> a, <span class="type">uint32_t</span> b, <span class="type">uint32_t</span> c); <span class="comment">/* SVC软中断 */</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">/*##- 测试SVC软中断 ####################################################*/</span></span><br><span class="line">SVCTest(<span class="number">0x11223344</span>, <span class="number">0x55667788</span>, <span class="number">0xaabbddee</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> __svc(<span class="hljs-number">0</span>)  SVCTest(<span class="hljs-type">uint32_t</span> a, <span class="hljs-type">uint32_t</span> b, <span class="hljs-type">uint32_t</span> c); <span class="hljs-comment">/* SVC软中断 */</span><br><br>...<br><br><span class="hljs-comment">/*##- 测试SVC软中断 ####################################################*/</span><br>SVCTest(<span class="hljs-number">0x11223344</span>, <span class="hljs-number">0x55667788</span>, <span class="hljs-number">0xaabbddee</span>);<br></code></pre></td></tr></table></figure>
 
-<p><img src="19.png"></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
 <p>单步运行后直接跳转，并且把函数数据也一并保存在 R0、R1、R2 寄存器中：</p>
-<p><img src="20.png"><br>当我们调用 OS 内核的 API 的时候，一调用就会进入到 SVC 中断，让这个函数直接在 SVC 中断中执行，这样把 OS 的函数和我们自己写的应用程序隔离开了。</p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload><br>当我们调用 OS 内核的 API 的时候，一调用就会进入到 SVC 中断，让这个函数直接在 SVC 中断中执行，这样把 OS 的函数和我们自己写的应用程序隔离开了。</p>
 <h1 id="五、特权级和非特权级使用方法"><a href="#五、特权级和非特权级使用方法" class="headerlink" title="五、特权级和非特权级使用方法"></a>五、特权级和非特权级使用方法</h1><blockquote>
 <p>特权级和非特权级只是针对中断外的任务来说的，中断全部都是特权级</p>
 </blockquote>
 <p>如果代码是在中断里执行，则只能是特权级；中断以外可以是特权级，也可以是非特权级。</p>
 <p>非特权级主要是 RTX 在使用。如果是在非特权级的模式下，则不能访问和配置 Cortex-M 内核相关的寄存器（例如 SCB），否则会触发异常。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*##- 测试非特权级 ####################################################*/</span></span><br><span class="line">__set_CONTROL(<span class="number">0x01</span>);  <span class="comment">/* bit0 = 1表示应用程序工作在非特权级模式，bit1 = 0表示应用程序工作在特权级模式 */</span> </span><br><span class="line">SCB-&gt;ICSR |= SCB_ICSR_PENDSVSET_Msk;  <span class="comment">/* 操作SCB就会进入异常 */</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*##- 测试非特权级 ####################################################*/</span><br>__set_CONTROL(<span class="hljs-number">0x01</span>);  <span class="hljs-comment">/* bit0 = 1表示应用程序工作在非特权级模式，bit1 = 0表示应用程序工作在特权级模式 */</span> <br>SCB-&gt;ICSR |= SCB_ICSR_PENDSVSET_Msk;  <span class="hljs-comment">/* 操作SCB就会进入异常 */</span><br></code></pre></td></tr></table></figure>
 
 <p>例程中先开启非特权模式，然后再操作 SCB（系统控制块）寄存器时会触发异常：</p>
-<p><img src="21.png"></p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
 <p>直接就来到 <code>HardFault</code> 了。</p>
 <p>那非特权级模式下核心外设寄存器如何初始化？</p>
 <p>如果用户将 RTX 操作系统的任务设置在非特权级模式下运行，那么核心外设寄存器应该放在哪里进行初始化呢，主要有以下两种方法：</p>
@@ -285,10 +425,383 @@
 <li>控制寄存器（CONTROL）</li>
 </ul>
 <p>其中控制寄存器 CONTROL 是用来设置特权级和非特权级切换的，CONTROL 寄存器定义如下：</p>
-<p><img src="22.png"></p>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
 <p>前面的例子中也演示了如何设置 CONTROL 寄存器：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__set_CONTROL(<span class="type">uint32_t</span> control)</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/">http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" title="CMake 教程（一）初识 CMake"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">CMake 教程（一）初识 CMake</div></div><div class="info-2"><div class="info-item-1">[toc]  CMake 是个一个开源的跨平台自动化建构系统，用来管理软件建置的程序，并不依赖于某特定编译器，并可支持多层目录、多个应用程序与多个函数库。 CMake 通过使用简单的配置文件 CMakeLists.txt，自动生成不同平台的构建文件（如 Makefile、Ninja 构建文件、Visual Studio 工程文件等），简化了项目的编译和构建过程。 CMake 本身不是构建工具，而是&#x3D;&#x3D;生成构建系统的工具&#x3D;&#x3D;，它生成的构建系统可以使用不同的编译器和工具链。 一、基本使用最基本的 CMake 项目是从单个源代码文件构建的可执行文件。对于像这样的简单项目，只需要一个包含三个命令的 CMakeLists.txt 文件。 下面是一个 esp32-idf 项目生成的 CMakeLists.txt 文件： 1234cmake_minimum_required(VERSION 3.16)include($ENV&#123;IDF_PATH&#125;/tools/cmake/project.cmake)project(rmt_ws2812)...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" title="STM32 map 文件浅析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-24</div><div class="info-item-2">STM32 map 文件浅析</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References） 删除映像未使用的程序段（Removing Unused input sections from the image） 映像符号表（Image Symbol Table） 映像内存分布图（Memory Map of the image） 映像组件大小（Image component sizes）   我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 .map 文件里有详细列表。 .map 文件输出信息的配置位于：Project -&gt; Options for ...</div></div></div></a><a class="pagination-related" href="/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/" title="Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-07</div><div class="info-item-2">Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其他异常机制无法管理异常而触发。 MemManage（内存管理故障）：检测内存管理单元(MPU)中定义的区域的内存访问违规；例如，在一个只有读&#x2F;写访问权限的内存区域中执行代码。 BusFault（总线故障）：在指令取指、数据读&#x2F;写、中断向量取指和寄存器入栈(保存&#x2F;恢复)中断(进入&#x2F;退出)时检测内存访问错误。 UsageFault（使用故障）：检测未定义指令的执行，加载&#x2F;存储多个未对齐的内存访问。启用时，将检测除 0 和其他非对齐内存访问。  2、异常优先级每个异常都有一个相关联的异常号和一个相关联的优先级号。为简化软件层，CMSIS 只使用...</div></div></div></a><a class="pagination-related" href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" title="单片机内存区域划分"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-01</div><div class="info-item-2">单片机内存区域划分</div></div><div class="info-2"><div class="info-item-1">@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&#x3D;&#x3D;时确定，速度快，但自由性差，最大空间不大。 栈区是先进后出原则（LIFO），其操作方式数据结构中的栈是一样的。  存放内容：  临时创建的&#x3D;&#x3D;局部变量&#x3D;&#x3D;存放在栈区。 函数调用时，其&#x3D;&#x3D;入口参数&#x3D;&#x3D;存放在栈区。 函数返回时，其&#x3D;&#x3D;返回值&#x3D;&#x3D;存放在栈区。 &#x3D;&#x3D;const 定义的局部变量&#x3D;&#x3D;存放在栈区。   栈的大小是有限的，通常 Visual C++ 编译器的默认栈的大小为 1MB，所以不要定义 int a[1...</div></div></div></a><a class="pagination-related" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" title="基于 STM32F407 的 SPI Flash下载算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-06</div><div class="info-item-2">基于 STM32F407 的 SPI Flash下载算法</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含一系列对 FLASH 的操作，包括初始化、擦除、写、读、校验等等操作。 想要制作下载算法，先要了解下载算法的工作原理。我们下载一个程序的流程大概是这样的：  下载工具（比如 jlink）读取 FLM 文件 然后 JLINK 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM 下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。  二、自制 FLM 文件我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加...</div></div></div></a><a class="pagination-related" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-01</div><div class="info-item-2">基于 STM32F407 的串口 IAP</div></div><div class="info-2"><div class="info-item-1">[toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主要介绍如何使用串口对固件进行升级。 这里有一点需要特殊注意，就是在 MCU 中，有一个特殊区域被称为 System memory 。在这块区域中存放了 ST 公司自己的 Bootloader 程序，它是在 MCU 出厂时，有 ST 固化到芯片中的，后续不能再更改。其中的 Bootloader 程序也可以对 MCU 进行升级（DFU 对芯片的编程应该就是用的这个 Bootloader）。而且，芯片不同，BootLoader 的功能也是有区别的。ST 官网对于这些也是有详细文档的。下图为部分芯片 BootLoader 版本及功能：  一、概述在学习 IAP 之前，最好先了解一下 SMT32 ...</div></div></div></a><a class="pagination-related" href="/2024/09/29/sct-%E6%96%87%E4%BB%B6/" title="浅析 Keil 中的 sct 文件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-29</div><div class="info-item-2">浅析 Keil 中的 sct 文件</div></div><div class="info-2"><div class="info-item-1">[toc]  一、程序的存储与运行1、存储程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  **Code**：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 **RO-data**：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。 例如 C 语言中 const 关键字定义的变量就是典型的 RO-data。   **RW-data**：Read Write data，即可读写数据域，它指初始化为”非0值”的可读写数据，程序刚运行时，这些数据具有非0的初始值，且运行的时候它们会常驻在RAM区，因而应用程序可以修改其内容。 例如 C 语言中使用定义的全局变量，且定义时赋予”非 0 值”给该变量进行初始化。   **ZI-data**：Zero Initialie data，即 0 初始化数据，它指初始化为”0 值”的可读写数据域，它与 RW-data 的区别是程序刚运行时这些数据初始值全都为 0，...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%80%9A%E7%94%A8%E5%A0%86%E6%A0%88%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text">一、通用堆栈知识</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%8F%8C%E5%A0%86%E6%A0%88%E7%94%A8%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">二、双堆栈用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81PendSV-%E4%B8%AD%E6%96%AD%E4%BB%8B%E7%BB%8D%E5%92%8C%E7%94%A8%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">三、PendSV 中断介绍和用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81SVC-%E8%BD%AF%E4%B8%AD%E6%96%AD%E4%BB%8B%E7%BB%8D%E5%92%8C%E7%94%A8%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">四、SVC 软中断介绍和用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E7%89%B9%E6%9D%83%E7%BA%A7%E5%92%8C%E9%9D%9E%E7%89%B9%E6%9D%83%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">五、特权级和非特权级使用方法</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">__set_CONTROL(<span class="hljs-type">uint32_t</span> control)<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Cortex-M 内核的 OS 特性</div>
+      <div>http://example.com/2024/10/13/Cortex-M-内核的-OS-特性/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" title="CMake 教程（一）初识 CMake">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CMake 教程（一）初识 CMake</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/10/DMA/" title="DMA 详解">
+                        <span class="hidden-mobile">DMA 详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

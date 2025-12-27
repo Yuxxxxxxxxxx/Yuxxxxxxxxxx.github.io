@@ -1,166 +1,310 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>动态链接过程分析 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="动态链接过程分析">
 <meta property="og:url" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/2.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/3.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/4.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/5.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/6.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/7.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/8.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/9.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/10.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/11.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/12.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/13.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/14.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/15.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/16.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/17.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/18.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/19.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/20.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/21.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/22.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/23.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/24.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/25.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/26.png">
 <meta property="article:published_time" content="2024-10-23T01:12:52.000Z">
 <meta property="article:modified_time" content="2024-11-14T09:14:25.525Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="动态链接">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "动态链接过程分析",
-  "url": "http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-10-23T01:12:52.000Z",
-  "dateModified": "2024-11-14T09:14:25.525Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>动态链接过程分析 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="动态链接过程分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-23 09:12" pubdate>
+          星期三, 十月 23日 2024, 9:12 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: '动态链接过程分析',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">动态链接过程分析</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">动态链接过程分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-23T01:12:52.000Z" title="发表于 2024-10-23 09:12:52">2024-10-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T09:14:25.525Z" title="更新于 2024-11-14 17:14:25">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">动态链接过程分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
 <hr>
 <p>上文 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/143127425">静态链接过程分析</a> 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。</p>
 <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。</p>
@@ -177,16 +321,16 @@
 <p>如果进行符号重定位，就需要对代码进行修改（填写符号的地址），但是代码段又没有可写的权限，那该怎么办呢？</p>
 <p>要解决这个问题，那就涉及到了 Linux 中的动态链接器的核心工作。</p>
 <p>既然代码段在被加载到内存中之后不可写，但是数据段是可写的。在代码段中引用的外部符号，可以在数据段中增加一个跳板：让代码段先引用数据段中的内容，然后在重定位时，把外部符号的地址填写到数据段中对应的位置，如下图所示：</p>
-<p><img src="1.png"></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="二、示例程序"><a href="#二、示例程序" class="headerlink" title="二、示例程序"></a>二、示例程序</h1><p>下面还是来结合简单的示例来分析：</p>
 <p>我们需要 3 个源文件来讨论动态链接中重定位的过程：<code>main.c</code>、<code>a.c</code>、<code>b.c</code>，其中的 <code>a.c</code> 和 <code>b.c</code> 被编译成动态库，然后 <code>main.c</code> 与这两个动态库一起动态链接成可执行程序。它们之间的依赖关系是：</p>
-<p><img src="2.png">代码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// b.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> b = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">func_b</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;in func_b. b = %d \n&quot;</span>, b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload>代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// b.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> b = <span class="hljs-number">30</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_b</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_b. b = %d \n&quot;</span>, b);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>定义一个全局变量和一个全局函数，被 <code>a.c</code> 调用。</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部定义【静态】全局变量</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> a1 = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部定义【非静态】全局变量</span></span><br><span class="line"><span class="type">int</span> a2 = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明外部变量</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明外部函数</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">void</span> <span class="title function_">func_b</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部定义的【静态】函数</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">func_a2</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;in func_a2 \n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 内部定义的【非静态】函数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">func_a3</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;in func_a3 \n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 被 main 调用</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">func_a1</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;in func_a1 \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 操作内部变量</span></span><br><span class="line">    a1 = <span class="number">11</span>;</span><br><span class="line">    a2 = <span class="number">21</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 操作外部变量</span></span><br><span class="line">    b  = <span class="number">31</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用内部函数</span></span><br><span class="line">    func_a2();</span><br><span class="line">    func_a3();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用外部函数</span></span><br><span class="line">    func_b();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// a.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-comment">// 内部定义【静态】全局变量</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> a1 = <span class="hljs-number">10</span>;<br><br><span class="hljs-comment">// 内部定义【非静态】全局变量</span><br><span class="hljs-type">int</span> a2 = <span class="hljs-number">20</span>;<br><br><span class="hljs-comment">// 声明外部变量</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> b;<br><br><span class="hljs-comment">// 声明外部函数</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_b</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-comment">// 内部定义的【静态】函数</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_a2</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a2 \n&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 内部定义的【非静态】函数</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_a3</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a3 \n&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 被 main 调用</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_a1</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a1 \n&quot;</span>);<br><br>    <span class="hljs-comment">// 操作内部变量</span><br>    a1 = <span class="hljs-number">11</span>;<br>    a2 = <span class="hljs-number">21</span>;<br><br>    <span class="hljs-comment">// 操作外部变量</span><br>    b  = <span class="hljs-number">31</span>;<br><br>    <span class="hljs-comment">// 调用内部函数</span><br>    func_a2();<br>    func_a3();<br><br>    <span class="hljs-comment">// 调用外部函数</span><br>    func_b();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <ul>
@@ -195,7 +339,7 @@
 <li>在 <code>main.c</code> 中会调用 <code>func_a1</code>。</li>
 </ul>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明外部变量</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> a2;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">void</span> <span class="title function_">func_a1</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span> <span class="params">(*pfunc)</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;in main \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印此进程的全局符号表</span></span><br><span class="line">    <span class="type">void</span> *handle = dlopen(<span class="number">0</span>, RTLD_NOW);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> == handle)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;dlopen failed! \n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n------------ main ---------------\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 打印 main 中变量符号的地址</span></span><br><span class="line">    pfunc addr_main = dlsym(handle, <span class="string">&quot;main&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_main)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_main = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_main);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of main failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n------------ liba.so ---------------\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 打印 liba.so 中变量符号的地址</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> *addr_a1 = dlsym(handle, <span class="string">&quot;a1&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_a1)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_a1 = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_a1);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of a1 failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> *addr_a2 = dlsym(handle, <span class="string">&quot;a2&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_a2)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_a2 = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_a2);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of a2 failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印 liba.so 中函数符号的地址</span></span><br><span class="line">    pfunc addr_func_a1 = dlsym(handle, <span class="string">&quot;func_a1&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_func_a1)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_func_a1 = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_func_a1);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of func_a1 failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    pfunc addr_func_a2 = dlsym(handle, <span class="string">&quot;func_a2&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_func_a2)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_func_a2 = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_func_a2);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of func_a2 failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    pfunc addr_func_a3 = dlsym(handle, <span class="string">&quot;func_a3&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_func_a3)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_func_a3 = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_func_a3);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of func_a3 failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n------------ libb.so ---------------\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 打印 libb.so 中变量符号的地址</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> *addr_b = dlsym(handle, <span class="string">&quot;b&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_b)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_b = 0x%x \n&quot;</span>, *addr_b);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of b failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印 libb.so 中函数符号的地址</span></span><br><span class="line">    pfunc addr_func_b = dlsym(handle, <span class="string">&quot;func_b&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">NULL</span> != addr_func_b)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;addr_func_b = 0x%x \n&quot;</span>, (<span class="type">unsigned</span> <span class="type">int</span>)addr_func_b);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;get address of func_b failed! \n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    dlclose(handle);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 操作外部变量</span></span><br><span class="line">    a2 = <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用外部函数</span></span><br><span class="line">    func_a1();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 为了让进程不退出，方便查看虚拟空间中的地址信息</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) sleep(<span class="number">5</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;dlfcn.h&gt;</span></span><br><br><span class="hljs-comment">// 声明外部变量</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> a2;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_a1</span><span class="hljs-params">()</span>;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*pfunc)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in main \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印此进程的全局符号表</span><br>    <span class="hljs-type">void</span> *handle = dlopen(<span class="hljs-number">0</span>, RTLD_NOW);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> == handle)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;dlopen failed! \n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ main ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 main 中变量符号的地址</span><br>    pfunc addr_main = dlsym(handle, <span class="hljs-string">&quot;main&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_main)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_main = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_main);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of main failed! \n&quot;</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ liba.so ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 liba.so 中变量符号的地址</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_a1 = dlsym(handle, <span class="hljs-string">&quot;a1&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_a1)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_a1 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_a1);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of a1 failed! \n&quot;</span>);<br><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_a2 = dlsym(handle, <span class="hljs-string">&quot;a2&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_a2)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_a2 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_a2);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of a2 failed! \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印 liba.so 中函数符号的地址</span><br>    pfunc addr_func_a1 = dlsym(handle, <span class="hljs-string">&quot;func_a1&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a1)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a1 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a1);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a1 failed! \n&quot;</span>);<br><br>    pfunc addr_func_a2 = dlsym(handle, <span class="hljs-string">&quot;func_a2&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a2)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a2 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a2);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a2 failed! \n&quot;</span>);<br><br>    pfunc addr_func_a3 = dlsym(handle, <span class="hljs-string">&quot;func_a3&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a3)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a3 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a3);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a3 failed! \n&quot;</span>);<br><br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ libb.so ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 libb.so 中变量符号的地址</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_b = dlsym(handle, <span class="hljs-string">&quot;b&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_b)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_b = 0x%x \n&quot;</span>, *addr_b);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of b failed! \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印 libb.so 中函数符号的地址</span><br>    pfunc addr_func_b = dlsym(handle, <span class="hljs-string">&quot;func_b&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_b)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_b = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_b);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_b failed! \n&quot;</span>);<br><br>    dlclose(handle);<br><br>    <span class="hljs-comment">// 操作外部变量</span><br>    a2 = <span class="hljs-number">100</span>;<br><br>    <span class="hljs-comment">// 调用外部函数</span><br>    func_a1();<br><br>    <span class="hljs-comment">// 为了让进程不退出，方便查看虚拟空间中的地址信息</span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) sleep(<span class="hljs-number">5</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <ul>
@@ -204,9 +348,9 @@
 </ul>
 </blockquote>
 <p>然后将这三个源文件编译成动态库和可执行文件：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared b.c -o libb.so</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared a.c -o liba.so -lb -L./</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC main.c -o main -ldl -la -lb -L./</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared b.c -o libb.so</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared a.c -o liba.so -lb -L./</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC main.c -o main -ldl -la -lb -L./</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="3.png"></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <ol>
 <li><code>-fPIC</code> 参数意思是：生成位置无关代码（Position Independent Code），这也是动态链接中的关键</li>
@@ -214,29 +358,29 @@
 </ol>
 </blockquote>
 <p>然后我们可以用 <code>patchelf</code> 工具来查看一个可执行文件或动态库依赖于哪个模块：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">patchelf --print-needed xxx</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">patchelf --print-needed xxx</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="4.png"></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="三、动态库的加载过程"><a href="#三、动态库的加载过程" class="headerlink" title="三、动态库的加载过程"></a>三、动态库的加载过程</h1><h2 id="1、动态链接器加载动态库"><a href="#1、动态链接器加载动态库" class="headerlink" title="1、动态链接器加载动态库"></a>1、动态链接器加载动态库</h2><p>当执行 main 程序的时候，操作系统首先把 main 加载到内存，然后通过 <code>.interp</code> 段信息来查看该文件依赖哪些动态库：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">objdump -s main</span></span><br></pre></td></tr></table></figure>
-<p><img src="5.png"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -s main</span><br></code></pre></td></tr></table></figure>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
 <p>上图中的字符串 <code>/lib/ld-linux.so.2</code>，就表示 main 依赖动态链接库。</p>
 <p><code>ld-linux.so.2</code> 也是一个动态链接库，在大部分情况下动态链接库已经被加载到内存中了（动态链接库就是为了共享），操作系统此时只需要把动态链接库所在的物理内存，映射到 main 进程的虚拟地址空间中就可以了，然后再把控制权交给动态链接器。</p>
 <p>然后，动态链接器发现：main 依赖 <code>liba.so</code>，于是它就在虚拟地址空间中找一块能放得下 <code>liba.so</code> 的空闲空间，然后把 <code>liba.so</code> 中需要加载到内存中的代码段、数据段都加载进来。当然，在加载 <code>liba.so</code> 时，又会发现它依赖 <code>libb.so</code>，于是又把在虚拟地址空间中找一块能放得下<code>libb.so</code> 的空闲空间，把 <code>libb.so</code> 中的代码段、数据段等加载到内存中，示意图如下所示：</p>
-<p><img src="6.png"></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>动态链接器自身也是一个动态库，而且是一个特殊的动态库：它&#x3D;&#x3D;不依赖于其他的任何动态库&#x3D;&#x3D;，因为当它被加载的时候，没有人帮它去加载依赖的动态库，否则就变成死循环了。</p>
 </blockquote>
 <h2 id="2、动态库的加载地址"><a href="#2、动态库的加载地址" class="headerlink" title="2、动态库的加载地址"></a>2、动态库的加载地址</h2><p>一个进程在运行时的实际加载地址(或者说虚拟内存区域)，可以通过指令读取出来：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /proc/[进程的 pid]/maps</span> </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/[进程的 pid]/maps</span> <br></code></pre></td></tr></table></figure>
 
 <hr>
 <blockquote>
 <p>这里插个问题，当我运行 main 的时候，报了如下的错误： </p>
-<p><img src="7.png"></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 </blockquote>
 <p>然后，我用 <code>ldd</code> 命令检查了一下 main 的动态库依赖关系：</p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <p>至于找不到的情况分为两种:</p>
 <ul>
 <li>系统里根本不存在 <code>liba.so</code> 库；</li>
@@ -255,49 +399,49 @@
 <li>临时环境变量</li>
 </ol>
 <p>输入命令（注意路径改成自己的动态库所在的路径）：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span>:/home/projectsauron/test/dynamic-link</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$LD_LIBRARY_PATH</span>:/home/projectsauron/test/dynamic-link</span><br></code></pre></td></tr></table></figure>
 
 <p>然后可以 echo 这个变量检查一下：</p>
-<p><img src="9.png"></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
 <p>现在 main 的链接正常了：</p>
-<p><img src="10.png"></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
 <ol start="2">
 <li>环境变量</li>
 </ol>
 <p>在 <code>~/.bashrc</code> 里输入：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/projectsauron/test/dynamic-link</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/projectsauron/test/dynamic-link<br></code></pre></td></tr></table></figure>
 
 <p>然后退出，在使能刷新一下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ source ~/.bashrc</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ source ~/.bashrc<br></code></pre></td></tr></table></figure>
 
 <p>一样可以，这里就不演示了。</p>
 <hr>
 <p>再打开一个终端，找到 main 的进程号：</p>
-<p><img src="11.png"></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
 <p>输入命令 <code>cat /proc/80962/maps</code> 可以看到当我的虚拟机中执行 main 程序时，看到的地址信息是：</p>
-<p><img src="12.png"></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
 <p>另外，还可以看到 C 库（<code>libc-2.31.so</code>）、动态链接器（<code>ld-2.31.so</code>）以及动态加载库 <code>libdl-2.31.so</code> 的虚拟地址区域，布局如下：</p>
 <blockquote>
 <p>代码段 rx，数据段 rw</p>
-<p><img src="13.png"></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
 </blockquote>
 <p>可以看出 main 可执行程序是位于低地址，所有的动态库都位于 4G 内存空间的最后 1G 空间中。</p>
 <p>还有另外一个指令也很好用 <code>$ pmap [进程的 pid]</code>，也可以打印出每个模块的内存地址：</p>
-<p><img src="14.png"></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="四、符号重定位"><a href="#四、符号重定位" class="headerlink" title="四、符号重定位"></a>四、符号重定位</h1><h2 id="1、全局符号表"><a href="#1、全局符号表" class="headerlink" title="1、全局符号表"></a>1、全局符号表</h2><p>在上一篇文章的静态链接中学习过，链接器在扫描每一个目标文件(<code>.o</code> 文件)的时候，会把每个目标文件中的符号提取出来，构成一个全局符号表。</p>
 <p>然后在第二遍扫描的时候，查看每个目标文件中需要重定位的符号，然后在全局符号表中查找该符号被安排在什么地址，然后把这个地址填写到引用的地方，这就是静态链接时的重定位。</p>
 <p>但是动态链接过程中的重定位，与静态链接的处理方式差别就大很多了，因为每个符号的地址只有在&#x3D;&#x3D;运行&#x3D;&#x3D;的时候才能知道它们的地址。例如：<code>liba.so</code> 引用了 <code>libb.so</code> 中的变量和函数，而 <code>libb.so</code> 中的这两个符号被加载到什么位置，直到 main 程序准备执行的时候，才能被链接器加载到内存中的某个随机的位置。</p>
 <p>也就是说：动态链接器知道每个动态库中的代码段、数据段被加载的内存地址，因此动态链接器也会维护一个全局符号表，其中存放着每一个动态库中导出的符号以及它们的内存地址信息。</p>
 <p>在示例代码 <code>main.c</code> 函数中，我们通过 <code>dlopen</code> 返回的句柄来打印进程中的一些全局符号的地址信息，输出内容如下：</p>
-<p><img src="15.png"></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
 <p>可以看到：在全局符号表中，没有找到 <code>liba.so</code> 中的变量 a1 和函数 <code>func_a2</code> 这两个符号，因为它俩都是 static 类型的，在编译成动态库的时候，没有导出到符号表中。</p>
 <p>动态链接库中保护两个符号表：</p>
 <ol>
 <li><code>.dynsym</code>：动态符号表: 表示模块中符号的导出、导入关系)</li>
 <li><code>.symtab</code>：符号表: 表示模块中的所有符号</li>
 </ol>
-<p><img src="16.png"></p>
-<p><img src="17.png"></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="2、全局偏移表-GOT"><a href="#2、全局偏移表-GOT" class="headerlink" title="2、全局偏移表 GOT"></a>2、全局偏移表 GOT</h2><p>在示例代码中，<code>liba.so</code> 是比较特殊的，它既被 main 可执行程序所依赖，又依赖于 <code>libb.so</code>。而且，在 <code>liba.so</code> 中，定义了静态、动态的全局变量和函数，可以很好的概况很多种情况，因此这部分内容就主要来分析 <code>liba.so</code> 这个动态库。</p>
 <p>前文说过：代码重定位需要修改代码段中的符号引用，而代码段被加载到内存中又没有可写的权限，动态链接解决这个矛盾的方案是：增加一层间接性。</p>
 <p>例如：<code>liba.so</code> 的代码中引用了 <code>libb.so</code> 中的变量 b，在 <code>liba.so</code> 的代码段，并不是在引用的地方直接指向 <code>libb.so</code> 数据段中变量 b 的地址，而是指向了 <code>liba.so</code> 自己的数据段中的某个位置，在&#x3D;&#x3D;重定位&#x3D;&#x3D;阶段，链接器再把 <code>libb.so</code> 中变量 b 的地址填写到这个位置。</p>
@@ -312,13 +456,13 @@
 <p>并且，在一个动态库文件中，有两个特殊的段（<code>.rel.dyn</code> 和 <code>.rel.plt</code>）来告诉链接器：<code>.got</code> 和 <code>.got.plt</code> 这两个表中，有哪些符号需要进行重定位。</p>
 <h2 id="3、liba-so-动态库文件的布局"><a href="#3、liba-so-动态库文件的布局" class="headerlink" title="3、liba.so 动态库文件的布局"></a>3、liba.so 动态库文件的布局</h2><p>为了更深刻的理解 <code>.got</code> 和 <code>.got.plt</code> 这两个表，有必要来拆解一下 <code>liba.so</code> 动态库文件的内部结构。</p>
 <p>通过 <code>readelf -S liba.so</code> 指令来看一下这个 ELF 文件中都有哪些 section：</p>
-<p><img src="18.png"></p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p><code>dynamic</code> 段<br><br>在静态链接，elf文件有一个文件头，里面记录了一些静态链接所需要的信息，比如比如需要的符号表，重定位表等。<br>而在共享对象中，需要动态链接的变量和函数也需要相应的信息，为了方便动态链接器的执行，在共享对象中，有一个专门的 <code>dynamic</code> 段，汇总了和动态链接有关的段的信息，方便动态链接器使用。</p>
 </blockquote>
 <p>可以看到：一共有 29 个 section，其中的 22、23 就是两个 GOT 表。</p>
 <p>另外，从装载的角度来看，装载器并不是把这些 sections 分开来处理，而是根据不同的读写属性，把多个 section 看做一个segment（ELF 的运行视图）。再次通过指令 <code>readelf -l liba.so</code>，来查看一下 segment 信息：</p>
-<p><img src="19.png"></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>注意看上面两张图红圈部分的地址信息</p>
 </blockquote>
@@ -332,15 +476,15 @@
 <li><code>.got</code> 和 <code>.got.plt</code> 与数据段一样，都是可读、可写的，所以被当做同一个 segment 被加载到内存中。</li>
 </ul>
 <p>通过以上这 2 张图(红色矩形框)，可以得到 <code>liba.so</code> 动态库文件的内部结构如下：</p>
-<p><img src="20.png"></p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="4、liba-so-动态库的虚拟地址"><a href="#4、liba-so-动态库的虚拟地址" class="headerlink" title="4、liba.so 动态库的虚拟地址"></a>4、liba.so 动态库的虚拟地址</h2><p>来继续观察 <code>liba.so</code> 文件 segment 信息中的 <code>VirtAddr</code> 列，它表示的是&#x3D;&#x3D;被加载到虚拟内存中的地址&#x3D;&#x3D;：</p>
-<p><img src="21.png"></p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>因为编译动态库时，使用了代码位置无关参数（<code>-fPIC</code>)，这里的虚拟地址从 <code>0x0000 0000</code> 开始。</p>
 </blockquote>
 <p>当 <code>liba.so</code> 的代码段、数据段被加载到内存中时，动态链接器找到一块空闲空间，这个空间的开始地址，就相当于一个基地址。</p>
 <p><code>liba.so</code> 中的代码段和数据段中所有的虚拟地址信息，只要加上这个基地址，就得到了实际虚拟地址。所以结合前面的信息可得：</p>
-<p><img src="22.png"></p>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="5、GOT-表的内部结构"><a href="#5、GOT-表的内部结构" class="headerlink" title="5、GOT 表的内部结构"></a>5、GOT 表的内部结构</h2><p>现在，我们已经知道了 <code>liba.so</code> 库的文件布局，也知道了它的虚拟地址，此时就可以来进一步的看一下 <code>.got</code> 和 <code>.got.plt</code> 这两个表的内部结构了。从刚才的图片中看出：</p>
 <ul>
 <li><code>.got</code> 表的长度是 0x18，说明有 6 个表项(每个表项占 4 个字节)</li>
@@ -352,22 +496,22 @@
 <li>对于动态链接来说，也是通过两个重定位表来传递需要重定位的符号信息的，只不过名字有些不同：<code>.rel.dyn</code> 和 <code>.rel.plt</code>。</li>
 </ul>
 <p>通过指令 <code>readelf -r liba.so</code>来查看重定位信息：</p>
-<p><img src="23.png"></p>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload></p>
 <p>由上图可以看出：</p>
 <ul>
 <li><code>liba.so</code> 引用了外部符号 b，类型是 <code>R_386_GLOB_DAT</code>，这个符号的重定位描述信息在 <code>.rel.dyn</code> 段中</li>
 <li><code>liba.so</code> 引用了外部符号 func_b, 类型是 <code>R_386_JUMP_SLOT</code>，这个符号的重定位描述信息在 <code>.rel.plt</code> 段中</li>
 </ul>
-<p><img src="24.png"><br>由上图可以看出：</p>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload><br>由上图可以看出：</p>
 <ul>
 <li><code>liba.so</code> 的代码中在操作变量 b 的时候，就到 <code>.got</code> 表中的 <code>0x0000 3fec</code> 这个地址处来获取变量 b 的真正地址</li>
 <li><code>liba.so</code> 的代码中在调用 func_b 函数的时候，就到 <code>.got.plt</code> 表中的 <code>0x0000 400c</code> 这个地址处来获取函数的真正地址</li>
 </ul>
 <h2 id="6、反汇编-liba-so-代码"><a href="#6、反汇编-liba-so-代码" class="headerlink" title="6、反汇编 liba.so 代码"></a>6、反汇编 liba.so 代码</h2><p>下面就来反汇编一下 <code>liba.so</code>，看一下指令码中是如何对这两个表项进行寻址的。</p>
 <p>执行反汇编指令：<code>$ objdump -d liba.so</code>，这里只贴出 func_a1 函数的反汇编代码：</p>
-<p><img src="25.png"></p>
+<p><img src="25.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>call 10b0 &lt;__x86.get_pc_thunk.bx&gt;</code> 的功能是：把下一条指令(<code>add $0x2de5,%ebx</code>)的地址存储到 %ebx 中，也就是：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%ebx = <span class="number">0x121b</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">%ebx = <span class="hljs-number">0x121b</span><br></code></pre></td></tr></table></figure>
 
 <p>然后执行: <code>add $0x2de5,%ebx</code>，让 %ebx 加上 0x2de5，结果就是：<code>%ebx = 0x4000</code>。</p>
 <p>看下前面的图，<code>0x4000</code> 正是 <code>.got.plt</code> 表的开始地址！</p>
@@ -378,14 +522,14 @@
 </ul>
 <p>因此，当链接器进行重定位之后，0x3fec 表项中存储的就是变量 b 的真正地址，而上面这两步操作，就把数值 31 赋值给变量 b 了。</p>
 <p>第 3 个红色矩形框，是调用函数 func_b，稍微复杂一些，跳转到符号 <code>func_b@plt</code> 的地方，看一下反汇编代码：</p>
-<p><img src="26.png"></p>
+<p><img src="26.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>jmp</code> 指令调用了 <code>%ebx + 0xc</code>（得到 0x400c）处的那个函数指针，从上面的 <code>.got.plt</code> 布局图中可以看出，重定位之后这个表项中存储的正是 func_b 函数的地址（<code>libb.so</code> 中代码段的某个位置），所以就正确的跳转到该函数中了。</p>
 <h1 id="五、补充"><a href="#五、补充" class="headerlink" title="五、补充"></a>五、补充</h1><h2 id="1、延迟绑定-plt"><a href="#1、延迟绑定-plt" class="headerlink" title="1、延迟绑定 plt"></a>1、延迟绑定 plt</h2><p>实际应用中，共享对象可能会访问大量的外部函数，也就是说，有一个庞大的 <code>got.plt</code> 表。</p>
 <p>当加载该共享对象时，理论上，动态链接器就要将该共享对象涉及到的外部模块全部加载并链接，这可能会耗费大量时间，而且，很多外部函数，也许在整个进程生命周期内，都不会被实际调用一次，加载消耗的时间就浪费了。</p>
 <p>为了优化这一点，引入延迟绑定（<em><strong>lazy binding</strong></em>）技术。具体办法是，调用外部函数的指令不直接从 <code>got.plt</code> 中取函数地址，而是新建一个plt段，从这个里面取函数的地址。</p>
 <p>假设，某个共享对象 a 访问共享对象 b 中的 bar 函数，那么，在 <code>got.plt</code> 和 <code>plt</code> 都有一个 bar 函数的项。</p>
 <p>plt 中的 bar 函数的项的内容是：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jmp *(bar@got.plt)</span><br><span class="line">push n</span><br><span class="line">push moduleID</span><br><span class="line">jump _dl_runtime_resolve</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">jmp *(bar@got.plt)<br>push n<br>push moduleID<br>jump _dl_runtime_resolve<br></code></pre></td></tr></table></figure>
 
 <p>我们来分析一下这几句话。</p>
 <p>我们假设一个场景，即共享对象在实际执行时，第一次实际调用 bar 函数，这个时机正是体现延迟绑定技术的时候。</p>
@@ -397,8 +541,374 @@
 <p>然后调用 <code>_dl_runtime_resolve</code>，该函数就帮我们加载并链接要使用的外部模块，并在 <code>got.plt</code> 中更新 bar 函数的地址。该函数会使用到我们刚刚 push 的两个值，这是它领受的任务。</p>
 <p>一旦这个过程完成，再次通过 <code>plt</code> 调用 bar 函数时，就会跳转到真正的 bar 函数了。</p>
 <p>总结一下，为了实现延迟绑定，又引入了两个新的段，<code>plt</code> 和 <code>rel.plt</code>。</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/">动态链接</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/24/STM32-Backtrace/" title="STM32 调试之栈回溯和 CmBacktrace 的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">STM32 调试之栈回溯和 CmBacktrace 的使用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、栈回溯1、寄存器知识在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP PSP(SP_process) MSP(SP_main)   1 个链接寄存器 LR(r14) 1 个程序计数器（PC） 1 个程序状态寄存器（xPSR）  在不同的模式下，R0-R12、SP、LR 是各有一份的，所以这样算下来，总共是 32 个寄存器，但是在不同的模式下，并不能完全看到这 32 个寄存器的状态，只能看到其中的一部分。  通用寄存器 R0-R12  上图将通用寄存器分为 low register 和 high registers 就是根据指令集来说的，对于 Thumb 指令，是 16 位的，只能访问到 low register，也就是 R0-R7，而对于 32 位的 Arm 指令，是所有的指令都可以访问到。所以有这样的划分。  栈指针SP ...</div></div></div></a><a class="pagination-related" href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="静态链接过程分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">静态链接过程分析</div></div><div class="info-2"><div class="info-item-1">@toc   本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)  一、开始首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021// swap.cint shared = 1;void swap(int *a, int *b)&#123;    int tmp = *a;    *a = *b;    *b = tmp;&#125;// main.cextern int shared;extern void swap(int *a, int *b);int main(void)&#123;    int a = 2;    swap(&amp;a, &amp;shared);	return 0;&#125;  代码很简单，在 swap.c 中定义了一个全局变量和函数，然后在 main.c 中使用了这个全局变量和函数。 然后我们来分析一下编译、链接这两个过程。 二、目标文件分析1、sub.o 文件分析接下来首先把这两个文件编译成目标文...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/08/04/objdump/" title="Linux 下 objdump 命令的使用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-04</div><div class="info-item-2">Linux 下 objdump 命令的使用</div></div><div class="info-2"><div class="info-item-1">[TOC]  一、概述objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。  二、常用参数说明 -C 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。  -d 反汇编特定 section。 -D 反汇编所有 section。 -f 显示文件头信息。 -h 显示目标文件各个 section 的头部摘要信息。 -i 显示对于 -b 或者 -m 选项可用的架构和目标格式列表。 -j name 或 –section&#x3D;name 仅仅显示指定名称为 name 的 section 的信息 。 -m 指定反汇编目标文件时使用的架构，当待反汇编文件本身没有描述架构信息的时候（比如 S-rec...</div></div></div></a><a class="pagination-related" href="/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/" title="Linux 下查看 CPU 使用率"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 下查看 CPU 使用率</div></div><div class="info-2"><div class="info-item-1">[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jiffies  记录了开机以来的节拍数。每发生一次时间中断，Jiffies 的值就加 1。节拍率 HZ 是内核的可配选项，可以设置为 100、250、1000 等。不同的系统可能设置不同数值。 Linux 通过 /proc 虚拟文件系统，向用户空间提供了系统内部状态的信息，而 /proc/stat 提供的就是系统的 CPU 和任务统计信息。比方说，如果你只关注 CPU 的话，可以执行下面的命令：  第一列表示的是 CPU 编号，如 cpu0、cpu1 ，而第一行没有编号的 cpu ，表示的是所有 CPU 的累加结果。其他列则表示不同场景下 CPU 的累加节拍数，它的单位是 USER_HZ，...</div></div></div></a><a class="pagination-related" href="/2024/08/06/iostatiotop/" title="Linux 利用 iostat 和 iotop 进行 IO 分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-06</div><div class="info-item-2">Linux 利用 iostat 和 iotop 进行 IO 分析</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 top 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。 我们可以在 Linux 中使用 iotop 和 iostat 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。 二、iostat1、下载iostat 工具是 sysstat 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。 对于 Fedora 系统，使用 DNF Com...</div></div></div></a><a class="pagination-related" href="/2024/08/07/ftrace/" title="Linux 利用 ftrace 分析内核调用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-07</div><div class="info-item-2">Linux 利用 ftrace 分析内核调用</div></div><div class="info-2"><div class="info-item-1">[toc]  一、概述在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实现跟踪功能。其中一个关键的机制是函数预编译器，它会在每个内核函数的入口和出口处插入一些特殊的指令，用于记录函数的调用和返回信息。这些指令可以通过内核配置选项来启用或禁用。 此外，ftrace 还支持事件跟踪，可以记录系统中发生的各种事件，比如中断、系统调用、定时器事件等。通过分析这些事件的发生频率和顺序，可以帮助我们找出系统中的瓶颈和性能问题。 除了记录和分析跟踪信息外，ftrace 还提供了一些工具和接口，用于配置和控制跟踪功能。其中最常用的工具是 trace-cmd 和 trace-cmd-report，它们可以用来收集和分析跟踪数据。 二、ftrace 的使用1、常用信息ftrace...</div></div></div></a><a class="pagination-related" href="/2024/07/24/%E4%BC%99%E4%BC%B4%E7%B3%BB%E7%BB%9F%E7%AE%97%E6%B3%95/" title="Linux 内存管理（七）之伙伴系统算法"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-24</div><div class="info-item-2">Linux 内存管理（七）之伙伴系统算法</div></div><div class="info-2"><div class="info-item-1">@TOC  前言伙伴系统算法是一种用来管理分配和释放内存的算法，它在 Linux 内核中被广泛使用。其设计目标是高效地管理内存碎片，并且具有快速的分配和释放速度。 接下来将详细探讨一下 Linux 中的伙伴系统算法。 一、伙伴系统的由来在 Linux 内存管理（三）之分页机制 一文中，我曾提到过内存碎片，频繁地请求和释放不同大小的一组连续页框，必然导致在已分配页框的块内分散了许多小块的空闲页框。由此带来的问题是，即使有足够的空闲页框可以满足请求，但要分配一个大块的连续页框就可能无法满足。 从本质上说，避免外碎片的方法有两种：  利用分页单元把一组非连续的空闲页框映射到连续的线性地址区间。 开发一种适当的技术来记录现存的空闲连续页框块的情况，以尽量避免为满足对小块的请求而分割大的空闲块。  而今天要讨论的 伙伴系统采用的是第二种方法。 二、伙伴系统1、基本思想Linux 采用著名的伙伴系统（buddy system）算法来解决外碎片问题。把所有的空闲页框分组为 11 个块链表，每个块链表分别包含大小为 1,2,4,8,16,32,64,128,256,512 和 1024 个连续的...</div></div></div></a><a class="pagination-related" href="/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/" title="Linux 进程调度（三）之进程的优先级"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-10</div><div class="info-item-2">Linux 进程调度（三）之进程的优先级</div></div><div class="info-2"><div class="info-item-1">@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先级，可以通过 nice 命令来设置，范围为 -20 到 +19。较低的数值表示较高的优先级。例如，如果给一个进程设置了较低的优先级值如 -10，那么这个进程将具有较高的优先级。 动态优先级：动态优先级是根据进程的行为和运行情况自动调整的。在 Linux 中，使用调度算法来动态调整进程的优先级。当一个进程使用 CPU 时间较长时，系统会降低它的优先级，让其他进程有更多的执行时间。而当一个进程处于等待 IO 等待状态时，系统会提高它的优先级，以便快速完成 IO 操作。  2、优先级的意义因为 CPU 的空间归根结底还是寄存器， 而寄存器很小， 就注定了 CPU 的资源是有限的。 而进程的个数...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%A4%BA%E4%BE%8B%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.</span> <span class="toc-text">二、示例程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8A%A8%E6%80%81%E5%BA%93%E7%9A%84%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、动态库的加载过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%99%A8%E5%8A%A0%E8%BD%BD%E5%8A%A8%E6%80%81%E5%BA%93"><span class="toc-number">3.1.</span> <span class="toc-text">1、动态链接器加载动态库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%8A%A8%E6%80%81%E5%BA%93%E7%9A%84%E5%8A%A0%E8%BD%BD%E5%9C%B0%E5%9D%80"><span class="toc-number">3.2.</span> <span class="toc-text">2、动态库的加载地址</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%AC%A6%E5%8F%B7%E9%87%8D%E5%AE%9A%E4%BD%8D"><span class="toc-number">4.</span> <span class="toc-text">四、符号重定位</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%85%A8%E5%B1%80%E7%AC%A6%E5%8F%B7%E8%A1%A8"><span class="toc-number">4.1.</span> <span class="toc-text">1、全局符号表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%85%A8%E5%B1%80%E5%81%8F%E7%A7%BB%E8%A1%A8-GOT"><span class="toc-number">4.2.</span> <span class="toc-text">2、全局偏移表 GOT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81liba-so-%E5%8A%A8%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E7%9A%84%E5%B8%83%E5%B1%80"><span class="toc-number">4.3.</span> <span class="toc-text">3、liba.so 动态库文件的布局</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81liba-so-%E5%8A%A8%E6%80%81%E5%BA%93%E7%9A%84%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80"><span class="toc-number">4.4.</span> <span class="toc-text">4、liba.so 动态库的虚拟地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81GOT-%E8%A1%A8%E7%9A%84%E5%86%85%E9%83%A8%E7%BB%93%E6%9E%84"><span class="toc-number">4.5.</span> <span class="toc-text">5、GOT 表的内部结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E5%8F%8D%E6%B1%87%E7%BC%96-liba-so-%E4%BB%A3%E7%A0%81"><span class="toc-number">4.6.</span> <span class="toc-text">6、反汇编 liba.so 代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%A1%A5%E5%85%85"><span class="toc-number">5.</span> <span class="toc-text">五、补充</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%BB%B6%E8%BF%9F%E7%BB%91%E5%AE%9A-plt"><span class="toc-number">5.1.</span> <span class="toc-text">1、延迟绑定 plt</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" class="print-no-link">#动态链接</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>动态链接过程分析</div>
+      <div>http://example.com/2024/10/23/动态链接过程分析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/24/STM32-Backtrace/" title="STM32 调试之栈回溯和 CmBacktrace 的使用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 调试之栈回溯和 CmBacktrace 的使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="静态链接过程分析">
+                        <span class="hidden-mobile">静态链接过程分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

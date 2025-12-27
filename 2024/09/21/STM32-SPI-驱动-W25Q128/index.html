@@ -1,167 +1,309 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STM32 通过 SPI 驱动 W25Q128 | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis&#x2F;s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis&#x2F;s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 通过 SPI 驱动 W25Q128">
 <meta property="og:url" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="[toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis&#x2F;s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/1.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/2.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/3.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/4.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/5.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/6.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/7.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/8.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/9.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/10.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/11.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/12.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/13.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/14.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/15.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/16.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/17.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/18.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/19.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/20.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/21.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/22.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/23.png">
+<meta property="og:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/24.png">
 <meta property="article:published_time" content="2024-09-21T05:33:00.000Z">
 <meta property="article:modified_time" content="2024-11-14T07:17:49.908Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="STM32">
 <meta property="article:tag" content="SPI">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "STM32 通过 SPI 驱动 W25Q128",
-  "url": "http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-09-21T05:33:00.000Z",
-  "dateModified": "2024-11-14T07:17:49.908Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>STM32 通过 SPI 驱动 W25Q128 - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="STM32 通过 SPI 驱动 W25Q128"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-21 13:33" pubdate>
+          星期六, 九月 21日 2024, 1:33 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'STM32 通过 SPI 驱动 W25Q128',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">STM32 通过 SPI 驱动 W25Q128</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">STM32 通过 SPI 驱动 W25Q128</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-21T05:33:00.000Z" title="发表于 2024-09-21 13:33:00">2024-09-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T07:17:49.908Z" title="更新于 2024-11-14 15:17:49">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/">STM32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>[toc]</p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">STM32 通过 SPI 驱动 W25Q128</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
 <hr>
 <blockquote>
 <p>有关 SPI 的内容在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141279117">SPI 通信协议详解</a>，不熟悉的可以参考一下</p>
@@ -169,16 +311,16 @@
 <blockquote>
 <p>我使用设备的是 STM32F407 + W25Q128</p>
 </blockquote>
-<h1 id="一、STM32-SPI-框图"><a href="#一、STM32-SPI-框图" class="headerlink" title="一、STM32 SPI 框图"></a>一、STM32 SPI 框图</h1><p><img src="1.png"></p>
+<h1 id="一、STM32-SPI-框图"><a href="#一、STM32-SPI-框图" class="headerlink" title="一、STM32 SPI 框图"></a>一、STM32 SPI 框图</h1><p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="1、通讯引脚"><a href="#1、通讯引脚" class="headerlink" title="1、通讯引脚"></a>1、通讯引脚</h2><p>这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 <code>SPI1</code>，引脚如下：</p>
-<p><img src="2.png"></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>SPI1</code> 是 APB2 总线上的设备，最高通信速率达 <code>42Mbtis/s</code>。</p>
 <p>如下是 <code>W25Q128</code> 的引脚图：</p>
-<p><img src="3.png"><br>所以连接方式为：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">W25Q     STM32</span><br><span class="line">VCC  --&gt; VCC</span><br><span class="line">GND  --&gt; GND</span><br><span class="line">DO   --&gt; PA6 (MISO)</span><br><span class="line">DI   --&gt; PA7 (MOSI)</span><br><span class="line">CLK  --&gt; PA5 (SCK)</span><br><span class="line">CS   --&gt; PA4 (CS)</span><br></pre></td></tr></table></figure>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>所以连接方式为：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml">W25Q     STM32<br>VCC  --&gt; VCC<br>GND  --&gt; GND<br>DO   --&gt; PA6 (MISO)<br>DI   --&gt; PA7 (MOSI)<br>CLK  --&gt; PA5 (SCK)<br>CS   --&gt; PA4 (CS)<br></code></pre></td></tr></table></figure>
 
 <h2 id="2、时钟控制"><a href="#2、时钟控制" class="headerlink" title="2、时钟控制"></a>2、时钟控制</h2><p>SCK 线的时钟信号，由波特率发生器根据“控制寄存器CR1”中的 BR[0:2] 位控制，该位是对 fpclk 时钟的分频因子， 对 fpclk 的分频结果就是 SCK 引脚的输出时钟频率，计算方法见下表：</p>
-<p><img src="4.png"></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
 <p>其中的 fpclk 频率是指 SPI 所在的 APB 总线频率，APB1 为 fpclk1，APB2 为 fpckl2。</p>
 <p>通过配置“控制寄存器 CR”的 CPOL 位及 CPHA 位可以把 SPI 设置成之前分析的 4 种 SPI 模式。</p>
 <h2 id="3、数据控制逻辑"><a href="#3、数据控制逻辑" class="headerlink" title="3、数据控制逻辑"></a>3、数据控制逻辑</h2><p>SPI 的 MOSI 及 MISO 都连接到数据移位寄存器上，数据移位寄存器的内容来源于接收缓冲区及发送缓冲区以及 MISO、MOSI 线。</p>
@@ -191,7 +333,7 @@
 <p>实际应用中，我们一般不使用 STM32 SPI 外设的标准 NSS 信号线，而是更简单地使用普通的 GPIO，软件控制它的电平输出，从而产生通讯起始和停止信号。</p>
 <h2 id="5、主模式收发流程及事件说明如下："><a href="#5、主模式收发流程及事件说明如下：" class="headerlink" title="5、主模式收发流程及事件说明如下："></a>5、主模式收发流程及事件说明如下：</h2><p>STM32 使用 SPI 外设通讯时，在通讯的不同阶段它会对“状态寄存器SR”的不同数据位写入参数，我们通过读取这些寄存器标志来了解通讯状态。</p>
 <p>下图演示的是“主模式”流程，即 STM32 作为 SPI 通讯的主机端时的数据收发过程。</p>
-<p><img src="5.png"></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
 <ol>
 <li>控制 NSS 信号线， 产生起始信号(图中没有画出)；</li>
 <li>把要发送的数据写入到“数据寄存器 DR”中， 该数据会被存储到发送缓冲区；</li>
@@ -204,17 +346,17 @@
 
 <p>有了这些基础，下面写相应的代码就轻松多了。</p>
 <h1 id="二、程序编写"><a href="#二、程序编写" class="headerlink" title="二、程序编写"></a>二、程序编写</h1><h2 id="1、SPI-初始化"><a href="#1、SPI-初始化" class="headerlink" title="1、SPI 初始化"></a>1、SPI 初始化</h2><p>我们首先实现如下两个函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ctl_spi.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __CTL_SPI_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __CTL_SPI_H</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">spi_init</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">spi_read_write_byte</span><span class="params">(<span class="type">uint8_t</span> tx_data)</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* __CTL_SPI_H */</span>  </span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// ctl_spi.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __CTL_SPI_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __CTL_SPI_H</span><br><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">spi_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">uint8_t</span> <span class="hljs-title function_">spi_read_write_byte</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> tx_data)</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* __CTL_SPI_H */</span>  </span><br></code></pre></td></tr></table></figure>
 
 <p>实现如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  SPI GPIO 初始化</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">spi_pin_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);</span><br><span class="line"></span><br><span class="line">    GPIO_InitTypeDef GPIO_InitStructure;</span><br><span class="line">    <span class="built_in">memset</span>(&amp;GPIO_InitStructure, <span class="number">0</span>, <span class="keyword">sizeof</span>(GPIO_InitStructure));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// CS</span></span><br><span class="line">    GPIO_InitStructure.GPIO_Mode   =  GPIO_Mode_OUT;</span><br><span class="line">    GPIO_InitStructure.GPIO_OType  =  GPIO_OType_PP;</span><br><span class="line">    GPIO_InitStructure.GPIO_PuPd   =  GPIO_PuPd_UP;</span><br><span class="line">    GPIO_InitStructure.GPIO_Speed  =  GPIO_Speed_50MHz;</span><br><span class="line">    GPIO_InitStructure.GPIO_Pin    =  GPIO_Pin_4;</span><br><span class="line">    GPIO_Init(GPIOA, &amp;GPIO_InitStructure);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// SCK MISO MOSI</span></span><br><span class="line">    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;</span><br><span class="line">    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;</span><br><span class="line">    GPIO_Init(GPIOA, &amp;GPIO_InitStructure);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 引脚复用</span></span><br><span class="line">    GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);</span><br><span class="line">    GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);</span><br><span class="line">    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  SPI 初始化</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">spi_lowlevel_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);</span><br><span class="line"></span><br><span class="line">    SPI_InitTypeDef SPI_InitStructure;</span><br><span class="line">    <span class="built_in">memset</span>(&amp;SPI_InitStructure, <span class="number">0</span>, <span class="keyword">sizeof</span>(SPI_InitStructure));</span><br><span class="line"></span><br><span class="line">    SPI_InitStructure.SPI_Direction          =   SPI_Direction_2Lines_FullDuplex; <span class="comment">// 双线全双工</span></span><br><span class="line">    SPI_InitStructure.SPI_BaudRatePrescaler  =   SPI_BaudRatePrescaler_256;       <span class="comment">// 波特率预分频值为256</span></span><br><span class="line">    SPI_InitStructure.SPI_CPHA               =   SPI_CPHA_2Edge;                  <span class="comment">// 同步时钟的第二个跳变沿（上升或下降）数据被采样</span></span><br><span class="line">    SPI_InitStructure.SPI_CPOL               =   SPI_CPOL_High;                   <span class="comment">// 同步时钟的空闲状态为高电平</span></span><br><span class="line">    SPI_InitStructure.SPI_CRCPolynomial      =   <span class="number">7</span>;                               <span class="comment">// CRC计算的多项式</span></span><br><span class="line">    SPI_InitStructure.SPI_DataSize           =   SPI_DataSize_8b;                 <span class="comment">// 8位帧数据结构</span></span><br><span class="line">    SPI_InitStructure.SPI_FirstBit           =   SPI_FirstBit_MSB;                <span class="comment">// 数据传输从MSB位开始</span></span><br><span class="line">    SPI_InitStructure.SPI_Mode               =   SPI_Mode_Master;                 <span class="comment">// 主机模式</span></span><br><span class="line">    SPI_InitStructure.SPI_NSS                =   SPI_NSS_Soft;                    <span class="comment">// NSS 信号由软件(使用 SSI位)管理 </span></span><br><span class="line">    SPI_Init(SPI1, &amp;SPI_InitStructure);</span><br><span class="line"></span><br><span class="line">    SPI_Cmd(SPI1, ENABLE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">spi_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    spi_pin_init();</span><br><span class="line">    spi_lowlevel_init();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief  SPI GPIO 初始化</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">spi_pin_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);<br><br>    GPIO_InitTypeDef GPIO_InitStructure;<br>    <span class="hljs-built_in">memset</span>(&amp;GPIO_InitStructure, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(GPIO_InitStructure));<br><br>    <span class="hljs-comment">// CS</span><br>    GPIO_InitStructure.GPIO_Mode   =  GPIO_Mode_OUT;<br>    GPIO_InitStructure.GPIO_OType  =  GPIO_OType_PP;<br>    GPIO_InitStructure.GPIO_PuPd   =  GPIO_PuPd_UP;<br>    GPIO_InitStructure.GPIO_Speed  =  GPIO_Speed_50MHz;<br>    GPIO_InitStructure.GPIO_Pin    =  GPIO_Pin_4;<br>    GPIO_Init(GPIOA, &amp;GPIO_InitStructure);<br><br>    <span class="hljs-comment">// SCK MISO MOSI</span><br>    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;<br>    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;<br>    GPIO_Init(GPIOA, &amp;GPIO_InitStructure);<br><br>    <span class="hljs-comment">// 引脚复用</span><br>    GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);<br>    GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);<br>    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);<br>&#125;<br><br><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief  SPI 初始化</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">spi_lowlevel_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);<br><br>    SPI_InitTypeDef SPI_InitStructure;<br>    <span class="hljs-built_in">memset</span>(&amp;SPI_InitStructure, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(SPI_InitStructure));<br><br>    SPI_InitStructure.SPI_Direction          =   SPI_Direction_2Lines_FullDuplex; <span class="hljs-comment">// 双线全双工</span><br>    SPI_InitStructure.SPI_BaudRatePrescaler  =   SPI_BaudRatePrescaler_256;       <span class="hljs-comment">// 波特率预分频值为256</span><br>    SPI_InitStructure.SPI_CPHA               =   SPI_CPHA_2Edge;                  <span class="hljs-comment">// 同步时钟的第二个跳变沿（上升或下降）数据被采样</span><br>    SPI_InitStructure.SPI_CPOL               =   SPI_CPOL_High;                   <span class="hljs-comment">// 同步时钟的空闲状态为高电平</span><br>    SPI_InitStructure.SPI_CRCPolynomial      =   <span class="hljs-number">7</span>;                               <span class="hljs-comment">// CRC计算的多项式</span><br>    SPI_InitStructure.SPI_DataSize           =   SPI_DataSize_8b;                 <span class="hljs-comment">// 8位帧数据结构</span><br>    SPI_InitStructure.SPI_FirstBit           =   SPI_FirstBit_MSB;                <span class="hljs-comment">// 数据传输从MSB位开始</span><br>    SPI_InitStructure.SPI_Mode               =   SPI_Mode_Master;                 <span class="hljs-comment">// 主机模式</span><br>    SPI_InitStructure.SPI_NSS                =   SPI_NSS_Soft;                    <span class="hljs-comment">// NSS 信号由软件(使用 SSI位)管理 </span><br>    SPI_Init(SPI1, &amp;SPI_InitStructure);<br><br>    SPI_Cmd(SPI1, ENABLE);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">spi_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    spi_pin_init();<br>    spi_lowlevel_init();<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>还有 SPI 的读写函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      SPI 数据读写函数</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  tx_data    :    要发送的数据</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     uint8_t    :    接收到的数据</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">spi_read_write_byte</span><span class="params">(<span class="type">uint8_t</span> tx_data)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)  <span class="comment">// 等待发送区空</span></span><br><span class="line">    &#123; &#125;</span><br><span class="line"></span><br><span class="line">    SPI_I2S_SendData(SPI1, tx_data);  <span class="comment">// SPIx发送一个 byte 数据</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)  <span class="comment">// 等待接收完一个 byte</span></span><br><span class="line">    &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> SPI_I2S_ReceiveData(SPI1);  <span class="comment">// 返回接收的数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      SPI 数据读写函数</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  tx_data    :    要发送的数据</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     uint8_t    :    接收到的数据</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">uint8_t</span> <span class="hljs-title function_">spi_read_write_byte</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> tx_data)</span><br>&#123;<br>    <span class="hljs-keyword">while</span> (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)  <span class="hljs-comment">// 等待发送区空</span><br>    &#123; &#125;<br><br>    SPI_I2S_SendData(SPI1, tx_data);  <span class="hljs-comment">// SPIx发送一个 byte 数据</span><br><br>    <span class="hljs-keyword">while</span> (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)  <span class="hljs-comment">// 等待接收完一个 byte</span><br>    &#123; &#125;<br><br>    <span class="hljs-keyword">return</span> SPI_I2S_ReceiveData(SPI1);  <span class="hljs-comment">// 返回接收的数据</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h2 id="2、W25Q128-驱动代码"><a href="#2、W25Q128-驱动代码" class="headerlink" title="2、W25Q128 驱动代码"></a>2、W25Q128 驱动代码</h2><p>接下来需要参考手册中的时序图和指令来编写代码：<a target="_blank" rel="noopener" href="https://www.winbond.com/hq/product/code-storage-flash-memory/serial-nor-flash/index.html?__locale=zh&partNo=W25Q128JV">W25Q128JV</a></p>
 <p>下面是 FLASH常用芯片指令表：</p>
-<p><img src="6.png"></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
 <p>该表中的第一列为指令名，第二列为指令编码，第三至第N列的具体内容根据指令的不同而有不同的含义。 </p>
 <ul>
@@ -227,30 +369,30 @@
 </ul>
 </blockquote>
 <p>如下代码，接下来，我们就将实现对应的函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// w25q.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __W25Q_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __W25Q_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 指令表</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_WriteEnable        0x06</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_WriteDisable       0x04</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_ReadStatusReg      0x05</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_WriteStatusReg     0x01</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_ReadData           0x03</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_FastReadData       0x0B</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_FastReadDual       0x3B</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_PageProgram        0x02</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_BlockErase         0xD8</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_SectorErase        0x20</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_ChipErase          0xC7</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_PowerDown          0xB9</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_ReleasePowerDown   0xAB</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_DeviceID           0xAB</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_ManufactDeviceID   0x90</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_JedecDeviceID      0x9F</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> W25X_Dummy				0x00</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">w25qxx_device_s</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">void</span> (*init)(<span class="type">void</span>);</span><br><span class="line">    <span class="type">void</span> (*wr)(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> read_addr, <span class="type">uint16_t</span> num_byte_to_read);</span><br><span class="line">    <span class="type">void</span> (*rd)(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> write_addr, <span class="type">uint16_t</span> num_byte_to_write);</span><br><span class="line">    <span class="type">uint16_t</span> type;</span><br><span class="line">&#125; <span class="type">w25qxx_device_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="type">w25qxx_device_t</span> w25q32_dev;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_init</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">uint16_t</span> <span class="title function_">w25qxx_readid</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">w25qxx_readsr</span><span class="params">(<span class="type">void</span>)</span>;                                                          <span class="comment">// 读取状态寄存器</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_sr</span><span class="params">(<span class="type">uint8_t</span> sr)</span>;                                                     <span class="comment">// 写状态寄存器</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_enable</span><span class="params">(<span class="type">void</span>)</span>;                                                       <span class="comment">// 写使能</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_disable</span><span class="params">(<span class="type">void</span>)</span>;                                                      <span class="comment">// 写保护</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_read</span><span class="params">(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> read_addr, <span class="type">uint16_t</span> num_byte_to_read)</span>;    <span class="comment">// 读取flash</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write</span><span class="params">(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> write_addr, <span class="type">uint16_t</span> num_byte_to_write)</span>; <span class="comment">// 写入flash</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_erase_chip</span><span class="params">(<span class="type">void</span>)</span>;                                                         <span class="comment">// 整片擦除</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_erase_sector</span><span class="params">(<span class="type">uint32_t</span> dst_addr)</span>;                                          <span class="comment">// 扇区擦除</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_powerdown</span><span class="params">(<span class="type">void</span>)</span>;                                                          <span class="comment">// 进入掉电模式</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_wakeup</span><span class="params">(<span class="type">void</span>)</span>;                                                             <span class="comment">// 唤醒</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* __W25Q_H */</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// w25q.h</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __W25Q_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __W25Q_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><br><span class="hljs-comment">// 指令表</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_WriteEnable        0x06</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_WriteDisable       0x04</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_ReadStatusReg      0x05</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_WriteStatusReg     0x01</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_ReadData           0x03</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_FastReadData       0x0B</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_FastReadDual       0x3B</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_PageProgram        0x02</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_BlockErase         0xD8</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_SectorErase        0x20</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_ChipErase          0xC7</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_PowerDown          0xB9</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_ReleasePowerDown   0xAB</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_DeviceID           0xAB</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_ManufactDeviceID   0x90</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_JedecDeviceID      0x9F</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> W25X_Dummy				0x00</span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">w25qxx_device_s</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">void</span> (*init)(<span class="hljs-type">void</span>);<br>    <span class="hljs-type">void</span> (*wr)(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> read_addr, <span class="hljs-type">uint16_t</span> num_byte_to_read);<br>    <span class="hljs-type">void</span> (*rd)(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> write_addr, <span class="hljs-type">uint16_t</span> num_byte_to_write);<br>    <span class="hljs-type">uint16_t</span> type;<br>&#125; <span class="hljs-type">w25qxx_device_t</span>;<br><br><span class="hljs-keyword">extern</span> <span class="hljs-type">w25qxx_device_t</span> w25q32_dev;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">uint16_t</span> <span class="hljs-title function_">w25qxx_readid</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">uint8_t</span> <span class="hljs-title function_">w25qxx_readsr</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                          <span class="hljs-comment">// 读取状态寄存器</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_sr</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> sr)</span>;                                                     <span class="hljs-comment">// 写状态寄存器</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_enable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                       <span class="hljs-comment">// 写使能</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_disable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                      <span class="hljs-comment">// 写保护</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_read</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> read_addr, <span class="hljs-type">uint16_t</span> num_byte_to_read)</span>;    <span class="hljs-comment">// 读取flash</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> write_addr, <span class="hljs-type">uint16_t</span> num_byte_to_write)</span>; <span class="hljs-comment">// 写入flash</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_erase_chip</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                         <span class="hljs-comment">// 整片擦除</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_erase_sector</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> dst_addr)</span>;                                          <span class="hljs-comment">// 扇区擦除</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_powerdown</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                          <span class="hljs-comment">// 进入掉电模式</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_wakeup</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;                                                             <span class="hljs-comment">// 唤醒</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* __W25Q_H */</span></span><br></code></pre></td></tr></table></figure>
 
 
 <p>除此之外，为了程序的简洁以及方便实现，定义如下的功能函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// w25q.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> w25qxx_cs_high()   GPIO_SetBits(GPIOA, GPIO_Pin_4)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> w25qxx_cs_low()    GPIO_ResetBits(GPIOA, GPIO_Pin_4)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> w25qxx_r_w_byte(n) spi_read_write_byte(n)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> w25qxx_spi_init()  spi_init()</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> w25qxx_delay_us(n) bl_delay_us(n)</span></span><br><span class="line"></span><br><span class="line"><span class="type">w25qxx_device_t</span> w25q32_dev = &#123;</span><br><span class="line">    .init = w25qxx_init,</span><br><span class="line">    .wr = w25qxx_write,</span><br><span class="line">    .rd = w25qxx_read,</span><br><span class="line">    .type = <span class="number">0x00</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    w25qxx_spi_init();</span><br><span class="line">    w25q32_dev.type = w25qxx_readid();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// w25q.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> w25qxx_cs_high()   GPIO_SetBits(GPIOA, GPIO_Pin_4)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> w25qxx_cs_low()    GPIO_ResetBits(GPIOA, GPIO_Pin_4)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> w25qxx_r_w_byte(n) spi_read_write_byte(n)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> w25qxx_spi_init()  spi_init()</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> w25qxx_delay_us(n) bl_delay_us(n)</span><br><br><span class="hljs-type">w25qxx_device_t</span> w25q32_dev = &#123;<br>    .init = w25qxx_init,<br>    .wr = w25qxx_write,<br>    .rd = w25qxx_read,<br>    .type = <span class="hljs-number">0x00</span>,<br>&#125;;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    w25qxx_spi_init();<br>    w25q32_dev.type = w25qxx_readid();<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="2-1-读写厂商-ID-和设备-ID"><a href="#2-1-读写厂商-ID-和设备-ID" class="headerlink" title="2.1 读写厂商 ID 和设备 ID"></a>2.1 读写厂商 ID 和设备 ID</h3><p><img src="7.png"></p>
+<h3 id="2-1-读写厂商-ID-和设备-ID"><a href="#2-1-读写厂商-ID-和设备-ID" class="headerlink" title="2.1 读写厂商 ID 和设备 ID"></a>2.1 读写厂商 ID 和设备 ID</h3><p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
 <p> 由上图可知厂商 ID 是 0xEF,设备 ID 是 0x17。</p>
 <p>读取设备 ID 和时序图图下：</p>
-<p><img src="8.png"></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
 <p>该指令以 &#x2F;CS 拉低开始，然后通过 DI 传输指令代码 <code>90H</code> 和 24 位的地址(全为 <code>00000H</code> )。这之后 W25Q 的 ID(<code>EFH</code>)和芯片 ID 将在时钟的下降沿以高位在前的方式传出。关于 <code>W25Q128</code> 的芯片和制造商 ID，在上面的图中已经列出。如果 24 位地址传输的是 <code>00001H</code>，那么芯片 ID 将首先被传出，然后紧接着的是制造商 ID。这两个是连续读出来的。该指令以 &#x2F;CS 拉高结束。</p>
 <p>格式如下：</p>
-<p><img src="9.png"></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
 <p>实现如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      读取读写厂商 ID 和设备 ID</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     uint16_t   :   读取到的 ID</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">uint16_t</span> <span class="title function_">w25qxx_readid</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint16_t</span> id = <span class="number">0</span>;</span><br><span class="line">    w25qxx_cs_low();</span><br><span class="line"></span><br><span class="line">    w25qxx_r_w_byte(W25X_ManufactDeviceID); <span class="comment">// 发送读取ID命令</span></span><br><span class="line">    </span><br><span class="line">    w25qxx_r_w_byte(W25X_Dummy);  <span class="comment">// Dummy</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_Dummy);  <span class="comment">// Dummy</span></span><br><span class="line">    w25qxx_r_w_byte(<span class="number">0x00</span>);  <span class="comment">// 决定芯片ID 和制造商ID 的传送顺序</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 随便发两个字节数据，分别返回制造商ID 和设备ID</span></span><br><span class="line">    id |= (w25qxx_r_w_byte(<span class="number">0xFF</span>) &lt;&lt; <span class="number">8</span>);  <span class="comment">// 0xEF</span></span><br><span class="line">    id |= w25qxx_r_w_byte(<span class="number">0xFF</span>);		   <span class="comment">// 0x17</span></span><br><span class="line"></span><br><span class="line">    w25qxx_cs_high();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      读取读写厂商 ID 和设备 ID</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     uint16_t   :   读取到的 ID</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">uint16_t</span> <span class="hljs-title function_">w25qxx_readid</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">uint16_t</span> id = <span class="hljs-number">0</span>;<br>    w25qxx_cs_low();<br><br>    w25qxx_r_w_byte(W25X_ManufactDeviceID); <span class="hljs-comment">// 发送读取ID命令</span><br>    <br>    w25qxx_r_w_byte(W25X_Dummy);  <span class="hljs-comment">// Dummy</span><br>    w25qxx_r_w_byte(W25X_Dummy);  <span class="hljs-comment">// Dummy</span><br>    w25qxx_r_w_byte(<span class="hljs-number">0x00</span>);  <span class="hljs-comment">// 决定芯片ID 和制造商ID 的传送顺序</span><br><br>	<span class="hljs-comment">// 随便发两个字节数据，分别返回制造商ID 和设备ID</span><br>    id |= (w25qxx_r_w_byte(<span class="hljs-number">0xFF</span>) &lt;&lt; <span class="hljs-number">8</span>);  <span class="hljs-comment">// 0xEF</span><br>    id |= w25qxx_r_w_byte(<span class="hljs-number">0xFF</span>);		   <span class="hljs-comment">// 0x17</span><br><br>    w25qxx_cs_high();<br><br>    <span class="hljs-keyword">return</span> id;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="2-2-读数据"><a href="#2-2-读数据" class="headerlink" title="2.2 读数据"></a>2.2 读数据</h3><p>读数据指令允许从存储器读一个或连续多个字节。该指令是以 &#x2F;CS 拉低开始，然后通过 DI 在时钟的上升沿来传输指令代码(<code>03H</code>)和 24 位地址。当芯片接受完地址位后，相应地址处的值将会在时钟的下降沿，以&#x3D;&#x3D;高位在前、低位在后&#x3D;&#x3D;的方式，在 DO 上传输。如果连续的读多个字节的话，地址是&#x3D;&#x3D;自动加 1&#x3D;&#x3D; 的。这意味着可以一次读出整个芯片。该指令也是以 &#x2F;CS 拉高来结束的。</p>
-<p><img src="10.png"></p>
-<p><img src="11.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      读取SPI FLASH</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  pbuffer            :    数据存储区</span></span><br><span class="line"><span class="comment"> * @param[in]  read_addr          :    开始读取的地址(24bit)</span></span><br><span class="line"><span class="comment"> * @param[in]  num_byte_to_read   :    要读取的字节数(最大65535)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_read</span><span class="params">(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> read_addr, <span class="type">uint16_t</span> num_byte_to_read)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint16_t</span> i;</span><br><span class="line"></span><br><span class="line">    w25qxx_cs_low();</span><br><span class="line">    w25qxx_r_w_byte(W25X_ReadData);                <span class="comment">// 发送读取命令</span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((read_addr) &gt;&gt; <span class="number">16</span>)); <span class="comment">// 发送24bit地址</span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((read_addr) &gt;&gt; <span class="number">8</span>));</span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)read_addr);</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; num_byte_to_read; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        pbuffer[i] = w25qxx_r_w_byte(<span class="number">0XFF</span>); <span class="comment">// 循环读数</span></span><br><span class="line">    &#125;</span><br><span class="line">    w25qxx_cs_high();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      读取SPI FLASH</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  pbuffer            :    数据存储区</span><br><span class="hljs-comment"> * @param[in]  read_addr          :    开始读取的地址(24bit)</span><br><span class="hljs-comment"> * @param[in]  num_byte_to_read   :    要读取的字节数(最大65535)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_read</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> read_addr, <span class="hljs-type">uint16_t</span> num_byte_to_read)</span><br>&#123;<br>    <span class="hljs-type">uint16_t</span> i;<br><br>    w25qxx_cs_low();<br>    w25qxx_r_w_byte(W25X_ReadData);                <span class="hljs-comment">// 发送读取命令</span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((read_addr) &gt;&gt; <span class="hljs-number">16</span>)); <span class="hljs-comment">// 发送24bit地址</span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((read_addr) &gt;&gt; <span class="hljs-number">8</span>));<br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)read_addr);<br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; num_byte_to_read; i++)<br>    &#123;<br>        pbuffer[i] = w25qxx_r_w_byte(<span class="hljs-number">0XFF</span>); <span class="hljs-comment">// 循环读数</span><br>    &#125;<br>    w25qxx_cs_high();<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="2-3-写使能-写禁止"><a href="#2-3-写使能-写禁止" class="headerlink" title="2.3 写使能&#x2F;写禁止"></a>2.3 写使能&#x2F;写禁止</h3><p><img src="12.png"></p>
-<p><img src="13.png"></p>
-<p><img src="14.png"></p>
+<h3 id="2-3-写使能-写禁止"><a href="#2-3-写使能-写禁止" class="headerlink" title="2.3 写使能&#x2F;写禁止"></a>2.3 写使能&#x2F;写禁止</h3><p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
 <p>分别发送对应的两条指令即可，非常简单。</p>
 <blockquote>
 <p>写使能指可以设置状态寄存器中的 WEL 位置 1。在页写，QUAD 页写，扇区擦除，块擦除，片擦除，写状态寄存器，擦写安全寄存器指令之前，必须先将 WEL 位置 1。写使能指令是以 &#x2F;CS 拉低开始的，将 <code>06H</code> 通过 DI 在时钟的上升沿锁存，然后 &#x2F;CS 拉高来结束指令。</p>
@@ -258,28 +400,28 @@
 <blockquote>
 <p>写禁用指令将状态寄存器中的写启用锁存器(WEL)位重置为 0。通过低电平驱动 &#x2F;CS 进入写禁用指令，将指令代码“<code>04h</code>”移到 DI 引脚，然后驱动 &#x2F;CS 为高电平。请注意，通电后和通电后，WEL 位会自动复位完成写状态寄存器，擦除&#x2F;程序安全寄存器，页程序，扇区擦除，块擦除，芯片擦除和复位指令。</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  SPI_FLASH写使能(将WEL置位)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_enable</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    w25qxx_cs_low();                   <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_WriteEnable); <span class="comment">// 发送写使能</span></span><br><span class="line">    w25qxx_cs_high();                  <span class="comment">// 取消片选</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  SPI_FLASH写禁止(将WEL清零)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_disable</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    w25qxx_cs_low();                    <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_WriteDisable); <span class="comment">// 发送写禁止指令</span></span><br><span class="line">    w25qxx_cs_high();                   <span class="comment">// 取消片选</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief  SPI_FLASH写使能(将WEL置位)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_enable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    w25qxx_cs_low();                   <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_WriteEnable); <span class="hljs-comment">// 发送写使能</span><br>    w25qxx_cs_high();                  <span class="hljs-comment">// 取消片选</span><br>&#125;<br><br><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief  SPI_FLASH写禁止(将WEL清零)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_disable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    w25qxx_cs_low();                    <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_WriteDisable); <span class="hljs-comment">// 发送写禁止指令</span><br>    w25qxx_cs_high();                   <span class="hljs-comment">// 取消片选</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="2-4-读-写状态寄存器"><a href="#2-4-读-写状态寄存器" class="headerlink" title="2.4 读&#x2F;写状态寄存器"></a>2.4 读&#x2F;写状态寄存器</h3><p>读&#x2F;写状态寄存器各有三条指令，相应内容查阅手册。</p>
 <p>读状态寄存指令可以任何时间使用，在擦写，写状态寄存器指令周期中依然可以。这样就可以随时检查 BUSY 位，检查相应的指令周期有没有结束，芯片是不是可以接受新的指令。状态寄存器可以连续的读出来：</p>
-<p><img src="15.png"></p>
-<p><img src="16.png"></p>
-<p><img src="17.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      读取SPI_FLASH的状态寄存器</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     uint8_t    :    状态寄存器的值</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note       BIT7  6   5   4   3   2   1   0</span></span><br><span class="line"><span class="comment"> *             SPR   RV  TB BP2 BP1 BP0 WEL BUSY</span></span><br><span class="line"><span class="comment"> *             SPR: 默认0,状态寄存器保护位,配合WP使用</span></span><br><span class="line"><span class="comment"> *             TB,BP2,BP1,BP0: FLASH区域写保护设置</span></span><br><span class="line"><span class="comment"> *             WEL:写使能锁定</span></span><br><span class="line"><span class="comment"> *             BUSY:忙标记位(1,忙;0,空闲)</span></span><br><span class="line"><span class="comment"> *             默认: 0x00</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">uint8_t</span> <span class="title function_">w25qxx_readsr</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint8_t</span> byte = <span class="number">0</span>;</span><br><span class="line">    w25qxx_cs_low();                     <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_ReadStatusReg); <span class="comment">// 发送读取状态寄存器命令</span></span><br><span class="line">    byte = w25qxx_r_w_byte(<span class="number">0xff</span>);        <span class="comment">// 读取一个字节</span></span><br><span class="line">    w25qxx_cs_high();                    <span class="comment">// 取消片选</span></span><br><span class="line">    <span class="keyword">return</span> byte;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      写SPI_FLASH状态寄存器</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  sr    :    要写入的状态寄存器的值</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note       只有SPR,TB,BP2,BP1,BP0(bit 7,5,4,3,2)可以写</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write_sr</span><span class="params">(<span class="type">uint8_t</span> sr)</span></span><br><span class="line">&#123;</span><br><span class="line">    w25qxx_cs_low();                      <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_WriteStatusReg); <span class="comment">// 发送写取状态寄存器命令</span></span><br><span class="line">    w25qxx_r_w_byte(sr);                  <span class="comment">// 写入一个字节</span></span><br><span class="line">    w25qxx_cs_high();                     <span class="comment">// 取消片选</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      读取SPI_FLASH的状态寄存器</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     uint8_t    :    状态寄存器的值</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note       BIT7  6   5   4   3   2   1   0</span><br><span class="hljs-comment"> *             SPR   RV  TB BP2 BP1 BP0 WEL BUSY</span><br><span class="hljs-comment"> *             SPR: 默认0,状态寄存器保护位,配合WP使用</span><br><span class="hljs-comment"> *             TB,BP2,BP1,BP0: FLASH区域写保护设置</span><br><span class="hljs-comment"> *             WEL:写使能锁定</span><br><span class="hljs-comment"> *             BUSY:忙标记位(1,忙;0,空闲)</span><br><span class="hljs-comment"> *             默认: 0x00</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">uint8_t</span> <span class="hljs-title function_">w25qxx_readsr</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">uint8_t</span> byte = <span class="hljs-number">0</span>;<br>    w25qxx_cs_low();                     <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_ReadStatusReg); <span class="hljs-comment">// 发送读取状态寄存器命令</span><br>    byte = w25qxx_r_w_byte(<span class="hljs-number">0xff</span>);        <span class="hljs-comment">// 读取一个字节</span><br>    w25qxx_cs_high();                    <span class="hljs-comment">// 取消片选</span><br>    <span class="hljs-keyword">return</span> byte;<br>&#125;<br><br><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      写SPI_FLASH状态寄存器</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  sr    :    要写入的状态寄存器的值</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note       只有SPR,TB,BP2,BP1,BP0(bit 7,5,4,3,2)可以写</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_sr</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> sr)</span><br>&#123;<br>    w25qxx_cs_low();                      <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_WriteStatusReg); <span class="hljs-comment">// 发送写取状态寄存器命令</span><br>    w25qxx_r_w_byte(sr);                  <span class="hljs-comment">// 写入一个字节</span><br>    w25qxx_cs_high();                     <span class="hljs-comment">// 取消片选</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="2-5-擦除扇区"><a href="#2-5-擦除扇区" class="headerlink" title="2.5 擦除扇区"></a>2.5 擦除扇区</h3><p>扇区擦除可以擦除 4Kbit 存储空间(全为0XFF)。进行扇区擦写指令之前，必须进行写使能指令。该指令是以 &#x2F;CS 拉低开始的，然后在 DI 上传输指令代码 <code>20H</code> 和 24 位地址。</p>
 <p>时序图如下图。当最后字节的第 8 位进入芯片后，&#x2F;CS 必须拉高。如果 &#x2F;CS 没有拉高，那么扇区擦写指令将不被执行。&#x2F;CS 拉高后，扇区擦写指令的内建时间为 tSE。在扇区擦写指令执行期间，读状态寄存器指令仍然可以识别，以此来进行检查 BUSY 位。当扇区擦写指令执行期间，BUSY 位为 1。当执行完后，BUSY 为 0，表明可以接受新的指令了。扇区擦写指令完成后 WEL 位自动清零。如果该指令要操作的任何–页已经被保护起来，那么该指令也将不执行。</p>
-<p><img src="18.png"></p>
-<p><img src="19.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief   等待W25QXX芯片Busy标志位清空</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return  none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">w25qxx_wait_busy</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> ((w25qxx_readsr() &amp; <span class="number">0x01</span>) == <span class="number">0x01</span>)</span><br><span class="line">        ; <span class="comment">// 等待BUSY位清空</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      擦除一个扇区</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  dst_addr    :    扇区地址 0~511 for w25x16</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note       擦除一个山区的最少时间:150ms</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_erase_sector</span><span class="params">(<span class="type">uint32_t</span> dst_addr)</span></span><br><span class="line">&#123;</span><br><span class="line">    dst_addr *= <span class="number">4096</span>;</span><br><span class="line">    w25qxx_write_enable(); <span class="comment">// SET WEL</span></span><br><span class="line">    w25qxx_wait_busy();</span><br><span class="line">    w25qxx_cs_low();                              <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_SectorErase);            <span class="comment">// 发送扇区擦除指令</span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((dst_addr) &gt;&gt; <span class="number">16</span>)); <span class="comment">// 发送24bit地址</span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((dst_addr) &gt;&gt; <span class="number">8</span>));</span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)dst_addr);</span><br><span class="line">    w25qxx_cs_high();   <span class="comment">// 取消片选</span></span><br><span class="line">    w25qxx_wait_busy(); <span class="comment">// 等待擦除完成</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief   等待W25QXX芯片Busy标志位清空</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return  none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_wait_busy</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">while</span> ((w25qxx_readsr() &amp; <span class="hljs-number">0x01</span>) == <span class="hljs-number">0x01</span>)<br>        ; <span class="hljs-comment">// 等待BUSY位清空</span><br>&#125;<br><br><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      擦除一个扇区</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  dst_addr    :    扇区地址 0~511 for w25x16</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note       擦除一个山区的最少时间:150ms</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_erase_sector</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> dst_addr)</span><br>&#123;<br>    dst_addr *= <span class="hljs-number">4096</span>;<br>    w25qxx_write_enable(); <span class="hljs-comment">// SET WEL</span><br>    w25qxx_wait_busy();<br>    w25qxx_cs_low();                              <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_SectorErase);            <span class="hljs-comment">// 发送扇区擦除指令</span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((dst_addr) &gt;&gt; <span class="hljs-number">16</span>)); <span class="hljs-comment">// 发送24bit地址</span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((dst_addr) &gt;&gt; <span class="hljs-number">8</span>));<br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)dst_addr);<br>    w25qxx_cs_high();   <span class="hljs-comment">// 取消片选</span><br>    w25qxx_wait_busy(); <span class="hljs-comment">// 等待擦除完成</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="2-6-擦除整个芯片"><a href="#2-6-擦除整个芯片" class="headerlink" title="2.6 擦除整个芯片"></a>2.6 擦除整个芯片</h3><p>芯片擦除指令将设备内的所有内存设置为全1 (FFh)的擦除状态。一个写启用指令必须在设备接受芯片擦除指令(状态)之前执行寄存器位 WEL 必须等于 1)。指令通过驱动 &#x2F;CS 引脚低电平和移位启动指令代码“<code>C7h</code>”或“<code>60h</code>”。芯片擦除指令序列如下图所示。</p>
 <blockquote>
 <p>芯片擦除指令将不会被执行如果任何内存区域是受块保护(CMP、SEC、TB、BP2、BP1 和 BP0)位或单个块&#x2F;扇区保护锁。</p>
-<p><img src="20.png"></p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
 </blockquote>
-<p><img src="21.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief  擦除整个芯片</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note   整片擦除时间非常长！！</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_erase_chip</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    w25qxx_write_enable(); <span class="comment">// SET WEL</span></span><br><span class="line">    w25qxx_wait_busy();</span><br><span class="line">    w25qxx_cs_low();                 <span class="comment">// 使能器件</span></span><br><span class="line">    w25qxx_r_w_byte(W25X_ChipErase); <span class="comment">// 发送片擦除命令</span></span><br><span class="line">    w25qxx_cs_high();                <span class="comment">// 取消片选</span></span><br><span class="line">    w25qxx_wait_busy();              <span class="comment">// 等待芯片擦除结束</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief  擦除整个芯片</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note   整片擦除时间非常长！！</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_erase_chip</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    w25qxx_write_enable(); <span class="hljs-comment">// SET WEL</span><br>    w25qxx_wait_busy();<br>    w25qxx_cs_low();                 <span class="hljs-comment">// 使能器件</span><br>    w25qxx_r_w_byte(W25X_ChipErase); <span class="hljs-comment">// 发送片擦除命令</span><br>    w25qxx_cs_high();                <span class="hljs-comment">// 取消片选</span><br>    w25qxx_wait_busy();              <span class="hljs-comment">// 等待芯片擦除结束</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 
 <h3 id="2-7-页写"><a href="#2-7-页写" class="headerlink" title="2.7 页写"></a>2.7 页写</h3><p>页编程指令允许 1 到 256 字节写入存储器的某一页，这一页必须是被擦除过的（也就是&#x3D;&#x3D;只能写 0&#x3D;&#x3D;，不能写 1，擦除时是全写为 1)。</p>
@@ -290,20 +432,395 @@
 <li>如果一次写入多于 256 字节的数据，那么在页内会回头写，先前写的数据可能已经被覆盖。</li>
 </ul>
 <p>作为擦写指令，当最后字节的第 8 位进入芯片后，&#x2F;CS 必须拉高。如果 &#x2F;CS 没有拉高, .那么页写指令将不被执行。&#x2F;CS 拉高后，页编程指令的内建时间为 tpp。在页写指令执行期间，读状态寄存器指令仍然可以识别，以此来进行检查 BUSY 位。当页写指令执行期间，BUSY 位为了 1。当执行完后，BUSY 为 0，表明可以接受新的指令了。页写指令完成后 WEL 位自动清零。如果该指令要操作的页已经被保护起来，那么该指令也将不执行。</p>
-<p><img src="22.png"></p>
-<p><img src="23.png"></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      在指定地址开始写入最大256字节的数据</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  pbuffer             :    数据存储区</span></span><br><span class="line"><span class="comment"> * @param[in]  write_addr          :    开始写入的地址(24bit)</span></span><br><span class="line"><span class="comment"> * @param[in]  num_byte_to_write   :    要写入的字节数(最大256),该数不应该超过该页的剩余字节数</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">w25qxx_write_page</span><span class="params">(<span class="type">uint8_t</span>* pbuffer, <span class="type">uint32_t</span> write_addr, <span class="type">uint16_t</span> num_byte_to_write)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint16_t</span> i;</span><br><span class="line"></span><br><span class="line">    w25qxx_write_enable();                          <span class="comment">// SET WEL </span></span><br><span class="line">    w25qxx_cs_low();  </span><br><span class="line">    </span><br><span class="line">    w25qxx_r_w_byte(W25X_PageProgram);              <span class="comment">// 发送写页命令   </span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((write_addr) &gt;&gt; <span class="number">16</span>)); <span class="comment">// 发送24bit地址    </span></span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)((write_addr) &gt;&gt; <span class="number">8</span>));   </span><br><span class="line">    w25qxx_r_w_byte((<span class="type">uint8_t</span>)write_addr);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; num_byte_to_write; i++)</span><br><span class="line">        w25qxx_r_w_byte(pbuffer[i]);                <span class="comment">// 循环写数  </span></span><br><span class="line">    </span><br><span class="line">    w25qxx_cs_high();</span><br><span class="line"></span><br><span class="line">    w25qxx_wait_busy();                             <span class="comment">// 等待写入结束</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      在指定地址开始写入最大256字节的数据</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  pbuffer             :    数据存储区</span><br><span class="hljs-comment"> * @param[in]  write_addr          :    开始写入的地址(24bit)</span><br><span class="hljs-comment"> * @param[in]  num_byte_to_write   :    要写入的字节数(最大256),该数不应该超过该页的剩余字节数</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_page</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span>* pbuffer, <span class="hljs-type">uint32_t</span> write_addr, <span class="hljs-type">uint16_t</span> num_byte_to_write)</span><br>&#123;<br>    <span class="hljs-type">uint16_t</span> i;<br><br>    w25qxx_write_enable();                          <span class="hljs-comment">// SET WEL </span><br>    w25qxx_cs_low();  <br>    <br>    w25qxx_r_w_byte(W25X_PageProgram);              <span class="hljs-comment">// 发送写页命令   </span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((write_addr) &gt;&gt; <span class="hljs-number">16</span>)); <span class="hljs-comment">// 发送24bit地址    </span><br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)((write_addr) &gt;&gt; <span class="hljs-number">8</span>));   <br>    w25qxx_r_w_byte((<span class="hljs-type">uint8_t</span>)write_addr);<br>    <br>    <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; num_byte_to_write; i++)<br>        w25qxx_r_w_byte(pbuffer[i]);                <span class="hljs-comment">// 循环写数  </span><br>    <br>    w25qxx_cs_high();<br><br>    w25qxx_wait_busy();                             <span class="hljs-comment">// 等待写入结束</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>接下来在这个函数的基础上，实现写函数。</p>
-<h4 id="2-7-1-写-SPI-FLASH"><a href="#2-7-1-写-SPI-FLASH" class="headerlink" title="2.7.1 写 SPI FLASH"></a>2.7.1 写 SPI FLASH</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      在指定地址开始写入指定长度的数据,不检查数据是否为0XFF(具有自动换页功能)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  pbuffer              :    数据存储区</span></span><br><span class="line"><span class="comment"> * @param[in]  write_addr           :    开始写入的地址(24bit)</span></span><br><span class="line"><span class="comment"> * @param[in]  num_byte_to_write    :    要写入的字节数(最大65535)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note       必须确保所写的地址范围内的数据全部为0XFF,否则在非0XFF处写入的数据将失败</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">w25qxx_write_nocheck</span><span class="params">(<span class="type">uint8_t</span>* pbuffer, <span class="type">uint32_t</span> write_addr, <span class="type">uint16_t</span> num_byte_to_write)</span>   </span><br><span class="line">&#123;                    </span><br><span class="line">    <span class="type">uint16_t</span> pageremain;</span><br><span class="line"></span><br><span class="line">    pageremain = <span class="number">256</span> - write_addr % <span class="number">256</span>;                            <span class="comment">//单页剩余的字节数              </span></span><br><span class="line">    <span class="keyword">if</span>(num_byte_to_write &lt;= pageremain)</span><br><span class="line">        pageremain = num_byte_to_write;                             <span class="comment">//不大于256个字节</span></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;      </span><br><span class="line">        w25qxx_write_page(pbuffer, write_addr, pageremain);</span><br><span class="line">        <span class="keyword">if</span>(num_byte_to_write == pageremain)                         <span class="comment">//写入结束了</span></span><br><span class="line">            <span class="keyword">break</span>;                      </span><br><span class="line">        <span class="keyword">else</span>                                            <span class="comment">//num_byte_to_write&gt;pageremain</span></span><br><span class="line">        &#123;</span><br><span class="line">            pbuffer += pageremain;</span><br><span class="line">            write_addr += pageremain;   </span><br><span class="line"></span><br><span class="line">            num_byte_to_write -= pageremain;            <span class="comment">//减去已经写入了的字节数</span></span><br><span class="line">            <span class="keyword">if</span>(num_byte_to_write &gt; <span class="number">256</span>)</span><br><span class="line">                pageremain = <span class="number">256</span>;                       <span class="comment">//一次可以写入256个字节</span></span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">                pageremain = num_byte_to_write;         <span class="comment">//不够256个字节了</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;      </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">uint8_t</span> W25QXX_BUFFER[<span class="number">4096</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">/******************************************************************************</span></span><br><span class="line"><span class="comment"> * @brief      在指定地址开始写入指定长度的数据</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @param[in]  pbuffer              :    数据存储区</span></span><br><span class="line"><span class="comment"> * @param[in]  write_addr           :    开始写入的地址(24bit)</span></span><br><span class="line"><span class="comment"> * @param[in]  num_byte_to_write    :    要写入的字节数(最大65535)</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @return     none</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * @note       该函数带擦除操作</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment">******************************************************************************/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">w25qxx_write</span><span class="params">(<span class="type">uint8_t</span> *pbuffer, <span class="type">uint32_t</span> write_addr, <span class="type">uint16_t</span> num_byte_to_write)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint32_t</span> secpos;</span><br><span class="line">    <span class="type">uint16_t</span> secoff;</span><br><span class="line">    <span class="type">uint16_t</span> secremain;</span><br><span class="line">    <span class="type">uint16_t</span> i;</span><br><span class="line"></span><br><span class="line">    secpos = write_addr / <span class="number">4096</span>; <span class="comment">// 扇区地址 0~511 for w25x16</span></span><br><span class="line">    secoff = write_addr % <span class="number">4096</span>; <span class="comment">// 在扇区内的偏移</span></span><br><span class="line">    secremain = <span class="number">4096</span> - secoff;  <span class="comment">// 扇区剩余空间大小</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (num_byte_to_write &lt;= secremain)</span><br><span class="line">        secremain = num_byte_to_write; <span class="comment">// 不大于4096个字节</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        w25qxx_read(W25QXX_BUFFER, secpos * <span class="number">4096</span>, <span class="number">4096</span>); <span class="comment">// 读出整个扇区的内容</span></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; secremain; i++)                  <span class="comment">// 校验数据</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (W25QXX_BUFFER[secoff + i] != <span class="number">0XFF</span>)</span><br><span class="line">                <span class="keyword">break</span>; <span class="comment">// 需要擦除</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (i &lt; secremain) <span class="comment">// 需要擦除</span></span><br><span class="line">        &#123;</span><br><span class="line">            w25qxx_erase_sector(secpos);    <span class="comment">// 擦除这个扇区</span></span><br><span class="line">            <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; secremain; i++) <span class="comment">// 复制</span></span><br><span class="line">            &#123;</span><br><span class="line">                W25QXX_BUFFER[i + secoff] = pbuffer[i];</span><br><span class="line">            &#125;</span><br><span class="line">            w25qxx_write_nocheck(W25QXX_BUFFER, secpos * <span class="number">4096</span>, <span class="number">4096</span>); <span class="comment">// 写入整个扇区</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            w25qxx_write_nocheck(pbuffer, write_addr, secremain); <span class="comment">// 写已经擦除了的,直接写入扇区剩余区间.</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">if</span> (num_byte_to_write == secremain)</span><br><span class="line">            <span class="keyword">break</span>; <span class="comment">// 写入结束了</span></span><br><span class="line">        <span class="keyword">else</span>       <span class="comment">// 写入未结束</span></span><br><span class="line">        &#123;</span><br><span class="line">            secpos++;   <span class="comment">// 扇区地址增1</span></span><br><span class="line">            secoff = <span class="number">0</span>; <span class="comment">// 偏移位置为0</span></span><br><span class="line"></span><br><span class="line">            pbuffer += secremain;           <span class="comment">// 指针偏移</span></span><br><span class="line">            write_addr += secremain;        <span class="comment">// 写地址偏移</span></span><br><span class="line">            num_byte_to_write -= secremain; <span class="comment">// 字节数递减</span></span><br><span class="line">            <span class="keyword">if</span> (num_byte_to_write &gt; <span class="number">4096</span>)</span><br><span class="line">                secremain = <span class="number">4096</span>; <span class="comment">// 下一个扇区还是写不完</span></span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                secremain = num_byte_to_write; <span class="comment">// 下一个扇区可以写完了</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-7-1-写-SPI-FLASH"><a href="#2-7-1-写-SPI-FLASH" class="headerlink" title="2.7.1 写 SPI FLASH"></a>2.7.1 写 SPI FLASH</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      在指定地址开始写入指定长度的数据,不检查数据是否为0XFF(具有自动换页功能)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  pbuffer              :    数据存储区</span><br><span class="hljs-comment"> * @param[in]  write_addr           :    开始写入的地址(24bit)</span><br><span class="hljs-comment"> * @param[in]  num_byte_to_write    :    要写入的字节数(最大65535)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note       必须确保所写的地址范围内的数据全部为0XFF,否则在非0XFF处写入的数据将失败</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write_nocheck</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span>* pbuffer, <span class="hljs-type">uint32_t</span> write_addr, <span class="hljs-type">uint16_t</span> num_byte_to_write)</span>   <br>&#123;                    <br>    <span class="hljs-type">uint16_t</span> pageremain;<br><br>    pageremain = <span class="hljs-number">256</span> - write_addr % <span class="hljs-number">256</span>;                            <span class="hljs-comment">//单页剩余的字节数              </span><br>    <span class="hljs-keyword">if</span>(num_byte_to_write &lt;= pageremain)<br>        pageremain = num_byte_to_write;                             <span class="hljs-comment">//不大于256个字节</span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;      <br>        w25qxx_write_page(pbuffer, write_addr, pageremain);<br>        <span class="hljs-keyword">if</span>(num_byte_to_write == pageremain)                         <span class="hljs-comment">//写入结束了</span><br>            <span class="hljs-keyword">break</span>;                      <br>        <span class="hljs-keyword">else</span>                                            <span class="hljs-comment">//num_byte_to_write&gt;pageremain</span><br>        &#123;<br>            pbuffer += pageremain;<br>            write_addr += pageremain;   <br><br>            num_byte_to_write -= pageremain;            <span class="hljs-comment">//减去已经写入了的字节数</span><br>            <span class="hljs-keyword">if</span>(num_byte_to_write &gt; <span class="hljs-number">256</span>)<br>                pageremain = <span class="hljs-number">256</span>;                       <span class="hljs-comment">//一次可以写入256个字节</span><br>            <span class="hljs-keyword">else</span> <br>                pageremain = num_byte_to_write;         <span class="hljs-comment">//不够256个字节了</span><br>        &#125;<br>    &#125;;      <br>&#125;<br><br><span class="hljs-type">uint8_t</span> W25QXX_BUFFER[<span class="hljs-number">4096</span>];<br><br><span class="hljs-comment">/******************************************************************************</span><br><span class="hljs-comment"> * @brief      在指定地址开始写入指定长度的数据</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @param[in]  pbuffer              :    数据存储区</span><br><span class="hljs-comment"> * @param[in]  write_addr           :    开始写入的地址(24bit)</span><br><span class="hljs-comment"> * @param[in]  num_byte_to_write    :    要写入的字节数(最大65535)</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @return     none</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * @note       该函数带擦除操作</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment">******************************************************************************/</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">w25qxx_write</span><span class="hljs-params">(<span class="hljs-type">uint8_t</span> *pbuffer, <span class="hljs-type">uint32_t</span> write_addr, <span class="hljs-type">uint16_t</span> num_byte_to_write)</span><br>&#123;<br>    <span class="hljs-type">uint32_t</span> secpos;<br>    <span class="hljs-type">uint16_t</span> secoff;<br>    <span class="hljs-type">uint16_t</span> secremain;<br>    <span class="hljs-type">uint16_t</span> i;<br><br>    secpos = write_addr / <span class="hljs-number">4096</span>; <span class="hljs-comment">// 扇区地址 0~511 for w25x16</span><br>    secoff = write_addr % <span class="hljs-number">4096</span>; <span class="hljs-comment">// 在扇区内的偏移</span><br>    secremain = <span class="hljs-number">4096</span> - secoff;  <span class="hljs-comment">// 扇区剩余空间大小</span><br><br>    <span class="hljs-keyword">if</span> (num_byte_to_write &lt;= secremain)<br>        secremain = num_byte_to_write; <span class="hljs-comment">// 不大于4096个字节</span><br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>    &#123;<br>        w25qxx_read(W25QXX_BUFFER, secpos * <span class="hljs-number">4096</span>, <span class="hljs-number">4096</span>); <span class="hljs-comment">// 读出整个扇区的内容</span><br>        <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; secremain; i++)                  <span class="hljs-comment">// 校验数据</span><br>        &#123;<br>            <span class="hljs-keyword">if</span> (W25QXX_BUFFER[secoff + i] != <span class="hljs-number">0XFF</span>)<br>                <span class="hljs-keyword">break</span>; <span class="hljs-comment">// 需要擦除</span><br>        &#125;<br>        <br>        <span class="hljs-keyword">if</span> (i &lt; secremain) <span class="hljs-comment">// 需要擦除</span><br>        &#123;<br>            w25qxx_erase_sector(secpos);    <span class="hljs-comment">// 擦除这个扇区</span><br>            <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; secremain; i++) <span class="hljs-comment">// 复制</span><br>            &#123;<br>                W25QXX_BUFFER[i + secoff] = pbuffer[i];<br>            &#125;<br>            w25qxx_write_nocheck(W25QXX_BUFFER, secpos * <span class="hljs-number">4096</span>, <span class="hljs-number">4096</span>); <span class="hljs-comment">// 写入整个扇区</span><br>        &#125;<br>        <span class="hljs-keyword">else</span><br>            w25qxx_write_nocheck(pbuffer, write_addr, secremain); <span class="hljs-comment">// 写已经擦除了的,直接写入扇区剩余区间.</span><br>            <br>        <span class="hljs-keyword">if</span> (num_byte_to_write == secremain)<br>            <span class="hljs-keyword">break</span>; <span class="hljs-comment">// 写入结束了</span><br>        <span class="hljs-keyword">else</span>       <span class="hljs-comment">// 写入未结束</span><br>        &#123;<br>            secpos++;   <span class="hljs-comment">// 扇区地址增1</span><br>            secoff = <span class="hljs-number">0</span>; <span class="hljs-comment">// 偏移位置为0</span><br><br>            pbuffer += secremain;           <span class="hljs-comment">// 指针偏移</span><br>            write_addr += secremain;        <span class="hljs-comment">// 写地址偏移</span><br>            num_byte_to_write -= secremain; <span class="hljs-comment">// 字节数递减</span><br>            <span class="hljs-keyword">if</span> (num_byte_to_write &gt; <span class="hljs-number">4096</span>)<br>                secremain = <span class="hljs-number">4096</span>; <span class="hljs-comment">// 下一个扇区还是写不完</span><br>            <span class="hljs-keyword">else</span><br>                secremain = num_byte_to_write; <span class="hljs-comment">// 下一个扇区可以写完了</span><br>        &#125;<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 
-<h2 id="3、main-测试代码"><a href="#3、main-测试代码" class="headerlink" title="3、main 测试代码"></a>3、main 测试代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="type">uint8_t</span> wr_data[<span class="number">128</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="type">uint8_t</span> rd_data[<span class="number">128</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">uint8_t</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * 外设初始化</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">	w25q32_dev.init();</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;\r\n\r\nw25q128 id is: 0x%x\r\n&quot;</span>, w25q32_dev.type);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;detact w25q128 ok!\r\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;write data !\r\n&quot;</span>); <span class="comment">// 向flash写入数据</span></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">128</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		wr_data[i] = i;</span><br><span class="line">	&#125;</span><br><span class="line">	w25q32_dev.wr(wr_data, <span class="number">0</span>, <span class="number">128</span>);</span><br><span class="line"></span><br><span class="line">	w25q32_dev.rd(rd_data, <span class="number">0</span>, <span class="number">128</span>); <span class="comment">// 从falsh读取数据并打印</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;\r\nread data is :\r\n&quot;</span>);</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">128</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d, &quot;</span>, rd_data[i]);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、main-测试代码"><a href="#3、main-测试代码" class="headerlink" title="3、main 测试代码"></a>3、main 测试代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-type">uint8_t</span> wr_data[<span class="hljs-number">128</span>] = &#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-type">uint8_t</span> rd_data[<span class="hljs-number">128</span>] = &#123;<span class="hljs-number">0</span>&#125;;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-type">uint8_t</span> i = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * 外设初始化</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-comment">// ...</span><br><br>	w25q32_dev.init();<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\r\n\r\nw25q128 id is: 0x%x\r\n&quot;</span>, w25q32_dev.type);<br><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;detact w25q128 ok!\r\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;write data !\r\n&quot;</span>); <span class="hljs-comment">// 向flash写入数据</span><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">128</span>; i++)<br>	&#123;<br>		wr_data[i] = i;<br>	&#125;<br>	w25q32_dev.wr(wr_data, <span class="hljs-number">0</span>, <span class="hljs-number">128</span>);<br><br>	w25q32_dev.rd(rd_data, <span class="hljs-number">0</span>, <span class="hljs-number">128</span>); <span class="hljs-comment">// 从falsh读取数据并打印</span><br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\r\nread data is :\r\n&quot;</span>);<br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">128</span>; i++)<br>	&#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d, &quot;</span>, rd_data[i]);<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>测试结果如下：</p>
-<p><img src="24.png"></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/">http://example.com/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/STM32/">STM32</a><a class="post-meta__tags" href="/tags/SPI/">SPI</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</div></div><div class="info-2"><div class="info-item-1">[toc]   I2C 相关知识可以参考 IIC 通信协议详解  一、AT24CXXX 系列存储器介绍1、基本信息下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量    AT24C01 1Kbit 128Byte   AT24C02 2Kbit 256Byte   AT24C04 4Kbit 512Byte   AT24C08 8Kbit 1024Byte   AT24C16 16Kbit 2048Byte   AT24C32 32Kbit 4096Byte   AT24C64 64Kbit 8192Byte   AT24C128 128Kbit 16384Byte   AT24C256 256Kbit 32768Byte   AT24C512 512Kbit 65536Byte   下表是 AT24CXXX 的页内单元数：  总容量(Byte容量) &#x3...</div></div></div></a><a class="pagination-related" href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" title="BLE 协议之链路层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">BLE 协议之链路层</div></div><div class="info-2"><div class="info-item-1">[toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel，而 BLE 中参与通信的实体的数量，肯定不是这个数量级。 Link Layer 需要解决 Physical Channel 的共享问题 抽象出逻辑链路 ：通信是两个实体之间的事情，对这两个实体来说，它们希望看到一条为自己独享的传输通道（就是我们所熟悉的 逻辑链路，Logical Link）。这也是 Link Layer 需要解决的 可靠传输 ： Physical Channel 是不可靠的，任何数据传输都可能由于干扰等问题而损毁、丢失，这对有些应用来说，是接受不了的。因此 Link Layer 需要提供校验、重传等机制，确保数据传输的可靠性  接下来，就看一下链路层都做了哪些事。 二、...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" title="单片机内存区域划分"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-01</div><div class="info-item-2">单片机内存区域划分</div></div><div class="info-2"><div class="info-item-1">@toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&#x3D;&#x3D;时确定，速度快，但自由性差，最大空间不大。 栈区是先进后出原则（LIFO），其操作方式数据结构中的栈是一样的。  存放内容：  临时创建的&#x3D;&#x3D;局部变量&#x3D;&#x3D;存放在栈区。 函数调用时，其&#x3D;&#x3D;入口参数&#x3D;&#x3D;存放在栈区。 函数返回时，其&#x3D;&#x3D;返回值&#x3D;&#x3D;存放在栈区。 &#x3D;&#x3D;const 定义的局部变量&#x3D;&#x3D;存放在栈区。   栈的大小是有限的，通常 Visual C++ 编译器的默认栈的大小为 1MB，所以不要定义 int a[1...</div></div></div></a><a class="pagination-related" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-01</div><div class="info-item-2">基于 STM32F407 的串口 IAP</div></div><div class="info-2"><div class="info-item-1">[toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主要介绍如何使用串口对固件进行升级。 这里有一点需要特殊注意，就是在 MCU 中，有一个特殊区域被称为 System memory 。在这块区域中存放了 ST 公司自己的 Bootloader 程序，它是在 MCU 出厂时，有 ST 固化到芯片中的，后续不能再更改。其中的 Bootloader 程序也可以对 MCU 进行升级（DFU 对芯片的编程应该就是用的这个 Bootloader）。而且，芯片不同，BootLoader 的功能也是有区别的。ST 官网对于这些也是有详细文档的。下图为部分芯片 BootLoader 版本及功能：  一、概述在学习 IAP 之前，最好先了解一下 SMT32 ...</div></div></div></a><a class="pagination-related" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-18</div><div class="info-item-2">STM32 芯片启动过程</div></div><div class="info-2"><div class="info-item-1">@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 0x08000000 对应的内存为例，则该块内存既可以通过 0x00000000 操作也可以通过 0x08000000 操作，且都是操作的同一块内存。 系统存储器启动：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这...</div></div></div></a><a class="pagination-related" href="/2024/10/10/DMA/" title="DMA 详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-10</div><div class="info-item-2">DMA 详解</div></div><div class="info-2"><div class="info-item-1">[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（DMA Controller，DMAC），协助 CPU 进行数据搬运。 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。  使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。 因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址...</div></div></div></a><a class="pagination-related" href="/2024/09/29/sct-%E6%96%87%E4%BB%B6/" title="浅析 Keil 中的 sct 文件"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-29</div><div class="info-item-2">浅析 Keil 中的 sct 文件</div></div><div class="info-2"><div class="info-item-1">[toc]  一、程序的存储与运行1、存储程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  **Code**：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 **RO-data**：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修改其内容。 例如 C 语言中 const 关键字定义的变量就是典型的 RO-data。   **RW-data**：Read Write data，即可读写数据域，它指初始化为”非0值”的可读写数据，程序刚运行时，这些数据具有非0的初始值，且运行的时候它们会常驻在RAM区，因而应用程序可以修改其内容。 例如 C 语言中使用定义的全局变量，且定义时赋予”非 0 值”给该变量进行初始化。   **ZI-data**：Zero Initialie data，即 0 初始化数据，它指初始化为”0 值”的可读写数据域，它与 RW-data 的区别是程序刚运行时这些数据初始值全都为 0，...</div></div></div></a><a class="pagination-related" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-23</div><div class="info-item-2">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</div></div><div class="info-2"><div class="info-item-1">[toc]   I2C 相关知识可以参考 IIC 通信协议详解  一、AT24CXXX 系列存储器介绍1、基本信息下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量    AT24C01 1Kbit 128Byte   AT24C02 2Kbit 256Byte   AT24C04 4Kbit 512Byte   AT24C08 8Kbit 1024Byte   AT24C16 16Kbit 2048Byte   AT24C32 32Kbit 4096Byte   AT24C64 64Kbit 8192Byte   AT24C128 128Kbit 16384Byte   AT24C256 256Kbit 32768Byte   AT24C512 512Kbit 65536Byte   下表是 AT24CXXX 的页内单元数：  总容量(Byte容量) &#x3...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81STM32-SPI-%E6%A1%86%E5%9B%BE"><span class="toc-number">1.</span> <span class="toc-text">一、STM32 SPI 框图</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%80%9A%E8%AE%AF%E5%BC%95%E8%84%9A"><span class="toc-number">1.1.</span> <span class="toc-text">1、通讯引脚</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%97%B6%E9%92%9F%E6%8E%A7%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">2、时钟控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E6%95%B0%E6%8D%AE%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91"><span class="toc-number">1.3.</span> <span class="toc-text">3、数据控制逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%95%B4%E4%BD%93%E6%8E%A7%E5%88%B6%E9%80%BB%E8%BE%91"><span class="toc-number">1.4.</span> <span class="toc-text">4、整体控制逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%B8%BB%E6%A8%A1%E5%BC%8F%E6%94%B6%E5%8F%91%E6%B5%81%E7%A8%8B%E5%8F%8A%E4%BA%8B%E4%BB%B6%E8%AF%B4%E6%98%8E%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.5.</span> <span class="toc-text">5、主模式收发流程及事件说明如下：</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%A8%8B%E5%BA%8F%E7%BC%96%E5%86%99"><span class="toc-number">2.</span> <span class="toc-text">二、程序编写</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81SPI-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.1.</span> <span class="toc-text">1、SPI 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81W25Q128-%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">2.2.</span> <span class="toc-text">2、W25Q128 驱动代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E8%AF%BB%E5%86%99%E5%8E%82%E5%95%86-ID-%E5%92%8C%E8%AE%BE%E5%A4%87-ID"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 读写厂商 ID 和设备 ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%AF%BB%E6%95%B0%E6%8D%AE"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2 读数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%86%99%E4%BD%BF%E8%83%BD-%E5%86%99%E7%A6%81%E6%AD%A2"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.3 写使能&#x2F;写禁止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E8%AF%BB-%E5%86%99%E7%8A%B6%E6%80%81%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.4 读&#x2F;写状态寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%93%A6%E9%99%A4%E6%89%87%E5%8C%BA"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.5 擦除扇区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E6%93%A6%E9%99%A4%E6%95%B4%E4%B8%AA%E8%8A%AF%E7%89%87"><span class="toc-number">2.2.6.</span> <span class="toc-text">2.6 擦除整个芯片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E9%A1%B5%E5%86%99"><span class="toc-number">2.2.7.</span> <span class="toc-text">2.7 页写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-7-1-%E5%86%99-SPI-FLASH"><span class="toc-number">2.2.7.1.</span> <span class="toc-text">2.7.1 写 SPI FLASH</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81main-%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">2.3.</span> <span class="toc-text">3、main 测试代码</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+        <a href="/tags/SPI/" class="print-no-link">#SPI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>STM32 通过 SPI 驱动 W25Q128</div>
+      <div>http://example.com/2024/09/21/STM32-SPI-驱动-W25Q128/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" title="BLE 协议之链路层">
+                        <span class="hidden-mobile">BLE 协议之链路层</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

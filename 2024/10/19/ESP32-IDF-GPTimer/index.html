@@ -1,168 +1,287 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ESP32-IDF 通用定时器 GPTimer | Yuxxxxxxxxxx</title><meta name="author" content="Yu xin"><meta name="copyright" content="Yu xin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      &#x2F;*!&lt; GPTimer clock source *&#x2F;    gptimer_count_direction_t direction; &#x2F;*!&lt;">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      &#x2F;*!&lt; GPTimer clock source *&#x2F;    gptimer_count_direction_t direction; &#x2F;*!&lt;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ESP32-IDF 通用定时器 GPTimer">
 <meta property="og:url" content="http://example.com/2024/10/19/ESP32-IDF-GPTimer/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="@toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      &#x2F;*!&lt; GPTimer clock source *&#x2F;    gptimer_count_direction_t direction; &#x2F;*!&lt;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/profile.png">
+<meta property="og:image" content="http://example.com/2024/10/19/ESP32-IDF-GPTimer/1.png">
 <meta property="article:published_time" content="2024-10-19T00:33:28.000Z">
 <meta property="article:modified_time" content="2024-11-14T08:55:25.008Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="嵌入式">
 <meta property="article:tag" content="ESP32">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/img/profile.png"><script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "ESP32-IDF 通用定时器 GPTimer",
-  "url": "http://example.com/2024/10/19/ESP32-IDF-GPTimer/",
-  "image": "http://example.com/img/profile.png",
-  "datePublished": "2024-10-19T00:33:28.000Z",
-  "dateModified": "2024-11-14T08:55:25.008Z",
-  "author": [
-    {
-      "@type": "Person",
-      "name": "Yu xin",
-      "url": "http://example.com"
-    }
-  ]
-}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2024/10/19/ESP32-IDF-GPTimer/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
-    (() => {
-      
-    const saveToLocal = {
-      set: (key, value, ttl) => {
-        if (!ttl) return
-        const expiry = Date.now() + ttl * 86400000
-        localStorage.setItem(key, JSON.stringify({ value, expiry }))
-      },
-      get: key => {
-        const itemStr = localStorage.getItem(key)
-        if (!itemStr) return undefined
-        const { value, expiry } = JSON.parse(itemStr)
-        if (Date.now() > expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return value
-      }
-    }
-
-    window.btf = {
-      saveToLocal,
-      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-        script.onload = script.onreadystatechange = () => {
-          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-        }
-        script.onerror = reject
-        document.head.appendChild(script)
-      }),
-      getCSS: (url, id) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onload = link.onreadystatechange = () => {
-          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-        }
-        link.onerror = reject
-        document.head.appendChild(link)
-      }),
-      addGlobalFn: (key, fn, name = false, parent = window) => {
-        if (!false && key.startsWith('pjax')) return
-        const globalFn = parent.globalFn || {}
-        globalFn[key] = globalFn[key] || {}
-        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-        parent.globalFn = globalFn
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/19/ESP32-IDF-GPTimer/1.png">
   
-      
-      const activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      const activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
+  
+  
+  <title>ESP32-IDF 通用定时器 GPTimer - Yuxxxxxxxxxx</title>
 
-      btf.activateDarkMode = activateDarkMode
-      btf.activateLightMode = activateLightMode
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
-      const theme = saveToLocal.get('theme')
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ESP32-IDF 通用定时器 GPTimer"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-19 08:33" pubdate>
+          星期六, 十月 19日 2024, 8:33 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
-      }
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
     
       
-    const detectApple = () => {
-      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-  
-    })()
-  </script><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
-  copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'FancyBox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyloadPlugin: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'ESP32-IDF 通用定时器 GPTimer',
-  isHighlightShrink: false,
-  isToc: true,
-  pageType: 'post'
-}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Yuxxxxxxxxxx</span></a><a class="nav-page-title" href="/"><span class="site-name">ESP32-IDF 通用定时器 GPTimer</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">ESP32-IDF 通用定时器 GPTimer</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-10-19T00:33:28.000Z" title="发表于 2024-10-19 08:33:28">2024-10-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-11-14T08:55:25.008Z" title="更新于 2024-11-14 16:55:25">2024-11-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/">ESP32</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ESP32-IDF 通用定时器 GPTimer</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
-<h1 id="一、基本介绍"><a href="#一、基本介绍" class="headerlink" title="一、基本介绍"></a>一、基本介绍</h1><h2 id="1、配置结构体"><a href="#1、配置结构体" class="headerlink" title="1、配置结构体"></a>1、配置结构体</h2><h3 id="1-1-gptimer-config-t"><a href="#1-1-gptimer-config-t" class="headerlink" title="1.1 gptimer_config_t"></a>1.1 gptimer_config_t</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">gptimer_clock_source_t</span> clk_src;      <span class="comment">/*!&lt; GPTimer clock source */</span></span><br><span class="line">    <span class="type">gptimer_count_direction_t</span> direction; <span class="comment">/*!&lt; Count direction */</span></span><br><span class="line">    <span class="type">uint32_t</span> resolution_hz;              <span class="comment">/*!&lt; Counter resolution (working frequency) in Hz,</span></span><br><span class="line"><span class="comment">                                              hence, the step size of each count tick equals to (1 / resolution_hz) seconds */</span></span><br><span class="line">    <span class="type">int</span> intr_priority;                   <span class="comment">/*!&lt; GPTimer interrupt priority,</span></span><br><span class="line"><span class="comment">                                              if set to 0, the driver will try to allocate an interrupt with a relative low priority (1,2,3) */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint32_t</span> intr_shared: <span class="number">1</span>;         <span class="comment">/*!&lt; Set true, the timer interrupt number can be shared with other peripherals */</span></span><br><span class="line">        <span class="type">uint32_t</span> backup_before_sleep: <span class="number">1</span>; <span class="comment">/*!&lt; If set, the driver will backup/restore the GPTimer registers before/after entering/exist sleep mode.</span></span><br><span class="line"><span class="comment">                                              By this approach, the system can power off GPTimer&#x27;s power domain.</span></span><br><span class="line"><span class="comment">                                              This can save power, but at the expense of more RAM being consumed */</span></span><br><span class="line">    &#125; flags;                             <span class="comment">/*!&lt; GPTimer config flags*/</span></span><br><span class="line">&#125; <span class="type">gptimer_config_t</span>;</span><br></pre></td></tr></table></figure>
+<h1 id="一、基本介绍"><a href="#一、基本介绍" class="headerlink" title="一、基本介绍"></a>一、基本介绍</h1><h2 id="1、配置结构体"><a href="#1、配置结构体" class="headerlink" title="1、配置结构体"></a>1、配置结构体</h2><h3 id="1-1-gptimer-config-t"><a href="#1-1-gptimer-config-t" class="headerlink" title="1.1 gptimer_config_t"></a>1.1 gptimer_config_t</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">gptimer_clock_source_t</span> clk_src;      <span class="hljs-comment">/*!&lt; GPTimer clock source */</span><br>    <span class="hljs-type">gptimer_count_direction_t</span> direction; <span class="hljs-comment">/*!&lt; Count direction */</span><br>    <span class="hljs-type">uint32_t</span> resolution_hz;              <span class="hljs-comment">/*!&lt; Counter resolution (working frequency) in Hz,</span><br><span class="hljs-comment">                                              hence, the step size of each count tick equals to (1 / resolution_hz) seconds */</span><br>    <span class="hljs-type">int</span> intr_priority;                   <span class="hljs-comment">/*!&lt; GPTimer interrupt priority,</span><br><span class="hljs-comment">                                              if set to 0, the driver will try to allocate an interrupt with a relative low priority (1,2,3) */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>        <span class="hljs-type">uint32_t</span> intr_shared: <span class="hljs-number">1</span>;         <span class="hljs-comment">/*!&lt; Set true, the timer interrupt number can be shared with other peripherals */</span><br>        <span class="hljs-type">uint32_t</span> backup_before_sleep: <span class="hljs-number">1</span>; <span class="hljs-comment">/*!&lt; If set, the driver will backup/restore the GPTimer registers before/after entering/exist sleep mode.</span><br><span class="hljs-comment">                                              By this approach, the system can power off GPTimer&#x27;s power domain.</span><br><span class="hljs-comment">                                              This can save power, but at the expense of more RAM being consumed */</span><br>    &#125; flags;                             <span class="hljs-comment">/*!&lt; GPTimer config flags*/</span><br>&#125; <span class="hljs-type">gptimer_config_t</span>;<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><code>clk_src</code>：时钟源</li>
@@ -179,7 +298,7 @@
 <blockquote>
 <p>这些回调都在 ISR 环境下运行</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="title function_">bool</span> <span class="params">(*<span class="type">gptimer_alarm_cb_t</span>)</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_event_data_t</span> *edata, <span class="type">void</span> *user_ctx)</span>;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">gptimer_alarm_cb_t</span> on_alarm; <span class="comment">/*!&lt; Timer alarm callback */</span></span><br><span class="line">&#125; <span class="type">gptimer_event_callbacks_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">bool</span> <span class="hljs-params">(*<span class="hljs-type">gptimer_alarm_cb_t</span>)</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_event_data_t</span> *edata, <span class="hljs-type">void</span> *user_ctx)</span>;<br><br>...<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">gptimer_alarm_cb_t</span> on_alarm; <span class="hljs-comment">/*!&lt; Timer alarm callback */</span><br>&#125; <span class="hljs-type">gptimer_event_callbacks_t</span>;<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><code>on_alarm</code>：alarm 回调函数</li>
@@ -188,10 +307,10 @@
 <p>补充</p>
 </blockquote>
 <p>这个结构体保存的是 gptimer alarm 的数据：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> count_value; <span class="comment">/* 定时器自启动以来的累积计数 */</span></span><br><span class="line">    <span class="type">uint64_t</span> alarm_value; <span class="comment">/* 触发警报所需达到的计数阈值 */</span></span><br><span class="line">&#125; <span class="type">gptimer_alarm_event_data_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span> count_value; <span class="hljs-comment">/* 定时器自启动以来的累积计数 */</span><br>    <span class="hljs-type">uint64_t</span> alarm_value; <span class="hljs-comment">/* 触发警报所需达到的计数阈值 */</span><br>&#125; <span class="hljs-type">gptimer_alarm_event_data_t</span>;<br></code></pre></td></tr></table></figure>
 
 <h3 id="1-3-gptimer-alarm-config-t"><a href="#1-3-gptimer-alarm-config-t" class="headerlink" title="1.3 gptimer_alarm_config_t"></a>1.3 gptimer_alarm_config_t</h3><p>配置 GPTimer 的 alarm</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> alarm_count;  <span class="comment">/*!&lt; Alarm target count value */</span></span><br><span class="line">    <span class="type">uint64_t</span> reload_count; <span class="comment">/*!&lt; Alarm reload count value, effect only when `auto_reload_on_alarm` is set to true */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="type">uint32_t</span> auto_reload_on_alarm: <span class="number">1</span>; <span class="comment">/*!&lt; Reload the count value by hardware, immediately at the alarm event */</span></span><br><span class="line">    &#125; flags;                              <span class="comment">/*!&lt; Alarm config flags*/</span></span><br><span class="line">&#125; <span class="type">gptimer_alarm_config_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span> alarm_count;  <span class="hljs-comment">/*!&lt; Alarm target count value */</span><br>    <span class="hljs-type">uint64_t</span> reload_count; <span class="hljs-comment">/*!&lt; Alarm reload count value, effect only when `auto_reload_on_alarm` is set to true */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>        <span class="hljs-type">uint32_t</span> auto_reload_on_alarm: <span class="hljs-number">1</span>; <span class="hljs-comment">/*!&lt; Reload the count value by hardware, immediately at the alarm event */</span><br>    &#125; flags;                              <span class="hljs-comment">/*!&lt; Alarm config flags*/</span><br>&#125; <span class="hljs-type">gptimer_alarm_config_t</span>;<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><code>alarm_count</code>：报警触发的目标计数值。当定时器的计数器达到这个值时，将触发报警事件。</li>
@@ -201,7 +320,7 @@
 <h2 id="2、常用-API"><a href="#2、常用-API" class="headerlink" title="2、常用 API"></a>2、常用 API</h2><blockquote>
 <p>需要包含头文件 <code>#include &quot;driver/gptimer.h&quot;</code></p>
 </blockquote>
-<h3 id="2-1-gptimer-new-timer"><a href="#2-1-gptimer-new-timer" class="headerlink" title="2.1 gptimer_new_timer"></a>2.1 gptimer_new_timer</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_new_timer</span><span class="params">(<span class="type">const</span> <span class="type">gptimer_config_t</span> *config, <span class="type">gptimer_handle_t</span> *ret_timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-1-gptimer-new-timer"><a href="#2-1-gptimer-new-timer" class="headerlink" title="2.1 gptimer_new_timer"></a>2.1 gptimer_new_timer</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_new_timer</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">gptimer_config_t</span> *config, <span class="hljs-type">gptimer_handle_t</span> *ret_timer)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -222,7 +341,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="2-2-gptimer-del-timer"><a href="#2-2-gptimer-del-timer" class="headerlink" title="2.2 gptimer_del_timer"></a>2.2 gptimer_del_timer</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_del_timer</span><span class="params">(<span class="type">gptimer_handle_t</span> timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-2-gptimer-del-timer"><a href="#2-2-gptimer-del-timer" class="headerlink" title="2.2 gptimer_del_timer"></a>2.2 gptimer_del_timer</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_del_timer</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -244,7 +363,7 @@
 <blockquote>
 <p>计时器必须处于 “init” 状态，然后才能删除。</p>
 </blockquote>
-<h3 id="2-3-gptimer-set-raw-count"><a href="#2-3-gptimer-set-raw-count" class="headerlink" title="2.3 gptimer_set_raw_count"></a>2.3 gptimer_set_raw_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_set_raw_count</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">uint64_t</span> value)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-gptimer-set-raw-count"><a href="#2-3-gptimer-set-raw-count" class="headerlink" title="2.3 gptimer_set_raw_count"></a>2.3 gptimer_set_raw_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_set_raw_count</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">uint64_t</span> value)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -269,7 +388,7 @@
 <li>允许此函数在 ISR 上下文中运行</li>
 </ul>
 </blockquote>
-<h3 id="2-4-gptimer-get-raw-count"><a href="#2-4-gptimer-get-raw-count" class="headerlink" title="2.4 gptimer_get_raw_count"></a>2.4 gptimer_get_raw_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_get_raw_count</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">uint64_t</span> *value)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-4-gptimer-get-raw-count"><a href="#2-4-gptimer-get-raw-count" class="headerlink" title="2.4 gptimer_get_raw_count"></a>2.4 gptimer_get_raw_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_get_raw_count</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">uint64_t</span> *value)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -295,7 +414,7 @@
 <li>允许此函数在 ISR 上下文中运行</li>
 </ul>
 </blockquote>
-<h3 id="2-5-gptimer-get-resolution"><a href="#2-5-gptimer-get-resolution" class="headerlink" title="2.5 gptimer_get_resolution"></a>2.5 gptimer_get_resolution</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_get_resolution</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">uint32_t</span> *out_resolution)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-5-gptimer-get-resolution"><a href="#2-5-gptimer-get-resolution" class="headerlink" title="2.5 gptimer_get_resolution"></a>2.5 gptimer_get_resolution</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_get_resolution</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">uint32_t</span> *out_resolution)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -317,7 +436,7 @@
 <blockquote>
 <p>通常 timer 分辨率与您在 <code>gptimer_config_t::resolution_hz</code> 配置的相同，但一些不稳定的 clock source （例如 RC_FAST） 会进行校准，实际分辨率可能与配置的分辨率不同。</p>
 </blockquote>
-<h3 id="2-6-gptimer-get-captured-count"><a href="#2-6-gptimer-get-captured-count" class="headerlink" title="2.6 gptimer_get_captured_count"></a>2.6 gptimer_get_captured_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_get_captured_count</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">uint64_t</span> *value)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-6-gptimer-get-captured-count"><a href="#2-6-gptimer-get-captured-count" class="headerlink" title="2.6 gptimer_get_captured_count"></a>2.6 gptimer_get_captured_count</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_get_captured_count</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">uint64_t</span> *value)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -336,7 +455,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="2-7-gptimer-register-event-callbacks"><a href="#2-7-gptimer-register-event-callbacks" class="headerlink" title="2.7 gptimer_register_event_callbacks"></a>2.7 gptimer_register_event_callbacks</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_register_event_callbacks</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_event_callbacks_t</span> *cbs, <span class="type">void</span> *user_data)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-7-gptimer-register-event-callbacks"><a href="#2-7-gptimer-register-event-callbacks" class="headerlink" title="2.7 gptimer_register_event_callbacks"></a>2.7 gptimer_register_event_callbacks</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_register_event_callbacks</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_event_callbacks_t</span> *cbs, <span class="hljs-type">void</span> *user_data)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -364,7 +483,7 @@
 <li>用户可以通过调用此函数并将 cbs 结构中的 callback 成员设置为 NULL 来取消注册之前注册的回调。</li>
 </ul>
 </blockquote>
-<h3 id="2-8-gptimer-set-alarm-action"><a href="#2-8-gptimer-set-alarm-action" class="headerlink" title="2.8 gptimer_set_alarm_action"></a>2.8 gptimer_set_alarm_action</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_set_alarm_action</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_config_t</span> *config)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-8-gptimer-set-alarm-action"><a href="#2-8-gptimer-set-alarm-action" class="headerlink" title="2.8 gptimer_set_alarm_action"></a>2.8 gptimer_set_alarm_action</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_set_alarm_action</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_config_t</span> *config)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -388,7 +507,7 @@
 <li>该功能允许在 ISR 上下文中运行，以便用户可以立即在 ISR 回调中设置新的 alarm 动作。</li>
 </ul>
 </blockquote>
-<h3 id="2-9-gptimer-enable"><a href="#2-9-gptimer-enable" class="headerlink" title="2.9 gptimer_enable"></a>2.9 gptimer_enable</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_enable</span><span class="params">(<span class="type">gptimer_handle_t</span> timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-9-gptimer-enable"><a href="#2-9-gptimer-enable" class="headerlink" title="2.9 gptimer_enable"></a>2.9 gptimer_enable</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_enable</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>参数<ul>
@@ -412,7 +531,7 @@
 <li>启用计时器并不意味着启动它。另请参阅 <code>gptimer_start</code> 了解如何使计时器开始计数。</li>
 </ul>
 </blockquote>
-<h3 id="2-10-gptimer-disable"><a href="#2-10-gptimer-disable" class="headerlink" title="2.10 gptimer_disable"></a>2.10 gptimer_disable</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_disable</span><span class="params">(<span class="type">gptimer_handle_t</span> timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-10-gptimer-disable"><a href="#2-10-gptimer-disable" class="headerlink" title="2.10 gptimer_disable"></a>2.10 gptimer_disable</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_disable</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer)</span><br></code></pre></td></tr></table></figure>
 
 
 <ul>
@@ -439,7 +558,7 @@
 <li>禁用计时器并不意味着停止它。另请参阅 <code>gptimer_stop</code> 了解如何使计时器停止计数。</li>
 </ul>
 </blockquote>
-<h3 id="2-11-gptimer-start"><a href="#2-11-gptimer-start" class="headerlink" title="2.11 gptimer_start"></a>2.11 gptimer_start</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_start</span><span class="params">(<span class="type">gptimer_handle_t</span> timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-11-gptimer-start"><a href="#2-11-gptimer-start" class="headerlink" title="2.11 gptimer_start"></a>2.11 gptimer_start</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_start</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer)</span><br></code></pre></td></tr></table></figure>
 
 
 <ul>
@@ -472,7 +591,7 @@
 <li>允许此函数在 ISR 上下文中运行</li>
 </ul>
 </blockquote>
-<h3 id="2-12-gptimer-stop"><a href="#2-12-gptimer-stop" class="headerlink" title="2.12 gptimer_stop"></a>2.12 gptimer_stop</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">esp_err_t</span> <span class="title function_">gptimer_stop</span><span class="params">(<span class="type">gptimer_handle_t</span> timer)</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-12-gptimer-stop"><a href="#2-12-gptimer-stop" class="headerlink" title="2.12 gptimer_stop"></a>2.12 gptimer_stop</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gptimer_stop</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer)</span><br></code></pre></td></tr></table></figure>
 
 
 <ul>
@@ -500,17 +619,17 @@
 </blockquote>
 <h2 id="3、枚举类型"><a href="#3、枚举类型" class="headerlink" title="3、枚举类型"></a>3、枚举类型</h2><p>见文件：<code>esp-idf/components/esp_driver_gptimer/include/driver/gptimer_types.h</code>、<code>esp-idf/components/hal/include/hal/timer_types.h</code>。</p>
 <h3 id="3-1-gptimer-clock-source-t"><a href="#3-1-gptimer-clock-source-t" class="headerlink" title="3.1 gptimer_clock_source_t"></a>3.1 gptimer_clock_source_t</h3><p>设置时钟源。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">soc_periph_gptimer_clk_src_t</span> <span class="type">gptimer_clock_source_t</span>;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    GPTIMER_CLK_SRC_APB = SOC_MOD_CLK_APB,     <span class="comment">/*!&lt; Select APB as the source clock */</span></span><br><span class="line">    GPTIMER_CLK_SRC_DEFAULT = SOC_MOD_CLK_APB, <span class="comment">/*!&lt; Select APB as the default choice */</span></span><br><span class="line">&#125; <span class="type">soc_periph_gptimer_clk_src_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">soc_periph_gptimer_clk_src_t</span> <span class="hljs-type">gptimer_clock_source_t</span>;<br><br>...<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPTIMER_CLK_SRC_APB = SOC_MOD_CLK_APB,     <span class="hljs-comment">/*!&lt; Select APB as the source clock */</span><br>    GPTIMER_CLK_SRC_DEFAULT = SOC_MOD_CLK_APB, <span class="hljs-comment">/*!&lt; Select APB as the default choice */</span><br>&#125; <span class="hljs-type">soc_periph_gptimer_clk_src_t</span>;<br></code></pre></td></tr></table></figure>
 
 <h3 id="3-2-gptimer-count-direction-t"><a href="#3-2-gptimer-count-direction-t" class="headerlink" title="3.2 gptimer_count_direction_t"></a>3.2 gptimer_count_direction_t</h3><p>设置计数方向。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    GPTIMER_COUNT_DOWN, <span class="comment">/* 递减 */</span></span><br><span class="line">    GPTIMER_COUNT_UP,   <span class="comment">/* 递增 */</span></span><br><span class="line">&#125; <span class="type">gptimer_count_direction_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPTIMER_COUNT_DOWN, <span class="hljs-comment">/* 递减 */</span><br>    GPTIMER_COUNT_UP,   <span class="hljs-comment">/* 递增 */</span><br>&#125; <span class="hljs-type">gptimer_count_direction_t</span>;<br></code></pre></td></tr></table></figure>
 
 <h3 id="3-3-gptimer-etm-task-type-t"><a href="#3-3-gptimer-etm-task-type-t" class="headerlink" title="3.3 gptimer_etm_task_type_t"></a>3.3 gptimer_etm_task_type_t</h3><p>表示 GPTimer 特定任务，支持 ETM 模块。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    GPTIMER_ETM_TASK_START_COUNT, <span class="comment">/* 启动计数器 */</span></span><br><span class="line">    GPTIMER_ETM_TASK_STOP_COUNT,  <span class="comment">/* 停止计数器 */</span></span><br><span class="line">    GPTIMER_ETM_TASK_EN_ALARM,    <span class="comment">/* 启用计时器 alarm */</span></span><br><span class="line">    GPTIMER_ETM_TASK_RELOAD,      <span class="comment">/* 重新加载计数器的预设值 */</span></span><br><span class="line">    GPTIMER_ETM_TASK_CAPTURE,     <span class="comment">/* 捕获当前计数值，并将其存入特定的寄存器 */</span></span><br><span class="line">    GPTIMER_ETM_TASK_MAX,         <span class="comment">/* 表示这个枚举中任务的最大数量，用于范围检查 */</span></span><br><span class="line">&#125; <span class="type">gptimer_etm_task_type_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPTIMER_ETM_TASK_START_COUNT, <span class="hljs-comment">/* 启动计数器 */</span><br>    GPTIMER_ETM_TASK_STOP_COUNT,  <span class="hljs-comment">/* 停止计数器 */</span><br>    GPTIMER_ETM_TASK_EN_ALARM,    <span class="hljs-comment">/* 启用计时器 alarm */</span><br>    GPTIMER_ETM_TASK_RELOAD,      <span class="hljs-comment">/* 重新加载计数器的预设值 */</span><br>    GPTIMER_ETM_TASK_CAPTURE,     <span class="hljs-comment">/* 捕获当前计数值，并将其存入特定的寄存器 */</span><br>    GPTIMER_ETM_TASK_MAX,         <span class="hljs-comment">/* 表示这个枚举中任务的最大数量，用于范围检查 */</span><br>&#125; <span class="hljs-type">gptimer_etm_task_type_t</span>;<br></code></pre></td></tr></table></figure>
 
 
 <h3 id="3-4-gptimer-etm-event-type-t"><a href="#3-4-gptimer-etm-event-type-t" class="headerlink" title="3.4 gptimer_etm_event_type_t"></a>3.4 gptimer_etm_event_type_t</h3><p>表示 GPTimer 特定事件，支持 ETM 模块。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span> &#123;</span></span><br><span class="line">    GPTIMER_ETM_EVENT_ALARM_MATCH, <span class="comment">/* 当计数器的当前值与预设的报警值相等时，会触发这个事件 */</span></span><br><span class="line">    GPTIMER_ETM_EVENT_MAX,         <span class="comment">/* 表示这个枚举中事件的最大数量，用于范围检查 */</span></span><br><span class="line">&#125; <span class="type">gptimer_etm_event_type_t</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPTIMER_ETM_EVENT_ALARM_MATCH, <span class="hljs-comment">/* 当计数器的当前值与预设的报警值相等时，会触发这个事件 */</span><br>    GPTIMER_ETM_EVENT_MAX,         <span class="hljs-comment">/* 表示这个枚举中事件的最大数量，用于范围检查 */</span><br>&#125; <span class="hljs-type">gptimer_etm_event_type_t</span>;<br></code></pre></td></tr></table></figure>
 
 <h1 id="二、GTIM-配置"><a href="#二、GTIM-配置" class="headerlink" title="二、GTIM 配置"></a>二、GTIM 配置</h1><p>通用定时器是 ESP32-C3 定时器组外设的驱动程序。ESP32-C3 硬件定时器分辨率高，具有灵活的报警功能。定时器内部计数器达到特定目标数值的行为被称为定时器报警。定时器报警时将调用用户注册的不同定时器回调函数。</p>
 <p>通用定时器通常在以下场景中使用：</p>
@@ -534,7 +653,7 @@
 <p>要安装一个定时器实例，需要提前提供配置结构体 <code>gptimer_config_t</code>。完成结构配置之后，可以将结构传递给 <code>gptimer_new_timer()</code>，用以实例化定时器实例并返回定时器句柄。</p>
 <p>如已不再需要之前创建的通用定时器实例，应通过调用 <code>gptimer_del_timer()</code> 回收定时器，以便底层硬件定时器用于其他目的。在删除通用定时器句柄之前，请通过 <code>gptimer_disable()</code> 禁用定时器，或者通过 <code>gptimer_enable()</code> 确认定时器尚未使能。</p>
 <p>下例中创建了一个分辨率为 1 MHz 的通用定时器句柄：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">gptimer_handle_t</span> gptimer = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">gptimer_config_t</span> timer_config = &#123;</span><br><span class="line">    .clk_src = GPTIMER_CLK_SRC_DEFAULT,</span><br><span class="line">    .direction = GPTIMER_COUNT_UP,</span><br><span class="line">    .resolution_hz = <span class="number">1</span> * <span class="number">1000</span> * <span class="number">1000</span>, <span class="comment">// 1MHz, 1 tick = 1us</span></span><br><span class="line">&#125;;</span><br><span class="line">ESP_ERROR_CHECK(gptimer_new_timer(&amp;timer_config, &amp;gptimer));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">gptimer_handle_t</span> gptimer = <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">gptimer_config_t</span> timer_config = &#123;<br>    .clk_src = GPTIMER_CLK_SRC_DEFAULT,<br>    .direction = GPTIMER_COUNT_UP,<br>    .resolution_hz = <span class="hljs-number">1</span> * <span class="hljs-number">1000</span> * <span class="hljs-number">1000</span>, <span class="hljs-comment">// 1MHz, 1 tick = 1us</span><br>&#125;;<br>ESP_ERROR_CHECK(gptimer_new_timer(&amp;timer_config, &amp;gptimer));<br></code></pre></td></tr></table></figure>
 
 <h2 id="2、设置和获取计数值"><a href="#2、设置和获取计数值" class="headerlink" title="2、设置和获取计数值"></a>2、设置和获取计数值</h2><p>创建通用定时器时，内部计数器将默认重置为&#x3D;&#x3D;零&#x3D;&#x3D;。计数值可以通过 <code>gptimer_set_raw_count()</code> 异步更新。当更新活动定时器的原始计数值时，定时器将立即从新值开始计数。</p>
 <blockquote>
@@ -551,7 +670,7 @@
 <blockquote>
 <p>注意，此功能将为定时器延迟安装中断服务，但不使能中断服务。所以，请在 <code>gptimer_enable()</code> 之前调用这一函数，否则将返回 <code>ESP_ERR_INVALID_STATE</code> 错误。</p>
 </blockquote>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在这里插入代码片</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">在这里插入代码片<br></code></pre></td></tr></table></figure>
 
 <h2 id="5、使能和禁用定时器"><a href="#5、使能和禁用定时器" class="headerlink" title="5、使能和禁用定时器"></a>5、使能和禁用定时器</h2><p>在对定时器进行 IO 控制之前，需要先调用 <code>gptimer_enable()</code> 使能定时器。它把定时器驱动程序的状态从 init 切换为 enable。如果 <code>gptimer_register_event_callbacks()</code> 已经延迟安装中断服务，此函数将使能中断服务。</p>
 <p>调用 <code>gptimer_disable()</code> 会进行相反的操作，即将定时器驱动程序恢复到 init 状态，禁用中断服务并释放电源管理锁。</p>
@@ -572,22 +691,395 @@
 </ul>
 <h1 id="三、实例操作"><a href="#三、实例操作" class="headerlink" title="三、实例操作"></a>三、实例操作</h1><p>下面通过一段代码演示 gptimer 的一些基本用法。</p>
 <h2 id="1、核心代码讲解"><a href="#1、核心代码讲解" class="headerlink" title="1、核心代码讲解"></a>1、核心代码讲解</h2><p>首先初始化 gtimer，得到 timer 句柄：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">gptimer_handle_t</span> gptimer = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">gptimer_config_t</span> time_config = &#123;</span><br><span class="line">    .clk_src = GPTIMER_CLK_SRC_DEFAULT,</span><br><span class="line">    .direction = GPTIMER_COUNT_UP,</span><br><span class="line">    .resolution_hz = <span class="number">1000000</span>,  <span class="comment">// 1MHz, 1 tick = 1us</span></span><br><span class="line">&#125;;</span><br><span class="line">ESP_ERROR_CHECK(gptimer_new_timer(&amp;time_config, &amp;gptimer));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">gptimer_handle_t</span> gptimer = <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">gptimer_config_t</span> time_config = &#123;<br>    .clk_src = GPTIMER_CLK_SRC_DEFAULT,<br>    .direction = GPTIMER_COUNT_UP,<br>    .resolution_hz = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1MHz, 1 tick = 1us</span><br>&#125;;<br>ESP_ERROR_CHECK(gptimer_new_timer(&amp;time_config, &amp;gptimer));<br></code></pre></td></tr></table></figure>
 
 <p>第一个例子我们创建一个 alarm 回调函数，并回调函数中关闭 gptimer：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">bool</span> <span class="title function_">example_timer_on_alarm_cb_v1</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_event_data_t</span> *edata, <span class="type">void</span> *user_data)</span></span><br><span class="line">&#123;</span><br><span class="line">    BaseType_t high_task_awoken = pdFALSE;</span><br><span class="line">    QueueHandle_t <span class="built_in">queue</span> = (QueueHandle_t)user_data;</span><br><span class="line"></span><br><span class="line">    gptimer_stop(timer);</span><br><span class="line">    <span class="type">example_queue_element_t</span> ele = &#123;</span><br><span class="line">        .event_count = edata-&gt;count_value,</span><br><span class="line">    &#125;;</span><br><span class="line">    xQueueSendFromISR(<span class="built_in">queue</span>, &amp;ele, &amp;high_task_awoken);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (high_task_awoken == pdTRUE);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="type">gptimer_event_callbacks_t</span> cbs = &#123;</span><br><span class="line">    .on_alarm = example_timer_on_alarm_cb_v1,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 注册回调函数</span></span><br><span class="line">ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="built_in">queue</span>));</span><br><span class="line">ESP_ERROR_CHECK(gptimer_enable(gptimer));</span><br><span class="line"></span><br><span class="line"><span class="type">gptimer_alarm_config_t</span> alarm_config1 = &#123;</span><br><span class="line">    .alarm_count = <span class="number">1000000</span>,  <span class="comment">// 1s, 1 tick = 1us</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 设置 alarm 参数</span></span><br><span class="line">ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config1));</span><br><span class="line">ESP_ERROR_CHECK(gptimer_start(gptimer));</span><br><span class="line"><span class="keyword">if</span> (xQueueReceive(<span class="built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="number">2000</span>))) &#123;</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Timer stopped, count = %llu&quot;</span>, ele.event_count);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ESP_LOGW(TAG, <span class="string">&quot;Missed one count event&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">example_timer_on_alarm_cb_v1</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_event_data_t</span> *edata, <span class="hljs-type">void</span> *user_data)</span><br>&#123;<br>    BaseType_t high_task_awoken = pdFALSE;<br>    QueueHandle_t <span class="hljs-built_in">queue</span> = (QueueHandle_t)user_data;<br><br>    gptimer_stop(timer);<br>    <span class="hljs-type">example_queue_element_t</span> ele = &#123;<br>        .event_count = edata-&gt;count_value,<br>    &#125;;<br>    xQueueSendFromISR(<span class="hljs-built_in">queue</span>, &amp;ele, &amp;high_task_awoken);<br><br>    <span class="hljs-keyword">return</span> (high_task_awoken == pdTRUE);<br>&#125;<br>...<br><span class="hljs-type">gptimer_event_callbacks_t</span> cbs = &#123;<br>    .on_alarm = example_timer_on_alarm_cb_v1,<br>&#125;;<br><span class="hljs-comment">// 注册回调函数</span><br>ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="hljs-built_in">queue</span>));<br>ESP_ERROR_CHECK(gptimer_enable(gptimer));<br><br><span class="hljs-type">gptimer_alarm_config_t</span> alarm_config1 = &#123;<br>    .alarm_count = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1s, 1 tick = 1us</span><br>&#125;;<br><span class="hljs-comment">// 设置 alarm 参数</span><br>ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config1));<br>ESP_ERROR_CHECK(gptimer_start(gptimer));<br><span class="hljs-keyword">if</span> (xQueueReceive(<span class="hljs-built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="hljs-number">2000</span>))) &#123;<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Timer stopped, count = %llu&quot;</span>, ele.event_count);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    ESP_LOGW(TAG, <span class="hljs-string">&quot;Missed one count event&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>第二个例子演示了 alarm 的自动重装载，核心代码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">gptimer_alarm_config_t</span> alarm_config2 = &#123;</span><br><span class="line">    .alarm_count = <span class="number">1000000</span>,  <span class="comment">// 1s, 1 tick = 1us</span></span><br><span class="line">    .reload_count = <span class="number">0</span>, </span><br><span class="line">    .flags.auto_reload_on_alarm = <span class="literal">true</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">gptimer_alarm_config_t</span> alarm_config2 = &#123;<br>    .alarm_count = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1s, 1 tick = 1us</span><br>    .reload_count = <span class="hljs-number">0</span>, <br>    .flags.auto_reload_on_alarm = <span class="hljs-literal">true</span>,<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>第三个例子是在 alarm 回调函数中动态地修改 alarm 的值：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">gptimer_alarm_config_t</span> alarm_config = &#123;</span><br><span class="line">    .alarm_count = edata-&gt;alarm_value + <span class="number">1000000</span>,  <span class="comment">// increase alarm value by 1s</span></span><br><span class="line">&#125;;</span><br><span class="line">ESP_ERROR_CHECK(gptimer_set_alarm_action(timer, &amp;alarm_config));</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">gptimer_alarm_config_t</span> alarm_config = &#123;<br>    .alarm_count = edata-&gt;alarm_value + <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// increase alarm value by 1s</span><br>&#125;;<br>ESP_ERROR_CHECK(gptimer_set_alarm_action(timer, &amp;alarm_config));<br></code></pre></td></tr></table></figure>
 
 
-<h2 id="2、完整代码和效果演示"><a href="#2、完整代码和效果演示" class="headerlink" title="2、完整代码和效果演示"></a>2、完整代码和效果演示</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">char</span> *TAG = <span class="string">&quot;example&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> event_count;</span><br><span class="line">&#125; <span class="type">example_queue_element_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// test1: stop timer at alarm event</span></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> <span class="title function_">example_timer_on_alarm_cb_v1</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_event_data_t</span> *edata, <span class="type">void</span> *user_data)</span></span><br><span class="line">&#123;</span><br><span class="line">    BaseType_t high_task_awoken = pdFALSE;</span><br><span class="line">    QueueHandle_t <span class="built_in">queue</span> = (QueueHandle_t)user_data;</span><br><span class="line"></span><br><span class="line">    gptimer_stop(timer);</span><br><span class="line">    <span class="type">example_queue_element_t</span> ele = &#123;</span><br><span class="line">        .event_count = edata-&gt;count_value,</span><br><span class="line">    &#125;;</span><br><span class="line">    xQueueSendFromISR(<span class="built_in">queue</span>, &amp;ele, &amp;high_task_awoken);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (high_task_awoken == pdTRUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// test2: disable timer at alarm event</span></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> <span class="title function_">example_timer_on_alarm_cb_v2</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_event_data_t</span> *edata, <span class="type">void</span> *user_data)</span></span><br><span class="line">&#123;</span><br><span class="line">    BaseType_t high_task_awoken = pdFALSE;</span><br><span class="line">    QueueHandle_t <span class="built_in">queue</span> = (QueueHandle_t)user_data;</span><br><span class="line"></span><br><span class="line">    <span class="type">example_queue_element_t</span> ele = &#123;</span><br><span class="line">        .event_count = edata-&gt;count_value,</span><br><span class="line">    &#125;;</span><br><span class="line">    xQueueSendFromISR(<span class="built_in">queue</span>, &amp;ele, &amp;high_task_awoken);</span><br><span class="line">    <span class="keyword">return</span> (high_task_awoken == pdTRUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// test3: update alarm value dynamically</span></span><br><span class="line"><span class="type">static</span> <span class="type">bool</span> <span class="title function_">example_timer_on_alarm_cb_v3</span><span class="params">(<span class="type">gptimer_handle_t</span> timer, <span class="type">const</span> <span class="type">gptimer_alarm_event_data_t</span> *edata, <span class="type">void</span> *user_data)</span></span><br><span class="line">&#123;</span><br><span class="line">    BaseType_t high_task_awoken = pdFALSE;</span><br><span class="line">    QueueHandle_t <span class="built_in">queue</span> = (QueueHandle_t)user_data;</span><br><span class="line"></span><br><span class="line">    <span class="type">example_queue_element_t</span> ele = &#123;</span><br><span class="line">        .event_count = edata-&gt;count_value,</span><br><span class="line">    &#125;;</span><br><span class="line">    xQueueSendFromISR(<span class="built_in">queue</span>, &amp;ele, &amp;high_task_awoken);</span><br><span class="line">    </span><br><span class="line">    <span class="type">gptimer_alarm_config_t</span> alarm_config = &#123;</span><br><span class="line">        .alarm_count = edata-&gt;alarm_value + <span class="number">1000000</span>,  <span class="comment">// increase alarm value by 1s</span></span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_set_alarm_action(timer, &amp;alarm_config));</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> (high_task_awoken == pdTRUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">app_main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">example_queue_element_t</span> ele;</span><br><span class="line">    QueueHandle_t <span class="built_in">queue</span> = xQueueCreate(<span class="number">10</span>, <span class="keyword">sizeof</span>(<span class="type">example_queue_element_t</span>));</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">queue</span>) &#123;</span><br><span class="line">         ESP_LOGE(TAG, <span class="string">&quot;Failed to create queue&quot;</span>);</span><br><span class="line">         <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Create timer handle&quot;</span>);</span><br><span class="line">    <span class="type">gptimer_handle_t</span> gptimer = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">gptimer_config_t</span> time_config = &#123;</span><br><span class="line">        .clk_src = GPTIMER_CLK_SRC_DEFAULT,</span><br><span class="line">        .direction = GPTIMER_COUNT_UP,</span><br><span class="line">        .resolution_hz = <span class="number">1000000</span>,  <span class="comment">// 1MHz, 1 tick = 1us</span></span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_new_timer(&amp;time_config, &amp;gptimer));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// TEST1</span></span><br><span class="line">    <span class="comment">/*******************************************************************/</span></span><br><span class="line">    <span class="type">gptimer_event_callbacks_t</span> cbs = &#123;</span><br><span class="line">        .on_alarm = example_timer_on_alarm_cb_v1,</span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="built_in">queue</span>));</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Enable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_enable(gptimer));</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Start timer, stop it at alarm event&quot;</span>);</span><br><span class="line">    <span class="type">gptimer_alarm_config_t</span> alarm_config1 = &#123;</span><br><span class="line">        .alarm_count = <span class="number">1000000</span>,  <span class="comment">// 1s, 1 tick = 1us</span></span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config1));</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_start(gptimer));</span><br><span class="line">    <span class="keyword">if</span> (xQueueReceive(<span class="built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="number">2000</span>))) &#123;</span><br><span class="line">        ESP_LOGI(TAG, <span class="string">&quot;Timer stopped, count = %llu&quot;</span>, ele.event_count);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ESP_LOGW(TAG, <span class="string">&quot;Missed one count event&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Set count value&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, <span class="number">100</span>));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Get count value&quot;</span>);</span><br><span class="line">    <span class="type">uint64_t</span> count = <span class="number">0</span>;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_get_raw_count(gptimer, &amp;count));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Timer count value = %llu&quot;</span>, count);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// TEST2</span></span><br><span class="line">    <span class="comment">/*******************************************************************/</span></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Disable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_disable(gptimer));</span><br><span class="line"></span><br><span class="line">    cbs.on_alarm = example_timer_on_alarm_cb_v2;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="built_in">queue</span>));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Enable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_enable(gptimer));</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Start timer, auto-reload at alarm event&quot;</span>);</span><br><span class="line">    <span class="type">gptimer_alarm_config_t</span> alarm_config2 = &#123;</span><br><span class="line">        .alarm_count = <span class="number">1000000</span>,  <span class="comment">// 1s, 1 tick = 1us</span></span><br><span class="line">        .reload_count = <span class="number">0</span>, </span><br><span class="line">        .flags.auto_reload_on_alarm = <span class="literal">true</span>,</span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config2));</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_start(gptimer));</span><br><span class="line">    <span class="type">int</span> record = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">while</span> (record) &#123;</span><br><span class="line">        <span class="keyword">if</span> (xQueueReceive(<span class="built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="number">2000</span>))) &#123;</span><br><span class="line">            ESP_LOGI(TAG, <span class="string">&quot;Timer reloaded, count = %llu&quot;</span>, ele.event_count);</span><br><span class="line">            record--;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ESP_LOGW(TAG, <span class="string">&quot;Missed one count event&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// TEST3</span></span><br><span class="line">    <span class="comment">/*******************************************************************/</span></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Stop timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_stop(gptimer));</span><br><span class="line">    </span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Disable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_disable(gptimer));</span><br><span class="line"></span><br><span class="line">    cbs.on_alarm = example_timer_on_alarm_cb_v3;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="built_in">queue</span>));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Enable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_enable(gptimer));</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Start timer, update alarm value dynamically&quot;</span>);</span><br><span class="line">    <span class="type">gptimer_alarm_config_t</span> alarm_config3 = &#123;</span><br><span class="line">        .alarm_count = <span class="number">1000000</span>,  <span class="comment">// 1s, 1 tick = 1us</span></span><br><span class="line">    &#125;;</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config3));</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_start(gptimer));</span><br><span class="line">    record = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">while</span> (record) &#123;</span><br><span class="line">        <span class="keyword">if</span> (xQueueReceive(<span class="built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="number">2000</span>))) &#123;</span><br><span class="line">            ESP_LOGI(TAG, <span class="string">&quot;Timer alarmed, count = %llu&quot;</span>, ele.event_count);</span><br><span class="line">            record--;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ESP_LOGW(TAG, <span class="string">&quot;Missed one count event&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Stop timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_stop(gptimer));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Disable timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_disable(gptimer));</span><br><span class="line">    ESP_LOGI(TAG, <span class="string">&quot;Delete timer&quot;</span>);</span><br><span class="line">    ESP_ERROR_CHECK(gptimer_del_timer(gptimer));</span><br><span class="line"></span><br><span class="line">    vQueueDelete(<span class="built_in">queue</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="1.png"></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Yu xin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/10/19/ESP32-IDF-GPTimer/">http://example.com/2024/10/19/ESP32-IDF-GPTimer/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Yuxxxxxxxxxx</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a><a class="post-meta__tags" href="/tags/ESP32/">ESP32</a></div><div class="post-share"><div class="social-share" data-image="/img/profile.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" title="ESP32-IDF 分区表"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">ESP32-IDF 分区表</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体1.1 esp_partition_t1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the partition resides */    esp_partition_type_t type;          /*!&lt; partition type (app/data) */    esp_partition_subtype_t subtype;    /*!&lt; partition subtype */    uint32_t address;                   /*!&lt; starting address of the partition in flash */    uint32_t size;                      /*!...</div></div></div></a><a class="pagination-related" href="/2024/10/18/ESP32-IDF-USART/" title="ESP32-IDF USART 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">ESP32-IDF USART 专题</div></div><div class="info-2"><div class="info-item-1">@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_uart/include/driver/uart.h。  1、配置结构体1.1 uart_config_t1234567891011121314typedef struct &#123;    int baud_rate;                      /*!&lt; UART baud rate*/    uart_word_length_t data_bits;       /*!&lt; UART byte size*/    uart_parity_t parity;               /*!&lt; UART parity mode*/    uart_stop_bits_t stop_bits;         /*!&lt; UART stop bits*/    uart_hw_flowcontrol_t flow_...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/21/ESP32-IDF-NVS/" title="ESP32-IDF 非易失存储 NVS"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-21</div><div class="info-item-2">ESP32-IDF 非易失存储 NVS</div></div><div class="info-2"><div class="info-item-1">@toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我们要先指定一个地址，然后对这个地址执行擦除操作，然后才能写入；读取的时候也需要根据这个地址，然后指定读取长度。如果我们要存的项比较多，又在代码中比较分散，我们对 Flash 的地址就很难管理。因为我们很难知道要存的内容与其他地址有没冲突，会不会误擦除。存在诸多问题。所以需要一个机制，方便帮我们把这些检测判断活都干了，不需要我们指定地址操作。文件系统就是这样的，但 NVS 操作更加轻量级。 在 NVS 中，我们要存一个值，我们不需要指定地址，但需要指定一个“键” key，然后我们在这个“键”索引下存我们的值 value。假设我们要存 WIFI 的 SSID 和 pasword，我们可以在 ...</div></div></div></a><a class="pagination-related" href="/2024/10/18/ESP32-IDF-USART/" title="ESP32-IDF USART 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-18</div><div class="info-item-2">ESP32-IDF USART 专题</div></div><div class="info-2"><div class="info-item-1">@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_uart/include/driver/uart.h。  1、配置结构体1.1 uart_config_t1234567891011121314typedef struct &#123;    int baud_rate;                      /*!&lt; UART baud rate*/    uart_word_length_t data_bits;       /*!&lt; UART byte size*/    uart_parity_t parity;               /*!&lt; UART parity mode*/    uart_stop_bits_t stop_bits;         /*!&lt; UART stop bits*/    uart_hw_flowcontrol_t flow_...</div></div></div></a><a class="pagination-related" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" title="ESP32-IDF 分区表"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-20</div><div class="info-item-2">ESP32-IDF 分区表</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体1.1 esp_partition_t1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the partition resides */    esp_partition_type_t type;          /*!&lt; partition type (app/data) */    esp_partition_subtype_t subtype;    /*!&lt; partition subtype */    uint32_t address;                   /*!&lt; starting address of the partition in flash */    uint32_t size;                      /*!...</div></div></div></a><a class="pagination-related" href="/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/" title="ESP32-IDF 在 Ubuntu 下的配置"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-23</div><div class="info-item-2">ESP32-IDF 在 Ubuntu 下的配置</div></div><div class="info-2"><div class="info-item-1">[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。 一、安装准备参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0  二、获取 ESP-IDF首先创建一个目录用来作为 esp32 的工作目录： 12[projectsauron]:~$ mkdir esp32_idf[projectsauron]:~$ cd esp32_idf/  为了解决国内开发者从 Github 克隆 esp 相关仓库慢的问题，官方已将 esp-idf 和部分重要仓库及其关联的子模块镜像到了 jihu，这些仓库将自动从原始仓库进行同步。 所以先获取官方的工具：（相关信息见 乐鑫开源&#x2F;esp-gitee-tools） 1[projectsauron]:~/esp3...</div></div></div></a><a class="pagination-related" href="/2024/10/17/ESP32-IDF-GPIO/" title="ESP32-IDF GPIO 专题"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-17</div><div class="info-item-2">ESP32-IDF GPIO 专题</div></div><div class="info-2"><div class="info-item-1">[toc]  一、基本介绍 API 参考路径 esp-idf/components/esp_driver_gpio/include/driver/gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情况下，第三方组件将直接呈现底层库的原始 API。 1、配置结构体 为确保应用程序与未来 ESP-IDF 版本的兼容性，请正确初始化配置结构体。  多数 ESP-IDF 中的初始化、配置和安装函数（通常以 ..._init()、 ..._config() 和 ..._install() 命名）都需要一个指向配置结构体的指针作为参数。例如： 1234567const esp_timer_create_args_t my_timer_args = &#123;    .callback = &amp;my_timer_callback,    .arg = callback_arg,    .n...</div></div></div></a><a class="pagination-related" href="/2024/09/30/hex-%E5%92%8C-bin-%E6%96%87%E4%BB%B6/" title="hex 文件和 bin 文件剖析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-30</div><div class="info-item-2">hex 文件和 bin 文件剖析</div></div><div class="info-2"><div class="info-item-1">@toc  在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文将针对这两个文件进行讨论。 一、概述 二进制文件（Binary File）是一种以二进制形式存储的计算机文件，其中的数据以字节为单位进行编码。二进制文件可以包含任意类型的数据，如图像、音频、视频、可执行文件等。与之相对的是文本文件，文本文件使用字符编码（如 ASCII 或 Unicode）表示数据。十六进制文件（Hex File）是一种特殊的二进制文件，其中的数据以十六进制表示。每个十六进制数对应 4 个二进制位，因此可以更直观地查看和编辑二进制数据。十六进制文件常用于存储和传输机器码（即可执行文件），特别是在处理嵌入式系统中常见的固件或软件升级时。  更具体地说，*.bin 文件是二进...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/profile.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Yu xin</div><div class="author-info-description">昨夜西风凋碧树，独上高楼，望尽天涯路</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">一、基本介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%85%8D%E7%BD%AE%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.1.</span> <span class="toc-text">1、配置结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-gptimer-config-t"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 gptimer_config_t</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-gptimer-event-callbacks-t"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 gptimer_event_callbacks_t</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-gptimer-alarm-config-t"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 gptimer_alarm_config_t</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%B8%B8%E7%94%A8-API"><span class="toc-number">1.2.</span> <span class="toc-text">2、常用 API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-gptimer-new-timer"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 gptimer_new_timer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-gptimer-del-timer"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 gptimer_del_timer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-gptimer-set-raw-count"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 gptimer_set_raw_count</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-gptimer-get-raw-count"><span class="toc-number">1.2.4.</span> <span class="toc-text">2.4 gptimer_get_raw_count</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-gptimer-get-resolution"><span class="toc-number">1.2.5.</span> <span class="toc-text">2.5 gptimer_get_resolution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-gptimer-get-captured-count"><span class="toc-number">1.2.6.</span> <span class="toc-text">2.6 gptimer_get_captured_count</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-gptimer-register-event-callbacks"><span class="toc-number">1.2.7.</span> <span class="toc-text">2.7 gptimer_register_event_callbacks</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-gptimer-set-alarm-action"><span class="toc-number">1.2.8.</span> <span class="toc-text">2.8 gptimer_set_alarm_action</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-9-gptimer-enable"><span class="toc-number">1.2.9.</span> <span class="toc-text">2.9 gptimer_enable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-10-gptimer-disable"><span class="toc-number">1.2.10.</span> <span class="toc-text">2.10 gptimer_disable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-11-gptimer-start"><span class="toc-number">1.2.11.</span> <span class="toc-text">2.11 gptimer_start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-12-gptimer-stop"><span class="toc-number">1.2.12.</span> <span class="toc-text">2.12 gptimer_stop</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.3.</span> <span class="toc-text">3、枚举类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-gptimer-clock-source-t"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 gptimer_clock_source_t</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-gptimer-count-direction-t"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 gptimer_count_direction_t</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-gptimer-etm-task-type-t"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 gptimer_etm_task_type_t</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-gptimer-etm-event-type-t"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 gptimer_etm_event_type_t</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81GTIM-%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">二、GTIM 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D"><span class="toc-number">2.1.</span> <span class="toc-text">1、资源分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E8%AE%BE%E7%BD%AE%E5%92%8C%E8%8E%B7%E5%8F%96%E8%AE%A1%E6%95%B0%E5%80%BC"><span class="toc-number">2.2.</span> <span class="toc-text">2、设置和获取计数值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E8%AE%BE%E7%BD%AE%E8%AD%A6%E6%8A%A5%E5%8A%A8%E4%BD%9C"><span class="toc-number">2.3.</span> <span class="toc-text">3、设置警报动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E6%B3%A8%E5%86%8C%E4%BA%8B%E4%BB%B6%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="toc-number">2.4.</span> <span class="toc-text">4、注册事件回调函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E4%BD%BF%E8%83%BD%E5%92%8C%E7%A6%81%E7%94%A8%E5%AE%9A%E6%97%B6%E5%99%A8"><span class="toc-number">2.5.</span> <span class="toc-text">5、使能和禁用定时器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E5%90%AF%E5%8A%A8%E5%92%8C%E5%81%9C%E6%AD%A2%E5%AE%9A%E6%97%B6%E5%99%A8"><span class="toc-number">2.6.</span> <span class="toc-text">6、启动和停止定时器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86"><span class="toc-number">2.7.</span> <span class="toc-text">7、电源管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8%E3%80%81%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">2.8.</span> <span class="toc-text">8、线程安全</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E4%BE%8B%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">三、实例操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81%E8%AE%B2%E8%A7%A3"><span class="toc-number">3.1.</span> <span class="toc-text">1、核心代码讲解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81%E5%92%8C%E6%95%88%E6%9E%9C%E6%BC%94%E7%A4%BA"><span class="toc-number">3.2.</span> <span class="toc-text">2、完整代码和效果演示</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" title="C语言中的可变参数和可变参数宏">C语言中的可变参数和可变参数宏</a><time datetime="2024-12-26T14:45:47.000Z" title="发表于 2024-12-26 22:45:47">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">由 printf(结构体) 引发的错误</a><time datetime="2024-12-26T11:02:16.000Z" title="发表于 2024-12-26 19:02:16">2024-12-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/" title="USB-HID 协议">USB-HID 协议</a><time datetime="2024-11-28T12:24:21.000Z" title="发表于 2024-11-28 20:24:21">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">RS232 和 RS485 总线</a><time datetime="2024-11-28T12:23:15.000Z" title="发表于 2024-11-28 20:23:15">2024-11-28</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/11/25/%E5%B7%A5%E6%8E%A7%E6%9C%BA%E7%BD%91%E5%8F%A3%E8%BF%9E%E6%8E%A5PC/" title="RK3399 通过网线与电脑连接">RK3399 通过网线与电脑连接</a><time datetime="2024-11-25T15:14:18.000Z" title="发表于 2024-11-25 23:14:18">2024-11-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Yu xin</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><script src="/"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = true;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+<h2 id="2、完整代码和效果演示"><a href="#2、完整代码和效果演示" class="headerlink" title="2、完整代码和效果演示"></a>2、完整代码和效果演示</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *TAG = <span class="hljs-string">&quot;example&quot;</span>;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span> event_count;<br>&#125; <span class="hljs-type">example_queue_element_t</span>;<br><br><span class="hljs-comment">// test1: stop timer at alarm event</span><br><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">example_timer_on_alarm_cb_v1</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_event_data_t</span> *edata, <span class="hljs-type">void</span> *user_data)</span><br>&#123;<br>    BaseType_t high_task_awoken = pdFALSE;<br>    QueueHandle_t <span class="hljs-built_in">queue</span> = (QueueHandle_t)user_data;<br><br>    gptimer_stop(timer);<br>    <span class="hljs-type">example_queue_element_t</span> ele = &#123;<br>        .event_count = edata-&gt;count_value,<br>    &#125;;<br>    xQueueSendFromISR(<span class="hljs-built_in">queue</span>, &amp;ele, &amp;high_task_awoken);<br><br>    <span class="hljs-keyword">return</span> (high_task_awoken == pdTRUE);<br>&#125;<br><br><span class="hljs-comment">// test2: disable timer at alarm event</span><br><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">example_timer_on_alarm_cb_v2</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_event_data_t</span> *edata, <span class="hljs-type">void</span> *user_data)</span><br>&#123;<br>    BaseType_t high_task_awoken = pdFALSE;<br>    QueueHandle_t <span class="hljs-built_in">queue</span> = (QueueHandle_t)user_data;<br><br>    <span class="hljs-type">example_queue_element_t</span> ele = &#123;<br>        .event_count = edata-&gt;count_value,<br>    &#125;;<br>    xQueueSendFromISR(<span class="hljs-built_in">queue</span>, &amp;ele, &amp;high_task_awoken);<br>    <span class="hljs-keyword">return</span> (high_task_awoken == pdTRUE);<br>&#125;<br><br><span class="hljs-comment">// test3: update alarm value dynamically</span><br><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">example_timer_on_alarm_cb_v3</span><span class="hljs-params">(<span class="hljs-type">gptimer_handle_t</span> timer, <span class="hljs-type">const</span> <span class="hljs-type">gptimer_alarm_event_data_t</span> *edata, <span class="hljs-type">void</span> *user_data)</span><br>&#123;<br>    BaseType_t high_task_awoken = pdFALSE;<br>    QueueHandle_t <span class="hljs-built_in">queue</span> = (QueueHandle_t)user_data;<br><br>    <span class="hljs-type">example_queue_element_t</span> ele = &#123;<br>        .event_count = edata-&gt;count_value,<br>    &#125;;<br>    xQueueSendFromISR(<span class="hljs-built_in">queue</span>, &amp;ele, &amp;high_task_awoken);<br>    <br>    <span class="hljs-type">gptimer_alarm_config_t</span> alarm_config = &#123;<br>        .alarm_count = edata-&gt;alarm_value + <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// increase alarm value by 1s</span><br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_set_alarm_action(timer, &amp;alarm_config));<br>    <br>    <span class="hljs-keyword">return</span> (high_task_awoken == pdTRUE);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">example_queue_element_t</span> ele;<br>    QueueHandle_t <span class="hljs-built_in">queue</span> = xQueueCreate(<span class="hljs-number">10</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">example_queue_element_t</span>));<br>    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">queue</span>) &#123;<br>         ESP_LOGE(TAG, <span class="hljs-string">&quot;Failed to create queue&quot;</span>);<br>         <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Create timer handle&quot;</span>);<br>    <span class="hljs-type">gptimer_handle_t</span> gptimer = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">gptimer_config_t</span> time_config = &#123;<br>        .clk_src = GPTIMER_CLK_SRC_DEFAULT,<br>        .direction = GPTIMER_COUNT_UP,<br>        .resolution_hz = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1MHz, 1 tick = 1us</span><br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_new_timer(&amp;time_config, &amp;gptimer));<br><br>    <span class="hljs-comment">// TEST1</span><br>    <span class="hljs-comment">/*******************************************************************/</span><br>    <span class="hljs-type">gptimer_event_callbacks_t</span> cbs = &#123;<br>        .on_alarm = example_timer_on_alarm_cb_v1,<br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="hljs-built_in">queue</span>));<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Enable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_enable(gptimer));<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Start timer, stop it at alarm event&quot;</span>);<br>    <span class="hljs-type">gptimer_alarm_config_t</span> alarm_config1 = &#123;<br>        .alarm_count = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1s, 1 tick = 1us</span><br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config1));<br>    ESP_ERROR_CHECK(gptimer_start(gptimer));<br>    <span class="hljs-keyword">if</span> (xQueueReceive(<span class="hljs-built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="hljs-number">2000</span>))) &#123;<br>        ESP_LOGI(TAG, <span class="hljs-string">&quot;Timer stopped, count = %llu&quot;</span>, ele.event_count);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        ESP_LOGW(TAG, <span class="hljs-string">&quot;Missed one count event&quot;</span>);<br>    &#125;<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Set count value&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_set_raw_count(gptimer, <span class="hljs-number">100</span>));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Get count value&quot;</span>);<br>    <span class="hljs-type">uint64_t</span> count = <span class="hljs-number">0</span>;<br>    ESP_ERROR_CHECK(gptimer_get_raw_count(gptimer, &amp;count));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Timer count value = %llu&quot;</span>, count);<br><br>    <span class="hljs-comment">// TEST2</span><br>    <span class="hljs-comment">/*******************************************************************/</span><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Disable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_disable(gptimer));<br><br>    cbs.on_alarm = example_timer_on_alarm_cb_v2;<br>    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="hljs-built_in">queue</span>));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Enable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_enable(gptimer));<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Start timer, auto-reload at alarm event&quot;</span>);<br>    <span class="hljs-type">gptimer_alarm_config_t</span> alarm_config2 = &#123;<br>        .alarm_count = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1s, 1 tick = 1us</span><br>        .reload_count = <span class="hljs-number">0</span>, <br>        .flags.auto_reload_on_alarm = <span class="hljs-literal">true</span>,<br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config2));<br>    ESP_ERROR_CHECK(gptimer_start(gptimer));<br>    <span class="hljs-type">int</span> record = <span class="hljs-number">4</span>;<br>    <span class="hljs-keyword">while</span> (record) &#123;<br>        <span class="hljs-keyword">if</span> (xQueueReceive(<span class="hljs-built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="hljs-number">2000</span>))) &#123;<br>            ESP_LOGI(TAG, <span class="hljs-string">&quot;Timer reloaded, count = %llu&quot;</span>, ele.event_count);<br>            record--;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            ESP_LOGW(TAG, <span class="hljs-string">&quot;Missed one count event&quot;</span>);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// TEST3</span><br>    <span class="hljs-comment">/*******************************************************************/</span><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Stop timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_stop(gptimer));<br>    <br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Disable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_disable(gptimer));<br><br>    cbs.on_alarm = example_timer_on_alarm_cb_v3;<br>    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &amp;cbs, <span class="hljs-built_in">queue</span>));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Enable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_enable(gptimer));<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Start timer, update alarm value dynamically&quot;</span>);<br>    <span class="hljs-type">gptimer_alarm_config_t</span> alarm_config3 = &#123;<br>        .alarm_count = <span class="hljs-number">1000000</span>,  <span class="hljs-comment">// 1s, 1 tick = 1us</span><br>    &#125;;<br>    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &amp;alarm_config3));<br>    ESP_ERROR_CHECK(gptimer_start(gptimer));<br>    record = <span class="hljs-number">4</span>;<br>    <span class="hljs-keyword">while</span> (record) &#123;<br>        <span class="hljs-keyword">if</span> (xQueueReceive(<span class="hljs-built_in">queue</span>, &amp;ele, pdMS_TO_TICKS(<span class="hljs-number">2000</span>))) &#123;<br>            ESP_LOGI(TAG, <span class="hljs-string">&quot;Timer alarmed, count = %llu&quot;</span>, ele.event_count);<br>            record--;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            ESP_LOGW(TAG, <span class="hljs-string">&quot;Missed one count event&quot;</span>);<br>        &#125;<br>    &#125;<br><br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Stop timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_stop(gptimer));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Disable timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_disable(gptimer));<br>    ESP_LOGI(TAG, <span class="hljs-string">&quot;Delete timer&quot;</span>);<br>    ESP_ERROR_CHECK(gptimer_del_timer(gptimer));<br><br>    vQueueDelete(<span class="hljs-built_in">queue</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/ESP32/" class="print-no-link">#ESP32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ESP32-IDF 通用定时器 GPTimer</div>
+      <div>http://example.com/2024/10/19/ESP32-IDF-GPTimer/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" title="ESP32-IDF 分区表">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ESP32-IDF 分区表</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/18/ESP32-IDF-USART/" title="ESP32-IDF USART 专题">
+                        <span class="hidden-mobile">ESP32-IDF USART 专题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
