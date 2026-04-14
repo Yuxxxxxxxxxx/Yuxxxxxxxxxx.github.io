@@ -1,0 +1,766 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git 查错记录">
+<meta property="og:url" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read f">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/1.png">
+<meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/2.png">
+<meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/3.png">
+<meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/4.png">
+<meta property="article:published_time" content="2024-11-03T12:18:13.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:44:34.704Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/1.png">
+  
+  
+  
+  <title>Git 查错记录 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Git 查错记录"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-03 20:18" pubdate>
+          星期日, 十一月 3日 2024, 8:18 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Git 查错记录</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<blockquote>
+<p>本文记录本人了最近在 Git 开发遇到的一些问题</p>
+</blockquote>
+<h1 id="一、ssh-connect-to-host-github-com-port-22-Connection-refused"><a href="#一、ssh-connect-to-host-github-com-port-22-Connection-refused" class="headerlink" title="一、ssh: connect to host github.com port 22: Connection refused"></a>一、ssh: connect to host github.com port 22: Connection refused</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git pull origin</span><br>ssh: connect to host github.com port 22: Connection refused<br>fatal: Could not read from remote repository.<br><br>Please make sure you have the correct access rights<br>and the repository exists.<br></code></pre></td></tr></table></figure>
+
+
+<p>遇到这个问题，说明 22 端口可能被防火墙屏蔽了，可以尝试连接 GitHub 的 443 端口。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">vim ~/.ssh/config</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">添加如下几行</span><br>Host github.com<br>  Hostname ssh.github.com<br>  Port 443<br></code></pre></td></tr></table></figure>
+
+<p>修改完 <code>~/.ssh/config</code> 文件后，使用 <code>ssh -T git@github.com</code> 来测试和GitHub的网络通信是否正常，如果提示 <code>Hi xxxxx! You&#39;ve successfully authenticated, but GitHub does not provide shell access.</code> 就表示一切正常了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ssh -T git@github.com</span><br>Hi xxxxx! You&#x27;ve successfully authenticated, but GitHub does not<br>provide shell access.<br></code></pre></td></tr></table></figure>
+
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个解决方案的思路是：给 <code>~/.ssh/config</code> 文件里添加如下内容，这样 SSH 连接 GitHub 的时候就会使用 443 端口。</p>
+<blockquote>
+<p>如果 <code>~/.ssh</code> 目录下没有 config 文件，新建一个即可。<br><br>这个方案有效的前提是：执行命令 <code>ssh -T -p 443 git@ssh.github.com</code> 后不再提示 connection refused，所以要尝试这个方案的话先执行这条命令测试下。</p>
+</blockquote>
+<h1 id="二、免密登录"><a href="#二、免密登录" class="headerlink" title="二、免密登录"></a>二、免密登录</h1><ol>
+<li><code>HTTPS</code> 配置免密登录</li>
+</ol>
+<p>如果不配置免密登录，那么每次 <code>git push/pull</code> 时都要输入 <code>username</code> 和 <code>password</code>，很麻烦。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git config --global credential.helper store</span><br><span class="hljs-meta prompt_"> </span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">git pull /git push</span><br></code></pre></td></tr></table></figure>
+
+<p>这一步需要输入 <code>username</code> 和 <code>password</code>，后续就不用再次输入</p>
+<p>这一步会在用户目录下生成文件 <code>.git-credential</code> 记录用户名密码的信息</p>
+<ol start="2">
+<li>SSH 配置免密登录</li>
+</ol>
+<p>shell中输入下列指令（然后一路回车即可），生成公钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ssh-keygen -t rsa -C <span class="hljs-string">&quot;YOUR_EMAIL&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>此时输出的内容会显示公钥的保存目录，默认是 <code>/home/用户名/.ssh/id_rsa.pub</code></p>
+<p>打开 <code>Github.com</code> -&gt; <code>Settings</code> -&gt; <code>SSH and GPG keys</code> -&gt; <code>New SSH key</code>：</p>
+<ul>
+<li>title：随便取</li>
+<li>Keytype：默认</li>
+<li>Key：将 <code>.ssh</code> 对应目录下 <code>id_rsa.pub</code> 中内容粘贴进去</li>
+</ul>
+<p>最后，<code>Add SSH key</code>：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>回到 shell 检查配置是否成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ssh -T git@github.com</span><br></code></pre></td></tr></table></figure>
+
+<p>出现 successfully 就成功了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Hi &lt;USERNAME&gt;! You&#x27;ve successfully authenticated, but GitHub does not provide shell access.<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、-rejected-master-master-fetch-first"><a href="#三、-rejected-master-master-fetch-first" class="headerlink" title="三、! [rejected]        master -&gt; master (fetch first)"></a>三、! [rejected]        master -&gt; master (fetch first)</h1><p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>出现这种问题是由于本地仓库与远程仓库存在冲突导致的，一般是由于先有的本地仓库，然后创建远程仓库并用 <code>git remote add</code> 命令进行关联。此时，远程仓库存在 <code>README.md</code> 和 <code>.gitignore</code> 文件，而本地仓库不存在，此时使用 <code>git push</code> 提交命令则会报错，错误如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git push origin main</span><br>! [rejected]        master -&gt; master (fetch first)<br>error: 无法推送一些引用到 &#x27;git@github.com:JJXiangJiaoJun/My_JSP.git&#x27;<br>提示：更新被拒绝，因为远程仓库包含您本地尚不存在的提交。这通常是因为另外<br>提示：一个仓库已向该引用进行了推送。再次推送前，您可能需要先整合远程变更<br>提示：（如 &#x27;git pull ...&#x27;）。<br>提示：详见 &#x27;git push --help&#x27; 中的 &#x27;Note about fast-forwards&#x27; 小节。<br></code></pre></td></tr></table></figure>
+
+<p>解决方案有两种：</p>
+<ol>
+<li>使用以下命令：</li>
+</ol>
+<blockquote>
+<p><font size="5px" color="red">慎用</font>，如果你是新开的仓库，那就随便折腾，否则有时候很容易把仓库原本的东西覆盖掉</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git pull origin master --allow-unrelated-histories</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">或者</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">git pull -f</span><br></code></pre></td></tr></table></figure>
+
+<p>这两种方式都是强制上传，它会忽略版本不一致等问题，强制将本地库上传的远程库，但是一定要谨慎使用，因为 <code>-f</code> 会用本地库覆盖掉远程库，如果远程库上有重要更新，或者有其他同伴做的修改，也都会被覆盖，所以一定要在确定无严重后果的前提下使用此操作。</p>
+<p>这样对本地仓库和远程仓库进行合并冲突后，就可以正常愉快的使用 git push命令啦~</p>
+<p>如果还不能解决问题，就把本地的 remote 删除，重新 <code>git remote add</code> 添加远程仓库，再按上面的方法来，问题解决。</p>
+<ol start="2">
+<li><p>第二种方法</p>
+</li>
+<li><p>通过 <code>git pull</code> 先将本地库更新到与远程库一致的版本，最好使用 <code>git fetch</code>(不会自动合并)，查看更新情况再有选择合并；或者先将本地库修改过的文件备份，<code>git pull</code> 后再重新修改；</p>
+</li>
+<li><p>再运行 <code>git push</code> 即可成功。</p>
+</li>
+</ol>
+<blockquote>
+<p>推荐使用第二种方法，虽然麻烦点，但是可靠</p>
+</blockquote>
+<h1 id="四、error-源引用表达式-main-没有匹配"><a href="#四、error-源引用表达式-main-没有匹配" class="headerlink" title="四、error: 源引用表达式 main 没有匹配"></a>四、error: 源引用表达式 main 没有匹配</h1><p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git push origin main</span><br>error: 源引用表达式 main 没有匹配<br>error: 推送一些引用到 ‘https://github.com/***.git’ 失败<br></code></pre></td></tr></table></figure>
+
+<p>这里我们使用的是 <code>git push origin main</code> 命令，希望将本地代码文件夹同步到远程 repo 上去，在执行“<code>git push</code>”命令时出现了错误；</p>
+<p>在经过一系列调试之后，我们发现这里错误的原因是本地没有 main 分支，这又是什么情况呢？</p>
+<p>因为在一般情况下，如果当前本地 repo 没有任何分支，在执行 <code>git add</code> 操作时，会先建立一个默认的本地分支，并且默认 repo 的名称为 master。</p>
+<p>于是错误提示中的“源引用表达式 main”实际上指的是&#x3D;&#x3D;待上传源分支main&#x3D;&#x3D;，而此时本地 Git 工作区中不存在 main 分支，（因为默认建立的是 master 分支），于是 Git 给出了 main 匹配不到的错误提示；当前本地分支名是可以修改的，新版本的git也给出了修改的提示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">提示：使用 ‘master’ 作为初始分支的名称。这个默认分支名称可能会更改。要在新仓库中<br>提示：配置使用初始分支名，并消除这条警告，请执行：<br>提示：<br>提示： git config --global init.defaultBranch &lt;名称&gt;<br>提示：<br>提示：除了 ‘master’ 之外，通常选定的名字有 ‘main’、‘trunk’ 和 ‘development’。<br>提示：可以通过以下命令重命名刚创建的分支：<br>提示：<br>提示： git branch -m<br></code></pre></td></tr></table></figure>
+
+<p>出现这个问题的最主要原因还是在于本地仓库和远程仓库实际上是独立的两个仓库。假如我之前是直接 clone 的方式在本地建立起远程 Github 仓库的克隆本地仓库就不会有这问题了。</p>
+<p>所以解决办法就是修改分支名称：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git branch -m &lt;name&gt;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git branch -m main</span><br></code></pre></td></tr></table></figure>
+
+<p>然后就可以进行 <code>git pull</code> 操作了；</p>
+<blockquote>
+<p>补充</p>
+</blockquote>
+<p><code>git pull</code> 命令基本上就是 <code>git fetch</code> 和 <code>git merge</code> 命令的组合体，Git 从指定的远程仓库中抓取内容，然后马上尝试将其合并进你所在的分支中。</p>
+<p>从远程仓库中获得数据，可以执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git fetch [remote-name]</span><br></code></pre></td></tr></table></figure>
+
+<p>这个命令会访问远程仓库，从中拉取所有你还没有的数据。 执行完成后，你将会拥有那个远程仓库中所有分支的引用，可以随时合并或查看。</p>
+<p>但是注意的是 <code>git fetch</code> 并不会自动合并或修改你当前的工作。 当准备好时你必须手动将其合并入你的工作。</p>
+<p>如果你使用 clone 命令克隆了一个仓库，命令会自动将其添加为远程仓库并默认以 “origin” 为简写。 所以，<code>git fetch origin</code> 会抓取克隆（或上一次抓取）后新推送的所有工作。</p>
+<p>由于 fetch 命令后还要再做一步 merge 命令的操作，所以使用 <code>git pull</code> 命令来自动的抓取然后合并远程分支到当前分支。（相当于一次执行 <code>fetch</code> 加 <code>merge</code> 命令）这可能会是一个更简单或更舒服的工作流程。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/Git/" class="category-chain-item">Git</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7/" class="print-no-link">#工具</a>
+      
+        <a href="/tags/Git/" class="print-no-link">#Git</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Git 查错记录</div>
+      <div>http://example.com/2024/11/03/Git-查错记录/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/11/05/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BATT/" title="BLE 协议之 ATT">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">BLE 协议之 ATT</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" title="【STM32】通过 DWT 实现毫秒级延时">
+                        <span class="hidden-mobile">【STM32】通过 DWT 实现毫秒级延时</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,865 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP &#x3D; __initial_sp、PC &#x3D; Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 ST">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32 芯片启动过程">
+<meta property="og:url" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP &#x3D; __initial_sp、PC &#x3D; Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 ST">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/1.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/2.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/3.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/4.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/5.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/6.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/7.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/8.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/9.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/10.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/11.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/12.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/13.png">
+<meta property="og:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/14.png">
+<meta property="article:published_time" content="2024-09-18T08:56:24.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:32:23.361Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/1.png">
+  
+  
+  
+  <title>STM32 芯片启动过程 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="STM32 芯片启动过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-18 16:56" pubdate>
+          星期三, 九月 18日 2024, 4:56 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          30 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">STM32 芯片启动过程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：</p>
+<ol>
+<li>初始化堆栈指针：<code>SP = __initial_sp</code>、<code>PC = Reset_Handler</code></li>
+<li>初始化中断向量表</li>
+<li>配置系统时钟</li>
+<li>调用 C 库函数 <code>_main</code> 初始化用户堆栈，然后进入 <code>main</code> 函数</li>
+</ol>
+<h1 id="二、STM32-的启动模式"><a href="#二、STM32-的启动模式" class="headerlink" title="二、STM32 的启动模式"></a>二、STM32 的启动模式</h1><p>启动模式决定了中断向量表的位置，STM32 有三种启动模式：</p>
+<ol>
+<li><strong>主闪存存储器启动</strong>：从 STM32 内置的 Flash 启动（$0x0800 0000-0x0807 FFFF$），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 <code>0x08000000</code> 对应的内存为例，则该块内存既可以通过 <code>0x00000000</code> 操作也可以通过 <code>0x08000000</code> 操作，且都是操作的同一块内存。</li>
+<li><strong>系统存储器启动</strong>：从系统存储器启动（$0x1FFFF000-0x1FFF F7FF$），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这个 ISP 程序将用户程序下载到系统的 Flash 中。以 <code>0x1FFFFFF0</code> 对应的内存为例，则该块内存既可以通过 <code>0x00000000</code> 操作也可以通过 <code>0x1FFFFFF0</code> 操作，且都是操作的同一块内存。</li>
+<li><strong>片上 SRAM 启动</strong>：从内置 SRAM 启动（$0x2000 0000-0x3FFFFFFF$），既然是 SRAM，自然也就没有程序存储的能力了，这个模式一般用于程序调试。SRAM 只能通过 <code>0x20000000</code> 进行操作，与上述两者不同。从 SRAM 启动时，需要在应用程序初始化代码中重新设置向量表的位置。</li>
+</ol>
+<p>我们可以选择设置 BOOT0 和 BOOT1 的引脚电平状态，来选择复位后的启动模式，如下表：</p>
+<table>
+<thead>
+<tr>
+<th>BOOT1</th>
+<th>BOOT0</th>
+<th>自举模式</th>
+<th>自举空间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x</td>
+<td>0</td>
+<td>主 Flash</td>
+<td>选择主 Flash 作为自举空间</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>系统存储器</td>
+<td>选择系统存储器作为自举空间</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>嵌入式 SRAM</td>
+<td>选择嵌入式 SRAM 作为自举空间</td>
+</tr>
+</tbody></table>
+<p>&#x3D;&#x3D;启动模式只决定程序烧录的位置&#x3D;&#x3D;，加载完程序之后会有一个重映射（映射到 <code>0x00000000</code> 地址位置）；真正产生复位信号的时候，CPU 还是从开始位置执行</p>
+<p>值得注意的是 STM32 上电复位以后，代码区都是从 <code>0x00000000</code> 开始的，三种启动模式只是将各自存储空间的地址映射到 <code>0x00000000</code> 中。</p>
+<h1 id="三、STM32-启动文件分析"><a href="#三、STM32-启动文件分析" class="headerlink" title="三、STM32 启动文件分析"></a>三、STM32 启动文件分析</h1><p>下面针对 <code>startup_stm32f40_41xxx.s</code> 文件进行简单的分析。</p>
+<h2 id="1、栈-Stack"><a href="#1、栈-Stack" class="headerlink" title="1、栈 Stack"></a>1、栈 Stack</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">Stack_Size      EQU     <span class="hljs-number">0x00000400</span><br><br>                AREA    STACK, NOINIT, READWRITE, ALIGN=<span class="hljs-number">3</span><br>Stack_Mem       SPACE   Stack_Size<br>__initial_sp<br></code></pre></td></tr></table></figure>
+
+<p>这段代码的含义如下：开辟栈的大小为 <code>0X00000400</code>（1KB），名字为 STACK， <code>NOINIT</code> 即不初始化，可读可写， <code>ALIGN=3</code> 表示 8（2^3）字节对齐。</p>
+<p>栈的作用是用于局部变量，函数调用，函数形参等的开销，栈的大小不能超过内部 SRAM 的大小。如果编写的程序比较大，定义的局部变量很多，那么就需要修改栈的大小。</p>
+<blockquote>
+<ul>
+<li><code>EQU</code>：宏定义的伪指令，相当于等于，类似于 C 中的 define。</li>
+<li><code>AREA</code>：告诉汇编器汇编一个新的代码段或者数据段。STACK 表示段名，这个可以任意命名；NOINIT 表示不初始化；READWRITE 表示可读可写，ALIGN&#x3D;3，表示按照 $2^3$ 对齐，即 8 字节对齐。</li>
+<li><code>SPACE</code>：用于分配一定大小的内存空间，单位为字节。这里指定大小等于 Stack_Size。</li>
+<li>标号 <code>__initial_sp</code> 紧挨着 SPACE 语句放置，表示栈的结束地址，即栈顶地址，栈是由高向低生长的。</li>
+</ul>
+</blockquote>
+<h2 id="2、堆-Heap"><a href="#2、堆-Heap" class="headerlink" title="2、堆 Heap"></a>2、堆 Heap</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">Heap_Size       EQU     <span class="hljs-number">0x00000200</span><br><br>                AREA    HEAP, NOINIT, READWRITE, ALIGN=<span class="hljs-number">3</span><br>__heap_base<br>Heap_Mem        SPACE   Heap_Size<br>__heap_limit<br><br>				PRESERVE8<br>                THUMB<br></code></pre></td></tr></table></figure>
+
+<p>解释如下：开辟堆的大小为 <code>0X00000200</code>（512 字节），名字为 HEAP， NOINIT 即不初始化，可读可写，<code>ALIGN=3</code> 同理表示 8（2^3）字节对齐。<code>__heap_base</code> 表示堆的起始地址，<code>__heap_limit</code> 表示堆的结束地址。堆是由低向高生长的，跟栈的生长方向相反。</p>
+<blockquote>
+<ul>
+<li><code>PRESERVE8</code>：指定当前文件的堆栈按照 8 字节对齐。    </li>
+<li><code>THUMB</code>：表示后面指令兼容 <code>THUMB</code> 指令。<code>THUBM</code> 是 <code>ARM</code> 指令集的一个子集重新编码二形成的一个指令集，其指令长度为 16bit，现在 Cortex-M 系列的都使用 <code>THUMB-2</code> 指令集，<code>THUMB-2</code> 是 32 位的，兼容 16 位和 32 位的指令，是 <code>THUMB</code> 的超集。</li>
+</ul>
+</blockquote>
+<p>堆主要用来动态内存的分配，像 <code>malloc()</code> 函数申请的内存就在堆上面。不过这个在 STM32 里面用的比较少。</p>
+<h2 id="3、中断向量表-Vectors"><a href="#3、中断向量表-Vectors" class="headerlink" title="3、中断向量表 Vectors"></a>3、中断向量表 Vectors</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">; Vector Table Mapped to Address <span class="hljs-number">0</span> at Reset<br>                AREA    RESET, DATA, READONLY<br>                EXPORT  __Vectors<br>                EXPORT  __Vectors_End<br>                EXPORT  __Vectors_Size<br></code></pre></td></tr></table></figure>
+
+<p>这里定义一个数据段，名字为 <code>RESET</code>，可读。并声明 <code>__Vectors</code>、<code>__Vectors_End</code> 和 <code>__Vectors_Size</code> 这三个标号具有全局属性，可供外部的文件（C 文件等）调用。    </p>
+<blockquote>
+<ul>
+<li><code>EXPORT</code>：声明一个标号可被外部的文件使用，使标号具有全局属性。如果是 <code>IAR</code> 编译器，则使用的是 <code>GLOBAL</code> 这个指令。</li>
+</ul>
+</blockquote>
+<p>当内核响应了一个发生的异常后，对应的异常服务例程（<em><strong>ESR</strong></em>）就会执行。为了决定 ESR 的入口地址， 内核使用了向量表查表机制。这里使用一张向量表。向量表其实是一个 WORD（32 位整数）数组，每个下标对应一种异常，该下标元素的值则是该 ESR 的入口地址。向量表在地址空间中的位置是可以设置的，通过 NVIC 中的一个重定位寄存器来指出向量表的地址。在复位后，该寄存器的值为 0。因此，在地址 0 （即 FLASH 地址 0） 处必须包含一张向量表，用于初始时的异常分配。要注意的是这里有个另类：0 号类型并不是什么入口地址，而是给出了复位后 MSP 的初值。下图是 F407 的向量表的一部分，具体参阅想要使用的芯片对应的手册即可。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以看到和代码中的定义是一一对应的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">__Vectors       DCD     __initial_sp               ; Top of Stack<br>                DCD     Reset_Handler              ; Reset Handler<br>                DCD     NMI_Handler                ; NMI Handler<br>                DCD     HardFault_Handler          ; Hard Fault Handler<br>                DCD     MemManage_Handler          ; MPU Fault Handler<br>                DCD     BusFault_Handler           ; Bus Fault Handler<br>                DCD     UsageFault_Handler         ; Usage Fault Handler<br>                DCD     <span class="hljs-number">0</span>                          ; Reserved<br>                DCD     <span class="hljs-number">0</span>                          ; Reserved<br>                DCD     <span class="hljs-number">0</span>                          ; Reserved<br>                DCD     <span class="hljs-number">0</span>                          ; Reserved<br>                DCD     SVC_Handler                ; SVCall Handler<br>                DCD     DebugMon_Handler           ; Debug Monitor Handler<br>                DCD     <span class="hljs-number">0</span>                          ; Reserved<br>                DCD     PendSV_Handler             ; PendSV Handler<br>                DCD     SysTick_Handler            ; SysTick Handler<br>				......<br>	<br>__Vectors_End<br><br>__Vectors_Size  EQU  __Vectors_End - __Vectors<br></code></pre></td></tr></table></figure>
+
+<p>向量表从 FLASH 的 0 地址开始放置，以 4 个字节为一个单位，地址 0 存放的是栈顶地址， 0X04 存放的是复位程序的地址，以此类推。从代码上看，向量表中存放的都是中断服务函数的函数名，可我们知道 C 语言中的函数名就是一个地址。    </p>
+<blockquote>
+<ul>
+<li><code>DCD</code>：分配一个或者多个以字为单位的内存，以四字节对齐，并要求初始化这些内存。在向量表中，<code>DCD</code> 分配了一堆内存，并且以 <code>ESR</code> 的入口地址初始化它们。</li>
+</ul>
+</blockquote>
+<h3 id="3-1-中断响应流程"><a href="#3-1-中断响应流程" class="headerlink" title="3.1 中断响应流程"></a>3.1 中断响应流程</h3><p>这里既然提到了中断向量表，就额外补充以下中断响应流程：</p>
+<ol>
+<li>中断信号发送到 NVIC</li>
+<li>NVIC 通知 CPU</li>
+<li>CPU 根据中断号得到中断服务程序地址（基地址 + 中断编号 * 4B）</li>
+<li>保存现场</li>
+<li>执行中断服务程序</li>
+<li>恢复现场</li>
+<li>继续执行程序</li>
+</ol>
+<p>下面以 <code>PendSV_Handler</code> 为例，说明一下：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以看到 <code>PendSV_Handler</code> 的中断号是 14，也就是 $14*4&#x3D;(56)_{10}&#x3D;(38)_2$。</p>
+<p>而中断向量表的基地址为 <code>0x08000000</code>，故其服务函数的地址在 <code>0x08000038</code>，见下 bin 文件（下面会提到）：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>解析出来是：<code>0x080002D7</code>，而 map 文件中却是：<code>0x080002D6</code></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p>原因如下：ARM 指令集有 ARM 指令集和 Thumb 指令集。ARM 指令集位数长；而 Thumb 指令集位数短，故而占用内存比较小，所以编译器大部分时间采用 Thumb 指令集。</p>
+<ul>
+<li>Thumb 指令集末尾是奇数位 1，像这里的 <code>0x080002D7</code></li>
+<li>ARM 指令集末尾是偶数位 0，也就是这里的 <code>0x080002D6</code></li>
+</ul>
+<p>而我们访问 <code>0x080002D7</code> 这个地址的时候，它实际上会跳转到 <code>0x080002D6</code> 这个地址。</p>
+<h2 id="4、复位程序-Reset-Handler"><a href="#4、复位程序-Reset-Handler" class="headerlink" title="4、复位程序 Reset_Handler"></a>4、复位程序 Reset_Handler</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">				AREA    |.text|, CODE, READONLY<br><br>; Reset handler<br>Reset_Handler    PROC<br>                 EXPORT  Reset_Handler             [WEAK]<br>        IMPORT  SystemInit<br>        IMPORT  __main<br><br>                 LDR     R0, =SystemInit<br>                 BLX     R0<br>                 LDR     R0, =__main<br>                 BX      R0<br>                 ENDP<br></code></pre></td></tr></table></figure>
+
+
+<p>首先定义一个名称为 .text 的代码段，仅可读。</p>
+<p>复位子程序是系统上电后第一个执行的程序，调用 <code>SystemInit</code> 函数初始化系统时钟，然后调用 C 库函数 <code>__main</code>，最终调用 <code>main</code> 函数去到 C 程序中。</p>
+<blockquote>
+<ul>
+<li><code>WEAK</code>：表示弱定义，如果外部文件优先定义了该标号则首先引用该标号，如果外部文件没有声明也不会出错。这里表示复位子程序可以由用户在其他文件重新实现，这里并不是唯一的。    </li>
+<li><code>IMPORT</code>：表示该标号来自外部文件，跟 C 语言中的 <code>EXTERN</code> 关键字类似。这里表示 <code>SystemInit</code> 和 <code>__main</code> 这两个函数均来自外部的文件。</li>
+<li><code>LDR</code>：从存储器中加载字到一个寄存器中</li>
+<li><code>BL</code>：跳转到由寄存器&#x2F;标号给出的地址，并把跳转前的下一条指针地址保存到 <code>LR</code></li>
+<li><code>BLX</code>：跳转到由寄存器给出的地址，并根据寄存器的 <code>LSE</code> 确定处理器的状态，还要把跳转前的下条指令地址保存到 <code>LR</code></li>
+<li><code>BX</code>：跳转到由寄存器&#x2F;标号给出的地址，不用返回</li>
+</ul>
+</blockquote>
+<p><code>SystemInit()</code> 是一个标准的库函数，在 <code>system_stm32f4xx.c</code> 这个库文件中定义。主要作用是配置系统时钟。<code>__main</code> 是一个标准的 C 库函数，主要作用是初始化用户堆栈，并在函数的最后调用 <code>main</code> 函数去到 C 程序中。这就是为什么我们写的程序都有一个 <code>main</code> 函数的原因。</p>
+<h2 id="5、中断服务函数"><a href="#5、中断服务函数" class="headerlink" title="5、中断服务函数"></a>5、中断服务函数</h2><p>在启动文件里面已经帮我们写好所有中断的中断服务函数，跟我们平时写的中断服务函数不一样的就是这些函数都是空的，真正的中断服务程序需要我们在外部的 C 文件里面重新实现，这里只是提前占了一个位置而已。    </p>
+<p>如果我们在使用某个外设的时候，开启了某个中断，但是又忘记编写配套的中断服务程序或者函数名写错，那当中断来临的时，程序就会跳转到启动文件预先写好的空的中断服务程序中，并且在这个空函数中无线循环，即程序就死在这里。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">NMI_Handler     PROC<br>                EXPORT  NMI_Handler                [WEAK]<br>                B       .<br>                ENDP<br>				...<br>SysTick_Handler PROC<br>                EXPORT  SysTick_Handler            [WEAK]<br>                B       .<br>                ENDP<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>stm32f4xx_it.c</code> 文件中对这几个中断服务函数做了重定向定义：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>当我们在这里定义的话，汇编里的实现就不起作用了。</p>
+<p>下面是一些外设相关的中断服务程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">Default_Handler PROC<br><br>                EXPORT  WWDG_IRQHandler                   [WEAK]    <br>				...<br>				EXPORT  FPU_IRQHandler                    [WEAK]<br><br>WWDG_IRQHandler                                                       <br>PVD_IRQHandler<br>...<br>CRYP_IRQHandler                                                    <br>HASH_RNG_IRQHandler<br>FPU_IRQHandler<br>   <br>                B       .<br><br>                ENDP<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>B</code>：跳转到一个标号。这里跳转到一个‘.’，即表示无线循环</li>
+</ul>
+</blockquote>
+<p>当我们使能了 <code>USART1</code> 中断，而没有在 C 程序中实现 <code>USART1_IRQHandler</code>，那就会在启动文件的汇编程序中进行死循环，而死循环就是通过这个 <code>B .</code> 来实现的。</p>
+<h2 id="6、用户堆栈初始化"><a href="#6、用户堆栈初始化" class="headerlink" title="6、用户堆栈初始化"></a>6、用户堆栈初始化</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c">ALIGN<br><br>;*******************************************************************************<br>; User Stack and Heap initialization, 由 C 库函数 __main 来完成<br>;*******************************************************************************<br>                 IF      :DEF:__MICROLIB  ; 这个宏在 KEIL 里面开启<br>                <br>                 EXPORT  __initial_sp<br>                 EXPORT  __heap_base<br>                 EXPORT  __heap_limit<br>                <br>                 ELSE<br>                <br>                 IMPORT  __use_two_region_memory   ; 这个函数由用户自己实现<br>                 EXPORT  __user_initial_stackheap<br>                 <br>__user_initial_stackheap<br><br>                 LDR     R0, =  Heap_Mem<br>                 LDR     R1, =(Stack_Mem + Stack_Size)<br>                 LDR     R2, = (Heap_Mem +  Heap_Size)<br>                 LDR     R3, = Stack_Mem<br>                 BX      LR<br><br>                 ALIGN<br><br>                 ENDIF<br><br>                 END<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li><code>ALIGN</code>：对指令或者数据存放的地址进行对齐，后面会跟一个立即数。缺省表示 4 字节对齐。</li>
+<li><code>IF,ELSE,ENDIF</code>：汇编的条件分支语句，跟 C 语言的 if ,else 类似</li>
+<li><code>END</code>：文件结束</li>
+</ul>
+</blockquote>
+<p>首先判断是否定义了 <code>__MICROLIB</code>：</p>
+<ul>
+<li>如果定义了这个宏则赋予标号 <code>__initial_sp</code>（栈顶地址）、<code>__heap_base</code>（堆起始地址）、<code>__heap_limit</code>（堆结束地址）全局属性，可供外部文件调用。有关这个宏我们在 KEIL 里面配置，具体见下图。然后堆栈的初始化就由 C 库函数 <code>__main</code> 来完成。</li>
+<li>如果没有定义 <code>__MICROLIB</code>，则才用双段存储器模式，且声明标号 <code>__user_initial_stackheap</code> 具有全局属性，让用户自己来初始化堆栈。</li>
+</ul>
+<blockquote>
+<p>这里的 <code>__user_initial_stackheap</code> 就是前面提到的 <code>__main</code> 函数中的一个标签，也就相当于一个函数，初始化了堆栈的大小</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<blockquote>
+<p><code>Use MicroLIB</code> 有什么好处呢？当我们的程序使用到了一些 C 库的一些文件的时候，比如 <code>printf</code> 等，可以减小生成的代码。但是，它的执行速度没有标准 C 库的速度快。也就是用时间换空间，使用的时候自行取舍是否使用微库（<code>Use MicroLIB</code>）。</p>
+</blockquote>
+<h1 id="四、STM32-启动流程分析"><a href="#四、STM32-启动流程分析" class="headerlink" title="四、STM32 启动流程分析"></a>四、STM32 启动流程分析</h1><p>经过刚才对启动文件的分析，下面对 STM32 启动流程的分析就要清晰不少了。</p>
+<h2 id="1、初始化-SP、PC-及中断向量表"><a href="#1、初始化-SP、PC-及中断向量表" class="headerlink" title="1、初始化 SP、PC 及中断向量表"></a>1、初始化 SP、PC 及中断向量表</h2><p>当系统复位后，处理器首先读取向量表中的前两个字(8 个字节)，第一个字存入 SP，第二个字存入 PC，也就是<br>程序执行的起始地址。</p>
+<p>下面打开经过编译生成的 bin 文件，看到前 8 个字节的内容如下（小端模式）：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>Keil 默认生成 hex 文件，要想生成 bin 文件要自己添加命令，设置如下：</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload><br><code>D:\Keil_v5\ARM\ARMCC\bin\fromelf.exe --bin --output=Objects/stm32f407.bin Objects/stm32f407.axf</code></p>
+</blockquote>
+<p>即 <code>0x20000660</code> 和 <code>0x0800020D</code>，下面在 map 文件（存放链接地址）中查找这两个地址存放的是什么数据：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload><br><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<p>这正是中断向量表的前两项内容，这也印证了前面所说的内容：</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、设置系统时钟"><a href="#2、设置系统时钟" class="headerlink" title="2、设置系统时钟"></a>2、设置系统时钟</h2><p>接下来执行 PC 指向的 <code>Reset_Handler</code>，并调用 <code>SystemInit</code> 初始化系统时钟。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">SystemInit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-comment">/* FPU settings ------------------------------------------------------------*/</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">if</span> (__FPU_PRESENT == 1) &amp;&amp; (__FPU_USED == 1)</span><br>    SCB-&gt;CPACR |= ((<span class="hljs-number">3UL</span> &lt;&lt; <span class="hljs-number">10</span>*<span class="hljs-number">2</span>)|(<span class="hljs-number">3UL</span> &lt;&lt; <span class="hljs-number">11</span>*<span class="hljs-number">2</span>));  <span class="hljs-comment">/* set CP10 and CP11 Full Access */</span><br>  <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>  <span class="hljs-comment">/* Reset the RCC clock configuration to the default reset state ------------*/</span><br>  <span class="hljs-comment">/* Set HSION bit */</span><br>  RCC-&gt;CR |= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0x00000001</span>;<br><br>  <span class="hljs-comment">/* Reset CFGR register */</span><br>  RCC-&gt;CFGR = <span class="hljs-number">0x00000000</span>;<br><br>  <span class="hljs-comment">/* Reset HSEON, CSSON and PLLON bits */</span><br>  RCC-&gt;CR &amp;= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFEF6FFFF</span>;<br><br>  <span class="hljs-comment">/* Reset PLLCFGR register */</span><br>  RCC-&gt;PLLCFGR = <span class="hljs-number">0x24003010</span>;<br><br>  <span class="hljs-comment">/* Reset HSEBYP bit */</span><br>  RCC-&gt;CR &amp;= (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFFFBFFFF</span>;<br><br>  <span class="hljs-comment">/* Disable all interrupts */</span><br>  RCC-&gt;CIR = <span class="hljs-number">0x00000000</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(DATA_IN_ExtSRAM) || defined(DATA_IN_ExtSDRAM)</span><br>  SystemInit_ExtMemCtl(); <br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */</span></span><br>         <br>  <span class="hljs-comment">/* Configure the System clock source, PLL Multiplier and Divider factors, </span><br><span class="hljs-comment">     AHB/APBx prescalers and Flash settings ----------------------------------*/</span><br>  SetSysClock();<br><br>  <span class="hljs-comment">/* Configure the Vector Table location add offset address ------------------*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> VECT_TAB_SRAM</span><br>  SCB-&gt;VTOR = SRAM_BASE | VECT_TAB_OFFSET; <span class="hljs-comment">/* Vector Table Relocation in Internal SRAM */</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>  SCB-&gt;VTOR = FLASH_BASE | VECT_TAB_OFFSET; <span class="hljs-comment">/* Vector Table Relocation in Internal FLASH */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>时钟部分可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142514502">STM32 时钟树（基于 STM32F407）</a></p>
+</blockquote>
+<p>前面的部分是配置时钟的，具体参考手册即可。需要注意的是最后一段代码：</p>
+<p>默认是没有开启 <code>VECT_TAB_SRAM</code>（即从 SRAM 中启动），表示从 FLASH 中启动，VTOR 寄存器存放的是中断向量表的起始地址，在 IAP 升级会修改这里的偏移量。</p>
+<h2 id="3、初始化堆栈并进入-main"><a href="#3、初始化堆栈并进入-main" class="headerlink" title="3、初始化堆栈并进入 main"></a>3、初始化堆栈并进入 main</h2><p>执行完 <code>SystemInit</code> 后又调用了标准库中的 <code>__main</code> 函数：</p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p>在这里会初始化堆、栈、RO、RW、ZI 段。最后就进入到 C 文件中的 main 函数中。</p>
+<blockquote>
+<p>有关内存分段的内存可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a></p>
+</blockquote>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<p>至此，启动过程圆满结束！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>STM32 芯片启动过程</div>
+      <div>http://example.com/2024/09/18/STM32启动过程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" title="BLE 协议之链路层">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">BLE 协议之链路层</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" title="BLE 协议之物理层">
+                        <span class="hidden-mobile">BLE 协议之物理层</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

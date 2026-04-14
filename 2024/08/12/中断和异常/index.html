@@ -1,0 +1,964 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、什么是中断1、概述中断（interrupt）是指在 CPU 正常运行期间， 由外部或内部事件引起的一种机制。 当中断发生时，CPU 会停止当前正在执行的程序，并转而执行触发该中断的中断处理程序。处理完中断处理程序后，CPU 会返回到中断发生的地方， 继续执行被中断的程序。中断机制允许 CPU 在实时响应外部或内部事件的同时，保持对其他任务的处理能力。 中断的流程图如下：  2、中断">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 中断机制（一）之中断和异常">
+<meta property="og:url" content="http://example.com/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、什么是中断1、概述中断（interrupt）是指在 CPU 正常运行期间， 由外部或内部事件引起的一种机制。 当中断发生时，CPU 会停止当前正在执行的程序，并转而执行触发该中断的中断处理程序。处理完中断处理程序后，CPU 会返回到中断发生的地方， 继续执行被中断的程序。中断机制允许 CPU 在实时响应外部或内部事件的同时，保持对其他任务的处理能力。 中断的流程图如下：  2、中断">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/1.png">
+<meta property="og:image" content="http://example.com/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/2.png">
+<meta property="og:image" content="http://example.com/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/3.png">
+<meta property="article:published_time" content="2024-08-12T09:01:39.000Z">
+<meta property="article:modified_time" content="2024-11-13T17:24:17.288Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="中断机制">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/1.png">
+  
+  
+  
+  <title>Linux 中断机制（一）之中断和异常 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 中断机制（一）之中断和异常"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-12 17:01" pubdate>
+          星期一, 八月 12日 2024, 5:01 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          45 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 中断机制（一）之中断和异常</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、什么是中断"><a href="#一、什么是中断" class="headerlink" title="一、什么是中断"></a>一、什么是中断</h1><h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>中断（<em><strong>interrupt</strong></em>）是指在 CPU 正常运行期间， 由外部或内部事件引起的一种机制。 当中断发生时，CPU 会停止当前正在执行的程序，并转而执行触发该中断的中断处理程序。处理完中断处理程序后，CPU 会返回到中断发生的地方， 继续执行被中断的程序。中断机制允许 CPU 在实时响应外部或内部事件的同时，保持对其他任务的处理能力。</p>
+<p>中断的流程图如下：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、中断的分类"><a href="#2、中断的分类" class="headerlink" title="2、中断的分类"></a>2、中断的分类</h2><p>中断通常被定义为一个事件，该事件改变处理器执行的指令顺序。这样的事件与 CPU 芯片内外部硬件电路产生的电信号相对应。</p>
+<p>中断通常分为同步（<em><strong>synchronous</strong></em>）中断和异步（<em><strong>asynchronous</strong></em>）中断：</p>
+<ul>
+<li><strong>同步中断</strong>是当指令执行时由 CPU 控制单元产生的，之所以称为同步，是因为只有在一条指令终止执行后CPU才会发出中断；</li>
+<li><strong>异步中断</strong>是由其他硬件设备依照 CPU 时钟信号随机产生的。</li>
+</ul>
+<blockquote>
+<p>在 Intel 微处理器手册中,把同步和异步中断分别称为异常（<em><strong>exception</strong></em>）和中断（<em><strong>interrupt</strong></em>）我们也采用这种分类，当然有时我们也用术语“中断信号”指这两种类型(同步及异步)。</p>
+</blockquote>
+<h1 id="二、中断和异常"><a href="#二、中断和异常" class="headerlink" title="二、中断和异常"></a>二、中断和异常</h1><h2 id="1、中断和异常"><a href="#1、中断和异常" class="headerlink" title="1、中断和异常"></a>1、中断和异常</h2><p>Intel 文档把中断和异常分为以下几类：</p>
+<ul>
+<li><strong>中断</strong>：<ul>
+<li>可屏蔽中断（<em><strong>maskabie interrupt</strong></em>）<br>  I&#x2F;O 设备发出的所有中断请求（<em><strong>IRQ</strong></em>）都产生可屏蔽中断。可屏蔽中断可以处于两种状态：屏蔽的（<em><strong>masked</strong></em>）或非屏蔽的（<em><strong>unmasked</strong></em>），一个屏蔽的中断只要还是屏蔽的，控制单元就忽略它。&#x3D;&#x3D;要根据中断允许标志的设置来判断 CPU 是否能响应中断请求&#x3D;&#x3D;。</li>
+<li>非屏蔽中断（<em><strong>nonmakable interrupt</strong></em>）<br>  只有几个危急事件（如硬件故障）才引起非屏蔽中断。非屏蔽中断总是由 CPU 辨认。&#x3D;&#x3D;不受中断允许标志的影响，不能用软件进行屏蔽&#x3D;&#x3D;。<br>  可屏蔽的中断可以被阻塞，使用 x86_64 的指令 <code>sti</code> 和 <code>cli</code>。这两个指令修改了在中断寄存器中的 IF 标识位。 <code>sti</code> 指令设置 IF 标识，<code>cli</code> 指令清除这个标识。不可屏蔽的中断总是被报告。通常，任何硬件上的失败都映射为不可屏蔽中断。我们可以在 Linux 内核代码中找到这两个指令的使用：</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">native_irq_disable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;cli&quot;</span>: : :<span class="hljs-string">&quot;memory&quot;</span>)</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">native_irq_enable</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>        <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;sti&quot;</span>: : :<span class="hljs-string">&quot;memory&quot;</span>)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>异常</strong>：<ol>
+<li>处理器探测异常（<em><strong>processor-detected exception</strong></em>）<br>  当 CPU 执行指令时探测到的一个反常条件所产生的异常。可以进一步分为三组，这取决于 CPU 控制单元产生异常时保存在内核态堆栈 eip 寄存器中的值。<ul>
+<li>故障（<em><strong>fault</strong></em>）<br>  通常可以纠正：一旦纠正，程序就可以&#x3D;&#x3D;在不失连贯性的情况下重新开始&#x3D;&#x3D;。保存在 eip 中的值是引起故障的指令地址。因此，当异常处理程序终止时，那条指令会被重新执行。</li>
+<li>陷阱（<em><strong>trap</strong></em>）<br>  在陷阱指令执行后立即报告；&#x3D;&#x3D;内核把控制权返回给程序后就可以继续它的执行而不失连贯性&#x3D;&#x3D;。保存在 eip 中的值是一个随后要执行的指令地址。只有当没有必要重新执行已终止的指令时，才触发陷阱。陷阱的主要用途是为了调试程序。在这种情况下，中断信号的作用是通知调试程序一条特殊指令已被执行（例如到了一个程序内的断点）。一旦用户检查到调试程序所提供的数据，它就可能要求被调试程序从下一条指令重新开始执行。</li>
+<li>异常中止（<em><strong>abort</strong></em>）<br>  发生一个严重的错误：控制单元出了问题，不能在 eip 寄存器中保存引起异常的指令所在的确切位置。异常中止用于&#x3D;&#x3D;报告严重的错误&#x3D;&#x3D;，如硬件故障或系统表中无效的值或不一致的值。由控制单元发送的这个中断信号是紧急信号，用来把控制权切换到相应的异常中止处理程序，这个异常中止处理程序除了强制受影响的进程终止外，没有别的选择。</li>
+</ul>
+</li>
+<li>编程异常（<em><strong>programmed exception</strong></em>）<br>在编程者发出请求时发生。是由 <code>int</code> 或 <code>int3</code> 指令触发的，当 <code>into</code>（检查溢出）和 <code>bound</code>（检查地址出界）指令检查的条件不为真时，也引起编程异常。控制单元把编程异常作为陷阱来处理。编程异常通常也叫做<strong>软中断</strong>（<em><strong>sofware interrupt</strong></em>）这样的异常有两种常用的用途：执行系统调用及给调试程序通报一个特定的事件。</li>
+</ol>
+</li>
+</ul>
+<p>每个中断和异常是由 0~255 之间的一个数来标识。因为一些未知的原因，Intel 把这个 8 位的无符号整数叫做一个向量（<em><strong>vector</strong></em>）。非屏蔽中断的向量和异常的向量是固定的，而可屏蔽中断的向量可以通过对中断控制器的编程来改变。</p>
+<p>中断和异常的区别：中断是由硬件引起的；异常则发生在编程失误而导致错误指令，或者在执行期间出现特殊情况必须要靠内核来处理的时候（比如缺页）。</p>
+<h2 id="2、中断的上下部"><a href="#2、中断的上下部" class="headerlink" title="2、中断的上下部"></a>2、中断的上下部</h2><p>中断的执行需要快速响应， 但并不是所有中断都能迅速完成。 此外， Linux 中的中断不支持嵌套， 意味着在正式处理中断之前会屏蔽其他中断， 直到中断处理完成后再重新允许接收中断，如果中断处理时间过长， 将会引发问题。</p>
+<p>这里以炒菜的过程中接电话进行举例：当你正在炒菜的时候，菜正在锅里翻炒着。 突然， 你的手机响起，打破了你正常的炒菜流程，接电话的时间很短并不会对炒菜产生很大的影响， 而接电话的时候可能就有问题了，因为菜可能会因为没来得及翻面而炒糊了。</p>
+<p>为了让系统可以更好地处理中断事件， 提高实时性和响应能力， 将中断服务程序划分为上下文两部分：</p>
+<ul>
+<li><p><strong>上半部</strong>：上半部是中断处理函数的一部分，它主要处理一些紧急且需要快速响应的任务。 中断上文的特点是执行时间较短，旨在尽快完成对中断的处理。这些任务可能包括保存寄存器状态、更新计数器等， 以便在中断处理完成后能够正确地返回到中断前的执行位置。<br>上半部的执行是在中断上下文中进行的，它运行在中断服务例程（<em><strong>ISR</strong></em>）所在的内核线程上下文中，而不是用户进程的上下文中。因此，上半部的执行是在中断被触发时立即执行的，不会被其他中断打断。</p>
+</li>
+<li><p><strong>下半部</strong>是中断处理函数的另一部分，它相对于上半部来说是延迟执行的。下半部的目的是在中断被触发后，尽快将一些不紧急或者耗时的处理工作延后执行，以减轻上半部的负担，从而使中断处理更加高效。<br>下半部的执行是在非中断上下文中进行的，它不会被其他中断打断，并且可以访问用户空间的内存。下半部的执行可以在任意时刻进行，但是需要注意的是，下半部执行的时间越长，会导致中断延迟更长，从而影响系统的响应性能。下半部一般包括以下几种形式：</p>
+<ul>
+<li>内核线程：创建一个新的内核线程来执行一些独立于中断的任务。</li>
+<li>任务队列：将需要执行的任务放入任务队列中，由内核调度器来选择适当的时机执行。</li>
+<li>工作队列：类似于任务队列，但是工作队列可以绑定到某个 CPU，以提高处理效率。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3、异常"><a href="#3、异常" class="headerlink" title="3、异常"></a>3、异常</h2><p>80x86 微处理器发布了大约 20 种不同的异常（依赖于体系结构）。内核必须为每种常提供一个专门的异常处理程序。对于某些异常，CPU 控制单元在开始执行异常处理程序前会产生一个硬件出错码（<em><strong>hardware error code</strong></em>)，并且压入内核态堆栈。</p>
+<p>下面的列表给出了在 80x86 处理器中可以找到的异常的向量、名字、类型及其简单描述。更多的信息可以在 Intel 的技术文挡中找到。</p>
+<ul>
+<li><strong>0</strong>：“<strong>Divide error</strong>”(故障)<br>当一个程序试图执行整数被 0 除操作时产生。</li>
+<li><strong>1</strong>：“<strong>Debug</strong>”(陷阱或故障)<br>产生于：<ul>
+<li>设置 eflags 的 TF 标志时（对于实现调试程序的单步执行是相当有用的）；</li>
+<li>一条指令或操作数的地址落在一个活动 debug 寄存器的范围之内。</li>
+</ul>
+</li>
+<li><strong>2</strong>：未用<br>为非屏蔽中断保留（利用 NMI 引脚的那些中断）。</li>
+<li><strong>3</strong>：“<strong>Breakpoint</strong>”(陷阱)<br>由 <code>int3</code>（断点）指令（通常由 debugger 插入）引起。</li>
+<li><strong>4</strong>：“<strong>Overflow</strong>”(陷阱)<br>当 eflags 的 OF（overflow）标志被设置时，<code>into</code>（检查溢出）指令被执行。</li>
+<li><strong>5</strong>：“<strong>Bounds check</strong>“(故障)<br>对于有效地址范围之外的操作数，<code>bound</code>（检查地址边界）指令被执行。</li>
+<li><strong>6</strong>：“<strong>Invalid opcode</strong>“(故障)<br>CPU 执行单元检测到一个无效的操作码（决定执行操作的机器指令部分）</li>
+<li><strong>7</strong>：“<strong>Device not available</strong>”(故障)<br>随着 <code>cr0</code> 的 TS 标志被设置，<code>ESCAPE</code>、<code>MMX</code> 或 <code>XMM</code> 指令被执行。</li>
+<li><strong>8</strong>：“<strong>Double fault</strong>”(异常中止)<br>正常情况下，当 CPU 正试图为前一个异常调用处理程序时，同时又检测到一个异常，两个异常能被串行地处理。然而，在少数情况下，处理器不能串行地处理它们因而产生这种异常。</li>
+<li><strong>9</strong>：“<strong>Coprocessor segment overrun</strong>”(异常中止)<br>因外部的数学协处理器引起的问题（仅用于 80386 微处理器）。</li>
+<li><strong>10</strong>：“<strong>Invalid TSS</strong>”(故障)<br>CPU 试图让一个上下文切换到有无效的 TSS 的进程。</li>
+<li><strong>11</strong>：“<strong>Segment not present</strong>”(故障)<br>引用一个不存在的内存段（段描述符的 Segment-Present 标志被清0）。</li>
+<li><strong>12</strong>：“<strong>Stack segment fault</strong>”(故障)<br>试图超过栈段界限的指令，或者由 ss 标识的段不在内存</li>
+<li><strong>13</strong>：“<strong>General protection</strong>”(故障)<br>违反了 80x86 保护模式下的保护规则之一。</li>
+<li><strong>14</strong>：“<strong>Page fault</strong>”(故障)<br>寻址的页不在内存，相应的页表项为空，或者违反了一种分页保护机制。</li>
+<li><strong>15</strong>：由 Intel 保留</li>
+<li><strong>16</strong>：“<strong>Floating point error</strong>”(故障)<br>集成到 CPU 芯片中的浮点单元用信号通知一个错误情形，如数字溢出，或被 0 除。</li>
+<li><strong>17</strong>：“<em><strong>Alignment check</strong></em>”(故障)<br>操作数的地址没有被正确地对齐（例如，一个长整数的地址不是 4 的倍数）。</li>
+<li><strong>18</strong>：“<strong>Machine check</strong>”(异常中止)<br>机器检查机制检测到一个 CPU 错误或总线错误。</li>
+<li><strong>19</strong>：“<strong>SIMD floating point exception</strong>“(故障)<br>集成到 CPU 芯片中的 SSE 或 SSE2 单元对浮点操作用信号通知一个错误情形。</li>
+</ul>
+<p>20~31 这些值由 Intel 留作将来开发。如下表所示，每个异常都由专门的异常处理程序来处理，它们通常把一个 Unix 信号发送到引起异常的进程。</p>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>异常</th>
+<th>异常处理程序</th>
+<th>信号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>Divide error</td>
+<td>divide error()</td>
+<td>SIGFPE</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Debug</td>
+<td>debug()</td>
+<td>SIGTRAP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>NMI</td>
+<td>nmi()</td>
+<td>None</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Breakpoint</td>
+<td>int3()</td>
+<td>SIGTRAP</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Overflow</td>
+<td>overflow()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Bounds check</td>
+<td>bounds()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Invalid opcode</td>
+<td>invalid_op()</td>
+<td>SIGILL</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Device not available</td>
+<td>device_not_available()</td>
+<td>None</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Double fault</td>
+<td>doublefault_fn()</td>
+<td>None</td>
+</tr>
+<tr>
+<td>9</td>
+<td>coprocessor segment overrun</td>
+<td>coprocessor_segment_overrun()</td>
+<td>SIGFPE</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Invalid TSS</td>
+<td>invalid_tss()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Segment not present</td>
+<td>segment_not_present()</td>
+<td>SIGBUS</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Stack exception</td>
+<td>stack_segment()</td>
+<td>SIGBUS</td>
+</tr>
+<tr>
+<td>13</td>
+<td>General protection</td>
+<td>general_protection()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Page fault</td>
+<td>page_fault()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Intel reserved</td>
+<td>None</td>
+<td>None</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Floating point error</td>
+<td>coprocessor_error()</td>
+<td>SIGFPE</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Alignment check</td>
+<td>alignment_check()</td>
+<td>SIGSEGV</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Machine check</td>
+<td>machine_check()</td>
+<td>None</td>
+</tr>
+<tr>
+<td>19</td>
+<td>SIMD floating point</td>
+<td>simd_coprocessor_error()</td>
+<td>SIGFPE</td>
+</tr>
+</tbody></table>
+<h2 id="4、APIC"><a href="#4、APIC" class="headerlink" title="4、APIC"></a>4、APIC</h2><p>前面已经讲了什么是中断，那么中断信号是怎么处理的呢？比如，当我们在键盘上按下一个键的时候，我们下一步期望做什么？操作系统和电脑应该怎么做？做一个简单的假设，每一个物理硬件都有一根连接 CPU 的中断线，设备可以通过它对 CPU 发起中断信号。但是中断信号并不是直接发送给 CPU。在老机器上中断信号发送给 PIC ，它是一个顺序处理各种设备的各种中断请求的芯片。在新机器上，则是高级程序中断控制器（<em><strong>Advanced Programmable Interrupt Controller</strong></em>，<em><strong>APIC</strong></em>）做这件事情。一个 APIC 包括两个独立的设备：</p>
+<ul>
+<li><strong>Local APIC</strong>：在于每个 CPU 核心中，Local APIC 负责处理特定于 CPU 的中断配置。Local APIC 常被用于管理来自 APIC 时钟（APIC-timer）、热敏元件和其他与 I&#x2F;O 设备连接的设备的中断。</li>
+<li><strong>I&#x2F;O APIC</strong>：提供了多核处理器的中断管理。它被用来在所有的 CPU 核心中分发外部中断。</li>
+</ul>
+<p>下图显示了一个多 APIC 系统的结构。一条 APIC 总线把“前端” I&#x2F;O APIC 连接到本地 APIC。来自设备的 IRQ 线连接到 I&#x2F;O APIC，因此，相对于本地 APIC，I&#x2F;O APIC 起路由器的作用。在 Pentium III 和早期处理器的母板上，APIC 总线是一个串行三线总线；从 Pentium 4 开始，APIC 总线通过系统总线来实现。不过，因为 APIC 总线及其信息对软件是不可见的，因此，我们不做进一步的详细讨论。</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5、中断描述符表"><a href="#5、中断描述符表" class="headerlink" title="5、中断描述符表"></a>5、中断描述符表</h2><p>中断可以在任何时间发生，当一个中断发生时，操作系统必须确保下面的步骤顺序：</p>
+<ol>
+<li>内核必须暂停执行当前进程（取代当前的任务）；</li>
+<li>内核必须搜索中断处理程序并且转交控制权（执行中断处理程序）；</li>
+<li>中断处理程序结束之后，被中断的进程能够恢复执行。</li>
+</ol>
+<p>每个中断处理程序的地址都保存在一个特殊的位置，这个位置被称为<strong>中断描述符表</strong>（<em><strong>Interrupt Descriptor Table</strong></em>，<em><strong>IDT</strong></em>）。处理器使用一个唯一的数字来识别中断和异常的类型，这个数字被称为<strong>中断标识码</strong>（<em><strong>vector number</strong></em>）。一个中断标识码就是一个 IDT 的标识。中断标识码范围是有限的，从 0 到 255。你可以在 Linux 内核源码中找到下面的中断标识码范围检查代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">BUG_ON((<span class="hljs-type">unsigned</span>)n &gt; <span class="hljs-number">0xFF</span>);<br></code></pre></td></tr></table></figure>
+
+
+<p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140520464">Linux 内存管理（二）之GDT与LDT</a> 一文中，我们讲到了 GDT 和 LDT，IDT 的格式与这两种表的格式非常相似，表中的每一项对应一个中断或异常向量，每个向量由 8 个字节组成。因此，最多需要 $256*8&#x3D;2048$ 字节来存放 IDT。</p>
+<p><code>idtr</code> CPU寄存器使 IDT 可以位于内存的任何地方，它指定 IDT 的线性基地址及其限制（最大长度）。在允许中断之前，必须用 <code>lidt</code> 汇编指令初始化 <code>idtr</code>。</p>
+<p>IDT 包含三种类型的描述符，下图显示了每种描述符中的 64 位的含义。尤其值得注意的是，在 40~43 位的 Type 字段的值表示描述符的类型。</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>任务门（<em><strong>task gate</strong></em>）<br>  当中断信号发生时，必须取代当前进程的那个进程的 TSS 选择符存放在任务门中。</li>
+<li>中断门（<em><strong>interrupt gate</strong></em>）<br>包含段选择符和中断或异常处理程序的段内偏移量。当控制权转移到一个适当的段时，处理器清 IF 标志，从而关闭将来会发生的可屏蔽中断。</li>
+<li>陷阱门（<em><strong>Trap gate</strong></em>）<br>与中断门相似，只是控制权传递到一个适当的段时处理器不修改 IF 标志。</li>
+</ul>
+<h1 id="三、软件实现"><a href="#三、软件实现" class="headerlink" title="三、软件实现"></a>三、软件实现</h1><p>中断描述符表 使用 <code>gate_desc</code> 的数组描述：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">extern</span> gate_desc idt_table[];<br></code></pre></td></tr></table></figure>
+
+<p><code>gate_desc</code> 定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_X86_64</span><br>	...<br>	<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gate_struct64</span> <span class="hljs-title">gate_desc</span>;</span><br>	...<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p><code>gate_struct64</code> 定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">gate_struct64</span> &#123;</span><br>	u16 offset_low;<br>    u16 segment;<br>    <span class="hljs-type">unsigned</span> ist : <span class="hljs-number">3</span>, zero0 : <span class="hljs-number">5</span>, type : <span class="hljs-number">5</span>, dpl : <span class="hljs-number">2</span>, p : <span class="hljs-number">1</span>;<br>    u16 offset_middle;<br>    u32 offset_high;<br>    u32 zero1;<br>&#125; __attribute__((packed));<br></code></pre></td></tr></table></figure>
+
+<p>在 x86_64 架构中，每一个活动的线程在 Linux 内核中都有一个很大的栈。这个栈的大小由 <code>THREAD_SIZE</code> 定义，而且与下面的定义相等：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAGE_SHIFT      12</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAGE_SIZE       (_AC(1,UL) &lt;&lt; PAGE_SHIFT)</span><br>...<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> THREAD_SIZE_ORDER       (2 + KASAN_STACK_ORDER)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> THREAD_SIZE  (PAGE_SIZE &lt;&lt; THREAD_SIZE_ORDER)</span><br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>PAGE_SIZE</code> 是 4096 字节，<code>THREAD_SIZE_ORDER</code> 的值依赖于 <code>KASAN_STACK_ORDER</code>。就像我们看到的，<code>KASAN_STACK</code> 依赖于 <code>CONFIG_KASAN</code> 内核配置参数，它定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_KASAN</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> KASAN_STACK_ORDER 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> KASAN_STACK_ORDER 0</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p><code>KASan</code> 是一个运行时内存调试器。所以：</p>
+<ul>
+<li>如果 <code>CONFIG_KASAN</code> 被禁用，<code>THREAD_SIZE</code> 是 16384；</li>
+<li>如果内核配置选项打开，<code>THREAD_SIZE</code> 的值是 32768。</li>
+</ul>
+<p>这块栈空间保存着有用的数据，只要线程是活动状态或者僵尸状态。但是当线程在用户空间的时候，这个内核栈是空的，除非 <code>thread_info</code> 结构在这个栈空间的底部。活动的或者僵尸线程并不是在他们栈中的唯一的线程，与每一个 CPU 关联的特殊栈也存在于这个空间。当内核在这个 CPU 上执行代码的时候，这些栈处于活动状态；当在这个 CPU 上执行用户空间代码时，这些栈不包含任何有用的信息。每一个 CPU 也有一个特殊的 per-cpu 栈。首先是给外部中断使用的 <strong>中断栈</strong>（i<em><strong>nterrupt stack</strong></em>）。它的大小定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> IRQ_STACK_ORDER (2 + KASAN_STACK_ORDER)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> IRQ_STACK_SIZE (PAGE_SIZE &lt;&lt; IRQ_STACK_ORDER)</span><br></code></pre></td></tr></table></figure>
+
+<p>或者是 16384 字节。Per-cpu 的中断栈在 x86_64 架构中使用 <code>irq_stack_union</code> 联合描述:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">union</span> <span class="hljs-title">irq_stack_union</span> &#123;</span><br>    <span class="hljs-type">char</span> irq_stack[IRQ_STACK_SIZE];<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>        <span class="hljs-type">char</span> gs_base[<span class="hljs-number">40</span>];<br>        <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> stack_canary;<br>    &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>第一个 <code>irq_stack</code> 域是一个 16KB 的数组。然后你可以看到 <code>irq_stack_union</code> 联合包含了一个结构体，这个结构体有两个域：</p>
+<ul>
+<li><strong>gs_base</strong>：总是指向 irqstack 联合底部的 gs 寄存器。在 x86_64 中， per-cpu 和 stack canary 共享 gs 寄存器。所有的 per-cpu 标志初始值为零，并且 gs 指向 per-cpu 区域的开始。</li>
+<li><strong>stack_canary</strong>：stack canary 对于中断栈来说是一个用来验证栈是否已经被修改的 <strong>栈保护者</strong>（<em><strong>stack protector</strong></em>）。gs_base 是一个 40 字节的数组，GCC 要求 stack canary 在被修正过的偏移量上，并且 gs 的值在 x86_64 架构上必须是 40，在 x86 架构上必须是 20。</li>
+</ul>
+<p>下面来看 <code>irq_stack_union</code> 的初始化过程。除了 <code>irq_stack_union</code> 的定义，我们可以在<code>arch/x86/include/asm/processor.h</code> 中查看下面的 per-cpu 变量：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">DECLARE_PER_CPU(<span class="hljs-type">char</span> *, irq_stack_ptr);<br>DECLARE_PER_CPU(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, irq_count);<br></code></pre></td></tr></table></figure>
+
+<p>第一个参数 <code>irq_stack_ptr</code>，它是一个指向这个栈顶的指针。第二个参数 <code>irq_count</code> 用来检查 CPU 是否已经在中断栈。<code>irq_stack_ptr</code> 的初始化在 <code>arch/x86/kernel/setup_percpu.c</code> 的 <code>setup_per_cpu_areas</code> 函数中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> __init <span class="hljs-title function_">setup_per_cpu_areas</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>...<br>...<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_X86_64</span><br>for_each_possible_cpu(cpu) &#123;<br>    ...<br>    per_cpu(irq_stack_ptr, cpu) =<br>            per_cpu(irq_stack_union.irq_stack, cpu) +<br>            IRQ_STACK_SIZE - <span class="hljs-number">64</span>;<br>    ...<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在这个函数里，我们一个一个查看所有 CPU，并且设置 <code>irq_stack_ptr</code>，它等于中断栈的顶减去 64。为什么是 64？见文件 <code>arch/x86/kernel/cpu/common.c</code> 代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">load_percpu_segment</span><span class="hljs-params">(<span class="hljs-type">int</span> cpu)</span><br>&#123;<br>	...<br>    loadsegment(gs, <span class="hljs-number">0</span>);<br>	wrmsrl(MSR_GS_BASE, (<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)per_cpu(irq_stack_union.gs_base, cpu));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中 gs 寄存器指向中断栈的栈底：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">movl    $MSR_GS_BASE,%ecx<br>movl    <span class="hljs-title function_">initial_gs</span><span class="hljs-params">(%rip)</span>,%eax<br>movl    initial_gs+4<span class="hljs-params">(%rip)</span>,%edx<br>wrmsr<br><br><span class="hljs-title function_">GLOBAL</span><span class="hljs-params">(initial_gs)</span><br>.quad    <span class="hljs-title function_">INIT_PER_CPU_VAR</span><span class="hljs-params">(irq_stack_union)</span><br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>wrmsr</code> 指令从 edx:eax 加载数据到被 ecx 指向的 MSR 寄存器)。在这里 MSR 寄存器是 <code>MSR_GS_BASE</code>，它保存了被 gs 寄存器指向的内存段的基址。edx:eax 指向 initial_gs 的地址，它就是 <code>irq_stack_union</code> 的基址。</p>
+<p>我们还知道，x86_64 有一个叫 <strong>中断栈表</strong>（<em><strong>Interrupt Stack Table</strong></em>，<em><strong>IST</strong></em>）的组件，当发生不可屏蔽中断、双重错误等等的时候，这个组件提供了切换到新栈的功能。这可以到达 7 个 IST per-cpu 入口。其中一些定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> DOUBLEFAULT_STACK 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NMI_STACK 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DEBUG_STACK 3</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MCE_STACK 4</span><br></code></pre></td></tr></table></figure>
+
+
+<p>所有被 IST 切换到新栈的中断门描述符都由 <code>set_intr_gate_ist</code> 函数初始化。例如:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">set_intr_gate_ist(X86_TRAP_NMI, &amp;nmi, NMI_STACK);<br>...<br>set_intr_gate_ist(X86_TRAP_DF, &amp;double_fault, DOUBLEFAULT_STACK);<br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>&amp;nmi</code> 和 <code>&amp;double_fault</code> 定义在 <code>arch/x86/kernel/entry_64.S</code> 中，是中断函数的入口地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">asmlinkage <span class="hljs-type">void</span> <span class="hljs-title function_">nmi</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br>asmlinkage <span class="hljs-type">void</span> <span class="hljs-title function_">double_fault</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><br><span class="hljs-comment">// arch/x86/kernel/entry_64.S</span><br>idtentry double_fault do_double_fault has_error_code=<span class="hljs-number">1</span> paranoid=<span class="hljs-number">2</span><br>...<br>ENTRY(nmi)<br>...<br>END(nmi)<br></code></pre></td></tr></table></figure>
+
+<p>当一个中断或者异常发生时，新的 ss 选择器被强制置为 NULL，并且 ss 选择器的 rpl 域被设置为新的 cpl。旧的 ss、rsp、寄存器标志、cs、rip 被压入新栈。在 64 位模型下，中断栈帧大小固定为 8 字节，所以我们可以得到下面的栈:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs xml">+---------------+<br>|               |<br>|      SS       | 40<br>|      RSP      | 32<br>|     RFLAGS    | 24<br>|      CS       | 16<br>|      RIP      | 8<br>|   Error code  | 0<br>|               |<br>+---------------+<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果在中断门中 IST 域不是 0，我们把 IST 读到 rsp 中。<ul>
+<li>如果它关联了一个中断向量错误码，我们再把这个错误码压入栈。</li>
+<li>如果中断向量没有错误码，就继续并且把虚拟错误码压入栈。</li>
+</ul>
+</li>
+<li>我们必须做以上的步骤以确保栈一致性。接下来我们从门描述符中加载段选择器域到 CS 寄存器中，并且通过验证第 21 位的值来验证目标代码是一个 64 位代码段，例如 L 位在 GDT。</li>
+<li>最后我们从门描述符中加载偏移域到 rip 中，rip 是中断处理函数的入口指针。然后中断函数开始执行，在中断函数执行结束后，它必须通过 iret 指令把控制权交还给被中断进程。iret 指令无条件地弹出栈指针（ss:rsp）来恢复被中断的进程，并且不会依赖于 cpl 改变。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/" class="category-chain-item">中断机制</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/" class="print-no-link">#中断机制</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 中断机制（一）之中断和异常</div>
+      <div>http://example.com/2024/08/12/中断和异常/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/" title="Linux 中断机制（二）之中断子系统框架">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 中断机制（二）之中断子系统框架</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/11/valgrind/" title="Linux 下利用 Valgrind 进行内存调试">
+                        <span class="hidden-mobile">Linux 下利用 Valgrind 进行内存调试</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

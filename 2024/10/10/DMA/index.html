@@ -1,0 +1,760 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DMA 详解">
+<meta property="og:url" content="http://example.com/2024/10/10/DMA/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/10/10/DMA/1.png">
+<meta property="og:image" content="http://example.com/2024/10/10/DMA/2.png">
+<meta property="og:image" content="http://example.com/2024/10/10/DMA/3.png">
+<meta property="og:image" content="http://example.com/2024/10/10/DMA/4.png">
+<meta property="og:image" content="http://example.com/2024/10/10/DMA/5.png">
+<meta property="article:published_time" content="2024-10-10T10:35:39.000Z">
+<meta property="article:modified_time" content="2024-11-14T08:45:03.376Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/10/DMA/1.png">
+  
+  
+  
+  <title>DMA 详解 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DMA 详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-10 18:35" pubdate>
+          星期四, 十月 10日 2024, 6:35 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">DMA 详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p><code>DMA</code>（<em><strong>Direct Memory Access</strong></em>，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（<code>DMA Controller</code>，<code>DMAC</code>），协助 CPU 进行数据搬运。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload><br>由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I&#x2F;O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。</p>
+<ul>
+<li>使用 DMA，对于高速设备而言，如硬盘，它不只是降低 CPU 的使用率，而且还能大大提高硬件设备的吞吐量。</li>
+<li>因为对于这种设备，CPU 直接供应数据的速度太低。 CPU 一个总线周期最多只能存取一次总线，而且对于 ARM 设备，它不能把内存中 A 地址的值直接搬到 B 地址。它只能先把 A 地址的值搬到一个寄存器，然后再从这个寄存器搬到 B 地址。也就是说，对于 ARM，要花费两个总线周期才能将 A 地址的值送到 B 地址。</li>
+<li>而 DMA 就不同了，一般系统中的 DMA 都有突发（<em><strong>Burst</strong></em>）传输的能力，在这种模式下，DMA 能一次传输几个甚至几十个字节的数据，所以使用 DMA 能使设备的吞吐能力大为增强。</li>
+</ul>
+<p>使用 DMA 时我们必须要注意如下几点：</p>
+<ul>
+<li>DMA 使用物理地址，程序是使用虚拟地址的，所以配置 DMA 时必须将虚拟地址转化成物理地址<br> 因为程序使用虚拟地址，而且一般使用 Cache 地址，所以 Cache 中的内容与其物理地址（内存）的内容不一定一致，所以在启动 DMA 传输前一定要将该地址的 Cache 刷新，即写入内存</li>
+<li>OS 并不能保证每次分配到的内存空间在物理上是连续的。尤其是在系统使用过一段时间而又分配了一块比较大的内存时。所以每次都需要判断地址是不是连续的，如果不连续就需要把这段内存分成几段让 DMA 完成传输</li>
+</ul>
+<h1 id="二、STM32-中的-DMA"><a href="#二、STM32-中的-DMA" class="headerlink" title="二、STM32 中的 DMA"></a>二、STM32 中的 DMA</h1><p>刚才简单介绍了一下，什么是 DMA，下面结合实例，看一下 DMA 是怎么在 STM32 中使用的。</p>
+<h2 id="1、DMA-框图"><a href="#1、DMA-框图" class="headerlink" title="1、DMA 框图"></a>1、DMA 框图</h2><p>这是 STM32F4xx 设备的 DMA 框图：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>每个通道都直接连接专用的硬件 DMA 请求，每个通道都同样支持软件触发。这些功能通过软件来配置：</p>
+<ol>
+<li>在同一个 DMA 模块上，多个请求间的优先权可以通过软件编程设置（共有四级：很高、高、中等和低），优先权设置相等时由硬件决定（请求 0 优先于请求 1，依此类推）；</li>
+<li>独立数据源和目标数据区的传输宽度（字节、半字、全字），模拟打包和拆包的过程。源和目标地址必须按数据传输宽度对齐；</li>
+<li>支持循环的缓冲器管理；</li>
+<li>每个通道都有 3 个事件标志（DMA 半传输、DMA 传输完成和 DMA 传输出错），这 3 个事件标志逻辑或成为一个单独的中断请求；</li>
+<li>存储器和存储器间的传输、外设和存储器、存储器和外设之间的传输；</li>
+<li>FLASH、SRAM、外设的 SRAM、APB1、APB2 和 AHB 外 设均可作为访问的源和目标；</li>
+<li>可编程的数据传输数目：最大为 65535。</li>
+</ol>
+<p>中间的 FIFO 区，每个数据流（总共 8 个数据流）都有一个独立的 FIFO，可以实现存储器接口到外设接口之间的数据长度&#x3D;&#x3D;非对齐传输&#x3D;&#x3D;。</p>
+<h3 id="1-1-传输方式"><a href="#1-1-传输方式" class="headerlink" title="1.1 传输方式"></a>1.1 传输方式</h3><p>DMA 的作用就是实现数据的直接传输，而去掉了传统数据传输需要 CPU 寄存器参与的环节，主要涉及三种情况的数据传输，但本质上是一样的，都是从内存的某一区域传输到内存的另一区域（外设的数据寄存器本质上就是内存的一个存储单元）。三种情况的数据传输如下：</p>
+<ul>
+<li>外设到内存)</li>
+<li>内存到外设</li>
+<li>内存到内存</li>
+</ul>
+<blockquote>
+<p><code>DMA1</code> 控制器 AHB 外设端口与 <code>DMA2</code> 控制器的情况不同，不连接到总线矩阵，因此，仅 <code>DMA2</code> 数据流能够执行内存到内存的传输</p>
+</blockquote>
+<p>在发生一个事件后，外设向 DMA 控制器发送一个请求信号。DMA 控制器根据通道的优先权处理请求。当 DMA 控制器开始访问发出请求的外设时，DMA 控制器立即发送给它一个应答信号。当从 DMA 控制器得到应答信号时，外设立即释放它的请求。一旦外设释放了这个请求，DMA 控制器同时撤销应答信号。DMA 传输结束，如果有更多的请求时，外设可以启动下一个周期。</p>
+<p>总之，每次 DMA 传送由 3 个操作组成：</p>
+<ol>
+<li>从外设数据寄存器或者从当前外设&#x2F;存储器地址寄存器指示的存储器地址取数据，第一次传输时的开始地址是 <code>DMA_CPARx</code> 或<code>DMA_CMARx</code> 寄存器指定的外设基地址或存储器单元；</li>
+<li>存数据到外设数据寄存器或者当前外设&#x2F;存储器地址寄存器指示的存储器地址，第一次传输时的开始地址是 <code>DMA_CPARx</code> 或 <code>DMA_CMARx</code> 寄存器指定的外设基地址或存储器单元；</li>
+<li>执行一次 <code>DMA_CNDTRx</code> 寄存器的递减操作，该寄存器包含未完成的操作数目。</li>
+</ol>
+<p>DMA 有以下两种传输方式：</p>
+<ol>
+<li><code>DMA_Mode_Normal</code>（正常模式）：当一次 DMA 数据传输完后，停止 DMA 传送 ，也就是&#x3D;&#x3D;只传输一次&#x3D;&#x3D;</li>
+<li><code>DMA_Mode_Circular</code>（循环传输模式）：当传输结束时，硬件自动会将传输数据量寄存器进行重装，进行下一轮的数据传输。 也就是&#x3D;&#x3D;多次传输模式&#x3D;&#x3D;</li>
+</ol>
+<h3 id="1-2-仲裁器"><a href="#1-2-仲裁器" class="headerlink" title="1.2 仲裁器"></a>1.2 仲裁器</h3><p>仲裁器用于仲裁数据流 0~7 的请求优先级，保证数据有序传输。</p>
+<p>仲裁器根据通道请求的优先级来启动外设&#x2F;存储器的访问。优先权管理分2个阶段：</p>
+<ol>
+<li><strong>软件</strong>：每个通道的优先权可以在 <code>DMA_CCRx</code> 寄存器中设置，有 4 个等级：<ul>
+<li>最高优先级</li>
+<li>高优先级</li>
+<li>中等优先级</li>
+<li>低优先级；</li>
+</ul>
+</li>
+<li><strong>硬件</strong>：如果 2 个请求有相同的软件优先级，则较低编号的通道比较高编号的通道有较高的优先权。比如：如果软件优先级相同，通道 2 优先于通道 4。</li>
+</ol>
+<blockquote>
+<p>注意： 在大容量产品和互联型产品中，DMA1 控制器拥有高于 DMA2 控制器的优先级。</p>
+</blockquote>
+<h3 id="1-3-数据流"><a href="#1-3-数据流" class="headerlink" title="1.3 数据流"></a>1.3 数据流</h3><blockquote>
+<p>仅限于 Cortex-M4 内核上有数据流</p>
+</blockquote>
+<p>8 个 DMA 控制器数据流都能够提供源和目标之间的单向传输链路。每个数据流配置后都可以执行：</p>
+<ul>
+<li>常规类型事务：存储器到外设、外设到存储器或存储器到存储器的传输。</li>
+<li>双缓冲区类型事务：使用存储器的两个存储器指针的双缓冲区传输（当 DMA 正在进行自&#x2F;至缓冲区的读&#x2F;写操作时，应用程序可以进行至&#x2F;自其它缓冲区的写&#x2F;读操作）。要传输的数据量（多达 65535）可以编程，并与连接到外设 AHB 端口的外设（请求 DMA 传输）的源宽度相关。每个事务完成后，包含要传输的数据项总量的寄存器都会递减。</li>
+</ul>
+<p>STM32F4xx 有两个 DMA：DMA1、DMA2，其请求映射如下表：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-4-指针递增模式"><a href="#1-4-指针递增模式" class="headerlink" title="1.4 指针递增模式"></a>1.4 指针递增模式</h3><p>根据 <code>DMA_SxCR</code> 寄存器中 <code>PINC</code> 和 <code>MINC</code> 位的状态，外设和存储器指针在每次传输后可以自动向后递增或保持常量。当设置为增量模式时，下一个要传输的地址将是前一个地址加上增量值。</p>
+<p>通过单个寄存器访问外设源或目标数据时，禁止递增模式十分有用。</p>
+<p>如果使能了递增模式，则根据在 <code>DMA_SxCR</code> 寄存器 <code>PSIZE</code> 或 <code>MSIZE</code> 位中编程的数据宽度，下一次传输的地址将是前一次传输的地址递增 1个数据宽度、2个数据宽度或 4个数据宽度。</p>
+<h3 id="1-5-存储器到存储器模式"><a href="#1-5-存储器到存储器模式" class="headerlink" title="1.5 存储器到存储器模式"></a>1.5 存储器到存储器模式</h3><p>DMA 通道的操作可以在没有外设请求的情况下进行，这种操作就是存储器到存储器模式。</p>
+<p>当设置了 <code>DMA_CCRx</code> 寄存器中的 <code>MEM2MEM</code> 位之后，在软件设置了 <code>DMA_CCRx</code> 寄存器中的 EN 位启动 DMA 通道时，DMA 传输将马上开始。当 <code>DMA_CNDTRx</code> 寄存器变为 0 时，DMA 传输结束。存储器到存储器模式不能与循环模式同时使用。</p>
+<p>这里要注意仅 DMA2 的外设接口可以访问存储器，所以仅 DMA2 控制器支持存储器到存储器的传输，DMA1 不支持。</p>
+<h3 id="1-6-DMA-中断"><a href="#1-6-DMA-中断" class="headerlink" title="1.6 DMA 中断"></a>1.6 DMA 中断</h3><p>每个 DMA 通道都可以在 DMA 传输过半、传输完成和传输错误时产生中断。为应用的灵活性考虑，通过设置寄存器的不同位来打开这些中断。</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、DMA-配置"><a href="#2、DMA-配置" class="headerlink" title="2、DMA 配置"></a>2、DMA 配置</h2><p>经过刚才的介绍可以知道，要配置 DMA，大致要实现如下内容：</p>
+<ol>
+<li>源地址（<em><strong>Source Address</strong></em>）：源地址表示数据传输的起始地址，即外设设备中数据缓冲区的地址。DMA 将从这个地址开始读取数据。</li>
+<li>目标地址（<em><strong>Destination Address</strong></em>）：目标地址表示数据传输的目的地址，即系统内存中的指定地址。DMA 将数据传输到这个地址。</li>
+<li>数据长度（<em><strong>Data Length</strong></em>）：数据长度表示需要传输的数据大小。它可以以字节、字或者其他单位进行表示。</li>
+<li>控制信息（<em><strong>Control Information</strong></em>）：控制信息包括传输模式、中断使能等参数。在传输过程中，DMA 根据这些参数来控制数据的传输行为。</li>
+<li>DMA 通道选择（<em><strong>DMA Channel Selection</strong></em>）：在具有多个 DMA 通道的系统中，选择要使用的 DMA 通道。</li>
+<li>DMA 传输模式（<em><strong>DMA Transfer Mode</strong></em>）：指定DMA传输的模式，如单次传输模式、循环传输模式等。</li>
+<li>DMA 中断使能（<em><strong>DMA Interrupt Enable</strong></em>）：用于控制 DMA 传输完成时是否产生中断。</li>
+</ol>
+<p>下面的代码实现了 <code>USART1</code> 发送接口的 DMA 配置：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">DMA_InitTypeDef DMA_InitStructure;<br><br>DMA_InitStructure.DMA_BufferSize           =   <span class="hljs-number">0</span>;                               <span class="hljs-comment">// 缓冲区大小   </span><br>DMA_InitStructure.DMA_Channel              =   DMA_Channel_4;                   <span class="hljs-comment">// DMA通道4</span><br>DMA_InitStructure.DMA_DIR                  =   DMA_DIR_MemoryToPeripheral;      <span class="hljs-comment">// 内存到外设</span><br>DMA_InitStructure.DMA_FIFOMode             =   DMA_FIFOMode_Disable;            <span class="hljs-comment">// 禁用FIFO模式</span><br>DMA_InitStructure.DMA_FIFOThreshold        =   DMA_FIFOThreshold_1QuarterFull;  <span class="hljs-comment">// FIFO阈值:1/4满</span><br>DMA_InitStructure.DMA_Mode                 =   DMA_Mode_Normal;                 <span class="hljs-comment">// 正常模式</span><br>DMA_InitStructure.DMA_Memory0BaseAddr      =   <span class="hljs-number">0</span>;                               <span class="hljs-comment">// 内存源地址</span><br>DMA_InitStructure.DMA_MemoryDataSize       =   DMA_MemoryDataSize_Byte;         <span class="hljs-comment">// 内存数据长度</span><br>DMA_InitStructure.DMA_MemoryBurst          =   DMA_MemoryBurst_Single;          <span class="hljs-comment">// 单次传输</span><br>DMA_InitStructure.DMA_MemoryInc            =   DMA_MemoryInc_Enable;            <span class="hljs-comment">// 内存地址自增</span><br>DMA_InitStructure.DMA_PeripheralBaseAddr   =   (<span class="hljs-type">uint32_t</span>)&amp;(USART1-&gt;DR);         <span class="hljs-comment">// 外设地址</span><br>DMA_InitStructure.DMA_PeripheralDataSize   =   DMA_PeripheralDataSize_Byte;     <span class="hljs-comment">// 外设数据长度</span><br>DMA_InitStructure.DMA_PeripheralBurst      =   DMA_PeripheralBurst_Single;      <span class="hljs-comment">// 单次传输</span><br>DMA_InitStructure.DMA_PeripheralInc        =   DMA_PeripheralInc_Disable;       <span class="hljs-comment">// 外设地址不自增</span><br>DMA_InitStructure.DMA_Priority             =   DMA_Priority_Medium;             <span class="hljs-comment">// 中等优先级</span><br><br>DMA_Init(DMA2_Stream7, &amp;DMA_InitStructure);<br>DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE);<br>DMA_Cmd(DMA2_Stream7, DISABLE);<br></code></pre></td></tr></table></figure>
+
+<p>中断函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">DMA2_Stream7_IRQHandler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (DMA_GetFlagStatus(DMA2_Stream7, DMA_FLAG_TCIF7) != RESET)<br>    &#123;<br>        DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_TCIF7);<br>        ...<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DMA 详解</div>
+      <div>http://example.com/2024/10/10/DMA/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" title="Cortex-M 内核的 OS 特性">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Cortex-M 内核的 OS 特性</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" title="STM32 位带操作">
+                        <span class="hidden-mobile">STM32 位带操作</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

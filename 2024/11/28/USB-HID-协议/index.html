@@ -1,0 +1,842 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、简介HID（Human Interface Device，人机接口设备）是 USB 设备中常用的设备类型，是直接与人交互的 USB 设备，例如键盘、鼠标与游戏杆等。在 USB 设备中，HID 设备的成本较低。另外，HID 设备并不一定要有人机交互功能，只要符合 HID 类别规范的设备都是 HID 设备。   Wndows 操作系统最先支持的 HID 设备。 在 Windows 98 以及后来的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="USB-HID 协议">
+<meta property="og:url" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、简介HID（Human Interface Device，人机接口设备）是 USB 设备中常用的设备类型，是直接与人交互的 USB 设备，例如键盘、鼠标与游戏杆等。在 USB 设备中，HID 设备的成本较低。另外，HID 设备并不一定要有人机交互功能，只要符合 HID 类别规范的设备都是 HID 设备。   Wndows 操作系统最先支持的 HID 设备。 在 Windows 98 以及后来的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/1.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/2.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/3.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/4.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/5.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/6.png">
+<meta property="og:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/7.png">
+<meta property="article:published_time" content="2024-11-28T12:24:21.000Z">
+<meta property="article:modified_time" content="2024-11-29T11:49:21.726Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="USB 协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/11/28/USB-HID-%E5%8D%8F%E8%AE%AE/1.png">
+  
+  
+  
+  <title>USB-HID 协议 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="USB-HID 协议"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-28 20:24" pubdate>
+          星期四, 十一月 28日 2024, 8:24 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">USB-HID 协议</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p><code>HID</code>（<em><strong>Human Interface Device</strong></em>，人机接口设备）是 USB 设备中常用的设备类型，是直接与人交互的 USB 设备，例如键盘、鼠标与游戏杆等。在 USB 设备中，HID 设备的成本较低。另外，HID 设备并不一定要有人机交互功能，只要符合 HID 类别规范的设备都是 HID 设备。 </p>
+<p> Wndows 操作系统最先支持的 HID 设备。 在 Windows 98 以及后来的版本中内置有  HID 设备的驱动程序。 也就是说，用户无需去开发驱动程序，，应用程序可以直接使用这些驱动程序来与设备通信。</p>
+<p>在设计一个 USB 接口的计算机外部设备时，如果 HID 类型的设备可以满足需要，可以将其设计为 HID 类型设备，这样可以省去比较复杂的 USB 驱动程序的编写，直接利用 Windows 操作系统对标准的 HID 类型 USB 设备的支持。</p>
+<h2 id="1、HID-设备特点"><a href="#1、HID-设备特点" class="headerlink" title="1、HID 设备特点"></a>1、HID 设备特点</h2><ul>
+<li><p>交换的数据储存在称为<strong>报表</strong>（<code>Report</code>）的结构内，设备的固件必须支持 HlD 报表的格式。主机通过控制和中断传输中的传送和请求报表来传送和接收数据。报表的格式非常灵活。</p>
+</li>
+<li><p>每一笔事务可以携带小量或中量的数据。</p>
+<blockquote>
+<p>低速设备每一笔事务最大是 8B,一个报表可以使用多笔事务<br>全速设备每一笔事务最大是 64B<br>高速设备每一笔事务最大是 1024B</p>
+</blockquote>
+</li>
+<li><p>设备可以在未预期的时间传送信息给主机，例如键盘的按键或是鼠标的移动。所以主机会定时轮询设备，以取得最新的数据。</p>
+</li>
+<li><p>HID 设备的最大传输速度有限制。主机可以保证低速的中断端点每 10ms 内最多 1 笔事务，每一秒最多是 800B（8×100）。保证全速端点每 1ms 一笔事务，每一秒最多是 64000B（64×1000）。保证高速端点每 125us 三笔事务，每一秒最多是24.576MB（1024×8000×3）。</p>
+</li>
+<li><p>HID 设备没有保证的传输速率。如果设备是设置在 10ms 的时距，事务之间的时间可能等于或小于 10ms。除非设备是设置在全速时在每个帧传输数据，或是在高速时在每个微帧传输数据。这是最快的轮询速率，所以端点可以保证有正确的带宽可供使用。</p>
+</li>
+</ul>
+<p>HID 设备除了传送数据给主机外，它也会从主机接收数据。只要能够符合 HlD 类别规范的设备都可以是 HID 设备。</p>
+<h2 id="2、HID-设备的硬件要求"><a href="#2、HID-设备的硬件要求" class="headerlink" title="2、HID 设备的硬件要求"></a>2、HID 设备的硬件要求</h2><p>HID 接口必须符合 <code>Device Class Definition for Human interface Devices</code> 规范内所定义的 HID 类别的需求。在此文件内描述了所需的描述符、传输的频率以及传输的类型等。为了符合规范，HID 接口的端点与描述符都必须符合数个要求。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>所有的 HID 传输都是使用默认控制管道或是一个中断管道，HID 设备必须有一个中断输入端点来传送数据到主机，中断输出端点则不是必需的。</p>
+<table>
+<thead>
+<tr>
+<th>传输类型</th>
+<th>数据来源</th>
+<th>数据类型</th>
+<th>是否需要管道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>控制</td>
+<td>设备（输入）</td>
+<td>没有严格时间限制的数据</td>
+<td>是</td>
+</tr>
+<tr>
+<td></td>
+<td>主机（输出）</td>
+<td>没有严格时间限制的数据 或是没有中断输出管道时的任何数据</td>
+<td></td>
+</tr>
+<tr>
+<td>中断</td>
+<td>设备（输入）</td>
+<td>定时或低延迟的数据</td>
+<td>是</td>
+</tr>
+<tr>
+<td></td>
+<td>主机（输出）</td>
+<td>定时或低延迟的数据</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>主机与设备之间所交换的数据，可以分成两种类型：</p>
+<ul>
+<li>低延迟的数据，必须尽快地到达目的；</li>
+<li>配置或其他的数据，没有严格时间限制的需求。</li>
+</ul>
+<p>中断管道是控制管道之外的另一种数据交换的方式，特别适合使用在接收端需要定时或是尽可能及时收到数据的时候。中断输入管道携带数据到主机，中断输出管道则是携带数据到设备。在总线忙的时候，控制管道可能会被延迟，而中断管道保证会有可得到的带宽。HID 不需要一定有中断输出管道。如果没有中断输出管道，主机会在控制管道上使用 HID 设备特有的 <code>Set_Report</code> 请求来传送所有的报表。</p>
+<h2 id="3、HID-固件的要求"><a href="#3、HID-固件的要求" class="headerlink" title="3、HID 固件的要求"></a>3、HID 固件的要求</h2><p>主机的驱动程序要与 HID 设备通信，设备的固件必须符合下列需求：</p>
+<ul>
+<li>设备的描述符必须识别该设备包含有 HID 接口。</li>
+<li>除了默认控制管道外，固件必须另外支持一个中断输入管道。</li>
+<li>固件必须包含一个报表描述符来定义要传送与接收的设备数据</li>
+</ul>
+<p>如果要传送数据，固件必须支持 <code>Get_Report</code> 控制传输与中断输入传输。如果要接收数据，固件必须支持 <code>Set_Report</code>控制传输与选择性的中断输出传输。</p>
+<p>所有的 HID 数据都必须使用定义过的报表格式来定义报表中数据的大小与内容。设备可以支持一个或多个报表。在固件中的一个报表描述符用来描述此报表，以及如何使用报表数据的信息。</p>
+<p>在每一个报表中的一个数值，定义此报表是一个输入（Input）、输出（Output）或是特征（Feature）报表。主机在输入报表中接收数据，在输出报表中传送数据，特征报表可以在任何方向传递。</p>
+<p>Windows 98 以及后来版本的 HID 驱动程序使用中断传输来传递输入报表。输出报表的传输类型要根据设备支持的端点与 Windows 的版本而定。Windows 98 Gold 只符合 HID 1.0 规范，它的 HID 驱动程序使用控制传输来传递输出报表。Windows 98 SE、Wndows 2000 符合 HID 1.1 规范，HID 驱动程序在有中断输出端点时使用中断传输，否则使用控制传输来传递输出报表。特征报表都是使用控制传输。</p>
+<h1 id="二、HID-体系结构"><a href="#二、HID-体系结构" class="headerlink" title="二、HID 体系结构"></a>二、HID 体系结构</h1><p>Windows 中的 HID 驱动程序堆栈的体系结构基于名为 <code>hidclass.sys</code> 的类驱动程序。 客户端和传输微型驱动程序从用户模式或内核模式下访问的类驱动程序。</p>
+<p>在系统提供的 HID 类驱动程序是 WDM 功能驱动程序和总线驱动程序 HID 设备安装程序类（<code>HIDClass</code>）。HID 类驱动程序的可执行组件是 <code>hidclass.sys</code>。HID 类驱动程序是 HID 客户端和各种不同的传输在一起。 这允许隐藏客户端传输以独立方式编写。 此级别的抽象允许客户端可以继续使用 （很少或者不做任何修改） 时的新标准，或引入了第三方传输。</p>
+<p>下面是简化的 hid 驱动程序堆栈，显示隐藏客户端 的 hid 的类驱动程序和 hid 的传输组件：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>HID 客户端 – 标识 Windows 和第三方客户端以及其接口。</li>
+<li>HID 的类驱动程序 - hidclass.sys可执行文件。</li>
+<li>HID 的传输微型驱动程序的标识 Windows 和第三方传输和及其接口。</li>
+</ul>
+<p>下面是泛型的 HID 客户端和传输的设备堆栈关系图。</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面是另一个设备堆栈关系图显示通过 USB 的 HID 键盘和鼠标集合。</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、HID-描述符"><a href="#三、HID-描述符" class="headerlink" title="三、HID 描述符"></a>三、HID 描述符</h1><p>USB 设备的信息存储在 USB 设备的固件中，当 USB 设备接入 PC 机启动后，主机会通过 USB 的标准请求对存储在 USB 设备的固件信息进行读取分析。这些存储的信息主要包括各种 USB 描述符信息，如设备描述符，配置描述符，接口描述符、端点描述符和字符串描述符等。</p>
+<p>USB 设备的功能按接口来进行分类的，一个接口就代表着 USB 设备的一种功能，其接口下的端点用于实现该接口下的数据通讯功能。由于 USB HID 设备的功能比较单一，所以通过接口描述符的类型用于标识该“设备功能”设备类型。所以一个 USB 设备如果包括多个接口，这些多个接口可以实现多个设备功能。</p>
+<p>由于 USB HID 设备的接口中标识了设备类型，但同一种设备类型因为厂商或实现机制的原因，数据格式不统一，所以虽然是同一种设备，但固件上报的数据格式甚至长度可能五花八门，所以通过报告描述符来实现使 USB 主机端识别并解析这些数据。</p>
+<p>USB HID描述符包括两种报表描述符，分别为物理描述符集合和报告描术符，也叫报表描述符。</p>
+<ul>
+<li>物理描述符集合是可选的描述符，提供用于激活设备控件的人体一个或多个部分的信息。</li>
+<li>报告描述符用于描述符 USB HID 设备上报的数据信息格式。</li>
+</ul>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>报告描述符的内容:</p>
+<ul>
+<li>确定将输入路由到何处，例如，将输入发送到鼠标或操纵杆 API。</li>
+<li>允许软件为输入分配功能，例如，使用操纵杆输入定位油箱</li>
+<li>通过检查项目（统称为报告描述符），HID 类驱动程序能够确定来自 HID 类设备的数据报告的大小和组成。</li>
+</ul>
+<h2 id="1、HID-描述符结构"><a href="#1、HID-描述符结构" class="headerlink" title="1、HID 描述符结构"></a>1、HID 描述符结构</h2><p>对于 HID 设备，其接口描述符下有一个 HID 描述符，HID 描述符中含有其报告描述符的相关信息，如报告描述符的类型和长度。 </p>
+<p>HID 描述符的主要作用是用来识别 HID 通信所使用的额外描述符。下表是 HID 描述符结构。</p>
+<table>
+<thead>
+<tr>
+<th>偏移量</th>
+<th>字段</th>
+<th>字节数</th>
+<th>数值类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>bLength</td>
+<td>1</td>
+<td>Numeric</td>
+<td>描述符字节数</td>
+</tr>
+<tr>
+<td>1</td>
+<td>bDescriptorType</td>
+<td>1</td>
+<td>Constant</td>
+<td>0x21 &#x3D; HID 描述符</td>
+</tr>
+<tr>
+<td>2</td>
+<td>bcdHID</td>
+<td>2</td>
+<td>Numeric</td>
+<td>HID规范版本号（BCD）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>bCountryCode</td>
+<td>1</td>
+<td>Numeric</td>
+<td>硬件设备所在国家的国家代码</td>
+</tr>
+<tr>
+<td>5</td>
+<td>bNumDescriptors</td>
+<td>1</td>
+<td>Numeric</td>
+<td>类别描述符数目（至少有一个报表描述符）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>【bDescriptorType】</td>
+<td>1</td>
+<td>Constant</td>
+<td><strong>该类别描述符的类型</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>【wDescriptorLength】</td>
+<td>2</td>
+<td>Numeric</td>
+<td><strong>该类别描述符的总长度</strong></td>
+</tr>
+</tbody></table>
+<ul>
+<li><code>bcdHID</code>：设备与其描述符所遵循的 HID 规范的版本号码，此数值是 4 个 16 进位的 BCD 格式字符。例如版本 1.1 的 <code>bcdHID</code> 是 0110h。</li>
+<li><code>bCountryCode</code>：国家的识别码。如果不说明，该字段为 0。</li>
+<li><code>bDescriptorType</code>：HID 描述符附属的描述符的类型（报表或实体）。每一个 HID 都必须至少支持一个报表描述符。一个接口可以支持多个报表描述符，以及一个或多个实体描述符。</li>
+</ul>
+<p>HID 描述符的偏移量为 6 和 7 的 <code>bDescriptorType</code> 和 <code>wDescriptorLength</code> 可以重复存在多个。</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt="HID设备的枚举过程"></p>
+<h2 id="2、HID-设备描述符关系"><a href="#2、HID-设备描述符关系" class="headerlink" title="2、HID 设备描述符关系"></a>2、HID 设备描述符关系</h2><p>HID 设备除了支持 USB 设备的 5 种标准描述符之外，还支持 HID 设备特有的 3 种描述符。这些描述符是：</p>
+<ul>
+<li>USB 标准描述符：设备描述符、配置描述符、接口描述符、端点描述符和字符串描述符</li>
+<li>HID 特有的描述符：HID描述符、报表描述符（Report）和实体描述符（Physical）</li>
+</ul>
+<p>从描述符的关联关系看，HID 描述符是关联于接口。所以如果一个 HID 设备有 2 个端点，设备不需要每个端点有一个 HID 描述符。</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p>从前面的USB描述符可以看出一个规律，描述符的第一、二字节分别是描述符的长度和类型，描述符的类型字段（<code>bDescriptorType</code>）表明描述符的种类。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/USB-%E5%8D%8F%E8%AE%AE/" class="category-chain-item">USB 协议</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="print-no-link">#通信协议</a>
+      
+        <a href="/tags/USB-%E5%8D%8F%E8%AE%AE/" class="print-no-link">#USB 协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>USB-HID 协议</div>
+      <div>http://example.com/2024/11/28/USB-HID-协议/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" title="由 printf(结构体) 引发的错误">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">由 printf(结构体) 引发的错误</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/28/RS232-%E5%92%8C-RS485-%E6%80%BB%E7%BA%BF/" title="RS232 和 RS485 总线">
+                        <span class="hidden-mobile">RS232 和 RS485 总线</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

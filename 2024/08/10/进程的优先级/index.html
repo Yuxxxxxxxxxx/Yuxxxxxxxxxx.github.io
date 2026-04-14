@@ -1,0 +1,726 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 进程调度（三）之进程的优先级">
+<meta property="og:url" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、概述在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。 二、进程的优先级1、基础概念Linux 中的进程优先级分为静态优先级和动态优先级。  静态优先级：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/1.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/2.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/3.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/4.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/5.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/6.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/7.png">
+<meta property="og:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/8.png">
+<meta property="article:published_time" content="2024-08-10T08:46:04.000Z">
+<meta property="article:modified_time" content="2024-11-13T17:19:38.847Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="进程调度">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/10/%E8%BF%9B%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7/1.png">
+  
+  
+  
+  <title>Linux 进程调度（三）之进程的优先级 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 进程调度（三）之进程的优先级"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-10 16:46" pubdate>
+          星期六, 八月 10日 2024, 4:46 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 进程调度（三）之进程的优先级</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>在 Linux 中，每个进程都有一个优先级。优先级决定了进程在系统资源分配中的先后顺序。Linux 中的进程优先级范围从 -20 到 +19，其中 -20 为最高优先级，+19 为最低优先级。</p>
+<h1 id="二、进程的优先级"><a href="#二、进程的优先级" class="headerlink" title="二、进程的优先级"></a>二、进程的优先级</h1><h2 id="1、基础概念"><a href="#1、基础概念" class="headerlink" title="1、基础概念"></a>1、基础概念</h2><p>Linux 中的进程优先级分为静态优先级和动态优先级。</p>
+<ul>
+<li><strong>静态优先级</strong>：静态优先级是在创建进程时分配的，通常由管理员或程序员指定。静态优先级决定了进程的基本优先级，可以通过 nice 命令来设置，范围为 -20 到 +19。较低的数值表示较高的优先级。例如，如果给一个进程设置了较低的优先级值如 -10，那么这个进程将具有较高的优先级。</li>
+<li><strong>动态优先级</strong>：动态优先级是根据进程的行为和运行情况自动调整的。在 Linux 中，使用调度算法来动态调整进程的优先级。当一个进程使用 CPU 时间较长时，系统会降低它的优先级，让其他进程有更多的执行时间。而当一个进程处于等待 IO 等待状态时，系统会提高它的优先级，以便快速完成 IO 操作。</li>
+</ul>
+<h2 id="2、优先级的意义"><a href="#2、优先级的意义" class="headerlink" title="2、优先级的意义"></a>2、优先级的意义</h2><p>因为 CPU 的空间归根结底还是寄存器， 而寄存器很小， 就注定了 CPU 的资源是有限的。 而进程的个数是多个的， 这就势必会导致进程之间的竞争关系。</p>
+<p>操作系统为了保证进程之间的良性竞争， 他就会确认进程之间的优先级。如果我们的进程长时间得不到 CPU 资源， 该进程的代码长时间得不到推进， 就会出现饥饿问题。</p>
+<p>进程的优先级本质上是 PCB（<strong>task_struct</strong>）内部属性中的一种属性，决定了进程获取某种资源的先后顺序。进程的 <em>task_struct</em> 在运行队列中排队，本质上就是确定获取 CPU 资源的先后顺序。</p>
+<p>Linux 进程的优先级也是用来确定在多个进程同时运行时，哪个进程会获得更多的 CPU 时间片。</p>
+<p>在 CPU 正常运行中，OS 给每一个CPU都维护一个运行队列，OS 把进程以”先进先出”的方式把进程的 PCB 放到运行队列中排队，等待 CPU 按照”时间片”的调度算法去调度进程（切换进程，来回剥离和恢复）。</p>
+<p>不同的进程对 OS 本质上都是访问 OS 中的资源的访问。本质就是通过 OS 来实现对硬件资源的共享。但是硬件资源只有一套，进程有很多套，进程的共享不在同一时间上，所以造成了优先级。总之，进程所访问的 OS 的资源是有限的，OS 中进程大部分情况是大多数，所以需要优先级。</p>
+<h2 id="3、查看优先级"><a href="#3、查看优先级" class="headerlink" title="3、查看优先级"></a>3、查看优先级</h2><p>在 Linux 系统中：</p>
+<ul>
+<li><code>ps -l</code> 命令用于查看当前终端进程的信息</li>
+<li><code>ps -al</code> 命令用于查看全部的进程信息</li>
+</ul>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面是几个重要字段的意义：</p>
+<ul>
+<li><strong>UID</strong> : 代表执行者的身份</li>
+<li><strong>PID</strong> : 代表这个进程的代号</li>
+<li><strong>PPID</strong> ：代表这个进程是由哪个进程发展衍生而来的，亦即父进程的代号</li>
+<li><strong>PRI</strong> ：代表这个进程可被执行的优先级，其值越小越早被执行</li>
+<li><strong>NI</strong> ：代表这个进程的 nice 值</li>
+</ul>
+<h2 id="4、PRI-和-NI"><a href="#4、PRI-和-NI" class="headerlink" title="4、PRI 和 NI"></a>4、PRI 和 NI</h2><p><code>PRI</code> 标识进程的优先级（<em>Priority</em>），NI 表示进程的 <code>Nice</code> 值。这两个值越小，表示要求获得的 CPU 时间越多。</p>
+<p>对于优先级为数字的进程来说，<code>PRI</code> 和 <code>NI</code> 的值总是对应的，<code>PRI</code> 的取值范围为 0-39，而 <code>NI</code> 的取值范围为 -20 - 19，<code>PRI</code> 的值总是等于 <code>20 + NI</code>。这样，当 <code>Nice</code> 值为负值的时候，那么该程序将会优先级值将变小，即其优先级会变高，则其越快被执行。所以，调整进程优先级，在Linux下，就是调整进程 <code>Nice</code> 值，而不是调整 <code>PRI</code> 的值。</p>
+<p><code>Nice</code> 在英文中是“和善“的意思，这里进程的 <code>Nice</code> 值，也表示进程的和善程度，<code>Nice</code> 值越高就越和善，越和善的进程，越不会与别的进程争抢 CPU 资源。在内核的实现中，<code>Nice</code> 值是内核考虑调度哪个普通进程的一个权重因素。<code>Nice</code> 值越高的进程，被分配到的总运行时间片就会越短;相反，<code>Nice</code> 值越低，就表示该进程希望能得到更多的 CPU 资源。</p>
+<blockquote>
+<p>注意，进程的 <code>Nice</code> 值不是进程的优先级，它们不是一个概念，但是进程 <code>Nice</code> 值会影响到进程的优先级变化。</p>
+</blockquote>
+<h2 id="5、修改优先级"><a href="#5、修改优先级" class="headerlink" title="5、修改优先级"></a>5、修改优先级</h2><p>先写一个 C 程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>	<span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>	&#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;this is a process, pid=%d\n&quot;</span>, getpid());<br>		sleep(<span class="hljs-number">1</span>);<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来在终端输入 <code>top</code> 命令，进入任务管理界面：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下去按下 R&#x2F;r 之后，就会跳出来下面这句话，这里的 renice 指的就是要重新修改进程，此时 shell 正在等待我们输入进程的 PID 值，那我们就可以输入上方的 4600：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后，我们看到 shell 又在等待我们输入需要更改的 <code>Nice</code> 值：</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p>比如输入 11，再用 ps 查看：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p>也就是说，Linux 系统支持用户调整优先级，但并不是让用户直接修改 <code>PRI</code> 值，而是修改 <code>Nice</code> 值。而 <code>Nice</code> 值 不是 优先级，而是优先级的修正数据。</p>
+<p>所以真正的优先级应该是：<code>PRI = PRI(old) + nice</code>（old 指旧的优先级）</p>
+<h2 id="6、控制进程的优先级的系统调用"><a href="#6、控制进程的优先级的系统调用" class="headerlink" title="6、控制进程的优先级的系统调用"></a>6、控制进程的优先级的系统调用</h2><p>Linux 提供的修改和查看进程优先级的系统调用分别为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">setpriority</span><span class="hljs-params">(<span class="hljs-type">int</span> which, <span class="hljs-type">id_t</span> who, <span class="hljs-type">int</span> prio)</span>;<br><span class="hljs-type">int</span> <span class="hljs-title function_">getpriorit</span><span class="hljs-params">(<span class="hljs-type">int</span> which, <span class="hljs-type">id_t</span> who)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>其中，<code>which</code> 和 <code>who</code> 参数联合指定要操作的进程或进程组，<code>setpriority()</code> 中的参数 <code>prio</code> 和 <code>getpriority()</code> 的返回值都是操作目标的 <code>Nice</code> 值。</p>
+<p>因为 <code>Nice</code> 值可以是负数，所以，使用 <code>getpriority()</code> 系统调用之前需要先把 errno 显式设置为 0，如果返回值为负数，再联合 errno 区分是遇到错误，还是目标的 <code>Nice</code> 值本身就是负值。</p>
+<h2 id="7、调整优先级的限制"><a href="#7、调整优先级的限制" class="headerlink" title="7、调整优先级的限制"></a>7、调整优先级的限制</h2><p>系统对进程的优先级调整，会施加一定的限制条件，防止被进程滥用。在 2.6.12 版本之后的 Linux 中，特权进程能够自由地修改任意进程的优先级，而非特权进程只能修改自身，或者同一个有效用户启动的其他进程，并且修改的幅度会受到系统限制的制约。</p>
+<p><code>ulimit</code> 命令的 -e 选项可以查看当前允许的调整范围，它的值表示优先级提高的上限若限制值为 <code>LIMIT_N</code>，则表示 <code>Nice</code> 值降低(优先级提高)时，能减少到的最小值为 <code>20-LIMIT_N</code>。</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p>默认的限制值是 0，也就是说不允许非特权进程提高进程的优先级，而只能降低。当这个值大于 20(默认优先级)时，表示非特权进程能够把自身或相同有效用户的进程的 <code>Nice</code> 值调整为负值。</p>
+<p>利用优先级调整的功能，开发者就可以根据不同服务的功能特性，合理分配它们的运行优先级。例如，在服务器开发中，经常会有一种内部审计的进程或线程，负责在后台执行一些数据完整性的检查，并在发现错误时报告一些错误信息，提醒开发或运营人员的注意。这种服务的运行不应该抢占对外提供服务的进程的运行资源。这时，就可以把它的运行优先级降到最低，比如，把 <code>Nice</code> 值设置为 19。</p>
+<p>在上面 top 命令的输出中，也可以找到一个 Nice 值为 -20 的进程 kworker，这是 Linux 的内核工作队列的工作线程。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" class="category-chain-item">进程调度</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6/" class="print-no-link">#进程调度</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 进程调度（三）之进程的优先级</div>
+      <div>http://example.com/2024/08/10/进程的优先级/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/11/valgrind/" title="Linux 下利用 Valgrind 进行内存调试">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 下利用 Valgrind 进行内存调试</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/" title="Linux 错误码">
+                        <span class="hidden-mobile">Linux 错误码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

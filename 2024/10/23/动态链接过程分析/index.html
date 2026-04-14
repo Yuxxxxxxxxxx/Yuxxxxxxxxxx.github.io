@@ -1,0 +1,914 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态链接过程分析">
+<meta property="og:url" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/2.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/3.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/4.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/5.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/6.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/7.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/8.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/9.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/10.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/11.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/12.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/13.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/14.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/15.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/16.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/17.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/18.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/19.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/20.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/21.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/22.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/23.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/24.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/25.png">
+<meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/26.png">
+<meta property="article:published_time" content="2024-10-23T01:12:52.000Z">
+<meta property="article:modified_time" content="2024-11-14T09:14:25.525Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="动态链接">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
+  
+  
+  
+  <title>动态链接过程分析 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="动态链接过程分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-23 09:12" pubdate>
+          星期三, 十月 23日 2024, 9:12 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">动态链接过程分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<p>上文 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/143127425">静态链接过程分析</a> 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。</p>
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。</p>
+<p>因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的地方），因此可执行程序在执行的时候，不依赖于其它的外部模块即可运行。</p>
+<p>这里的前提是可执行文件是可写的。</p>
+<p>而对于动态链接来说，在编译阶段，仅仅是在可执行文件或者动态库中记录了一些必要的信息。</p>
+<p>真正的重定位过程，是在这个时间点来完成的：可执行程序、动态库被加载之后，调用可执行程序的入口函数之前。</p>
+<p>只有当所有需要被重定位的符号被解决了之后，才能开始执行程序。既然也是重定位，与静态链接过程一样：也需要把符号的目标地址填写到代码段中需要重定位的地方。</p>
+<p>但是对于动态链接，这里有个问题：对于内存的访问是有权限控制的，一般来说：</p>
+<ul>
+<li>代码段：可读、可执行</li>
+<li>数据段：可读、可写</li>
+</ul>
+<p>如果进行符号重定位，就需要对代码进行修改（填写符号的地址），但是代码段又没有可写的权限，那该怎么办呢？</p>
+<p>要解决这个问题，那就涉及到了 Linux 中的动态链接器的核心工作。</p>
+<p>既然代码段在被加载到内存中之后不可写，但是数据段是可写的。在代码段中引用的外部符号，可以在数据段中增加一个跳板：让代码段先引用数据段中的内容，然后在重定位时，把外部符号的地址填写到数据段中对应的位置，如下图所示：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二、示例程序"><a href="#二、示例程序" class="headerlink" title="二、示例程序"></a>二、示例程序</h1><p>下面还是来结合简单的示例来分析：</p>
+<p>我们需要 3 个源文件来讨论动态链接中重定位的过程：<code>main.c</code>、<code>a.c</code>、<code>b.c</code>，其中的 <code>a.c</code> 和 <code>b.c</code> 被编译成动态库，然后 <code>main.c</code> 与这两个动态库一起动态链接成可执行程序。它们之间的依赖关系是：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload>代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// b.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> b = <span class="hljs-number">30</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_b</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_b. b = %d \n&quot;</span>, b);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>定义一个全局变量和一个全局函数，被 <code>a.c</code> 调用。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// a.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-comment">// 内部定义【静态】全局变量</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> a1 = <span class="hljs-number">10</span>;<br><br><span class="hljs-comment">// 内部定义【非静态】全局变量</span><br><span class="hljs-type">int</span> a2 = <span class="hljs-number">20</span>;<br><br><span class="hljs-comment">// 声明外部变量</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> b;<br><br><span class="hljs-comment">// 声明外部函数</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_b</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-comment">// 内部定义的【静态】函数</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_a2</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a2 \n&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 内部定义的【非静态】函数</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_a3</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a3 \n&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">// 被 main 调用</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_a1</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in func_a1 \n&quot;</span>);<br><br>    <span class="hljs-comment">// 操作内部变量</span><br>    a1 = <span class="hljs-number">11</span>;<br>    a2 = <span class="hljs-number">21</span>;<br><br>    <span class="hljs-comment">// 操作外部变量</span><br>    b  = <span class="hljs-number">31</span>;<br><br>    <span class="hljs-comment">// 调用内部函数</span><br>    func_a2();<br>    func_a3();<br><br>    <span class="hljs-comment">// 调用外部函数</span><br>    func_b();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>定义了 2 个全局变量：一个静态，一个非静态；</li>
+<li>定义了 3 个函数：<code>func_a2</code> 是静态函数，只能在本文件中调用；<code>func_a1</code> 和 <code>func_a3</code> 是全局函数，可以被外部调用</li>
+<li>在 <code>main.c</code> 中会调用 <code>func_a1</code>。</li>
+</ul>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;dlfcn.h&gt;</span></span><br><br><span class="hljs-comment">// 声明外部变量</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> a2;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">func_a1</span><span class="hljs-params">()</span>;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*pfunc)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;in main \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印此进程的全局符号表</span><br>    <span class="hljs-type">void</span> *handle = dlopen(<span class="hljs-number">0</span>, RTLD_NOW);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> == handle)<br>    &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;dlopen failed! \n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ main ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 main 中变量符号的地址</span><br>    pfunc addr_main = dlsym(handle, <span class="hljs-string">&quot;main&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_main)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_main = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_main);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of main failed! \n&quot;</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ liba.so ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 liba.so 中变量符号的地址</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_a1 = dlsym(handle, <span class="hljs-string">&quot;a1&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_a1)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_a1 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_a1);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of a1 failed! \n&quot;</span>);<br><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_a2 = dlsym(handle, <span class="hljs-string">&quot;a2&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_a2)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_a2 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_a2);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of a2 failed! \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印 liba.so 中函数符号的地址</span><br>    pfunc addr_func_a1 = dlsym(handle, <span class="hljs-string">&quot;func_a1&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a1)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a1 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a1);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a1 failed! \n&quot;</span>);<br><br>    pfunc addr_func_a2 = dlsym(handle, <span class="hljs-string">&quot;func_a2&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a2)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a2 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a2);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a2 failed! \n&quot;</span>);<br><br>    pfunc addr_func_a3 = dlsym(handle, <span class="hljs-string">&quot;func_a3&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_a3)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_a3 = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_a3);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_a3 failed! \n&quot;</span>);<br><br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n------------ libb.so ---------------\n&quot;</span>);<br>    <span class="hljs-comment">// 打印 libb.so 中变量符号的地址</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *addr_b = dlsym(handle, <span class="hljs-string">&quot;b&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_b)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_b = 0x%x \n&quot;</span>, *addr_b);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of b failed! \n&quot;</span>);<br><br>    <span class="hljs-comment">// 打印 libb.so 中函数符号的地址</span><br>    pfunc addr_func_b = dlsym(handle, <span class="hljs-string">&quot;func_b&quot;</span>);<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">NULL</span> != addr_func_b)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr_func_b = 0x%x \n&quot;</span>, (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)addr_func_b);<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get address of func_b failed! \n&quot;</span>);<br><br>    dlclose(handle);<br><br>    <span class="hljs-comment">// 操作外部变量</span><br>    a2 = <span class="hljs-number">100</span>;<br><br>    <span class="hljs-comment">// 调用外部函数</span><br>    func_a1();<br><br>    <span class="hljs-comment">// 为了让进程不退出，方便查看虚拟空间中的地址信息</span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>) sleep(<span class="hljs-number">5</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>利用 <code>dlopen</code> 函数（第一个参数传入 NULL），来打印此进程中的一些符号信息（变量和函数）</li>
+<li>赋值给 <code>liba.so</code> 中的变量 a2，然后调用 <code>liba.so</code> 中的 <code>func_a1</code> 函数</li>
+</ul>
+</blockquote>
+<p>然后将这三个源文件编译成动态库和可执行文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared b.c -o libb.so</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC --shared a.c -o liba.so -lb -L./</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -fPIC main.c -o main -ldl -la -lb -L./</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ol>
+<li><code>-fPIC</code> 参数意思是：生成位置无关代码（Position Independent Code），这也是动态链接中的关键</li>
+<li>既然动态库是在运行时加载，那为什么在编译的时候还需要指明?因为在编译的时候，需要知道每一个动态库中提供了哪些符号。Windows 中的动态库的显性的导出和导入标识，更能体现这个概念(<code>__declspec(dllexport), __declspec(dllimport)</code>)。</li>
+</ol>
+</blockquote>
+<p>然后我们可以用 <code>patchelf</code> 工具来查看一个可执行文件或动态库依赖于哪个模块：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">patchelf --print-needed xxx</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三、动态库的加载过程"><a href="#三、动态库的加载过程" class="headerlink" title="三、动态库的加载过程"></a>三、动态库的加载过程</h1><h2 id="1、动态链接器加载动态库"><a href="#1、动态链接器加载动态库" class="headerlink" title="1、动态链接器加载动态库"></a>1、动态链接器加载动态库</h2><p>当执行 main 程序的时候，操作系统首先把 main 加载到内存，然后通过 <code>.interp</code> 段信息来查看该文件依赖哪些动态库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -s main</span><br></code></pre></td></tr></table></figure>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>上图中的字符串 <code>/lib/ld-linux.so.2</code>，就表示 main 依赖动态链接库。</p>
+<p><code>ld-linux.so.2</code> 也是一个动态链接库，在大部分情况下动态链接库已经被加载到内存中了（动态链接库就是为了共享），操作系统此时只需要把动态链接库所在的物理内存，映射到 main 进程的虚拟地址空间中就可以了，然后再把控制权交给动态链接器。</p>
+<p>然后，动态链接器发现：main 依赖 <code>liba.so</code>，于是它就在虚拟地址空间中找一块能放得下 <code>liba.so</code> 的空闲空间，然后把 <code>liba.so</code> 中需要加载到内存中的代码段、数据段都加载进来。当然，在加载 <code>liba.so</code> 时，又会发现它依赖 <code>libb.so</code>，于是又把在虚拟地址空间中找一块能放得下<code>libb.so</code> 的空闲空间，把 <code>libb.so</code> 中的代码段、数据段等加载到内存中，示意图如下所示：</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>动态链接器自身也是一个动态库，而且是一个特殊的动态库：它&#x3D;&#x3D;不依赖于其他的任何动态库&#x3D;&#x3D;，因为当它被加载的时候，没有人帮它去加载依赖的动态库，否则就变成死循环了。</p>
+</blockquote>
+<h2 id="2、动态库的加载地址"><a href="#2、动态库的加载地址" class="headerlink" title="2、动态库的加载地址"></a>2、动态库的加载地址</h2><p>一个进程在运行时的实际加载地址(或者说虚拟内存区域)，可以通过指令读取出来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/[进程的 pid]/maps</span> <br></code></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<p>这里插个问题，当我运行 main 的时候，报了如下的错误： </p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>然后，我用 <code>ldd</code> 命令检查了一下 main 的动态库依赖关系：</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p>至于找不到的情况分为两种:</p>
+<ul>
+<li>系统里根本不存在 <code>liba.so</code> 库；</li>
+<li><code>liba.so</code> 库在系统中存在，但是动态链接器找不到，即 <code>liba.so</code> 库的位置没有告知动态链接器。</li>
+</ul>
+<p>系统里当然找不到 <code>liba.so</code>，因为这是我们自己写的。所以问题出现的原因是第二条。</p>
+<blockquote>
+<p>当然还要包含 <code>libb.so</code></p>
+</blockquote>
+<p>所以，只要把动态库 <code>liba.so</code> 的绝对路径添加到动态链接器的搜索路径中，那么动态链接器就可以获取到动态库 <code>liba.so</code> 的绝对路径，接着就可以找到动态库文件 <code>liba.so</code>，将动态库文件载入内存，然后就可以使用动态库里面的代码，最终可执行程序 main 就可以成功运行，不会报错。</p>
+<p>动态链接器搜索动态库绝对路径的搜索顺序为：<code>DT_RPATH</code> 段→环境变量 <code>LD_LIBRARY_PATH</code>→<code>/etc/ld.so.cache</code> 文件列表→<code>/lib/</code> 或 <code>/usr/lib</code> 目录。</p>
+<p>因此，添加动态库绝对路径的方法也有很多种</p>
+<p>接下来，我们就按照上述分析进行操作。</p>
+<p>这里有两个方法，一个是临时的，一个是永久性的。</p>
+<ol>
+<li>临时环境变量</li>
+</ol>
+<p>输入命令（注意路径改成自己的动态库所在的路径）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">export</span> LD_LIBRARY_PATH=<span class="hljs-variable">$LD_LIBRARY_PATH</span>:/home/projectsauron/test/dynamic-link</span><br></code></pre></td></tr></table></figure>
+
+<p>然后可以 echo 这个变量检查一下：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<p>现在 main 的链接正常了：</p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<ol start="2">
+<li>环境变量</li>
+</ol>
+<p>在 <code>~/.bashrc</code> 里输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/projectsauron/test/dynamic-link<br></code></pre></td></tr></table></figure>
+
+<p>然后退出，在使能刷新一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ source ~/.bashrc<br></code></pre></td></tr></table></figure>
+
+<p>一样可以，这里就不演示了。</p>
+<hr>
+<p>再打开一个终端，找到 main 的进程号：</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<p>输入命令 <code>cat /proc/80962/maps</code> 可以看到当我的虚拟机中执行 main 程序时，看到的地址信息是：</p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<p>另外，还可以看到 C 库（<code>libc-2.31.so</code>）、动态链接器（<code>ld-2.31.so</code>）以及动态加载库 <code>libdl-2.31.so</code> 的虚拟地址区域，布局如下：</p>
+<blockquote>
+<p>代码段 rx，数据段 rw</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>可以看出 main 可执行程序是位于低地址，所有的动态库都位于 4G 内存空间的最后 1G 空间中。</p>
+<p>还有另外一个指令也很好用 <code>$ pmap [进程的 pid]</code>，也可以打印出每个模块的内存地址：</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="四、符号重定位"><a href="#四、符号重定位" class="headerlink" title="四、符号重定位"></a>四、符号重定位</h1><h2 id="1、全局符号表"><a href="#1、全局符号表" class="headerlink" title="1、全局符号表"></a>1、全局符号表</h2><p>在上一篇文章的静态链接中学习过，链接器在扫描每一个目标文件(<code>.o</code> 文件)的时候，会把每个目标文件中的符号提取出来，构成一个全局符号表。</p>
+<p>然后在第二遍扫描的时候，查看每个目标文件中需要重定位的符号，然后在全局符号表中查找该符号被安排在什么地址，然后把这个地址填写到引用的地方，这就是静态链接时的重定位。</p>
+<p>但是动态链接过程中的重定位，与静态链接的处理方式差别就大很多了，因为每个符号的地址只有在&#x3D;&#x3D;运行&#x3D;&#x3D;的时候才能知道它们的地址。例如：<code>liba.so</code> 引用了 <code>libb.so</code> 中的变量和函数，而 <code>libb.so</code> 中的这两个符号被加载到什么位置，直到 main 程序准备执行的时候，才能被链接器加载到内存中的某个随机的位置。</p>
+<p>也就是说：动态链接器知道每个动态库中的代码段、数据段被加载的内存地址，因此动态链接器也会维护一个全局符号表，其中存放着每一个动态库中导出的符号以及它们的内存地址信息。</p>
+<p>在示例代码 <code>main.c</code> 函数中，我们通过 <code>dlopen</code> 返回的句柄来打印进程中的一些全局符号的地址信息，输出内容如下：</p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以看到：在全局符号表中，没有找到 <code>liba.so</code> 中的变量 a1 和函数 <code>func_a2</code> 这两个符号，因为它俩都是 static 类型的，在编译成动态库的时候，没有导出到符号表中。</p>
+<p>动态链接库中保护两个符号表：</p>
+<ol>
+<li><code>.dynsym</code>：动态符号表: 表示模块中符号的导出、导入关系)</li>
+<li><code>.symtab</code>：符号表: 表示模块中的所有符号</li>
+</ol>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、全局偏移表-GOT"><a href="#2、全局偏移表-GOT" class="headerlink" title="2、全局偏移表 GOT"></a>2、全局偏移表 GOT</h2><p>在示例代码中，<code>liba.so</code> 是比较特殊的，它既被 main 可执行程序所依赖，又依赖于 <code>libb.so</code>。而且，在 <code>liba.so</code> 中，定义了静态、动态的全局变量和函数，可以很好的概况很多种情况，因此这部分内容就主要来分析 <code>liba.so</code> 这个动态库。</p>
+<p>前文说过：代码重定位需要修改代码段中的符号引用，而代码段被加载到内存中又没有可写的权限，动态链接解决这个矛盾的方案是：增加一层间接性。</p>
+<p>例如：<code>liba.so</code> 的代码中引用了 <code>libb.so</code> 中的变量 b，在 <code>liba.so</code> 的代码段，并不是在引用的地方直接指向 <code>libb.so</code> 数据段中变量 b 的地址，而是指向了 <code>liba.so</code> 自己的数据段中的某个位置，在&#x3D;&#x3D;重定位&#x3D;&#x3D;阶段，链接器再把 <code>libb.so</code> 中变量 b 的地址填写到这个位置。</p>
+<p>因为 <code>liba.so</code> 自己的代码段和数据段位置是相对固定的，这样的话，<code>liba.so</code> 的代码段被加载到内存之后，就再也不用修改了。而数据段中这个间接跳转的位置，就称作：全局偏移表(<code>GOT</code>，<em><strong>Global Offset Table</strong></em>)。</p>
+<p><code>liba.so</code> 的代码段中引用了 <code>libb.so</code> 中的符号 b，既然 b 的地址需要在重定位时才能确定，那么就在数据段中开辟一块空间（GOT表)，重定位时把 b 的地址填写到 GOT 表中。</p>
+<p>而 <code>liba.so</code> 的代码段中，把 GOT 表的地址填写到引用 b 的地方，因为 GOT 表在&#x3D;&#x3D;编译&#x3D;&#x3D;阶段是可以确定的，使用的是&#x3D;&#x3D;相对地址&#x3D;&#x3D;。这样，就可以在不修改 <code>liba.so</code> 代码段的前提下，动态地对符号 b 进行了重定位！</p>
+<p>其实，在一个动态库中存在 2 个 GOT 表，分别用于重定位变量符号（section 名称：<code>.got</code>）和函数符号（section 名称：<code>.got.plt</code>）。也就是说：</p>
+<ul>
+<li>所有变量类型的符号重定位信息都位于 <code>.got</code> 中</li>
+<li>所有函数类型的符号重定位信息都位于 <code>.got.plt</code> 中</li>
+</ul>
+<p>并且，在一个动态库文件中，有两个特殊的段（<code>.rel.dyn</code> 和 <code>.rel.plt</code>）来告诉链接器：<code>.got</code> 和 <code>.got.plt</code> 这两个表中，有哪些符号需要进行重定位。</p>
+<h2 id="3、liba-so-动态库文件的布局"><a href="#3、liba-so-动态库文件的布局" class="headerlink" title="3、liba.so 动态库文件的布局"></a>3、liba.so 动态库文件的布局</h2><p>为了更深刻的理解 <code>.got</code> 和 <code>.got.plt</code> 这两个表，有必要来拆解一下 <code>liba.so</code> 动态库文件的内部结构。</p>
+<p>通过 <code>readelf -S liba.so</code> 指令来看一下这个 ELF 文件中都有哪些 section：</p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p><code>dynamic</code> 段<br><br>在静态链接，elf文件有一个文件头，里面记录了一些静态链接所需要的信息，比如比如需要的符号表，重定位表等。<br>而在共享对象中，需要动态链接的变量和函数也需要相应的信息，为了方便动态链接器的执行，在共享对象中，有一个专门的 <code>dynamic</code> 段，汇总了和动态链接有关的段的信息，方便动态链接器使用。</p>
+</blockquote>
+<p>可以看到：一共有 29 个 section，其中的 22、23 就是两个 GOT 表。</p>
+<p>另外，从装载的角度来看，装载器并不是把这些 sections 分开来处理，而是根据不同的读写属性，把多个 section 看做一个segment（ELF 的运行视图）。再次通过指令 <code>readelf -l liba.so</code>，来查看一下 segment 信息：</p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>注意看上面两张图红圈部分的地址信息</p>
+</blockquote>
+<p>由上面两张图可以看出：</p>
+<ul>
+<li>section 0~18 都是可读、可执行权限，被当做一个 segment</li>
+<li>section 19 ~ 25 都是可读、可写的权限，被当作另一个 segment</li>
+</ul>
+<p>再来重点看一下 <code>.got</code> 和 <code>.got.plt</code> 这两个 section，可见：</p>
+<ul>
+<li><code>.got</code> 和 <code>.got.plt</code> 与数据段一样，都是可读、可写的，所以被当做同一个 segment 被加载到内存中。</li>
+</ul>
+<p>通过以上这 2 张图(红色矩形框)，可以得到 <code>liba.so</code> 动态库文件的内部结构如下：</p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、liba-so-动态库的虚拟地址"><a href="#4、liba-so-动态库的虚拟地址" class="headerlink" title="4、liba.so 动态库的虚拟地址"></a>4、liba.so 动态库的虚拟地址</h2><p>来继续观察 <code>liba.so</code> 文件 segment 信息中的 <code>VirtAddr</code> 列，它表示的是&#x3D;&#x3D;被加载到虚拟内存中的地址&#x3D;&#x3D;：</p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>因为编译动态库时，使用了代码位置无关参数（<code>-fPIC</code>)，这里的虚拟地址从 <code>0x0000 0000</code> 开始。</p>
+</blockquote>
+<p>当 <code>liba.so</code> 的代码段、数据段被加载到内存中时，动态链接器找到一块空闲空间，这个空间的开始地址，就相当于一个基地址。</p>
+<p><code>liba.so</code> 中的代码段和数据段中所有的虚拟地址信息，只要加上这个基地址，就得到了实际虚拟地址。所以结合前面的信息可得：</p>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5、GOT-表的内部结构"><a href="#5、GOT-表的内部结构" class="headerlink" title="5、GOT 表的内部结构"></a>5、GOT 表的内部结构</h2><p>现在，我们已经知道了 <code>liba.so</code> 库的文件布局，也知道了它的虚拟地址，此时就可以来进一步的看一下 <code>.got</code> 和 <code>.got.plt</code> 这两个表的内部结构了。从刚才的图片中看出：</p>
+<ul>
+<li><code>.got</code> 表的长度是 0x18，说明有 6 个表项(每个表项占 4 个字节)</li>
+<li><code>.got.plt</code> 表的长度是 0x18，说明有 6 个表项</li>
+</ul>
+<p>上文已经说过，这两个表是用来重定位所有的变量和函数等符号的。那么：<code>liba.so</code> 通过什么方式来告诉动态链接器需要对 <code>.got</code> 和 <code>.got.plt</code> 这两个表中的表项进行地址重定位呢？</p>
+<ul>
+<li>在静态链接的时候，目标文件是通过两个重定位表 <code>.rel.text</code> 和 <code>.rel.data</code> 这两个段信息来告诉链接器的。</li>
+<li>对于动态链接来说，也是通过两个重定位表来传递需要重定位的符号信息的，只不过名字有些不同：<code>.rel.dyn</code> 和 <code>.rel.plt</code>。</li>
+</ul>
+<p>通过指令 <code>readelf -r liba.so</code>来查看重定位信息：</p>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload></p>
+<p>由上图可以看出：</p>
+<ul>
+<li><code>liba.so</code> 引用了外部符号 b，类型是 <code>R_386_GLOB_DAT</code>，这个符号的重定位描述信息在 <code>.rel.dyn</code> 段中</li>
+<li><code>liba.so</code> 引用了外部符号 func_b, 类型是 <code>R_386_JUMP_SLOT</code>，这个符号的重定位描述信息在 <code>.rel.plt</code> 段中</li>
+</ul>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload><br>由上图可以看出：</p>
+<ul>
+<li><code>liba.so</code> 的代码中在操作变量 b 的时候，就到 <code>.got</code> 表中的 <code>0x0000 3fec</code> 这个地址处来获取变量 b 的真正地址</li>
+<li><code>liba.so</code> 的代码中在调用 func_b 函数的时候，就到 <code>.got.plt</code> 表中的 <code>0x0000 400c</code> 这个地址处来获取函数的真正地址</li>
+</ul>
+<h2 id="6、反汇编-liba-so-代码"><a href="#6、反汇编-liba-so-代码" class="headerlink" title="6、反汇编 liba.so 代码"></a>6、反汇编 liba.so 代码</h2><p>下面就来反汇编一下 <code>liba.so</code>，看一下指令码中是如何对这两个表项进行寻址的。</p>
+<p>执行反汇编指令：<code>$ objdump -d liba.so</code>，这里只贴出 func_a1 函数的反汇编代码：</p>
+<p><img src="25.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>call 10b0 &lt;__x86.get_pc_thunk.bx&gt;</code> 的功能是：把下一条指令(<code>add $0x2de5,%ebx</code>)的地址存储到 %ebx 中，也就是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">%ebx = <span class="hljs-number">0x121b</span><br></code></pre></td></tr></table></figure>
+
+<p>然后执行: <code>add $0x2de5,%ebx</code>，让 %ebx 加上 0x2de5，结果就是：<code>%ebx = 0x4000</code>。</p>
+<p>看下前面的图，<code>0x4000</code> 正是 <code>.got.plt</code> 表的开始地址！</p>
+<p>紧接着看第二个红框。</p>
+<ul>
+<li><code>mov -0x8(%ebx),%eax</code>：先用 %ebx 减去 0x8 的结果，存储到 %eax 中，结果是：<code>%eax = 0x3fec</code>，这个地址正是变量 b 在 <code>.got</code> 表中的虚拟地址。</li>
+<li><code>movl $0x1f,(%eax)</code>：在把 0x1f(十进制就是 31)，存储到 0x3fec 表项中存储的地址所对应的内存单元中（<code>libb.so</code>的数据段中的某个位置）。</li>
+</ul>
+<p>因此，当链接器进行重定位之后，0x3fec 表项中存储的就是变量 b 的真正地址，而上面这两步操作，就把数值 31 赋值给变量 b 了。</p>
+<p>第 3 个红色矩形框，是调用函数 func_b，稍微复杂一些，跳转到符号 <code>func_b@plt</code> 的地方，看一下反汇编代码：</p>
+<p><img src="26.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>jmp</code> 指令调用了 <code>%ebx + 0xc</code>（得到 0x400c）处的那个函数指针，从上面的 <code>.got.plt</code> 布局图中可以看出，重定位之后这个表项中存储的正是 func_b 函数的地址（<code>libb.so</code> 中代码段的某个位置），所以就正确的跳转到该函数中了。</p>
+<h1 id="五、补充"><a href="#五、补充" class="headerlink" title="五、补充"></a>五、补充</h1><h2 id="1、延迟绑定-plt"><a href="#1、延迟绑定-plt" class="headerlink" title="1、延迟绑定 plt"></a>1、延迟绑定 plt</h2><p>实际应用中，共享对象可能会访问大量的外部函数，也就是说，有一个庞大的 <code>got.plt</code> 表。</p>
+<p>当加载该共享对象时，理论上，动态链接器就要将该共享对象涉及到的外部模块全部加载并链接，这可能会耗费大量时间，而且，很多外部函数，也许在整个进程生命周期内，都不会被实际调用一次，加载消耗的时间就浪费了。</p>
+<p>为了优化这一点，引入延迟绑定（<em><strong>lazy binding</strong></em>）技术。具体办法是，调用外部函数的指令不直接从 <code>got.plt</code> 中取函数地址，而是新建一个plt段，从这个里面取函数的地址。</p>
+<p>假设，某个共享对象 a 访问共享对象 b 中的 bar 函数，那么，在 <code>got.plt</code> 和 <code>plt</code> 都有一个 bar 函数的项。</p>
+<p>plt 中的 bar 函数的项的内容是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">jmp *(bar@got.plt)<br>push n<br>push moduleID<br>jump _dl_runtime_resolve<br></code></pre></td></tr></table></figure>
+
+<p>我们来分析一下这几句话。</p>
+<p>我们假设一个场景，即共享对象在实际执行时，第一次实际调用 bar 函数，这个时机正是体现延迟绑定技术的时候。</p>
+<p><code>jmp *(bar@got.plt)</code> 这句话是说跳转到 <code>got.plt</code> 中 bar 函数的地址，我们知道，因为采用了延迟绑定， 此时这里的地址并不是 bar 的地址。那是什么地址呢？答案是链接器在初始化时，已经帮我们填好了，就是下一条 push 指令的地址。</p>
+<p>于是，跳转到了下一条 push 语句，这个语句的 n 又是什么呢？</p>
+<p>答案是，为了实现延迟绑定，还建了一个新的段，<code>rel.plt</code>。这个段也是一个重定位表，记录了 <code>got.plt</code> 中的 bar 的位置，告诉链接器，这个 bar 的位置要进行重定位。n 就是 bar 函数在 <code>rel.plt</code> 中的位置。我们可以将其称作 bar 函数的 id。</p>
+<p>接下来，<code>push moduleID</code>，是把 bar 所在的模块的 id 入栈。</p>
+<p>回顾上面两个 push，我们看到，入栈了模块的 id，以及要使用该模块的函数 bar 的 id n。</p>
+<p>然后调用 <code>_dl_runtime_resolve</code>，该函数就帮我们加载并链接要使用的外部模块，并在 <code>got.plt</code> 中更新 bar 函数的地址。该函数会使用到我们刚刚 push 的两个值，这是它领受的任务。</p>
+<p>一旦这个过程完成，再次通过 <code>plt</code> 调用 bar 函数时，就会跳转到真正的 bar 函数了。</p>
+<p>总结一下，为了实现延迟绑定，又引入了两个新的段，<code>plt</code> 和 <code>rel.plt</code>。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/" class="print-no-link">#动态链接</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>动态链接过程分析</div>
+      <div>http://example.com/2024/10/23/动态链接过程分析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/24/STM32-Backtrace/" title="STM32 调试之栈回溯和 CmBacktrace 的使用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 调试之栈回溯和 CmBacktrace 的使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" title="静态链接过程分析">
+                        <span class="hidden-mobile">静态链接过程分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

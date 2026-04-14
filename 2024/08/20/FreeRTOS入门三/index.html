@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  一、任务创建与删除1、什么是任务在 FreeRTOS 中，任务就是一个函数，原型如下： 1void ATaskFunction(void *pvParameters);  要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeRTOS 快速入门（三）之任务管理">
+<meta property="og:url" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  一、任务创建与删除1、什么是任务在 FreeRTOS 中，任务就是一个函数，原型如下： 1void ATaskFunction(void *pvParameters);  要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/1.png">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/2.png">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/3.png">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/4.png">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/5.png">
+<meta property="og:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/6.png">
+<meta property="article:published_time" content="2024-08-20T02:20:53.000Z">
+<meta property="article:modified_time" content="2024-11-14T00:29:34.869Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="FreeRTOS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/1.png">
+  
+  
+  
+  <title>FreeRTOS 快速入门（三）之任务管理 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeRTOS 快速入门（三）之任务管理"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-20 10:20" pubdate>
+          星期二, 八月 20日 2024, 10:20 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FreeRTOS 快速入门（三）之任务管理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<h1 id="一、任务创建与删除"><a href="#一、任务创建与删除" class="headerlink" title="一、任务创建与删除"></a>一、任务创建与删除</h1><h2 id="1、什么是任务"><a href="#1、什么是任务" class="headerlink" title="1、什么是任务"></a>1、什么是任务</h2><p>在 FreeRTOS 中，任务就是一个函数，原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">ATaskFunction</span><span class="hljs-params">(<span class="hljs-type">void</span> *pvParameters)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使用全局变量、静态变量的话，只有一个副本：多个任务使用的是同一个副本。</p>
+<p>如下例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">ATaskFunction</span><span class="hljs-params">(<span class="hljs-type">void</span> *pvParameters)</span><br>&#123;<br>	<span class="hljs-comment">/* 对于不同的任务，局部变量放在任务的栈里，有各自的副本 */</span><br>	<span class="hljs-type">int32_t</span> lVariableExample = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-comment">/* 任务函数通常实现为一个无限循环 */</span><br>	<span class="hljs-keyword">for</span>( ;; )<br>	&#123;<br>		<span class="hljs-comment">/* 任务的代码 */</span><br>	&#125;<br><br>	<span class="hljs-comment">/* 如果程序从循环中退出，一定要使用 vTaskDelete 删除自己</span><br><span class="hljs-comment">	 * NULL 表示删除的是自己</span><br><span class="hljs-comment">	 */</span><br>	vTaskDelete( <span class="hljs-literal">NULL</span> );<br><br>	<span class="hljs-comment">/* 程序不会执行到这里, 如果执行到这里就出错了 */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2、创建任务"><a href="#2、创建任务" class="headerlink" title="2、创建任务"></a>2、创建任务</h2><p>创建任务时使用的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  动态分配内存创建任务函数</span><br><span class="hljs-comment">  * @param  pvTaskCode：任务函数</span><br><span class="hljs-comment">  * @param  pcName：任务名称，单纯用于辅助调试</span><br><span class="hljs-comment">  * @param  usStackDepth：任务栈深度，单位为字（word）</span><br><span class="hljs-comment">  * @param  pvParameters：任务参数</span><br><span class="hljs-comment">  * @param  uxPriority：任务优先级</span><br><span class="hljs-comment">  * @param  pxCreatedTask：任务句柄，可通过该句柄进行删除/挂起任务等操作</span><br><span class="hljs-comment">  * @retval pdTRUE：创建成功，errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY：内存不足创建失败</span><br><span class="hljs-comment">  */</span><br>BaseType_t <span class="hljs-title function_">xTaskCreate</span><span class="hljs-params">(TaskFunction_t pvTaskCode,</span><br><span class="hljs-params">					   <span class="hljs-type">const</span> <span class="hljs-type">char</span> * <span class="hljs-type">const</span> pcName,</span><br><span class="hljs-params">					   <span class="hljs-type">unsigned</span> <span class="hljs-type">short</span> usStackDepth,</span><br><span class="hljs-params">					   <span class="hljs-type">void</span> *pvParameters,</span><br><span class="hljs-params">					   UBaseType_t uxPriority,</span><br><span class="hljs-params">					   TaskHandle_t *pxCreatedTask)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  静态分配内存创建任务函数</span><br><span class="hljs-comment">  * @param  pvTaskCode：任务函数</span><br><span class="hljs-comment">  * @param  pcName：任务名称</span><br><span class="hljs-comment">  * @param  usStackDepth：任务栈深度，单位为字（word）</span><br><span class="hljs-comment">  * @param  pvParameters：任务参数</span><br><span class="hljs-comment">  * @param  uxPriority：任务优先级</span><br><span class="hljs-comment">  * @param  puxStackBuffer：任务栈空间数组</span><br><span class="hljs-comment">  * @param  pxTaskBuffer：任务控制块存储空间</span><br><span class="hljs-comment">  * @retval 创建成功的任务句柄</span><br><span class="hljs-comment">  */</span><br>TaskHandle_t <span class="hljs-title function_">xTaskCreateStatic</span><span class="hljs-params">(TaskFunction_t pvTaskCode,</span><br><span class="hljs-params">							   <span class="hljs-type">const</span> <span class="hljs-type">char</span> * <span class="hljs-type">const</span> pcName,</span><br><span class="hljs-params">							   <span class="hljs-type">uint32_t</span> ulStackDepth,</span><br><span class="hljs-params">							   <span class="hljs-type">void</span> *pvParameters,</span><br><span class="hljs-params">							   UBaseType_t uxPriority,</span><br><span class="hljs-params">							   StackType_t * <span class="hljs-type">const</span> puxStackBuffer,</span><br><span class="hljs-params">							   StaticTask_t * <span class="hljs-type">const</span> pxTaskBuffer)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>上述两个任务创建函数有如下几点不同，之后如无特殊需要将一律使用动态分配内存的方式创建任务或其他实例</p>
+<ul>
+<li><code>xTaskCreateStatic</code> 创建任务时需要用户指定任务栈空间数组和任务控制块的存储空间，而 <code>xTaskCreate</code> 创建任务其存储空间被动态分配，无需用户指定</li>
+<li><code>xTaskCreateStatic</code> 创建任务函数的返回值为成功创建的任务句柄，而 <code>xTaskCreate</code> 成功创建任务的句柄需要以参数形式提前定义并指定，同时其函数返回值仅表示任务创建成功&#x2F;失败</li>
+</ul>
+<p>参数说明：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pvTaskCode</code></td>
+<td>函数指针，可以简单地认为任务就是一个 C 函数。<br>它稍微特殊一点：永远不退出，或者退出时要调用”vTaskDelete(NULL)”</td>
+</tr>
+<tr>
+<td><code>pcName</code></td>
+<td>任务的名字，FreeRTOS 内部不使用它，仅仅起调试作用。<br>长度为：configMAX_TASK_NAME_LEN</td>
+</tr>
+<tr>
+<td><code>usStackDepth</code></td>
+<td>每个任务都有自己的栈，这里指定栈大小。<br>单位是 word，比如传入 100，表示栈大小为 100 word，也就是 400 字节。<br>最大值为 uint16_t 的最大值。<br>怎么确定栈的大小，并不容易，很多时候是估计。<br>精确的办法是看反汇编码。</td>
+</tr>
+<tr>
+<td><code>pvParameters</code></td>
+<td>调用 pvTaskCode 函数指针时用到：pvTaskCode(pvParameters)</td>
+</tr>
+<tr>
+<td><code>uxPriority</code></td>
+<td>优先级范围：0~(configMAX_PRIORITIES – 1)<br>数值越小优先级越低，<br>如果传入过大的值，xTaskCreate 会把它调整为(configMAX_PRIORITIES – 1)</td>
+</tr>
+<tr>
+<td><code>pxCreatedTask</code></td>
+<td>用来保存 xTaskCreate 的输出结果：task handle。<br>以后如果想操作这个任务，比如修改它的优先级，就需要这个 handle。<br>如果不想使用该 handle，可以传入 NULL。</td>
+</tr>
+<tr>
+<td><code>返回值</code></td>
+<td>成功：pdPASS；<br>失败：errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY(失败原因只有内存不足)<br>注意：文档里都说失败时返回值是 pdFAIL，这不对。<br>pdFAIL 是 0，errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY 是-1。</td>
+</tr>
+</tbody></table>
+<h2 id="3、任务的删除"><a href="#3、任务的删除" class="headerlink" title="3、任务的删除"></a>3、任务的删除</h2><p>删除任务时使用的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskDelete</span><span class="hljs-params">(TaskHandle_t xTaskToDelete)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pvTaskCode</code></td>
+<td>任务句柄，使用 xTaskCreate 创建任务时可以得到一个句柄。<br>也可传入 NULL，这表示删除自己。</td>
+</tr>
+</tbody></table>
+<p>例：</p>
+<ul>
+<li>自杀：vTaskDelete(NULL)</li>
+<li>被杀：别的任务执行 vTaskDelete(pvTaskCode) ，pvTaskCode 是自己的句柄</li>
+<li>杀人：执行 vTaskDelete(pvTaskCode) ，pvTaskCode 是别的任务的句柄</li>
+</ul>
+<h1 id="二、任务优先级和-Tick"><a href="#二、任务优先级和-Tick" class="headerlink" title="二、任务优先级和 Tick"></a>二、任务优先级和 Tick</h1><h2 id="1、任务优先级"><a href="#1、任务优先级" class="headerlink" title="1、任务优先级"></a>1、任务优先级</h2><p>高优先级的任务先运行。优先级的取值范围是：<code>0~(configMAX_PRIORITIES – 1)</code>，&#x3D;&#x3D;数值越大优先级越高&#x3D;&#x3D;。</p>
+<p>FreeRTOS 的调度器可以使用 2 种方法来快速找出优先级最高的、可以运行的任务。使用不同的方法时，<code>configMAX_PRIORITIES</code> 的取值有所不同。</p>
+<ol>
+<li>通用方法<ul>
+<li>使用 C 函数实现，对所有的架构都是同样的代码。对 <code>configMAX_PRIORITIES</code> 的取值没有限制。但是 <code>configMAX_PRIORITIES</code> 的取值还是尽量小，因为取值越大越浪费内存，也浪费时间。</li>
+<li><code>configUSE_PORT_OPTIMISED_TASK_SELECTION</code> 被定义为 0、或者未定义时，使用此方法。</li>
+</ul>
+</li>
+<li>架构相关的优化的方法<ul>
+<li>架构相关的汇编指令，可以从一个 32 位的数里快速地找出为 1 的最高位。使用这些指令，可以快速找出优先级最高的、可以运行的任务。</li>
+<li>使用这种方法时，<code>configMAX_PRIORITIES</code> 的取值不能超过 32。</li>
+<li><code>configUSE_PORT_OPTIMISED_TASK_SELECTION</code> 被定义为 1 时，使用此方法。</li>
+</ul>
+</li>
+</ol>
+<p>总而言之：</p>
+<ul>
+<li>FreeRTOS 会确保最高优先级的、可运行的任务，马上就能执行</li>
+<li>对于相同优先级的、可运行的任务，轮流执行</li>
+</ul>
+<h2 id="2、Tick"><a href="#2、Tick" class="headerlink" title="2、Tick"></a>2、Tick</h2><p>FreeRTOS 中也有心跳，它使用定时器产生固定间隔的中断。这叫 Tick、滴答，比如每 10ms 发生一次时钟中断。</p>
+<p>如下图：假设 t1、t2、t3 发生时钟中断，两次中断之间的时间被称为时间片(time slice、tick period)。时间片的长度由 <code>configTICK_RATE_HZ</code> 决定，假设 <code>configTICK_RATE_HZ</code> 为 100，那么时间片长度就是 10ms。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>相同优先级的任务怎么切换呢？请看下图：</p>
+<p>任务 2 从 t1 执行到 t2，在 t2 发生 tick 中断，进入 tick 中断处理函数：选择下一个要运行的任务。执行完中断处理函数后，切换到新的任务：任务 1。任务 1 从 t2 执行到 t3，从图中可以看出，任务运行的时间并不是严格从 t1,t2,t3 哪里开始。</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>有了 Tick 的概念后，我们就可以使用 Tick 来衡量时间了，比如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">vTaskDelay(<span class="hljs-number">2</span>); <span class="hljs-comment">// 等待2个Tick，假设configTICK_RATE_HZ=100, Tick周期时10ms, 等待20ms</span><br><br><span class="hljs-comment">// 还可以使用pdMS_TO_TICKS宏把ms转换为tick</span><br>vTaskDelay(pdMS_TO_TICKS(<span class="hljs-number">100</span>)); <span class="hljs-comment">// 等待100ms</span><br></code></pre></td></tr></table></figure>
+
+<p>注意，基于 Tick 实现的延时并不精确，比如 vTaskDelay(2) 的本意是延迟 2 个 Tick 周期，有可能经过 1 个 Tick 多一点就返回了。如下图：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>使用 vTaskDelay 函数时，建议以 ms 为单位，使用 pdMS_TO_TICKS 把时间转换为 Tick。<br>这样的代码就与 <code>configTICK_RATE_HZ</code> 无关，即使配置项 <code>configTICK_RATE_HZ</code> 改变了，我们也不用去修改代码。</p>
+</blockquote>
+<h2 id="3、-修改优先级"><a href="#3、-修改优先级" class="headerlink" title="3、 修改优先级"></a>3、 修改优先级</h2><p>我们使用 <code>uxTaskPriorityGet</code> 来获得任务的优先级：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">UBaseType_t <span class="hljs-title function_">uxTaskPriorityGet</span><span class="hljs-params">( <span class="hljs-type">const</span> TaskHandle_t xTask )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>使用参数 xTask 来指定任务，设置为 NULL 表示获取自己的优先级。</p>
+<p>通过使用 <code>vTaskPrioritySet</code> 来设置任务的优先级：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskPrioritySet</span><span class="hljs-params">( TaskHandle_t xTask,</span><br><span class="hljs-params">					   UBaseType_t uxNewPriority )</span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用参数 xTask 来指定任务，设置为 NULL 表示设置自己的优先级；</li>
+<li>参数 uxNewPriority 表示新的优先级，取值范围是 0~(configMAX_PRIORITIES – 1)。</li>
+</ul>
+<h1 id="三、任务状态"><a href="#三、任务状态" class="headerlink" title="三、任务状态"></a>三、任务状态</h1><h2 id="1、阻塞状态-Blocked"><a href="#1、阻塞状态-Blocked" class="headerlink" title="1、阻塞状态(Blocked)"></a>1、阻塞状态(Blocked)</h2><p>在实际产品中，我们不会让一个任务一直运行，而是使用”事件驱动”的方法让它运行：</p>
+<ul>
+<li>任务要等待某个事件，事件发生后它才能运行</li>
+<li>在等待事件过程中，它不消耗 CPU 资源</li>
+<li>在等待事件的过程中，这个任务就处于阻塞状态（<em><strong>Blocked</strong></em>）</li>
+</ul>
+<p>在阻塞状态的任务，它可以等待两种类型的事件：</p>
+<ul>
+<li>时间相关的事件<ul>
+<li>可以等待一段时间：我等 2 分钟</li>
+<li>也可以一直等待，直到某个绝对时间：我等到下午 3 点</li>
+</ul>
+</li>
+<li>同步事件：这事件由别的任务，或者是中断程序产生<ul>
+<li>例子 1：任务 A 等待任务 B 给它发送数据</li>
+<li>例子 2：任务 A 等待用户按下按键</li>
+<li>同步事件的来源有很多(这些概念在后面会细讲)：<ul>
+<li>队列(queue)</li>
+<li>二进制信号量(binary semaphores)</li>
+<li>计数信号量(counting semaphores)</li>
+<li>互斥量(mutexes)</li>
+<li>递归互斥量、递归锁(recursive mutexes)</li>
+<li>事件组(event groups)</li>
+<li>任务通知(task notifications)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>在等待一个同步事件时，可以加上超时时间。比如等待队里数据，超时时间设为 10ms：</p>
+<ul>
+<li>10ms 之内有数据到来：成功返回</li>
+<li>10ms 到了，还是没有数据：超时返回</li>
+</ul>
+<h2 id="2、暂停状态-Suspended"><a href="#2、暂停状态-Suspended" class="headerlink" title="2、暂停状态(Suspended)"></a>2、暂停状态(Suspended)</h2><p>FreeRTOS 中的任务也可以进入暂停状态，唯一的方法是通过 vTaskSuspend 函数。函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskSuspend</span><span class="hljs-params">( TaskHandle_t xTaskToSuspend )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>参数 xTaskToSuspend 表示要暂停的任务，如果为 NULL，表示暂停自己。</p>
+<p>要退出暂停状态，只能由别人来操作：</p>
+<ul>
+<li>别的任务调用：vTaskResume</li>
+<li>中断程序调用：xTaskResumeFromISR</li>
+</ul>
+<p>实际开发中，暂停状态用得不多。</p>
+<h2 id="3、就绪状态-Ready"><a href="#3、就绪状态-Ready" class="headerlink" title="3、就绪状态(Ready)"></a>3、就绪状态(Ready)</h2><p>这个任务完全准备好了，随时可以运行：只是还轮不到它。这时，它就处于就绪态（<em><strong>Ready</strong></em>）。</p>
+<h2 id="4、状态转换"><a href="#4、状态转换" class="headerlink" title="4、状态转换"></a>4、状态转换</h2><p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><strong>创建任务–&gt;就绪态</strong>：任务创建完成后进入就绪态，表明任务已准备就绪，随时可以运行，只等待调度器进行调度。</li>
+<li>就绪态→运行态：发生任务切换时，就绪列表中最高优先级的任务被执行，从而进入运态。</li>
+<li><strong>运行态–&gt;就绪态</strong>：有更高优先级任务创建或者恢复后，在滴答中断会发生任务调度，此刻最高优先级任务变为运行态，那么原先运行的任务由运行态变为就绪态，依然在就绪列表中，等待最高优先级的任务运行完毕继续运行原来的任务（此处可以看做是 CPU 使用权被更高优先级的任务抢占了）。</li>
+<li><strong>运行态–&gt;阻塞态</strong>：正在运行的任务发生阻塞（挂起、延时、读信号量等待）时，该任务会从就绪列表中删除，任务状态由运行态变成阻塞态，然后发生任务切换，运行就绪列表中当前最高优先级任务。</li>
+<li><strong>阻塞态–&gt;就绪态</strong>：阻塞的任务被恢复后（任务恢复、延时时间超时、读信号量超时或读到信号量等），此时被恢复的任务会被加入就绪列表，从而由阻塞态变成就绪态；如果此时被恢复任务的优先级高于正在运行任务的优先级，则会发生任务切换，将该任务将再次转换任务状态，由就绪态变成运行态。</li>
+<li><strong>就绪态–&gt;挂起态</strong>：任务可以通过调用 <code>vTaskSuspend()</code> 函数可以将处于就绪态的任务挂起，被挂起的任务得不到CPU 的使用权，也不会参与调度，除非它从挂起态中解除。</li>
+<li><strong>阻塞态–&gt;挂起态</strong>：同样，任务可以通过调用 <code>vTaskSuspend()</code> 函数将处于阻塞态的任务挂起。</li>
+<li><strong>运行态–&gt;挂起态</strong>：同样，任务可以通过调用 <code>vTaskSuspend()</code> 函数将处于运行态的任务挂起。总之，不管当前任务处于何种状态，调用 <code>vTaskSuspend()</code> 后都会将任务挂起。</li>
+<li><strong>挂起态–&gt;就绪态</strong>：把 一 个 挂 起 状态 的 任 务 恢复的 唯 一 途 径 就 是调 用 <code>vTaskResume()</code> 或 <code>vTaskResumeFromISR()</code>  函数，如果此时被恢复任务的优先级高于正在运行任务的优先级，则会发生任务切换，将该任务将再次转换任务状态，由就绪态变成运行态。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  查询一个任务当前处于什么状态</span><br><span class="hljs-comment">  * @param  pxTask：要查询任务状态的任务句柄，NULL查询自己</span><br><span class="hljs-comment">  * @retval 任务状态的枚举类型</span><br><span class="hljs-comment">  */</span><br>eTaskState <span class="hljs-title function_">eTaskGetState</span><span class="hljs-params">(TaskHandle_t pxTask)</span>;<br> <br><span class="hljs-comment">/*任务状态枚举类型返回值*/</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span></span><br><span class="hljs-class">&#123;</span><br>	eRunning = <span class="hljs-number">0</span>,	<span class="hljs-comment">/* 任务正在查询自身的状态，因此肯定是运行状态 */</span><br>	eReady,			<span class="hljs-comment">/* 就绪状态 */</span><br>	eBlocked,		<span class="hljs-comment">/* 阻塞状态 */</span><br>	eSuspended,		<span class="hljs-comment">/* 挂起状态 */</span><br>	eDeleted,		<span class="hljs-comment">/* 正在查询的任务已被删除，但其 TCB 尚未释放 */</span><br>	eInvalid		<span class="hljs-comment">/* 无效状态 */</span><br>&#125; eTaskState;<br><br>......<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  挂起某个任务</span><br><span class="hljs-comment">  * @param  pxTaskToSuspend：被挂起的任务的句柄，通过传入NULL来挂起自身</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskSuspend</span><span class="hljs-params">(TaskHandle_t pxTaskToSuspend)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  将某个任务从挂起状态恢复</span><br><span class="hljs-comment">  * @param  pxTaskToResume：正在恢复的任务的句柄</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskResume</span><span class="hljs-params">(TaskHandle_t pxTaskToResume)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  vTaskResume的中断安全版本</span><br><span class="hljs-comment">  * @param  pxTaskToResume：正在恢复的任务的句柄</span><br><span class="hljs-comment">  * @retval 返回退出中断之前是否需要进行上下文切换(pdTRUE/pdFALSE)</span><br><span class="hljs-comment">  */</span><br>BaseType_t <span class="hljs-title function_">xTaskResumeFromISR</span><span class="hljs-params">(TaskHandle_t pxTaskToResume)</span>;<br></code></pre></td></tr></table></figure>
+
+<h1 id="四、Delay-函数"><a href="#四、Delay-函数" class="headerlink" title="四、Delay 函数"></a>四、Delay 函数</h1><p>这里有两个 <code>Delay</code> 函数：</p>
+<ul>
+<li><code>vTaskDelay</code>：至少等待指定个数的 Tick Interrupt 才能变为就绪状态</li>
+<li><code>vTaskDelayUntil</code>：等待到指定的绝对时刻，才能变为就绪态。</li>
+</ul>
+<p>这 2 个函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskDelay</span><span class="hljs-params">( <span class="hljs-type">const</span> TickType_t xTicksToDelay )</span>; <span class="hljs-comment">/* xTicksToDelay: 等待多少个</span><br><span class="hljs-comment">Tick */</span><br><br><span class="hljs-comment">/* pxPreviousWakeTime: 上一次被唤醒的时间</span><br><span class="hljs-comment"> * xTimeIncrement: 要阻塞到(pxPreviousWakeTime + xTimeIncrement)</span><br><span class="hljs-comment"> * 单位都是Tick Count</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskDelayUntil</span><span class="hljs-params">( TickType_t * <span class="hljs-type">const</span> pxPreviousWakeTime,</span><br><span class="hljs-params">							<span class="hljs-type">const</span> TickType_t xTimeIncrement )</span>;<br></code></pre></td></tr></table></figure>
+
+<p>下面画图说明：</p>
+<ul>
+<li>使用 <code>vTaskDelay(n)</code> 时，进入、退出 <code>vTaskDelay</code> 的时间间隔至少是 n 个 Tick 中断</li>
+<li>使用 <code>xTaskDelayUntil(&amp;Pre, n)</code> 时，前后两次退出 <code>xTaskDelayUntil</code> 的时间至少是 n 个 Tick 中断<ul>
+<li>退出 <code>xTaskDelayUntil</code> 时任务就进入的就绪状态，一般都能得到执行机会</li>
+<li>所以可以使用 <code>xTaskDelayUntil</code> 来让任务周期性地运行</li>
+</ul>
+</li>
+</ul>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="五、空闲任务及其钩子函数"><a href="#五、空闲任务及其钩子函数" class="headerlink" title="五、空闲任务及其钩子函数"></a>五、空闲任务及其钩子函数</h1><h2 id="1、介绍"><a href="#1、介绍" class="headerlink" title="1、介绍"></a>1、介绍</h2><p>一个良好的程序，它的任务都是事件驱动的：平时大部分时间处于阻塞状态。有可能我们自己创建的所有任务都无法执行，但是调度器必须能找到一个可以运行的任务：所以，我们要提供空闲任务。在使用 <code>vTaskStartScheduler()</code> 函数来创建、启动调度器时，这个函数内部会创建空闲任务：</p>
+<ul>
+<li>空闲任务优先级为 0：它不能阻碍用户任务运行</li>
+<li>空闲任务要么处于就绪态，要么处于运行态，永远不会阻塞</li>
+</ul>
+<p>空闲任务的优先级为 0，这以为着一旦某个用户的任务变为就绪态，那么空闲任务马上被切换出去，让这个用户任务运行。在这种情况下，我们说用户任务”抢占”(pre-empt)了空闲任务，这是由调度器实现的。</p>
+<p>要注意的是：如果使用 <code>vTaskDelete()</code> 来删除任务，那么你就要&#x3D;&#x3D;确保空闲任务有机会执行&#x3D;&#x3D;，否则就无法释放被删除任务的内存。</p>
+<p>我们可以添加一个空闲任务的钩子函数(Idle Task Hook Functions)，空闲任务的循环没执行一次，就会调用一次钩子函数。钩子函数的作用有这些：</p>
+<ul>
+<li>执行一些低优先级的、后台的、需要连续执行的函数</li>
+<li>测量系统的空闲时间：空闲任务能被执行就意味着所有的高优先级任务都停止了，所以测量空闲任务占据的时间，就可以算出处理器占用率。</li>
+<li>让系统进入省电模式：空闲任务能被执行就意味着没有重要的事情要做，当然可以进入省电模式了。</li>
+</ul>
+<p>空闲任务的钩子函数的限制：</p>
+<ul>
+<li>不能导致空闲任务进入阻塞状态、暂停状态</li>
+<li>如果你会使用 <code>vTaskDelete()</code> 来删除任务，那么钩子函数要非常高效地执行。如果空闲任务移植卡在钩子函数里的话，它就无法释放内存。</li>
+</ul>
+<h2 id="2、使用钩子函数的前提"><a href="#2、使用钩子函数的前提" class="headerlink" title="2、使用钩子函数的前提"></a>2、使用钩子函数的前提</h2><p>在 task.c 文件中：</p>
+<ol>
+<li>把这个宏定义为 1：<code>configUSE_IDLE_HOOK</code></li>
+<li>实现 <code>vApplicationIdleHook</code> 函数</li>
+</ol>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="六、调度算法"><a href="#六、调度算法" class="headerlink" title="六、调度算法"></a>六、调度算法</h1><p>所谓调度算法，就是怎么确定哪个就绪态的任务可以切换为运行状态。</p>
+<p>通过配置文件 <code>FreeRTOSConfig.h</code> 的两个配置项来配置调度算法：<code>configUSE_PREEMPTION</code>、<code>configUSE_TIME_SLICING</code>。</p>
+<p>还有第三个配置项：<code>configUSE_TICKLESS_IDLE</code>，它是一个高级选项，用于关闭 Tick 中断来实现省电。</p>
+<p>调度算法的行为主要体现在两方面：高优先级的任务先运行、同优先级的就绪态任务如何被选中。调度算法要确保同优先级的就绪态任务，能”轮流”运行，策略是”轮转调度”(Round Robin Scheduling)。轮转调度并不保证任务的运行时间是公平分配的，我们还可以细化时间的分配方法。</p>
+<p>从 3 个角度统一理解多种调度算法：</p>
+<ul>
+<li>可否抢占？高优先级的任务能否优先执行(配置项: <code>configUSE_PREEMPTION</code>)<ul>
+<li>可以：被称作”可抢占调度”，高优先级的就绪任务马上执行，下面再细化。</li>
+<li>不可以：不能抢就只能协商了，被称作”合作调度模式”<ul>
+<li>当前任务执行时，更高优先级的任务就绪了也不能马上运行，只能等待当前任务主动让出 CPU 资源。</li>
+<li>其他同优先级的任务也只能等待：更高优先级的任务都不能抢占，平级的更应该老实点</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>可抢占的前提下，同优先级的任务是否轮流执行(配置项：<code>configUSE_TIME_SLICING</code>)<ul>
+<li>轮流执行：被称为”时间片轮转”，同优先级的任务轮流执行，你执行一个时间片、我再执行一个时间片</li>
+<li>不轮流执行：当前任务会一直执行，直到主动放弃、或者被高优先级任务抢占</li>
+</ul>
+</li>
+<li>在”可抢占”+”时间片轮转”的前提下，进一步细化：空闲任务是否让步于用户任务(配置项：<code>configIDLE_SHOULD_YIELD</code>)<ul>
+<li>空闲任务低人一等，每执行一次循环，就看看是否主动让位给用户任务</li>
+<li>空闲任务跟用户任务一样，大家轮流执行，没有谁更特殊</li>
+</ul>
+</li>
+</ul>
+<p>列表如下：</p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>configUSE_PREEMPTION</code></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>configUSE_TIME_SLICING</code></td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>X</td>
+</tr>
+<tr>
+<td><code>configIDLE_SHOULD_YIELD</code></td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>X</td>
+</tr>
+<tr>
+<td><code>说明</code></td>
+<td>常用</td>
+<td>很少用</td>
+<td>很少用</td>
+<td>很少用</td>
+<td>几乎不用</td>
+</tr>
+</tbody></table>
+<p>注：</p>
+<ul>
+<li>A：可抢占+时间片轮转+空闲任务让步</li>
+<li>B：可抢占+时间片轮转+空闲任务不让步</li>
+<li>C：可抢占+非时间片轮转+空闲任务让步</li>
+<li>D：可抢占+非时间片轮转+空闲任务不让步</li>
+<li>E：合作调度</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  启动调度器</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskStartScheduler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  停止调度器</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskEndScheduler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  挂起调度器</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskSuspendAll</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  恢复调度器</span><br><span class="hljs-comment">  * @retval 返回是否会导致发生挂起的上下文切换(pdTRUE/pdFALSE)</span><br><span class="hljs-comment">  */</span><br>BaseType_t <span class="hljs-title function_">xTaskResumeAll</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>除了任务被时间片轮询切换或者高优先级抢占发生切换两种常见的调度方式外，还有其他的调度方式，比如任务自愿让出处理器给其他任务使用等函数，这些函数将在后续 “中断管理” 章节中被详细介绍，这里简单了解即可，如下所述</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  让位于另一项同等优先级的任务</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">taskYIELD</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  ISR 退出时是否执行上下文切换（汇编）</span><br><span class="hljs-comment">  * @param  xHigherPriorityTaskWoken：pdFASLE不请求上下文切换，反之请求上下文切换</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br>portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  ISR 退出时是否执行上下文切换（C语言）</span><br><span class="hljs-comment">  * @param  xHigherPriorityTaskWoken：pdFASLE不请求上下文切换，反之请求上下文切换</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br>portYIELD_FROM_ISR(xHigherPriorityTaskWoken);<br></code></pre></td></tr></table></figure>
+
+<h1 id="七、工具函数"><a href="#七、工具函数" class="headerlink" title="七、工具函数"></a>七、工具函数</h1><p>任务相关的实用工具函数较多，官方网站上一共列出了 23 个 API 函数，这里仅简单介绍一些可能常用的 API 函数：</p>
+<h2 id="1、获取任务信息"><a href="#1、获取任务信息" class="headerlink" title="1、获取任务信息"></a>1、获取任务信息</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取一个任务的信息，需启用参数configUSE_TRACE_FACILITY（默认启用）</span><br><span class="hljs-comment">  * @param  xTask：需要查询的任务句柄，NULL查询自己</span><br><span class="hljs-comment">  * @param  pxTaskStatus：用于存储任务状态信息的TaskStatus_t结构体指针</span><br><span class="hljs-comment">  * @param  xGetFreeStackSpace：是否返回栈空间高水位值</span><br><span class="hljs-comment">  * @param  eState：指定查询信息时任务的状态，设置为eInvalid将自动获取任务状态</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskGetInfo</span><span class="hljs-params">(TaskHandle_t xTask,</span><br><span class="hljs-params">				  TaskStatus_t *pxTaskStatus,</span><br><span class="hljs-params">				  BaseType_t xGetFreeStackSpace,</span><br><span class="hljs-params">				  eTaskState eState)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取当前任务句柄</span><br><span class="hljs-comment">  * @retval 返回当前任务句柄</span><br><span class="hljs-comment">  */</span><br>TaskHandle_t <span class="hljs-title function_">xTaskGetCurrentTaskHandle</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取任务句柄（运行时间较长，不宜大量使用）</span><br><span class="hljs-comment">  * @param  pcNameToQuery：要获取任务句柄的任务名称字符串</span><br><span class="hljs-comment">  * @retval 返回指定查询任务的句柄</span><br><span class="hljs-comment">  */</span><br>TaskHandle_t <span class="hljs-title function_">xTaskGetHandle</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *pcNameToQuery)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取空闲任务句柄</span><br><span class="hljs-comment">  * @注意：需要设置 INCLUDE_xTaskGetIdleTaskHandle 为1，在CubeMX中不可调，需自行定义</span><br><span class="hljs-comment">  * @retval 返回空闲任务句柄</span><br><span class="hljs-comment">  */</span><br>TaskHandle_t <span class="hljs-title function_">xTaskGetIdleTaskHandle</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取一个任务的高水位值（任务栈空间最少可用剩余空间大小，单位为字（word））</span><br><span class="hljs-comment">  * @param  xTask：要获取高水位值任务的句柄，NULL查询自己</span><br><span class="hljs-comment">  * @retval </span><br><span class="hljs-comment">  */</span><br>UBaseType_t <span class="hljs-title function_">uxTaskGetStackHighWaterMark</span><span class="hljs-params">(TaskHandle_t xTask)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取一个任务的任务名称字符串</span><br><span class="hljs-comment">  * @param  xTaskToQuery：要获取名称字符串的任务的句柄，NULL查询自己</span><br><span class="hljs-comment">  * @retval 返回一个任务的任务名称字符串</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">char</span>* <span class="hljs-title function_">pcTaskGetName</span><span class="hljs-params">(TaskHandle_t xTaskToQuery)</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2、获取内核信息"><a href="#2、获取内核信息" class="headerlink" title="2、获取内核信息"></a>2、获取内核信息</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取系统内所有任务状态，为每个任务返回一个TaskStatus_t结构体数组</span><br><span class="hljs-comment">  * @param  pxTaskStatusArray：数组的指针，数组每个成员都是TaskStatus_t类型，用于存储获取到的信息</span><br><span class="hljs-comment">  * @param  uxArraySize：设置数组pxTaskStatusArray的成员个数</span><br><span class="hljs-comment">  * @param  pulTotalRunTime：返回FreeRTOS运行后总的运行时间，NULL表示不返回该数据</span><br><span class="hljs-comment">  * @retval 返回实际获取的任务信息条数</span><br><span class="hljs-comment">  */</span><br>UBaseType_t <span class="hljs-title function_">uxTaskGetSystemState</span><span class="hljs-params">(TaskStatus_t * <span class="hljs-type">const</span> pxTaskStatusArray,</span><br><span class="hljs-params">								 <span class="hljs-type">const</span> UBaseType_t uxArraySize,</span><br><span class="hljs-params">								 <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> * <span class="hljs-type">const</span> pulTotalRunTime)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  返回调度器状态</span><br><span class="hljs-comment">  * @retval 0：被挂起，1：未启动，2：正在运行</span><br><span class="hljs-comment">  */</span><br>BaseType_t <span class="hljs-title function_">xTaskGetSchedulerState</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取内核当前管理的任务总数</span><br><span class="hljs-comment">  * @retval 返回内核当前管理的任务总数</span><br><span class="hljs-comment">  */</span><br>UBaseType_t <span class="hljs-title function_">uxTaskGetNumberOfTasks</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取内核中所有任务的字符串列表信息</span><br><span class="hljs-comment">  * @param  pcWriteBuffer：字符数组指针，用于存储获取的字符串信息</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskList</span><span class="hljs-params">(<span class="hljs-type">char</span> *pcWriteBuffer)</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3、其他函数"><a href="#3、其他函数" class="headerlink" title="3、其他函数"></a>3、其他函数</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取一个任务的标签值</span><br><span class="hljs-comment">  * @param  xTask：要获取任务标签值的任务句柄，NULL表示获取自己的标签值</span><br><span class="hljs-comment">  * @retval 返回任务的标签值</span><br><span class="hljs-comment">  */</span><br>TaskHookFunction_t <span class="hljs-title function_">xTaskGetApplicationTaskTag</span><span class="hljs-params">(TaskHandle_t xTask)</span>; <br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  获取一个任务的标签值的中断安全版本函数</span><br><span class="hljs-comment">  */</span><br>TaskHookFunction_t <span class="hljs-title function_">xTaskGetApplicationTaskTagFromISR</span><span class="hljs-params">(TaskHandle_t xTask)</span>;<br> <br><span class="hljs-comment">/**</span><br><span class="hljs-comment">  * @brief  设置一个任务的标签值，标签值保存在任务控制块中</span><br><span class="hljs-comment">  * @param  xTask：要设置标签值的任务的句柄，NULL表示设置自己</span><br><span class="hljs-comment">  * @param  pxTagValue：要设置的标签值</span><br><span class="hljs-comment">  * @retval None</span><br><span class="hljs-comment">  */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskSetApplicationTaskTag</span><span class="hljs-params">(TaskHandle_t xTask, </span><br><span class="hljs-params">								TaskHookFunction_t pxTagValue)</span>;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/FreeRTOS/" class="print-no-link">#FreeRTOS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeRTOS 快速入门（三）之任务管理</div>
+      <div>http://example.com/2024/08/20/FreeRTOS入门三/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/21/FreeRTOS%E5%85%A5%E9%97%A8%E5%9B%9B/" title="FreeRTOS 快速入门（四）之队列">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">FreeRTOS 快速入门（四）之队列</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" title="FreeRTOS 快速入门（二）之内存管理">
+                        <span class="hidden-mobile">FreeRTOS 快速入门（二）之内存管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

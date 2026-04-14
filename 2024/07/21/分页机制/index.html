@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[TOC]  前言在早期的操作系统中，分段机制被广泛采用，但随着技术的发展，分页机制逐渐成为主流选择。接下来，我们将深入探讨分页机制的原理、工作方式以及与其他内存管理机制的比较。  分段机制部分的内容可以看：Linux 内存管理（一）之分段机制。   本文涉及到的 cr0、cr2、cr3、cr4 这四个控制寄存器可以参考：x86&#x2F;x86_64 下的 CPU 控制寄存器   本文还提及了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 内存管理（三）之分页机制">
+<meta property="og:url" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[TOC]  前言在早期的操作系统中，分段机制被广泛采用，但随着技术的发展，分页机制逐渐成为主流选择。接下来，我们将深入探讨分页机制的原理、工作方式以及与其他内存管理机制的比较。  分段机制部分的内容可以看：Linux 内存管理（一）之分段机制。   本文涉及到的 cr0、cr2、cr3、cr4 这四个控制寄存器可以参考：x86&#x2F;x86_64 下的 CPU 控制寄存器   本文还提及了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/1.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/2.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/3.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/4.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/5.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/6.png">
+<meta property="og:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/7.png">
+<meta property="article:published_time" content="2024-07-21T01:36:26.000Z">
+<meta property="article:modified_time" content="2024-11-13T16:35:22.591Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="内存管理">
+<meta property="article:tag" content="分页机制">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/07/21/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/1.png">
+  
+  
+  
+  <title>Linux 内存管理（三）之分页机制 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 内存管理（三）之分页机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-21 09:36" pubdate>
+          星期日, 七月 21日 2024, 9:36 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 内存管理（三）之分页机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[TOC]</p>
+<hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在早期的操作系统中，分段机制被广泛采用，但随着技术的发展，分页机制逐渐成为主流选择。接下来，我们将深入探讨分页机制的原理、工作方式以及与其他内存管理机制的比较。</p>
+<blockquote>
+<p>分段机制部分的内容可以看：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140531630">Linux 内存管理（一）之分段机制</a>。</p>
+</blockquote>
+<blockquote>
+<p>本文涉及到的 cr0、cr2、cr3、cr4 这四个控制寄存器可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140577443">x86&#x2F;x86_64 下的 CPU 控制寄存器</a></p>
+</blockquote>
+<blockquote>
+<p>本文还提及了 PAE（物理地址扩展），可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140590498">Linux 内存管理（四）之物理地址扩展（PAE）</a>。</p>
+</blockquote>
+<h1 id="一、分页机制的由来"><a href="#一、分页机制的由来" class="headerlink" title="一、分页机制的由来"></a>一、分页机制的由来</h1><h2 id="1、内存碎片"><a href="#1、内存碎片" class="headerlink" title="1、内存碎片"></a>1、内存碎片</h2><p>内存碎片（<em>Memory Fragmentation</em>）是指内存中存在的未被利用或浪费的空间，它分为两种形式：内部碎片（<em>Internal Fragmentation</em>）和外部碎片（<em>External Fragmentation</em>）。</p>
+<ul>
+<li>内部碎片发生在内存块被分配出去后，剩余的未使用空间无法被其他请求利用。</li>
+<li>外部碎片则是指多次内存分配和释放后，内存中留下许多小的、不连续的空闲区域，这些区域太小，无法满足新的内存请求，尽管总的空闲内存量可能足够。</li>
+</ul>
+<p>如图，如果到达了一个 160KB 的内存请求。由于两块空闲内存区域的大小（150KB 和 50KB）都比请求尺寸 160KB 要小，所以 160KB 的内存请求不能满足，尽管总空闲内存的大小为 $150KB+50KB&#x3D;200KB&gt;160KB$。</p>
+<p>这就是内存碎片，虽然总的空闲内存很大，但是是由一堆分散在物理内存多个位置的小区域组成，这些小区域由于不能满足进程的段尺寸要求而无法使用，从而造成空间浪费。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、解决方案"><a href="#2、解决方案" class="headerlink" title="2、解决方案"></a>2、解决方案</h2><p>处理内存碎片的直观方法是将空闲区域合并，即通过移动整理将很多零散的空闲区域合并成一整块空闲区域，这个过程被称为 <strong>内存紧缩</strong>（内存碎片化处理）。内存紧缩虽然可以解决内存碎片问题，但其缺点很明显：紧缩一遍内存需要花费一定时间——就算内存读写速度可以达到 10GBps，对一个 10GB 大小的内存紧缩一遍需要的时间也超过 2s。内存紧缩的时候，操作系统中的所有进程不能执行任何动作，这种情况下 2s 的时间开销并不算小。</p>
+<p>再回到前面的例子，现在有 150KB 和 50KB 两块空闲内存区域，内存请求的尺寸是 160KB。如果要是能将内存请求打散，比如以 10KB 为单位打散，那么 160KB 请求就是 16 片，150KB 的空闲内存区域能满足 15 片请求，然后在 50KB 空闲内存区域上分配 1 片，160KB 的内存请求就能全部满足。这就是 <strong>内存离散化</strong>，即将内存分割成固定大小的小片。内存请求到达时，根据请求尺寸计算出总共需要的小片个数，然后在内存中(任意位置)找出同样数量的小片分配给内存请求。这个时候就不会再有内存碎片问题了——多个小区域合起来很大，但每个小区域本身又太小、无法分配。现在内存分配本身就是以小区域(小片)为单位的。</p>
+<p>这就是分页机制的基本思想，这里的小片就是内存页，因此，分页机制是解决内存碎片问题而提出的重要方法，可以有效提高内存的空间使用效率，所以通常的操作系统都支持分页机制。</p>
+<h1 id="二、硬件中的分页"><a href="#二、硬件中的分页" class="headerlink" title="二、硬件中的分页"></a>二、硬件中的分页</h1><p>分页单元（<em>paging unit</em>）把线性地址转换成物理地址。其中的一个关键任务是把所请求的访问类型与线性地址的访问权限相比较,如果这次内存访问是无效的，就产生一个缺页异常。</p>
+<p>为了效率起见，线性地址被分成以固定长度为单位的组，称为页（<em>page</em>）。页内部连续的线性地址被映射到连续的物理地址中。这样，内核可以指定一个页的物理地址和其存取权限，而不用指定页所包含的全部线性地址的存取权限。</p>
+<p>分页单元把所有的 RAM 分成固定长度的页框（<em>page frame</em>）(有时叫做物理页)。每一个页框包含一个页，也就是说<code>一个页框的长度与一个页的长度一致</code>。页框是主存的一部分，因此也是一个存储区域。</p>
+<blockquote>
+<p>区分一页和一个页框是很重要的，前者只是一个数据块，可以存放在任何页框或磁盘中。</p>
+</blockquote>
+<p>把线性地址映射到物理地址的数据结构称为页表（<em>page table</em>）。页表存放在主存中，并在启用分页单元之前必须由内核对页表进行适当的初始化。</p>
+<p>从 80386 开始，所有的 80x86 处理器都支持分页，它通过设置 cr0 存器的 PG 标志启用。当 PG&#x3D;0 时，线性地址就被解释成物理地址。</p>
+<h2 id="1、常规分页"><a href="#1、常规分页" class="headerlink" title="1、常规分页"></a>1、常规分页</h2><p>从 80386 起，Intel 处理器的分页单元处理 4KB 的页，32 位的线性地址被分成 3 个域，如下图：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt="线性地址划分"></p>
+<p>线性地址的转换分两步完成，每一步都基于一种转换表，第一种转换表称为页目录表（<em>page directory</em>），第二种转换表称为页表（<em>page table</em>）。</p>
+<p>使用这种二级模式的目的在于减少每个进程页表所需 RAM 的数量。如果使用简单的一级页表，那将需要高达 $2^{20}$ 个表项（也就是，在每项 4 个字节时，需要 4MB RAM）来表示每个进程的页表，即使一个进程并不使用那个范围内的所有地址。二级模式通过只为进程实际使用的那些虚拟内存区请求页表来减少内存容量。</p>
+<p>每个活动进程必须有一个分配给它的页目录。不过，没有必要马上为进程的所有页表都分配 RAM。只有在进程实际需要一个页表时才给该页表分配 RAM 会更为有效率。</p>
+<p>如下是 80x86 处理器的分页过程：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt="80x86 处理器的分页"></p>
+<blockquote>
+<p>正在使用的页目录的物理地址存放在控制寄存器 CR3 中。</p>
+</blockquote>
+<p>Directory 字段和 Table 字段都是 10 位长，因此页目录和页表都可以多达 1024项。那么一个页目录可以寻址到高达 $1024<em>1024</em>4096&#x3D;2^{32}$ 个存储单元。</p>
+<h2 id="2、页目录项和页表项"><a href="#2、页目录项和页表项" class="headerlink" title="2、页目录项和页表项"></a>2、页目录项和页表项</h2><p>每一个用户程序都有自己的页目录和页表。<code>页目录项和页表项有同样的结构</code>，每项都包含下面的字段：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt="页目录项、页表项结构"></p>
+<ul>
+<li><strong>P</strong>：存在位（<em>Present</em>）。<ul>
+<li>如果被置为 1，所指的页(或页表)就在主存中；</li>
+<li>如果该标志为 0，则这一页不在主存中，此时这个表项剩余的位可由操作系统用于自己的目的。如果执行一个地址转换所需的页表项或页目录项中 Present 标志被清 0，那么分页单元就把该线性地址存放在控制寄存器 cr2 中，并产生 14 号异常：缺页异常。</li>
+</ul>
+</li>
+<li><strong>RW</strong>：读写位（<em>Read&#x2F;Write</em>），含有页或页表的存取权限（Read&#x2F;Write或Read）。<ul>
+<li>当 RW &#x3D; 1 时，对应的物理页可以被读取和写入。</li>
+<li>当 RW &#x3D; 0 时，对应的物理页只能被读取。</li>
+</ul>
+</li>
+<li><strong>US</strong>：用户&#x2F;特权标志位（<em>User&#x2F;Supervisor</em>），含有访问页或页表所需的特权级。<ul>
+<li>当 US &#x3D; 1 时，对应的物理页可以被用户态程序访问。</li>
+<li>当 US &#x3D; 0 时，对应的物理页只能被特权态程序访问。</li>
+</ul>
+</li>
+<li><strong>PWT</strong>：页级写穿标志位（<em>Page-level Write-Through</em>），用于设置页表或页表项的写策略。<ul>
+<li>当 PWT &#x3D; 1 时，表示采用写透方式进行写入。写透策略意味着每次写入都会直接写入到内存中。</li>
+<li>当 PWT &#x3D; 0 时，表示采用写回（<em>write-back</em>）方式进行写入。写回策略是一种延迟写入的方式，即数据只有在被替换出缓存时才会被写回到内存中。</li>
+</ul>
+</li>
+<li><strong>PCD</strong>：页级高速缓存禁用标志位（<em>Page-level Cache Disable</em>），用于禁用页表或页表项的缓存。<ul>
+<li>当 PCD &#x3D; 1 时，对应的页表或页表项将被禁止缓存，每次访问都需要从内存中读取。（禁用缓存可以防止CPU缓存中的旧数据被访问。）</li>
+<li>当 PCD &#x3D; 0 时，对应的页表或页表项可以使用缓存。</li>
+</ul>
+</li>
+<li><strong>A</strong>：访问位（<em>Accessed</em>），每当分页单元对相应页框进行寻址时就设置这个标志。当选中的页被交换出去时这一标志就可以由操作系统使用。<code>分页单元从来不重置这个标志,而是必须由操作系统去做</code>。<ul>
+<li>当 Accessed &#x3D; 1 时，表示该页面已被访问。</li>
+</ul>
+</li>
+<li><strong>D</strong>：脏位（<em>Dirty</em>），只应用于页表项中。每当对一个页框进行写操作时就设置这个标志。与 Accessed 标志一样,当选中的页被交换出去时,这一标志就可以由操作系统使用。<code>分页单元从来不重置这个标志，而是必须由操作系统去做</code>。<ul>
+<li>当 dirty &#x3D; 1 时，表示对应的物理页内容被修改过，需要写回到内存中。</li>
+</ul>
+</li>
+<li><strong>G</strong>：全局标志（<em>Global</em>），用于标识页表项是否为全局页表项。全局页表项可以在所有进程共享，即使在切换进程时不需要刷新 TLB（转换后备缓冲器）中的缓存。<code>只有在 cr4 寄存器的页全局启用（Page Global Enable，PGE）标志置位时这个标志才起作用。</code></li>
+<li><strong>AVL</strong>：该字段保留专供程序使用。处理器不会修改这几位，以后的升级处理器也不会。</li>
+</ul>
+<h2 id="3、扩展分页"><a href="#3、扩展分页" class="headerlink" title="3、扩展分页"></a>3、扩展分页</h2><p>从 Pentium 模型开始，80x86 微处理器引入了扩展分页（<em>extended paging</em>），它允许页框大小为 4MB 而不是 4KB（如下图）。扩展分页用于把大段连续的线性地址转换成相应的物理地址，在这些情况下，内核可以不用中间页表进行地址转换，从而节省内存并保留 TLB 项。</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt="扩展分页"></p>
+<p>扩展分页和正常分页的页目录项基本相同，不过，20 位物理地址字段只有最高 10 位是有意义的。这是因为每一个物理地址都是在以 4MB 为边界的地方开始的，故这个地址的最低 22 位为 0。</p>
+<blockquote>
+<p>通过设置 cr4 处理器寄存器的 PSE 标志能使扩展分页与常规分页共存。</p>
+</blockquote>
+<h2 id="4、常规分页举例"><a href="#4、常规分页举例" class="headerlink" title="4、常规分页举例"></a>4、常规分页举例</h2><p>现在假定内核已给一个正在运行的进程分配的线性地址空间范围是 $0x20000000$ 到 $0x2003ffff$。</p>
+<p>首先从分配给进程的线性地址的最高 10 位（<code>Directory</code> 字段）开始这两个地址都以 2 开头后面跟着 0，因此高 10 位有相同的值，即 $(0x080)<em>{16}$ 或 $(128)</em>{10}$。因此，这两个地址的 <code>Directory</code> 字段都指向进程页目录的第 129 项。相应的目录项中必须包含分配给该进程的页表的物理地址。如果没有给这个进程分配其它的线性地址，则页目录的其余 1023 项都填为 0。</p>
+<p>中间 10 位的值（即 Table 字段的值）范围从 0 到 0x03f，或十进制的从 0 到 63。因而只有页表的前 64 个表项是有意义的，其余 960 个表项都填 0。</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt="扩展分页"></p>
+<p>假设进程需要读线性地址 $0x20021406$ 中的字节。这个地址由分页单元按下面的方法处理：</p>
+<ol>
+<li><code>Directory</code> 字段的 0x80 用于选择页目录的第 0x80 目录项，此目录项指向和该进程的页相关的页表。</li>
+<li><code>Table</code> 字段 0x21 用于选择页表的第 0x21 表项，此表项指向包含所需页的页框。</li>
+<li>最后，<code>Offset</code> 字段 0x406 用于在目标页框中读偏移量为 0x406 中的字节。</li>
+</ol>
+<p>如果页表第 0x21 表项的 <code>Present</code> 标志为 0，则此页就不在主存中；在这种情况下，分页单元在线性地址转换的同时产生一个缺页异常。无论何时，当进程试图访问限定在 $0x20000000$ 到 $0x2003ffff$ 范围之外的线性地址时，都将产生一个缺页异常，因为这些页表项都填充了 0，尤其是它们的 <code>Present</code> 标志都被清 0。</p>
+<h1 id="三、Linux-中的分页"><a href="#三、Linux-中的分页" class="headerlink" title="三、Linux 中的分页"></a>三、Linux 中的分页</h1><h2 id="1、四级分页模型"><a href="#1、四级分页模型" class="headerlink" title="1、四级分页模型"></a>1、四级分页模型</h2><p>Linux 采用了一种同时适用于 32 位和 64 位系统的普通分页模型。两级页表对 32 位系统来说已经足够了，但 64 位系统需要更多数量的分页级别。直到 2.6.10 版本，Linux 采用三级分页的模型。从 2.6.11 版本开始，采用了四级分页模型。四种页表如下所示：</p>
+<ul>
+<li>页全局目录（<em>Page Global Directory</em>，<em>PGD</em>）</li>
+<li>页上级目录（<em>Page Upper Directory</em>，<em>PUD</em>）</li>
+<li>页中间目录（<em>Page Middle Directory</em>，<em>PMD</em>）</li>
+<li>页表（<em>Page Table</em>，<em>PTE</em>）</li>
+</ul>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt="四级分页模型"></p>
+<p>对于没有启用物理地址扩展的 32 位系统，两级页表已经足够了。Linux 通过使“页上级目录”位和“页中间目录”位全为 0，从根本上取消了页上级目录和页中间目录字段。不过，页上级目录和页中间目录在指针序列中的位置被保留，以便同样的代码在 32 位系统和 64 位系统下都能使用。内核为页上级目录和页中间目录保留了一个位置，这是通过把它们的页目录项数设置为 1，并把这两个目录项映射到页全局目录的一个适当的目录项而实现的。</p>
+<p>启用了物理地址扩展的 32 位系统使用了三级页表。Linux 的页全局目录对应 80x86 的页目录指针表（PDPT），取消了页上级目录，页中间目录对应 80x86 的页目录，Linux 的页表对应 80x86 的页表。</p>
+<p>最后，64 位系统使用三级还是四级分页取决于硬件对线性地址的位的划分。如下表，是一些 64 位系统的分页级别：</p>
+<table>
+<thead>
+<tr>
+<th>平台名称</th>
+<th>页大小</th>
+<th>寻址使用的位数</th>
+<th>分页级别数</th>
+<th>线性地址分级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>alpha</td>
+<td>8 KB</td>
+<td>43</td>
+<td>3</td>
+<td>10+10+10+13</td>
+</tr>
+<tr>
+<td>ia64</td>
+<td>4 KB</td>
+<td>39</td>
+<td>3</td>
+<td>9+9+9+12</td>
+</tr>
+<tr>
+<td>ppc64</td>
+<td>4 KB</td>
+<td>41</td>
+<td>3</td>
+<td>10+10+9+12</td>
+</tr>
+<tr>
+<td>sh64</td>
+<td>4 KB</td>
+<td>41</td>
+<td>3</td>
+<td>10+10+9+12</td>
+</tr>
+<tr>
+<td>x86_64</td>
+<td>4 KB</td>
+<td>48</td>
+<td>4</td>
+<td>9+9+9+9+12</td>
+</tr>
+</tbody></table>
+<h2 id="2、软件定义"><a href="#2、软件定义" class="headerlink" title="2、软件定义"></a>2、软件定义</h2><h3 id="2-1-页表类型定义"><a href="#2-1-页表类型定义" class="headerlink" title="2.1 页表类型定义"></a>2.1 页表类型定义</h3><p>Linux 分别采用 <code>pgd_t</code>、<code>pmd_t</code>、<code>pud_t</code> 和 <code>pte_t</code> 四种数据结构来表示页全局目录项、页上级目录项、页中间目录项和页表项。这四种 数据结构本质上都是无符号长整型 <code>unsigned long</code>。</p>
+<p>Linux 为了更严格数据类型检查，将无符号长整型 <code>unsigned long</code> 分别封装成四种不同的页表项。如果不采用这种方法，那么一个无符号长整型数据可以传入任何一个与四种页表相关的函数或宏中，这将大大降低程序的健壮性。</p>
+<p><code>pgprot_t</code> 是另一个 64 位（PAE 激活时）或 32 位（PAE 禁用时）的数据类型，它表示与一个单独表项相关的保护标志。</p>
+<p>上述的几个类型定义在目录 <code>/arch/x86/include/asm/pgtable_types.h</code> 下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span> <span class="hljs-type">pgdval_t</span> pgd; &#125; <span class="hljs-type">pgd_t</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pgd_t</span> <span class="hljs-title function_">native_make_pgd</span><span class="hljs-params">(<span class="hljs-type">pgdval_t</span> val)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> (<span class="hljs-type">pgd_t</span>) &#123; val &#125;;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pgdval_t</span> <span class="hljs-title function_">native_pgd_val</span><span class="hljs-params">(<span class="hljs-type">pgd_t</span> pgd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> pgd.pgd;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pgdval_t</span> <span class="hljs-title function_">pgd_flags</span><span class="hljs-params">(<span class="hljs-type">pgd_t</span> pgd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pgd_val(pgd) &amp; PTE_FLAGS_MASK;<br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> CONFIG_PGTABLE_LEVELS &gt; 3</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span> <span class="hljs-type">pudval_t</span> pud; &#125; <span class="hljs-type">pud_t</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pud_t</span> <span class="hljs-title function_">native_make_pud</span><span class="hljs-params">(<span class="hljs-type">pmdval_t</span> val)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> (<span class="hljs-type">pud_t</span>) &#123; val &#125;;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pudval_t</span> <span class="hljs-title function_">native_pud_val</span><span class="hljs-params">(<span class="hljs-type">pud_t</span> pud)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> pud.pud;<br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;asm-generic/pgtable-nopud.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pudval_t</span> <span class="hljs-title function_">native_pud_val</span><span class="hljs-params">(<span class="hljs-type">pud_t</span> pud)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pgd_val(pud.pgd);<br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> CONFIG_PGTABLE_LEVELS &gt; 2</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span> <span class="hljs-type">pmdval_t</span> pmd; &#125; <span class="hljs-type">pmd_t</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmd_t</span> <span class="hljs-title function_">native_make_pmd</span><span class="hljs-params">(<span class="hljs-type">pmdval_t</span> val)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> (<span class="hljs-type">pmd_t</span>) &#123; val &#125;;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmdval_t</span> <span class="hljs-title function_">native_pmd_val</span><span class="hljs-params">(<span class="hljs-type">pmd_t</span> pmd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> pmd.pmd;<br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;asm-generic/pgtable-nopmd.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmdval_t</span> <span class="hljs-title function_">native_pmd_val</span><span class="hljs-params">(<span class="hljs-type">pmd_t</span> pmd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pgd_val(pmd.pud.pgd);<br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pudval_t</span> <span class="hljs-title function_">pud_pfn_mask</span><span class="hljs-params">(<span class="hljs-type">pud_t</span> pud)</span><br>&#123;<br>	<span class="hljs-keyword">if</span> (native_pud_val(pud) &amp; _PAGE_PSE)<br>		<span class="hljs-keyword">return</span> PHYSICAL_PUD_PAGE_MASK;<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-keyword">return</span> PTE_PFN_MASK;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pudval_t</span> <span class="hljs-title function_">pud_flags_mask</span><span class="hljs-params">(<span class="hljs-type">pud_t</span> pud)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> ~pud_pfn_mask(pud);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pudval_t</span> <span class="hljs-title function_">pud_flags</span><span class="hljs-params">(<span class="hljs-type">pud_t</span> pud)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pud_val(pud) &amp; pud_flags_mask(pud);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmdval_t</span> <span class="hljs-title function_">pmd_pfn_mask</span><span class="hljs-params">(<span class="hljs-type">pmd_t</span> pmd)</span><br>&#123;<br>	<span class="hljs-keyword">if</span> (native_pmd_val(pmd) &amp; _PAGE_PSE)<br>    	<span class="hljs-keyword">return</span> PHYSICAL_PMD_PAGE_MASK;<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-keyword">return</span> PTE_PFN_MASK;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmdval_t</span> <span class="hljs-title function_">pmd_flags_mask</span><span class="hljs-params">(<span class="hljs-type">pmd_t</span> pmd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> ~pmd_pfn_mask(pmd);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pmdval_t</span> <span class="hljs-title function_">pmd_flags</span><span class="hljs-params">(<span class="hljs-type">pmd_t</span> pmd)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pmd_val(pmd) &amp; pmd_flags_mask(pmd);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pte_t</span> <span class="hljs-title function_">native_make_pte</span><span class="hljs-params">(<span class="hljs-type">pteval_t</span> val)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> (<span class="hljs-type">pte_t</span>) &#123; .pte = val &#125;;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pteval_t</span> <span class="hljs-title function_">native_pte_val</span><span class="hljs-params">(<span class="hljs-type">pte_t</span> pte)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> pte.pte;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">pteval_t</span> <span class="hljs-title function_">pte_flags</span><span class="hljs-params">(<span class="hljs-type">pte_t</span> pte)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> native_pte_val(pte) &amp; PTE_FLAGS_MASK;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对应的 64 位数据类型定义在目录 <code>arch/x86/include/asm/pgtable_64_types.h</code> 下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __ASSEMBLY__</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/types.h&gt;</span></span><br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * These are used to make use of C type-checking..</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>   <span class="hljs-type">pteval_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>   <span class="hljs-type">pmdval_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>   <span class="hljs-type">pudval_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>   <span class="hljs-type">pgdval_t</span>;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>   <span class="hljs-type">pgprotval_t</span>;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span> <span class="hljs-type">pteval_t</span> pte; &#125; <span class="hljs-type">pte_t</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span>  <span class="hljs-comment">/* !__ASSEMBLY__ */</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-页表描述宏"><a href="#2-2-页表描述宏" class="headerlink" title="2.2 页表描述宏"></a>2.2 页表描述宏</h3><p>参照目录 <code>arch/x86/include/asm/pgtable_64</code>。</p>
+<p>linux中使用下列宏简化了页表处理，对于每一级页表都使用有以下三个关键描述宏：</p>
+<table>
+<thead>
+<tr>
+<th>宏字段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>XXX_SHIFT</td>
+<td>指定Offset字段的位数</td>
+</tr>
+<tr>
+<td>XXX_SIZE</td>
+<td>页的大小</td>
+</tr>
+<tr>
+<td>XXX_MASK</td>
+<td>用以屏蔽Offset字段的所有位</td>
+</tr>
+</tbody></table>
+<p><code>PTRS_PER_PTE</code>，<code>PTRS_PER_PMD</code>，<code>PTRS_PER_PUD</code> 以及 <code>PTRS_PER_PGD</code> 用于计算页表、页中间目录、页上级目录和页全局目录表中表项的个数。当 PAE 被禁止时，它们产生的值分别为 1024，1，1 和 1024。当 PAE 被激活时，产生的值分别为 512，512，1 和 4。</p>
+<h3 id="2-3-页表处理函数"><a href="#2-3-页表处理函数" class="headerlink" title="2.3 页表处理函数"></a>2.3 页表处理函数</h3><p>内核还提供了许多宏和函数用于读或修改页表表项：</p>
+<ul>
+<li>如果相应的表项值为0，那么，宏 <code>pte_none</code>、<code>pmd_none</code>、<code>pud_none</code> 和 <code>pgd_none</code> 产生的值为 1，否则产生的值为 0。</li>
+<li>宏 <code>pte_clear</code>、<code>pmd_clear</code>、<code>pud_clear</code> 和 <code>pgd_clear</code> 清除相应页表的一个表项，由此禁止进程使用由该页表项映射的线性地址。<code>ptep_get_and_clear()</code> 函数清除一个页表项并返回前一个值。</li>
+<li><code>set_pte</code>，<code>set_pmd</code>，<code>set_pud</code> 和 <code>set_pgd</code> 向一个页表项中写入指定的值。<code>set_pte_atomic</code> 与 <code>set_pte</code> 作用相同，但是当 PAE 被激活时它同样能保证 64 位的值能被原子地写入。</li>
+</ul>
+<h4 id="2-3-1-查询页表项中任意一个标志的当前值"><a href="#2-3-1-查询页表项中任意一个标志的当前值" class="headerlink" title="2.3.1 查询页表项中任意一个标志的当前值"></a>2.3.1 查询页表项中任意一个标志的当前值</h4><ul>
+<li>**pte_user()**：读 User&#x2F;Supervisor 标志</li>
+<li>**pte_read()**：读 User&#x2F;Supervisor 标志（表示 80x86 处理器上的页不受读的保护）</li>
+<li>**pte_write()**：读 Read&#x2F;Write 标志</li>
+<li>**pte_exec()**：读 User&#x2F;Supervisor 标志（ 80x86 处理器上的页不受代码执行的保护）</li>
+<li>**pte_dirty()**：读 Dirty 标志</li>
+<li>**pte_young()**：读 Accessed 标志</li>
+<li>**pte_file()**：读 Dirty 标志（当 Present 标志被清除而 Dirty 标志被设置时，页属于一个非线性磁盘文件映射）</li>
+</ul>
+<h4 id="2-3-2-设置页表项中各标志的值"><a href="#2-3-2-设置页表项中各标志的值" class="headerlink" title="2.3.2 设置页表项中各标志的值"></a>2.3.2 设置页表项中各标志的值</h4><ul>
+<li>**mk_pte_huge()**：设置页表项中的 Page Size 和 Present 标志</li>
+<li>**pte_wrprotect()**：清除 Read&#x2F;Write 标志</li>
+<li>**pte_rdprotect()**：清除 User&#x2F;Supervisor 标志</li>
+<li>**pte_exprotect()**：清除 User&#x2F;Supervisor 标志</li>
+<li>**pte_mkwrite()**：设置 Read&#x2F;Write 标志</li>
+<li>**pte_mkread()**：设置 User&#x2F;Supervisor 标志</li>
+<li>**pte_mkexec()**：设置 User&#x2F;Supervisor 标志</li>
+<li>**pte_mkclean()**：清除 Dirty 标志</li>
+<li>**pte_mkdirty()**：设置 Dirty 标志</li>
+<li>**pte_mkold()**：清除 Accessed 标志（把此页标记为未访问）</li>
+<li>**pte_mkyoung()**：设置 Accessed 标志（把此页标记为访问过）</li>
+<li>**pte_modify(p,v)**：把页表项 p 的所有访问权限设置为指定的值</li>
+<li>**ptep_set_wrprotect()**：与 pte_wrprotect() 类似，但作用于指向页表项的指针</li>
+<li>**ptep_set_access_flags()**：如果 Dirty 标志被设置为 1 则将页的访问权设置为指定的值，并调用 flush_tlb_page() 函数 ptep_mkdirty() 与 pte_mkdirty() 类似，但作用于指向页表项的指针。</li>
+<li>**ptep_test_and_clear_dirty()**：与 pte_mkclean() 类似，但作用于指向页表项的指针并返回 Dirty 标志的旧值</li>
+<li>**ptep_test_and_clear_young()**：与 pte_mkold() 类似，但作用于指向页表项的指针并返回  Accessed 标志的旧值</li>
+</ul>
+<h4 id="2-3-3-对页表项操作的宏"><a href="#2-3-3-对页表项操作的宏" class="headerlink" title="2.3.3 对页表项操作的宏"></a>2.3.3 对页表项操作的宏</h4><ul>
+<li>**pgd_index(addr)**：找到线性地址 addr 对应的的目录项在页全局目录中的索引（相对位置）</li>
+<li>**pgd_offset(mm, addr)**：接收内存描述符地址 mm 和线性地址 addr 作为参数。这个宏产生地址addr 在页全局目录中相应表项的线性地址；通过内存描述符 mm 内的一个指针可以找到这个页全局目录 </li>
+<li>**pgd_offset_k(addr)**：产生主内核页全局目录中的某个项的线性地址，该项对应于地址 addr</li>
+<li>**pgd_page(pgd)**：通过页全局目录项 pgd 产生页上级目录所在页框的页描述符地址。在两级或三级分页系统中，该宏等价于 pud_page() ，后者应用于页上级目录项</li>
+<li>**pud_offset(pgd, addr)**：参数为指向页全局目录项的指针 pgd 和线性地址 addr 。这个宏产生页上级目录中目录项 addr 对应的线性地址。在两级或三级分页系统中，该宏产生 pgd ，即一个页全局目录项的地址</li>
+<li>**pud_page(pud)**：通过页上级目录项 pud 产生相应的页中间目录的线性地址。在两级分页系统中，该宏等价于 pmd_page() ，后者应用于页中间目录项</li>
+<li>**pmd_index(addr)**：产生线性地址 addr 在页中间目录中所对应目录项的索引（相对位置）</li>
+<li>**pmd_offset(pud, addr)**：接收指向页上级目录项的指针 pud 和线性地址 addr 作为参数。这个宏产生目录项 addr 在页中间目录中的偏移地址。在两级或三级分页系统中，它产生 pud ，即页全局目录项的地址</li>
+<li>**pmd_page(pmd)**：通过页中间目录项 pmd 产生相应页表的页描述符地址。在两级或三级分页系统中， pmd 实际上是页全局目录中的一项mk_pte(p,prot)接收页描述符地址 p 和一组访问权限 prot 作为参数，并创建相应的页表项</li>
+<li>**pte_index(addr)**：产生线性地址 addr 对应的表项在页表中的索引（相对位置）</li>
+<li>**pte_offset_kernel(dir,addr)**：线性地址 addr 在页中间目录 dir 中有一个对应的项，该宏就产生这个对应项，即页表的线性地址。另外，该宏只在主内核页表上使用</li>
+<li>**pte_offset_map(dir, addr)**：接收指向一个页中间目录项的指针 dir 和线性地址 addr 作为参数，它产生与线性地址 addr 相对应的页表项的线性地址。如果页表被保存在高端存储器中，那么内核建立一个临时内核映射，并用 pte_unmap 对它进行释放。 pte_offset_map_nested 宏和 pte_unmap_nested 宏是相同的，但它们使用不同的临时内核映射</li>
+<li>**pte_page( x )**：返回页表项 x 所引用页的描述符地址</li>
+<li>**pte_to_pgoff( pte )**：从一个页表项的 pte 字段内容中提取出文件偏移量，这个偏移量对应着一个非线性文件内存映射所在的页</li>
+<li>**pgoff_to_pte(offset )**：为非线性文件内存映射所在的页创建对应页表项的内容</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="print-no-link">#内存管理</a>
+      
+        <a href="/tags/%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6/" class="print-no-link">#分页机制</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 内存管理（三）之分页机制</div>
+      <div>http://example.com/2024/07/21/分页机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/07/21/PAE/" title="Linux 内存管理（四）之物理地址扩展（PAE）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 内存管理（四）之物理地址扩展（PAE）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/20/x86-crx/" title="x86/x86_64 下的 CPU 控制寄存器">
+                        <span class="hidden-mobile">x86/x86_64 下的 CPU 控制寄存器</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

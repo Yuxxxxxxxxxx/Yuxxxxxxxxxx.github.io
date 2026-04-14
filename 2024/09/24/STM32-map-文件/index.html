@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32 map 文件浅析">
+<meta property="og:url" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/1.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/direct/adbe200ba478497c9beba338b78fb797.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/3.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/4.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/5.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/6.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/7.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/8.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/9.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/10.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/11.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/12.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/13.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/14.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/15.png">
+<meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/16.png">
+<meta property="article:published_time" content="2024-09-24T13:48:08.000Z">
+<meta property="article:modified_time" content="2024-11-14T07:34:51.282Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="STM32">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/1.png">
+  
+  
+  
+  <title>STM32 map 文件浅析 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="STM32 map 文件浅析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-24 21:48" pubdate>
+          星期二, 九月 24日 2024, 9:48 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          17 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">STM32 map 文件浅析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><code>.map</code> 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 <code>.map</code> 文件，我们可以知道整个工程的函数调用关系、<code>FLASH</code> 和 <code>RAM</code> 占用情况及其详细汇总信息，能具体到单个源文件（<code>.c/.s</code>）的占用情况，根据这些信息，我们可以对代码进行优化。<code>.map</code> 文件可以分为以下 5 个组成部分：</p>
+<ol>
+<li>程序段交叉引用关系（<code>Section Cross References</code>）</li>
+<li>删除映像未使用的程序段（<code>Removing Unused input sections from the image</code>）</li>
+<li>映像符号表（<code>Image Symbol Table</code>）</li>
+<li>映像内存分布图（<code>Memory Map of the image</code>）</li>
+<li>映像组件大小（<code>Image component sizes</code>）</li>
+</ol>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：<br><img src="https://i-blog.csdnimg.cn/direct/adbe200ba478497c9beba338b78fb797.png" srcset="/img/loading.gif" lazyload><br>这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 <code>.map</code> 文件里有详细列表。</p>
+<p><code>.map</code> 文件输出信息的配置位于：Project -&gt; Options for Target -&gt; Listing，如下图：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>主要包含配置：</p>
+<ul>
+<li><code>Memory Map</code>：内存映射</li>
+<li><code>Callgraph</code>：图像映射</li>
+<li><code>Symbols</code>：符号</li>
+<li><code>Cross Reference</code>：交叉引用</li>
+<li><code>Size Info</code>：大小信息</li>
+<li><code>Totals Info</code>：统计信息</li>
+<li><code>Unused Section Info</code>：未调用模块信息</li>
+<li><code>Veneers Info</code>：装饰信息</li>
+</ul>
+<p>我们可根据自己情况，想要输出什么信息，勾选对应信息即可。</p>
+<p>接下来将针对 <code>.map</code> 文件的五部分内容进行讲解。</p>
+<h1 id="二、Section-Cross-References"><a href="#二、Section-Cross-References" class="headerlink" title="二、Section Cross References"></a>二、Section Cross References</h1><p>这部分内容描述了各个文件（.c&#x2F;.s 等）之间函数（程序段）的调用关系，如下图所示：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p>比如下面这段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">board.o(i.board_lowlevel_init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) <span class="hljs-keyword">for</span> RCC_AHB1PeriphClockCmd<br></code></pre></td></tr></table></figure>
+
+<p>表示的意思是：<code>board.c</code> 文件中的 <code>board_lowlevel_init</code> 函数调用了 <code>stm32f4xx_rcc.c</code> 文件中的 <code>RCC_AHB1PeriphClockCmd</code> 函数。</p>
+<blockquote>
+<p><code>i.board_lowlevel_init</code> 表示 <code>board_lowlevel_init</code> 函数的入口地址，同理 <code>i.RCC_AHB1PeriphClockCmd</code> 表示 <code>RCC_AHB1PeriphClockCmd</code> 的入口地址</p>
+<p><code>board.o</code> 是 <code>board.c</code> 源文件生成的目标文件模块</p>
+</blockquote>
+<h1 id="三、Removing-Unused-input-sections-from-the-image"><a href="#三、Removing-Unused-input-sections-from-the-image" class="headerlink" title="三、Removing Unused input sections from the image"></a>三、Removing Unused input sections from the image</h1><p>这部分内容描述了工程中由于未被调用而被删除的冗余程序段（函数&#x2F;数据）：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>在结尾还列出了一个统计数据，表示共移除l 849 个程序段，共 37144 字节。</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="四、Memory-Map-of-the-image"><a href="#四、Memory-Map-of-the-image" class="headerlink" title="四、Memory Map of the image"></a>四、Memory Map of the image</h1><p>映像符号表（<code>Image Symbol Table</code>）描述了被引用的各个符号（程序段&#x2F;数据）在存储器中的存储地址、类型、大小等信息。映像符号表分为两类：本地符号（<code>Local Symbols</code>）和全局符号（<code>Global Symbols</code>）。</p>
+<h2 id="1、Local-Symbols"><a href="#1、Local-Symbols" class="headerlink" title="1、Local Symbols"></a>1、Local Symbols</h2><p>本地符号（Local Symbols）记录了用static 声明的全局变量地址和大小，c 文件中函数的地址和用static 声明的函数代码大小，汇编文件中的标号地址（作用域：限本文件），见下： </p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面红框处，表示 <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为 <code>0x080001ec</code>，类型为：Section（程序段）<br>，大小为 0。</p>
+<blockquote>
+<p>因为：<code>i.sys_stm32_clock_init</code> 仅仅表示 <code>sys_stm32_clock_init</code> 函数入口地址，并不是指令，所以没有大小。在全局符号段，会列出<code>sys_stm32_clock_init</code> 函数的大小。</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h2 id="2、全局符号（Global-Symbols）"><a href="#2、全局符号（Global-Symbols）" class="headerlink" title="2、全局符号（Global Symbols）"></a>2、全局符号（Global Symbols）</h2><p>全局符号（<code>Global Symbols</code>）记录了全局变量的地址和大小，C 文件中函数的地址及其代码大小，汇编文件中的标号地址（作用域：全工程），见下：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<ol>
+<li><code>Symbol Name</code>：符号名称，名称命名及分类请看最后给出的官方参考文档。</li>
+<li><code>Value</code>：存储对应的地址，大家会发现有 <code>0x0800xxxx</code>、<code>0x2000xxxx</code> 这样的地址。<code>0x0800xxxx</code> 指存储在 FLASH 里面的代码、变量等。<code>0x2000xxxx</code> 指存储在内存 RAM 中的变量 Data 等。</li>
+<li><code>Ov Type</code>：符号对应的类型。符号类型大概有几种：<code>Number</code>、<code>Section</code>、<code>Thumb Code</code>、<code>Data</code>等。</li>
+<li><code>Size</code>：存储大小，就是当前行 <code>Symbol</code> 占用大小。</li>
+<li><code>Object(Section)</code>：段目标，这里一般指所在模块（源文件）。</li>
+</ol>
+<p>图中红框框处部分，表示  <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为：<code>0x080001ed</code>，类型为：<code>Thumb Code</code>（程序段）<br>，大小为 38 字节。</p>
+<blockquote>
+<p>注意，此处的地址用的 <code>0x08002bc9</code>，和上一节的 <code>0x080001ec</code> 地址不符，这是因为 ARM 规定 Thumb 指令集的所有指令（Thumb 指令集更节省空间），其最低位必须为 1，<code>0x080001ed</code> &#x3D; <code>0x080001ec</code> + 1，所以才会有 2 个不同的地址，且总是差 1，实际上就是同一个函数。</p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h1 id="五、Image-Symbol-Table"><a href="#五、Image-Symbol-Table" class="headerlink" title="五、Image Symbol Table"></a>五、Image Symbol Table</h1><p>映像文件分为加载域（<code>Load Region</code>）和运行域（<code>Execution Region</code>），一个加载域必须有至少一个运行域（可以有多个运行域），而一个程序又可以有多个加载域。加载域为映像程序的实际存储区域，而运行域则是 MCU 上电后的运行状态。加载域和运行域的简化关系（这里仅表示一个加载域的情况）图如下图：</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>有关内存方面的内容可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a></p>
+</blockquote>
+<p>由图可知，RW 区也是存放在 ROM（FLASH）里面的，在执行 main 函数之前，RW（有初值且不为 0 的变量）数据会被拷贝到 RAM 区，同时还会在 RAM 里面创建 ZI 区（初始化为 0 的变量）。</p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>Image Entry point : 0x08000189</code> 表示映射入口地址。</p>
+<p><code>Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00001068, Max: 0x00080000, ABSOLUTE)</code> 表示加载区域位于 <code>LR_IROM1</code> 开始地址<code>0x08000000</code>，大小有 <code>0x00001068</code>，这块区域最大为 <code>0x00080000</code></p>
+<p>执行区域有两段：</p>
+<ol>
+<li><code>Execution Region ER_IROM1</code>：在内部 SRAM 运行域，所有 RAM（包括 RW 和 ZI）都是放在这个运行域里面</li>
+<li><code>Execution Region RW_IRAM1</code>：在内部FLASH 运行域，所有需要放内部 FLASH 的代码，都应该放到这个运行域里面</li>
+</ol>
+<p>这个区域，其实就是对应我们目标配置中的区域，如下所示：</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Exec Addr</code>：执行地址</li>
+<li><code>Load Addr</code>：加载地址</li>
+<li><code>Size</code>：存储大小</li>
+<li><code>Type</code>：类型<ol>
+<li><code>Data</code>：数据类型</li>
+<li><code>Code</code>：代码类</li>
+<li><code>Zero</code>：未初始化变量类型</li>
+<li><code>PAD</code>：这个类型在 map 文件中放在这个位置，其实它不能算这里的类型。要翻译的话，只能说的“补充类型”。ARM 处理器是 32 位的，如果定义一个 8 位或者 16 位变量就会剩余一部分，这里就是指的“补充”的那部分，会发现后面的其他几个选项都没有对应的值。</li>
+</ol>
+</li>
+<li>Attr：属性<ol>
+<li><code>RO</code>：存储在 ROM 中的段 </li>
+<li><code>RW</code>：存储在 RAM 中的段</li>
+</ol>
+</li>
+<li><code>Section Name</code>：段名。这里也可以说为入口分类名，大概包含：<code>RESET</code>、<code>ARM</code>、<code>.text</code>、<code>i</code>、<code>.data</code>、<code>.bss</code>、<code>HEAP</code>、<code>STACK</code> 等。</li>
+<li><code>Object</code>：目标</li>
+</ul>
+<h1 id="六、Image-component-sizes"><a href="#六、Image-component-sizes" class="headerlink" title="六、Image component sizes"></a>六、Image component sizes</h1><p>映像组件大小（<code>Image component sizes</code>）给出了整个映像所有代码（<code>.o</code>）占用空间的汇总信息，对我们比较有用，如图所示：</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Code</code>：指代码的大小；</li>
+<li><code>RO-data</code>：指除了内联数据(<code>inline data</code>)之外的常量数据；</li>
+<li><code>RW-data</code>：指可读写（<code>RW</code>）、已初始化的变量数据；</li>
+<li><code>ZI-data</code>：指未初始化（<code>ZI</code>）的变量数据；</li>
+<li><code>Debug</code>：表示调试数据所占的空间大小，如调试输入节及符号和字符串。</li>
+<li><code>Object Totals</code>：表示以上部分链接到一起后，所占映像空间的大小。</li>
+<li><code>(incl.Generated)</code>：表示链接器生产的映像内容大小，它包含在 <code>Object Totals</code> 里面了，这里仅仅是单独列出，我们一般不需要关心。</li>
+<li><code>(incl.Padding:</code>：表示链接器根据需要插入填充以保证字节对齐的数据所占空间的大小，它也包含在 <code>Object Totals</code> 里面了，这里单独列出，一般无需关心。</li>
+</ul>
+<blockquote>
+<ul>
+<li><code>Code</code>、<code>Ro-data</code>：位于 <code>FLASH</code> 中；</li>
+<li><code>RW-data</code>、<code>ZI-data</code>：位于 <code>RAM</code> 中；</li>
+<li><code>RW-data</code> 已初始化的数据会存储在 <code>Flash</code> 中，上电会从 <code>FLASH</code> 搬移至 <code>RAM</code>。<br>
+关系如下：</li>
+</ul>
+<p>$$<br>RO Size &#x3D; Code + RO Data\<br>RW Size &#x3D; RW Data + ZI Data \<br>ROM Size &#x3D; Code + RO Data + RW Data<br>$$</p>
+</blockquote>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里表示被提取的库成员（<code>.lib</code> 添加到映像中的部分所占空间大小。各项意义同前面提到的说明。我们一般只用看 <code>Library Totals</code> 来分析库所占空间的大小即可。</p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><code>Grand Totals</code>：表示整个映像所占空间大小。</li>
+<li><code>ELF Image Totals</code>：表示 ELF 可执行链接格式映像文件的大小，一般和 <code>Grand Totals</code> 一样大小。</li>
+<li><code>ROM Totals</code>：表示整个映像所需要的 <code>ROM</code> 空间大小，不含 <code>ZI</code> 和 <code>Debug</code> 数据。</li>
+<li><code>Total RO Size</code>：表示 <code>Code</code> 和 <code>RO</code> 数据所占空间大小，本例程为：4172 字节。</li>
+<li><code>Total RW Size</code>：表示 <code>RW</code> 和 <code>ZI</code> 数据所占空间大小，即本映像所需 <code>SRAM</code> 空间的大小，本例程为：6816 字节。</li>
+<li><code>Total ROM Size</code>：表示 <code>Code</code>、<code>RO</code> 和 <code>RW</code> 数据所占空间大小，即本映像所需 <code>FLASH</code> 空间的大小，本例程为：4200 字节。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/STM32/" class="print-no-link">#STM32</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>STM32 map 文件浅析</div>
+      <div>http://example.com/2024/09/24/STM32-map-文件/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/25/STM32-%E6%97%B6%E9%92%9F%E6%A0%91/" title="STM32 时钟树（基于 STM32F407）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 时钟树（基于 STM32F407）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" title="STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器">
+                        <span class="hidden-mobile">STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

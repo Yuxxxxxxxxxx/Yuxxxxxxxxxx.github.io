@@ -1,0 +1,747 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc  链表是 FreeRTOS 的核心数据结构，有关任务调度、延时、阻塞、事件等操作都是通过对链表进行操作进而实现的。本节将详细分析源码文件 list.c，list.h 的内容，为后续的任务队列等的实现奠定基础。 一、链表及链表项的定义FreeRTOS 使用的链表结构是环形的双向链表，而关于链表节点的数据结构都在 list.h 中定义。 1、链表节点数据结构 xList_ITEM首先来看链表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FreeRTOS 列表 List 源码解析">
+<meta property="og:url" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc  链表是 FreeRTOS 的核心数据结构，有关任务调度、延时、阻塞、事件等操作都是通过对链表进行操作进而实现的。本节将详细分析源码文件 list.c，list.h 的内容，为后续的任务队列等的实现奠定基础。 一、链表及链表项的定义FreeRTOS 使用的链表结构是环形的双向链表，而关于链表节点的数据结构都在 list.h 中定义。 1、链表节点数据结构 xList_ITEM首先来看链表">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/1.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/2.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/3.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/4.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/5.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/6.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/7.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/8.png">
+<meta property="og:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/9.png">
+<meta property="article:published_time" content="2024-08-29T06:35:11.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:00:57.205Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="FreeRTOS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/08/29/FreeRTOS-list-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/1.png">
+  
+  
+  
+  <title>FreeRTOS 列表 List 源码解析 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FreeRTOS 列表 List 源码解析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-29 14:35" pubdate>
+          星期四, 八月 29日 2024, 2:35 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FreeRTOS 列表 List 源码解析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<p>链表是 FreeRTOS 的核心数据结构，有关任务调度、延时、阻塞、事件等操作都是通过对链表进行操作进而实现的。本节将详细分析源码文件 <code>list.c</code>，<code>list.h</code> 的内容，为后续的任务队列等的实现奠定基础。</p>
+<h1 id="一、链表及链表项的定义"><a href="#一、链表及链表项的定义" class="headerlink" title="一、链表及链表项的定义"></a>一、链表及链表项的定义</h1><p>FreeRTOS 使用的链表结构是环形的双向链表，而关于链表节点的数据结构都在 <code>list.h</code> 中定义。</p>
+<h2 id="1、链表节点数据结构-xList-ITEM"><a href="#1、链表节点数据结构-xList-ITEM" class="headerlink" title="1、链表节点数据结构 xList_ITEM"></a>1、链表节点数据结构 xList_ITEM</h2><p>首先来看链表节点数据结构定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-comment">// 第一个和最后一个成员值</span><br>	<span class="hljs-comment">// 当 configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES 被使能的时候会被设定为一个固定值，用来检验一个列表项数据是否完整</span><br>    listFIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE             <br>    configLIST_VOLATILE TickType_t xItemValue;           <span class="hljs-comment">// 辅助值，用于帮助节点做顺序排列</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span> * <span class="hljs-title">configLIST_VOLATILE</span> <span class="hljs-title">pxNext</span>;</span>      <span class="hljs-comment">// 指向前一个链表项</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span> * <span class="hljs-title">configLIST_VOLATILE</span> <span class="hljs-title">pxPrevious</span>;</span>  <span class="hljs-comment">// 指向后一个链表项</span><br>    <span class="hljs-type">void</span> * pvOwner;                                      <span class="hljs-comment">// 类似侵入式链表，指向包含该链表项的对象的地址，通常是TCB </span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST</span> * <span class="hljs-title">configLIST_VOLATILE</span> <span class="hljs-title">pxContainer</span>;</span>      <span class="hljs-comment">// 指向该节点所在的链表</span><br>    listSECOND_LIST_ITEM_INTEGRITY_CHECK_VALUE             <br>&#125;;<br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span> <span class="hljs-title">ListItem_t</span>;</span><br></code></pre></td></tr></table></figure>
+
+<p>其结构如下：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里如果使用 <code>configLIST_VOLATILE</code>，其会被替换为 <code>volatile</code> 关键字。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> configLIST_VOLATILE volatile</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>volatile</code> 关键字是让编译器不对该变量进行优化，所谓的优化可以理解为其在生成汇编时，若多次读取该变量时其可能会将变量值放入寄存器中以加快读取速度，而不是真正的读取，这使得当某个变量会快速变化时，优化后“读取”的值并不是变量真实的值。当使用 <code>volatile</code> 关键字时，其会强迫编译器每次使用该变量时都真正的对它进行一次读取。</p>
+</blockquote>
+<p>在链表项的结构体构造中值得注意的是 <code>pvOwner</code> 和 <code>pxContainer</code> 这两个成员变量。</p>
+<ul>
+<li><code>pvOwner</code> 指向该节点的拥有者，即该节点内嵌在哪个数据结构中，属于哪个数据结构的一个成员。它提供了一种可以快速访问由此链表项代表的对象的方法。</li>
+<li><code>pxContainer</code> 用于指向该节点所在的链表，通常指向链表的根节点。它则提供了一种快速访问其所属链表的方法。</li>
+</ul>
+<p>这种处理方式大大提高了链表在任务调度等应用中的处理速度，提高系统效率。</p>
+<blockquote>
+<p>侵入式链表<br><br><br>在 Linux 内核中有很多侵入式的链表的设计，比如在 Linux 中提供的链表项的定义为：</p>
+<blockquote>
+<p> <code>struct list_head</code><br> <code>&#123;</code><br>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>struct list_head *next, *prev;</code><br> <code>&#125;</code></p>
+</blockquote>
+<p>使用链表时只需要将其包含进定义的对象中即可：</p>
+<blockquote>
+<p> <code>struct list_head</code><br> <code>&#123;</code><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>// 一些其它成员定义....</code><br>     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>struct list_head *next, *prev;</code><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>// 一些其它成员定义....</code><br> <code>&#125;</code></p>
+</blockquote>
+<p>在此它没有定义类似 <code>ListItem_t</code> 中 <code>pxContainer</code> 这样的成员变量，其获得包含该链表项的对象地址是通过下面一段著名的宏定义实现的：</p>
+<blockquote>
+<p><code>#define offsetof(s,m) (size_t)&amp;(((s *)0)-&gt;m</code><br><code>#define container_of(ptr, type, member)  \</code><br><code>(&#123;</code>           <code>\</code><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>const typeof( ((type *)0)-&gt;member ) *__mptr = (ptr); \</code><br>    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>(type *)( (char *)__mptr - offsetof(type,member) ); \</code><br><code>&#125;)</code></p>
+</blockquote>
+<p>使用实例：</p>
+<blockquote>
+<p><code>struct node test;</code><br><code>struct list_head *list_item_add = &amp;test.list_item;</code><br><code>struct node *test_add = container_of(list_item_add, struct node, list_item);</code></p>
+</blockquote>
+<p><code>container_of()</code> 的实现思路简单概括就是：将成员变量地址减去成员变量在结构体类型中的变量便是实例对象的存储地址。以 <code>struct node</code> 结构体为例，其实例 test 在内存中的存储方式如下图左侧所示。下图右侧给出了如何获得成员在结构体存储中的偏移量，当 <code>&amp;test=0x00</code> 时，其成员的地址便是所需要的偏移量。</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此，<code>offsetof()</code> 宏，其所作的事就是获得偏移量。而 <code>container_of()</code> 宏中的：</p>
+<blockquote>
+<p><code>(type *)( (char *)__mptr - offsetof(type,member) );</code></p>
+</blockquote>
+<p>便是用成员地址减去偏移量来获得实例的地址。至于 <code>container_of()</code> 宏中的前一句：</p>
+<blockquote>
+<p><code>const typeof( ((type *)0)-&gt;member ) *__mptr = (ptr);</code></p>
+</blockquote>
+<p>实时上是起到一个类型检验的作用，拓展关键字 <code>typeof</code> 可以获得变量的类型，如果传入的ptr的类型与成员变量类型不符，那么编译器便会抛出警告，便于检查是否出错。注意 <code>typeof</code> 并不是标准 C 中的关键字，如果所用的编译器不支持，可以将第一句删除，将第二句中的<code>__mptr</code> 替换为 <code>ptr</code>，宏 <code>container_of()</code> 仍然是正确的。</p>
+</blockquote>
+<h2 id="2、链表精简节点结构-xMINI-LIST-ITEM"><a href="#2、链表精简节点结构-xMINI-LIST-ITEM" class="headerlink" title="2、链表精简节点结构 xMINI_LIST_ITEM"></a>2、链表精简节点结构 xMINI_LIST_ITEM</h2><p>这个结构是专门用来在下面要讲的 <code>xLIST</code> 表示尾节点，相比于刚才讲到的 <code>xList_ITEM</code> 要精简不少。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xMINI_LIST_ITEM</span></span><br><span class="hljs-class">&#123;</span><br>    listFIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE;           <span class="hljs-comment">// 校验值</span><br>    configLIST_VOLATILE TickType_t xItemValue;			 <span class="hljs-comment">// 辅助值，用于帮助节点做升序排列</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span> * <span class="hljs-title">configLIST_VOLATILE</span> <span class="hljs-title">pxNext</span>;</span>      <span class="hljs-comment">// 指向下一个链表项</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST_ITEM</span> * <span class="hljs-title">configLIST_VOLATILE</span> <span class="hljs-title">pxPrevious</span>;</span>  <span class="hljs-comment">// 指向前一个链表项</span><br>&#125;;<br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xMINI_LIST_ITEM</span> <span class="hljs-title">MiniListItem_t</span>;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3、链表根节点结构-xLIST"><a href="#3、链表根节点结构-xLIST" class="headerlink" title="3、链表根节点结构 xLIST"></a>3、链表根节点结构 xLIST</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">xLIST</span></span><br><span class="hljs-class">&#123;</span><br>    listFIRST_LIST_INTEGRITY_CHECK_VALUE       <span class="hljs-comment">// 校验值</span><br>    <span class="hljs-keyword">volatile</span> UBaseType_t uxNumberOfItems;      <span class="hljs-comment">// 记录该链表里有多少成员（根节点除外）</span><br>    ListItem_t * configLIST_VOLATILE pxIndex;  <span class="hljs-comment">// 链表节点索引指针</span><br>    MiniListItem_t xListEnd;                   <span class="hljs-comment">// 链表尾部（实际也是链表的第一个节点），为节省内存使用Mini 链表项</span><br>    listSECOND_LIST_INTEGRITY_CHECK_VALUE      <span class="hljs-comment">// 校验值</span><br>&#125; List_t;<br></code></pre></td></tr></table></figure>
+
+<p>结构图如下：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p>现在清楚了 List 的基本结构，下面是它的相关操作。</p>
+<h1 id="二、链表的相关操作"><a href="#二、链表的相关操作" class="headerlink" title="二、链表的相关操作"></a>二、链表的相关操作</h1><p>关于链表的相关操作函数的在 <code>list.c</code> 中实现。</p>
+<h2 id="1、初始化"><a href="#1、初始化" class="headerlink" title="1、初始化"></a>1、初始化</h2><h3 id="1-1-链表节点初始化"><a href="#1-1-链表节点初始化" class="headerlink" title="1.1 链表节点初始化"></a>1.1 链表节点初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vListInitialiseItem</span><span class="hljs-params">( ListItem_t * <span class="hljs-type">const</span> pxItem )</span><br>&#123;<br>    <span class="hljs-comment">/* Make sure the list item is not recorded as being on a list. */</span><br>    pxItem-&gt;pxContainer = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-comment">/* Write known values into the list item if</span><br><span class="hljs-comment">     * configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */</span><br>    listSET_FIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );<br>    listSET_SECOND_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>链表项的初始化十分简单只是将 <code>pxContainer</code> 置为NULL，设置一下校验值。</p>
+<p>一个初始化好的节点示意图具体如下：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="1-2-链表根节点初始化"><a href="#1-2-链表根节点初始化" class="headerlink" title="1.2 链表根节点初始化"></a>1.2 链表根节点初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vListInitialise</span><span class="hljs-params">( List_t * <span class="hljs-type">const</span> pxList )</span><br>&#123;<br>    <span class="hljs-comment">/* 将链表索引指针指向最后一个节点 */</span><br>    pxList-&gt;pxIndex = ( ListItem_t * ) &amp;( pxList-&gt;xListEnd ); <br><br>    <span class="hljs-comment">/* 将链表最后一个节点的辅助排序的值设置为最大，确保该节点就是链表的最后节点 */</span><br>    pxList-&gt;xListEnd.xItemValue = portMAX_DELAY;<br><br>    <span class="hljs-comment">/* 将最后一个节点的pxNext 和pxPrevious 指针均指向节点自身，表示链表为空 */</span><br>    pxList-&gt;xListEnd.pxNext = ( ListItem_t * ) &amp;( pxList-&gt;xListEnd );     <br>    pxList-&gt;xListEnd.pxPrevious = ( ListItem_t * ) &amp;( pxList-&gt;xListEnd );<br><br>	<span class="hljs-comment">/* 将链表项数目设为0 */</span><br>    pxList-&gt;uxNumberOfItems = ( UBaseType_t ) <span class="hljs-number">0U</span>;<br><br>    <span class="hljs-comment">/* 写入校验值，用于后续检验，为了保证链表结构体是正确的，没有被覆写 */</span><br>    listSET_LIST_INTEGRITY_CHECK_1_VALUE( pxList );<br>    listSET_LIST_INTEGRITY_CHECK_2_VALUE( pxList );<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、插入"><a href="#2、插入" class="headerlink" title="2、插入"></a>2、插入</h2><h3 id="2-1-将节点插入到链表的尾部"><a href="#2-1-将节点插入到链表的尾部" class="headerlink" title="2.1 将节点插入到链表的尾部"></a>2.1 将节点插入到链表的尾部</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vListInsertEnd</span><span class="hljs-params">( List_t * <span class="hljs-type">const</span> pxList,</span><br><span class="hljs-params">                     ListItem_t * <span class="hljs-type">const</span> pxNewListItem )</span><br>&#123;<br>    ListItem_t * <span class="hljs-type">const</span> pxIndex = pxList-&gt;pxIndex;<br><br>    <span class="hljs-comment">/* 校验链表和链表项 */</span><br>    listTEST_LIST_INTEGRITY( pxList );<br>    listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );<br><br>    <span class="hljs-comment">/* 将链表项嵌入到pxIndex 指向的链表项前 */</span><br>    pxNewListItem-&gt;pxNext = pxIndex;                   <span class="hljs-comment">// 1</span><br>    pxNewListItem-&gt;pxPrevious = pxIndex-&gt;pxPrevious;   <span class="hljs-comment">// 2</span><br><br>    <span class="hljs-comment">/* 调试测试用的函数，对代码逻辑理解无影响。 */</span><br>    mtCOVERAGE_TEST_DELAY();<br><br>    pxIndex-&gt;pxPrevious-&gt;pxNext = pxNewListItem;       <span class="hljs-comment">// 3</span><br>    pxIndex-&gt;pxPrevious = pxNewListItem;               <span class="hljs-comment">// 4</span><br><br>    <span class="hljs-comment">/* 记录链表项属于该链表 */</span><br>    pxNewListItem-&gt;pxContainer = pxList;               <span class="hljs-comment">// 5</span><br><br>	<span class="hljs-comment">/* 记录链表中的链表项数目 */</span><br>    ( pxList-&gt;uxNumberOfItems )++;                     <span class="hljs-comment">// 6</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>代码整体不难理解，主要是弄明白插入的过程中更改指针的指向：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-2-将节点按照升序排列插入到链表"><a href="#2-2-将节点按照升序排列插入到链表" class="headerlink" title="2.2 将节点按照升序排列插入到链表"></a>2.2 将节点按照升序排列插入到链表</h3><p>将节点按照升序排列插入到链表，如果有两个节点的值相同，则新节点在旧节点的后面插入：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">vListInsert</span><span class="hljs-params">( List_t * <span class="hljs-type">const</span> pxList,</span><br><span class="hljs-params">                  ListItem_t * <span class="hljs-type">const</span> pxNewListItem )</span><br>&#123;<br>    ListItem_t * pxIterator;<br>    <span class="hljs-type">const</span> TickType_t xValueOfInsertion = pxNewListItem-&gt;xItemValue;<br><br>    <span class="hljs-comment">/* 校验链表和链表项 */</span><br>    listTEST_LIST_INTEGRITY( pxList );<br>    listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );<br><br>    <span class="hljs-comment">/* 寻找插入位置 */</span><br>    <span class="hljs-keyword">if</span>( xValueOfInsertion == portMAX_DELAY )<br>    &#123;<br>    	<span class="hljs-comment">// 如果链表项的排序数最大，直接在尾部插入，这里相当于做了一个小小的优化。</span><br>        pxIterator = pxList-&gt;xListEnd.pxPrevious;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>		<span class="hljs-comment">/* 升序寻找插入位置 */</span><br>        <span class="hljs-keyword">for</span>( pxIterator = ( ListItem_t * ) &amp;( pxList-&gt;xListEnd ); <br>        	 pxIterator-&gt;pxNext-&gt;xItemValue &lt;= xValueOfInsertion; 			<br>        	 pxIterator = pxIterator-&gt;pxNext ) <br>        &#123;<br>            <span class="hljs-comment">/* 空操作 */</span><br>        &#125;<br>    &#125;<br><br>	<span class="hljs-comment">/* 进行插入操作 */</span><br>    pxNewListItem-&gt;pxNext = pxIterator-&gt;pxNext;         <span class="hljs-comment">// 1</span><br>    pxNewListItem-&gt;pxNext-&gt;pxPrevious = pxNewListItem;  <span class="hljs-comment">// 2</span><br>    pxNewListItem-&gt;pxPrevious = pxIterator;				<span class="hljs-comment">// 3</span><br>    pxIterator-&gt;pxNext = pxNewListItem;					<span class="hljs-comment">// 4</span><br><br>    <span class="hljs-comment">/* 记录链表项属于该链表 */</span><br>    pxNewListItem-&gt;pxContainer = pxList;				<span class="hljs-comment">// 5</span><br><br>	<span class="hljs-comment">/* 记录链表中的链表项数目 */</span><br>    ( pxList-&gt;uxNumberOfItems )++;						<span class="hljs-comment">// 6</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>vListInsert()</code> 的实现比起 <code>vListInsertEnd()</code> 也就多了要先查找插入位置再进行插入操作。</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、删除"><a href="#3、删除" class="headerlink" title="3、删除"></a>3、删除</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">UBaseType_t <span class="hljs-title function_">uxListRemove</span><span class="hljs-params">( ListItem_t * <span class="hljs-type">const</span> pxItemToRemove )</span><br>&#123;<br>	<span class="hljs-comment">/* 调整前后项指针 */</span><br>    List_t * <span class="hljs-type">const</span> pxList = pxItemToRemove-&gt;pxContainer;<br><br>    pxItemToRemove-&gt;pxNext-&gt;pxPrevious = pxItemToRemove-&gt;pxPrevious;<br>    pxItemToRemove-&gt;pxPrevious-&gt;pxNext = pxItemToRemove-&gt;pxNext;<br><br>    mtCOVERAGE_TEST_DELAY();<br><br>    <span class="hljs-comment">/* 保证当前的链表索引指向有效项 */</span><br>    <span class="hljs-keyword">if</span>( pxList-&gt;pxIndex == pxItemToRemove )<br>    &#123;<br>        pxList-&gt;pxIndex = pxItemToRemove-&gt;pxPrevious;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        mtCOVERAGE_TEST_MARKER();<br>    &#125;<br><br> 	<span class="hljs-comment">/* 移除的链表项不再被链表拥有 */</span><br>    pxItemToRemove-&gt;pxContainer = <span class="hljs-literal">NULL</span>;<br><br>	<span class="hljs-comment">/* 减少链表项数目 */</span><br>    ( pxList-&gt;uxNumberOfItems )--;<br><br>    <span class="hljs-keyword">return</span> pxList-&gt;uxNumberOfItems;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、宏函数"><a href="#4、宏函数" class="headerlink" title="4、宏函数"></a>4、宏函数</h2><p>在 <code>list.h</code> 中，还定义了各种各样的带参宏，方便对节点做一些简单的操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 初始化节点的拥有者 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listSET_LIST_ITEM_OWNER( pxListItem, pxOwner )    ( ( pxListItem )-&gt;pvOwner = ( void * ) ( pxOwner ) )</span><br><span class="hljs-comment">/* 获取节点拥有者 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_LIST_ITEM_OWNER( pxListItem )             ( ( pxListItem )-&gt;pvOwner )</span><br><br><span class="hljs-comment">/* 初始化节点排序辅助值 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listSET_LIST_ITEM_VALUE( pxListItem, xValue )     ( ( pxListItem )-&gt;xItemValue = ( xValue ) )</span><br><span class="hljs-comment">/* 获取节点排序辅助值 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_LIST_ITEM_VALUE( pxListItem )             ( ( pxListItem )-&gt;xItemValue )</span><br><br><span class="hljs-comment">/* 获取链表根节点的节点计数器的值 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_ITEM_VALUE_OF_HEAD_ENTRY( pxList )        ( ( ( pxList )-&gt;xListEnd ).pxNext-&gt;xItemValue )</span><br><br><span class="hljs-comment">/* 获取链表的入口节点 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_HEAD_ENTRY( pxList )                      ( ( ( pxList )-&gt;xListEnd ).pxNext )</span><br><span class="hljs-comment">/* 获取节点的下一个节点 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_NEXT( pxListItem )                        ( ( pxListItem )-&gt;pxNext )</span><br><span class="hljs-comment">/* 获取链表的最后一个节点 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_END_MARKER( pxList )                      ( ( ListItem_t const * ) ( &amp;( ( pxList )-&gt;xListEnd ) ) )</span><br><br><span class="hljs-comment">/* 判断链表是否为空 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listLIST_IS_EMPTY( pxList )                       ( ( ( pxList )-&gt;uxNumberOfItems == ( UBaseType_t ) 0 ) ? pdTRUE : pdFALSE )</span><br><br><span class="hljs-comment">/* 获取链表的节点数 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listCURRENT_LIST_LENGTH( pxList )                 ( ( pxList )-&gt;uxNumberOfItems )</span><br><br><span class="hljs-comment">/* 获取链表第一个节点的OWNER，即TCB */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_OWNER_OF_NEXT_ENTRY( pxTCB, pxList )                                           \</span><br><span class="hljs-meta">    &#123;                                                                                          \</span><br><span class="hljs-meta">        List_t * const pxConstList = ( pxList );                                               \</span><br><span class="hljs-meta">        <span class="hljs-comment">/* Increment the index to the next item and return the item, ensuring */</span>               \</span><br><span class="hljs-meta">        <span class="hljs-comment">/* we don&#x27;t return the marker used at the end of the list.  */</span>                         \</span><br><span class="hljs-meta">        ( pxConstList )-&gt;pxIndex = ( pxConstList )-&gt;pxIndex-&gt;pxNext;                           \</span><br><span class="hljs-meta">        <span class="hljs-keyword">if</span>( ( void * ) ( pxConstList )-&gt;pxIndex == ( void * ) &amp;( ( pxConstList )-&gt;xListEnd ) ) \</span><br><span class="hljs-meta">        &#123;                                                                                      \</span><br><span class="hljs-meta">            ( pxConstList )-&gt;pxIndex = ( pxConstList )-&gt;pxIndex-&gt;pxNext;                       \</span><br><span class="hljs-meta">        &#125;                                                                                      \</span><br><span class="hljs-meta">        ( pxTCB ) = ( pxConstList )-&gt;pxIndex-&gt;pvOwner;                                         \</span><br><span class="hljs-meta">    &#125;</span><br><br><br><span class="hljs-comment">/* 获取第一个列表项所属的链表 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listGET_OWNER_OF_HEAD_ENTRY( pxList )            ( ( &amp;( ( pxList )-&gt;xListEnd ) )-&gt;pxNext-&gt;pvOwner )</span><br><br><span class="hljs-comment">/* 判断给定 pxListItem 是否属于 pxList */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listIS_CONTAINED_WITHIN( pxList, pxListItem )    ( ( ( pxListItem )-&gt;pxContainer == ( pxList ) ) ? ( pdTRUE ) : ( pdFALSE ) )</span><br><br><span class="hljs-comment">/* 判断节点是否属于某个链表 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listLIST_ITEM_CONTAINER( pxListItem )            ( ( pxListItem )-&gt;pxContainer )</span><br><br><span class="hljs-comment">/* 判断链表是否已初始化 */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> listLIST_IS_INITIALISED( pxList )                ( ( pxList )-&gt;xListEnd.xItemValue == portMAX_DELAY )</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+        <a href="/tags/FreeRTOS/" class="print-no-link">#FreeRTOS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FreeRTOS 列表 List 源码解析</div>
+      <div>http://example.com/2024/08/29/FreeRTOS-list-源码解析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" title="单片机内存区域划分">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">单片机内存区域划分</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/27/BLE%E8%AF%A6%E8%A7%A3/" title="蓝牙BLE协议讲解">
+                        <span class="hidden-mobile">蓝牙BLE协议讲解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

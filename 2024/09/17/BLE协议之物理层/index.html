@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@toc   一、概述 物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym&#x2F;s 的无编码物理层 2M Sym&#x2F;s 的无编码物理层 1M Sy">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BLE 协议之物理层">
+<meta property="og:url" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="@toc   一、概述 物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym&#x2F;s 的无编码物理层 2M Sym&#x2F;s 的无编码物理层 1M Sy">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/1.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/2.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/3.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/4.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/5.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/6.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/7.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/8.png">
+<meta property="og:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/9.png">
+<meta property="article:published_time" content="2024-09-17T02:34:45.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:27:24.760Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="通信协议">
+<meta property="article:tag" content="BLE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/1.png">
+  
+  
+  
+  <title>BLE 协议之物理层 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BLE 协议之物理层"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-17 10:34" pubdate>
+          星期二, 九月 17日 2024, 10:34 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          21 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BLE 协议之物理层</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+<hr>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>物理层（<em><strong>Physical Layer</strong></em>）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。</p>
+<p>BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。</p>
+<p>BLE 5 的物理层有三种实现方案，分别是：</p>
+<ol>
+<li>1M Sym&#x2F;s 的无编码物理层</li>
+<li>2M Sym&#x2F;s 的无编码物理层</li>
+<li>1M Sym&#x2F;s 的编码物理层</li>
+</ol>
+<p>其中 1M Sym&#x2F;s 的无编码物理层与 BLE v4 系列协议的物理层兼容，另外两种物理层则分别扩展了通信速率和通信距离。</p>
+<h1 id="二、Physical-Channel"><a href="#二、Physical-Channel" class="headerlink" title="二、Physical Channel"></a>二、Physical Channel</h1><h2 id="1、物理通道"><a href="#1、物理通道" class="headerlink" title="1、物理通道"></a>1、物理通道</h2><p>任何一个通信系统，首先要确定的就是通信介质（物理通道，<em><strong>Physical Channel</strong></em>），BLE 也不例外。在 BLE 协议中，通信介质的定义是由 <code>Physical Layer</code> 负责。</p>
+<blockquote>
+<p>大多数无线通信的频段需要申请授权才可以使用，不同地区开辟了少量免授权频段，只要产品满足当地无线电规范，即可免授权使用。下图展示了全球免授权的频段及其分布：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p>图中 2.4GHz 的频段很强势，覆盖了整个地图，是专为工业（Industrial）、科学（Scientific）和医学（Medical）三个机构使用，故称为 <code>ISM 频段</code>。全球范围都可以免授权使用 ISM 频段。<br><br>2.4GHz 频段信号有明显的优缺点，优点是免费、技术成熟，缺点是频段拥挤、信号传播特性差、遇水衰减。目前除了蓝牙信号外，WIFI、ZigBee、无线键盘、无线玩具甚至微波炉都工作在这个频段。由此，当一个空间内同时运行着多个无线设备时，BLE 就很容易受到干扰，由此提出了下面将提到的调频技术来抗干扰。</p>
+</blockquote>
+<p><code>Physical Layer</code> 是这样描述 BLE 的通信介质的：</p>
+<ul>
+<li>BLE 属于无线通信，则其通信介质是一定频率范围下的频带资源（<em><strong>Frequency Band</strong></em>）</li>
+<li>BLE 的市场定位是个体和民用，因此使用免费的 ISM 频段 （频率范围是 2.400-2.4835 GHz）</li>
+<li>为了同时支持多个设备，将整个频带分为 40 份，每份的带宽为 2MHz ，称作 RF Channel 。</li>
+</ul>
+<p>经过上面的定义之后， BLE 的物理通道划分已经明了了！</p>
+<p>$$<br>频点 ( f ) &#x3D; 2402 ( M H z ) + k ∗ 2 ( M H z ) , k &#x3D; ( 0…39 )<br>$$</p>
+<p>每个 Channel 的带宽为 2MHz ，如下图：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、物理通道的细分"><a href="#2、物理通道的细分" class="headerlink" title="2、物理通道的细分"></a>2、物理通道的细分</h2><p>上面我们已经知道了，物理层被划分为了40个赛道，由于传输数据量的不同，为了更加充分利用好物理资源，进一步对通道进行了划分：</p>
+<p>40 个 <code>Physical Channel</code> 物理通道分别划分为 3 个广播通道（<em><strong>advertising channel</strong></em>），和 37 个数据通道（<em><strong>data Channel</strong></em>）。</p>
+<ul>
+<li>对于数据量少，发送不频繁，时延不敏感的场景，使用广播通道通信。<ul>
+<li>例如一个传感器节点（如温度传感器），需要定时（如1s）向处理中心发送传感器数据（如温度）。</li>
+<li>针对这种场景，BLE 的 Link Layer 采取了一种比较懒的处理方式——广播通信</li>
+</ul>
+</li>
+<li>对于数据量大，发送频率高，时延较敏感的场景，使用数据通道。<ul>
+<li>BLE 为这种场景里面的通信双方建立单独的通道（data channel）。这就是连接（connection）的过程。</li>
+</ul>
+</li>
+</ul>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p>同时，为了增加信道容量，增大抗干扰能力，连接不会长期使用一个固定的 <code>Physical Channel</code>，而是在多个通道（如 37 个）之间随机但有规律的切换，这就是 BLE的跳频（<em><strong>Hopping</strong></em>）技术 。</p>
+<p>一个简单的跳频算法是：$F(n+1) &#x3D; [F(n) + hop] % 37$，其中 hop 参数为物理层自己设定的跳频参数。</p>
+<p>实际中使用自适应跳频算法来更新通信信道。</p>
+<p>自适应跳频的工作机制是，如果某个信道拥挤则做上标记，工作时维护一张信道表以记录各信道的拥挤情况，并将拥挤信道映射到可用信道中，然后结合上述简单跳频算法共同完成信道选择。假如简单跳频算法结果指向一个拥挤信道，则进一步跳转到它映射的可用信道上，从而实现数据通信总是工作在可用信道上。</p>
+<h1 id="三、调制"><a href="#三、调制" class="headerlink" title="三、调制"></a>三、调制</h1><h2 id="1、调制方式"><a href="#1、调制方式" class="headerlink" title="1、调制方式"></a>1、调制方式</h2><p>物理层定义了两种调制方式。</p>
+<p>一种方案采用高斯频移键控（<code>GFSK</code>），具有 1MSym&#x2F;s 的符号速率。第二种方式是与第一种相似，但是具有 2MSym&#x2F;s 的符号速率。</p>
+<p>第一种方式又分成两种类型：</p>
+<ul>
+<li><code>LE 1M Uncoded PHY</code>。该方式的比特率为 1Mb&#x2F;s，它是 BLE v4 版本协议保持兼容。</li>
+<li><code>LE 1M Coded PHY</code>。该方式对报文进行编码，使接收端收到的报文具有前向纠正的能力，在相同误码率条件下，能够显著降低误码重传次数，从而提高通信速率。 如果采用8符号编码，比特率为 125kb&#x2F;s，如果采用 2 符号编码，比特率为 500kb&#x2F;s。</li>
+</ul>
+<p>LE 1M Uncoded PHY 是 BLE 协议强制要求实现的物理层，而 LE 1M Coded PHY 则是可选方案。</p>
+<p>这两种实现方式符号速率都是 1MSym&#x2F;s。</p>
+<p>符号速率中的“符号”是指单次采样所得到的信息，这个信息可能包含多个比特，也可能多个信息等效于一个比特。比如一个电压幅度调制系统中，用 +5V 表示 11b， +2V 表示 10b， -2V 表示 01b， -5V 表示 00b，那么采样一次电压可以获得两个比特信息，此时比特率是符号速率的两倍。在 LE 1M Coded PHY 机制中，用 8 个符号表示 1 个比特，此时比特率是符号速率的 1&#x2F;8。</p>
+<p>第二种物理层实现方式为：</p>
+<ul>
+<li><code>LE 2M Uncoded PHY</code>。该方案的比特率为 2Mb&#x2F;s，是可选的实现方式。</li>
+</ul>
+<p>官方文档使用 <code>LE 1M PHY</code>、<code>LE Coded PHY</code>、<code>LE 2M PHY</code> 来表示以上三种不同的物理层实现方式：</p>
+<table>
+<thead>
+<tr>
+<th>物理层</th>
+<th>调制方式</th>
+<th>编码方案（报头部分）</th>
+<th>编码方案（有效载荷）</th>
+<th>比特率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LE 1M PHY</td>
+<td>1Msym&#x2F;s 方式</td>
+<td>无编码</td>
+<td>无编码</td>
+<td>1Mb&#x2F;s</td>
+</tr>
+<tr>
+<td>LE 2M PHY</td>
+<td>2Msym&#x2F;s 方式</td>
+<td>无编码</td>
+<td>无编码</td>
+<td>2Mb&#x2F;s</td>
+</tr>
+<tr>
+<td>LE Coded PHY</td>
+<td>1Msym&#x2F;s 方式</td>
+<td>编码 S&#x3D;8</td>
+<td>编码S&#x3D;8;<br>编码S&#x3D;2</td>
+<td>125kb&#x2F;s;<br>500kb&#x2F;s</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>表中的 S&#x3D;8 表示 8 个符号编码成 1 个比特</p>
+</blockquote>
+<h2 id="2、GFSK"><a href="#2、GFSK" class="headerlink" title="2、GFSK"></a>2、GFSK</h2><p>频率调制是将低频数据信号加载到高频载波上，数据的变化反映为调制波频率的疏密变化，如下图所示：</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p>数字化的信号仅有 0、1 变化，在调制时，可以定义载波频率正向偏移视为 1，负向偏移视为 0。这种调制方式称为“频移键控（<em><strong>FSK</strong></em>）”。数字信号发生 0&#x2F;1 变换时，会产生大量噪声，引入高斯滤波器能够延展 0&#x2F;1 变换时间，从而降低噪声。这种做法称为“高斯频移键控（<em><strong>GFSK</strong></em>）”。</p>
+<p><code>GFSK</code> 技术成熟，实现简单，适合低功耗BLE的需求。</p>
+<p>BLE 协议规定：</p>
+<ul>
+<li>中心频率正向偏移大于等于 185kHz 视为比特 1；</li>
+<li>负向偏移大于等于 185kHz 视为比特 0。</li>
+</ul>
+<blockquote>
+<p>例如：如果选择 2402MHz 作为中心频率，比特 1 的频率应为 2402.185MHz， 比特 0 的频率应为 2401.815MHz。</p>
+</blockquote>
+<h1 id="四、发射机"><a href="#四、发射机" class="headerlink" title="四、发射机"></a>四、发射机</h1><p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p>图中信号从左向右流动，基带信号经过 GFSK 调制分成同相（I 信号）和正交（Q 信号）两路信号，再依次经过 DA 转换和低通滤波器，然后利用频率合成器进行频率上转换，再将两个信号分量合成后通过 PA 放大将信号推送到天线上。</p>
+<p>I&#x2F;Q 相位分量并行操作用以抑制镜像频率，PLL 驱动的频率合成器可以产生稳定和精确的频率信号，其他的滤波和变换则比较容易理解。</p>
+<table>
+<thead>
+<tr>
+<th>最小输出功率</th>
+<th>最大输出功率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.01mW (-20dBm)</td>
+<td>100mW (+20dBm)</td>
+</tr>
+</tbody></table>
+<h1 id="五、接收机"><a href="#五、接收机" class="headerlink" title="五、接收机"></a>五、接收机</h1><p>接收过程是发射过程的逆过程，但相比于发射机而言更加复杂。</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p>蓝牙信号进入到芯片内部，首先经过低噪声放大器（LNA），仍然是分成 I&#x2F;Q 两个相位分量，再通过带通滤波器，使用 VGA（<em><strong>Variable Gain Amplifier</strong></em>）进行放大，最后转成数字信号传入处理器。</p>
+<p>BLE协议对于编码型和非编码型物理层给出了不同的接收灵敏度要求：</p>
+<table>
+<thead>
+<tr>
+<th>物理层类型</th>
+<th>接收灵敏度（dBm）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LE Uncoded PHY</td>
+<td>≤ -70</td>
+</tr>
+<tr>
+<td>LE Coded PHY with S&#x3D;2 coding</td>
+<td>≤ -75</td>
+</tr>
+<tr>
+<td>LE Coded PHY with S&#x3D;8 coding</td>
+<td>≤ -82</td>
+</tr>
+</tbody></table>
+<p>市面上的 BLE 芯片大多都宣称达到 -90dBm 甚至更低的接收灵敏度。</p>
+<p>在理想的条件下，假设发射机输出功率是 0dBm，接收机灵敏度是 -90dBm，发射机输出信号经过一段路径到达接收机，功率衰减到 -90dBm，意味着这段路径上的路径损耗等于 90dB。如果输出功率是 20dBm，当衰减至 -90dBm 时，路径损耗就是 110dB。</p>
+<p>路径损耗与通信距离有如下相关性：</p>
+<p>$$<br>path loss &#x3D; 40 + 25 × log(distance)<br>$$</p>
+<p>见下：</p>
+<table>
+<thead>
+<tr>
+<th>路径损耗(path loss)</th>
+<th>通信距离(distance)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>50dB</td>
+<td>2.5m</td>
+</tr>
+<tr>
+<td>60dB</td>
+<td>6.3m</td>
+</tr>
+<tr>
+<td>70dB</td>
+<td>16m</td>
+</tr>
+<tr>
+<td>80dB</td>
+<td>40m</td>
+</tr>
+<tr>
+<td>90dB</td>
+<td>100m</td>
+</tr>
+<tr>
+<td>100dB</td>
+<td>250m</td>
+</tr>
+<tr>
+<td>110dB</td>
+<td>630m</td>
+</tr>
+</tbody></table>
+<p>当发射功率为默认 0dBm，接收灵敏度为 BLE 协议规定的最小值 -70dBm，那么可实现的最大距离为 16m，这也是许多文档认为 BLE 是一个 10 米范围的通信技术的原因。考虑到大多数 BLE 芯片的接收灵敏度都优于 -90dBm，实际通信距离应大于 10米。</p>
+<h1 id="六、收发机"><a href="#六、收发机" class="headerlink" title="六、收发机"></a>六、收发机</h1><p>前面介绍了发射机和接收机，在实际的 BLE 芯片中，接收机和发射机放在同一个电路中，称为收发机（<em><strong>Transceiver</strong></em>），下图是一个 2.4GHz 产品框图，有实际的参考价值：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="print-no-link">#通信协议</a>
+      
+        <a href="/tags/BLE/" class="print-no-link">#BLE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BLE 协议之物理层</div>
+      <div>http://example.com/2024/09/17/BLE协议之物理层/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" title="STM32 芯片启动过程">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">STM32 芯片启动过程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" title="结构体内存对齐">
+                        <span class="hidden-mobile">结构体内存对齐</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

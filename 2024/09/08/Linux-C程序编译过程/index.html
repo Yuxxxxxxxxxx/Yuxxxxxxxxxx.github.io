@@ -1,0 +1,782 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 下 C&#x2F;C++ 程序编译的过程">
+<meta property="og:url" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/1.jpeg">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/2.png">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/3.png">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/4.png">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/5.png">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/6.png">
+<meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/7.png">
+<meta property="article:published_time" content="2024-09-08T07:52:17.000Z">
+<meta property="article:modified_time" content="2024-11-14T01:17:13.691Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="编译">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/1.jpeg">
+  
+  
+  
+  <title>Linux 下 C/C++ 程序编译的过程 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux 下 C/C++ 程序编译的过程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-08 15:52" pubdate>
+          星期日, 九月 8日 2024, 3:52 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux 下 C/C++ 程序编译的过程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<p>本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（<em><strong>Preprocessing</strong></em>）编译（<em><strong>Compilation</strong></em>）汇编（<em><strong>Assembly</strong></em>）链接（<em><strong>Linking</strong></em>）。</p>
+<p><img src="1.jpeg" srcset="/img/loading.gif" lazyload></p>
+<p>在此之前，首先来看一下 GCC 工具链。</p>
+<h1 id="一、GCC-工具链"><a href="#一、GCC-工具链" class="headerlink" title="一、GCC 工具链"></a>一、GCC 工具链</h1><p><code>GCC</code> 是 <code>GUN Compiler Collection</code> 的简称，是 Linux 系统上常用的编译工具。GCC 工具链软件包括 <code>GCC</code>、<code>Binutils</code>、C 运行库等。</p>
+<ul>
+<li><font size="5px"><strong>GCC</strong></font><ul>
+<li><code>GCC</code>（<em><strong>GNU C Compiler</strong></em>）是编译工具。本文所要介绍的将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程即由编译器完成。</li>
+</ul>
+</li>
+<li><font size="5px"><strong>Binutils</strong></font><ul>
+<li>一组二进制程序处理工具，包括：<code>addr2line</code>、<code>ar</code>、<code>objcopy</code>、<code>objdump</code>、<code>as</code>、<code>ld</code>、<code>ldd</code>、<code>readelf</code>、<code>size</code>等。这一组工具是开发和调试不可缺少的工具，分别简介如下：<ul>
+<li><code>addr2line</code>：用来将程序地址转换成其所对应的程序源文件及所对应的代码行，也可以得到所对应的函数。该工具将帮助调试器在调试的过程中定位对应的源代码位置。</li>
+<li><code>as</code>：主要用于汇编，有关汇编的详细介绍请参见后文。</li>
+<li><code>ld</code>：主要用于链接，有关链接的详细介绍请参见后文。</li>
+<li><code>ar</code>：主要用于创建静态库。为了便于初学者理解，在此介绍动态库与静态库的概念：<ul>
+<li>如果要将多个 <code>.o</code> 目标文件生成一个库文件，则存在两种类型的库，一种是静态库，另一种是动态库。</li>
+<li>在 windows 中静态库是以 <code>.lib</code> 为后缀的文件，共享库是以 <code>.dll</code> 为后缀的文件。</li>
+<li>在 Linux 中静态库是以 <code>.a</code> 为后缀的文件，共享库是以 <code>.so</code> 为后缀的文件。</li>
+<li>静态库和动态库的不同点在于代码被载入的时刻不同。静态库的代码在编译过程中已经被载入可执行程序，因此体积较大。共享库的代码是在可执行程序运行时才载入内存的，在编译过程中仅简单的引用，因此代码体积较小。在 Linux 系统中，可以用 <code>ldd</code> 命令查看一个可执行程序依赖的共享库。</li>
+<li>如果一个系统中存在多个需要同时运行的程序且这些程序之间存在共享库，那么采用动态库的形式将更节省内存。</li>
+</ul>
+</li>
+<li><code>ldd</code>：可以用于查看一个可执行程序依赖的共享库。</li>
+<li><code>objcopy</code>：将一种对象文件翻译成另一种格式，譬如将 <code>.bin</code> 转换成 <code>.elf</code>、或者将 <code>.elf</code> 转换成 <code>.bin</code> 等。</li>
+<li><code>objdump</code>：主要的作用是反汇编。有关次命令的详细介绍，可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140911176">Linux 下 objdump 命令的使用</a>。</li>
+<li><code>readelf</code>：显示有关 ELF 文件的信息，可以参考前文：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141938589">ELF 文件格式</a>。</li>
+<li><code>size</code>：列出可执行文件每个部分的尺寸和总尺寸，代码段、数据段、总大小等，请参见后文了解使用 size 的具体使用实例。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><font size="5px"><strong>C 运行库</strong></font><ul>
+<li>C 语言标准主要由两部分组成：一部分描述 C 的语法，另一部分描述 C 标准库。</li>
+<li>C 标准库定义了一组标准头文件，每个头文件中包含一些相关的函数、变量、类型声明和宏定义，譬如常见的 <code>printf</code> 函数便是一个 C 标准库函数，其原型定义在 <code>stdio</code> 头文件中。</li>
+<li>C 语言标准仅仅定义了 C 标准库函数原型，并没有提供实现。</li>
+<li>因此，C 语言编译器通常需要一个 C 运行时库（<em><strong>C Run Time Libray</strong></em>，<em><strong>CRT</strong></em>）的支持。C 运行时库又常简称为 C 运行库。</li>
+<li>与 C 语言类似，C++ 也定义了自己的标准，同时提供相关支持库，称为 C++ 运行时库。</li>
+</ul>
+</li>
+</ul>
+<h1 id="二、编译过程"><a href="#二、编译过程" class="headerlink" title="二、编译过程"></a>二、编译过程</h1><p>示例程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a,<span class="hljs-type">int</span>  b)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Number are added together\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> a,b;<br>    a = <span class="hljs-number">3</span>;<br>    b = <span class="hljs-number">4</span>;<br>    <span class="hljs-type">int</span> ret = add(a,b);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Result:%u\n&quot;</span>,ret);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="1、预处理"><a href="#1、预处理" class="headerlink" title="1、预处理"></a>1、预处理</h2><p>预处理的过程主要包括以下过程：</p>
+<ul>
+<li>将所有的 <code>#define</code> 删除，并且展开所有的宏定义，并且处理所有的条件预编译指令，比如 <code>#if</code>、<code>#ifdef</code>、<code>#elif</code>、<code>#else</code>、<code>#endif</code> 等。</li>
+<li>处理 <code>#include</code> 预编译指令，将被包含的文件插入到该预编译指令的位置。</li>
+<li>删除所有注释“<code>//</code>”和“<code>/* */</code>”。</li>
+<li>添加行号和文件标识，以便编译时产生调试用的行号及编译错误警告行号。</li>
+<li>保留所有的 <code>#pragma</code> 编译器指令，后续编译过程需要使用它们。</li>
+</ul>
+<p>使用 GCC 进行预处理的命令如下：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-E</span> test.c <span class="hljs-literal">-o</span> test.i<br></code></pre></td></tr></table></figure>
+
+<p>下面是 <code>test.i</code> 文件的一部分内容：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p>正如前文所说，预处理过程删去了文件中的头文件，并将对应文件中的内容包含到当前文件中：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2、编译"><a href="#2、编译" class="headerlink" title="2、编译"></a>2、编译</h2><blockquote>
+<p>编译过程就是对预处理完的文件进行一系列的词法分析，语法分析，语义分析及优化后生成相应的汇编代码。</p>
+</blockquote>
+<ul>
+<li>词法分析：将源码按照语法规则进行分割，识别出各个独立的单词（token），如变量名、关键字、运算符等，并生成词法单元（token）序列。</li>
+<li>语法分析：根据文法规则，分析词法单元序列的结构，构建抽象语法树（AST）。语法分析过程通常使用上下文无关文法和语法分析算法（如 LL 算法或 LR 算法）。</li>
+<li>语义分析：对抽象语法树进行静态语义检查，验证语法结构是否符合语言规范，包括类型检查、作用域检查、函数调用检查等。在这一阶段中，编译器会进行符号表的构建，并进行符号的引用和声明的匹配。</li>
+<li>中间代码生成：将抽象语法树转化为一种中间表示形式，包括三地址码、四元式、抽象指令集等。这种中间表示形式更加抽象，便于进行优化和目标代码生成。</li>
+<li>优化：对中间代码进行优化，以改进程序的运行效率和空间利用率。优化的方式包括常量折叠、循环优化、函数内联、代码复用等。</li>
+<li>目标代码生成：将优化后的中间代码转化为目标机器的机器代码。这一步根据目标机器的特点和指令集，将中间代码转化为目标机器能够执行的代码，包括指令的选择、寄存器分配、指令调度等。</li>
+</ul>
+<blockquote>
+<p>更多详细的内容可以去了解编译原理。</p>
+</blockquote>
+<p>使用 GCC 进行编译的命令如下：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-S</span> test.i <span class="hljs-literal">-o</span> test.s<br></code></pre></td></tr></table></figure>
+
+<p>上述命令生成的汇编程序 <code>test.s</code> 的代码片段如下所示，其全部为汇编代码。</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、汇编"><a href="#3、汇编" class="headerlink" title="3、汇编"></a>3、汇编</h2><blockquote>
+<p>汇编过程调用对汇编代码进行处理，生成处理器能识别的指令，保存在后缀为 <code>.o</code> 的目标文件中。由于每一个汇编语句几乎都对应一条处理器指令，因此，汇编相对于编译过程比较简单，通过调用 <code>Binutils</code> 中的汇编器 <code>as</code> 根据汇编指令和处理器指令的对照表一一翻译即可。当程序由多个源代码文件构成时，每个文件都要先完成汇编工作，生成 <code>.o</code> 目标文件后，才能进入下一步的链接工作。注意：目标文件已经是最终程序的某一部分了，但是在链接之前还不能执行。</p>
+</blockquote>
+<ul>
+<li>指令选择：根据目标机器的指令集架构和指令要求，将目标代码中的每个中间指令转化为目标机器的指令。指令选择的过程中会考虑目标机器的寻址模式、寄存器可用性等因素。</li>
+<li>寄存器分配：对于每个指令中需要使用到的寄存器，分配目标机器中可用的寄存器。寄存器分配算法可以根据寄存器的可用性、寄存器的生存周期等因素来进行。</li>
+<li>指令调度：根据目标机器的特性，对指令进行排序和调整，以最大程度地利用硬件资源，提高指令的并行度和执行效率。指令调度可以包括指令的重排、插入空闲周期、移动指令位置等操作。</li>
+<li>符号解析：解析目标代码中的符号引用，将其与实际的地址进行绑定。这一步通常需要用到链接器生成的重定位表，将符号引用转化为具体的地址。</li>
+<li>生成可执行文件：将经过汇编过程的目标代码生成可执行文件或者可执行的机器代码。这一步包括将目标代码写入文件中，并根据操作系统的格式要求进行文件头和相关信息的设置。</li>
+</ul>
+<p>使用 GCC 进行汇编的命令如下：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-c</span> test.s <span class="hljs-literal">-o</span> test.o<br><br><span class="hljs-comment"># 或者直接调用as进行汇编</span><br><span class="hljs-variable">$</span> as <span class="hljs-literal">-c</span> test.s <span class="hljs-literal">-o</span> test.o<br></code></pre></td></tr></table></figure>
+
+<p>可以看出，<code>test.o</code> 目标文件为 ELF 格式的可重定向文件。</p>
+<blockquote>
+<p>ELF 文件可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141938589">ELF 文件格式</a></p>
+</blockquote>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、链接"><a href="#4、链接" class="headerlink" title="4、链接"></a>4、链接</h2><p>链接也分为静态链接和动态链接，其要点如下：</p>
+<ul>
+<li>静态链接是指在编译阶段直接把静态库加入到可执行文件中去，这样可执行文件会比较大。链接器将函数的代码从其所在地（不同的目标文件或静态链接库中）拷贝到最终的可执行程序中。为创建可执行文件，链接器必须要完成的主要任务是：<ul>
+<li>符号解析（把目标文件中符号的定义和引用联系起来）</li>
+<li>重定位（把符号定义和内存地址对应起来然后修改所有对符号的引用）。</li>
+</ul>
+</li>
+<li>动态链接则是指链接阶段仅仅只加入一些描述信息，而程序执行时再从系统中把相应动态库加载到内存中去。<ul>
+<li>在 Linux 系统中，gcc 编译链接时的动态库搜索路径的顺序通常为：首先从 gcc 命令的参数 <code>-L</code> 指定的路径寻找；再从环境变量<code>LIBRARY_PATH</code> 指定的路径寻址；再从默认路径 <code>/lib</code>、<code>/usr/lib</code>、<code>/usr/local/lib</code> 寻找。</li>
+<li>在 Linux 系统中，执行二进制文件时的动态库搜索路径的顺序通常为：首先搜索编译目标代码时指定的动态库搜索路径；再从环境变量<code>LD_LIBRARY_PATH</code> 指定的路径寻址；再从配置文件 <code>/etc/ld.so.conf</code> 中指定的动态库搜索路径；再从默认路径 <code>/lib</code>、<code>/usr/lib</code> 寻找。</li>
+<li>在 Linux 系统中，可以用 <code>ldd</code> 命令查看一个可执行程序依赖的共享库。</li>
+</ul>
+</li>
+</ul>
+<p>由于链接动态库和静态库的路径可能有重合，所以如果在路径中有同名的静态库文件和动态库文件，比如 <code>libtest.a</code> 和 <code>libtest.so</code>，gcc 链接时默认优先选择动态库，会链接 <code>libtest.so</code>，如果要让 gcc 选择链接 <code>libtest.a</code> 则可以指定 gcc 选项 <code>-static</code>，该选项会强制使用静态库进行链接。以上面的程序为例：如果使用命令“<code>gcc test.c -o test</code>”则会使用动态库进行链接，生成的 ELF 可执行文件的大小（使用 <code>Binutils</code> 的 size 命令查看）和链接的动态库（使用 Binutils 的 ldd 命令查看）如下所示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc test.c <span class="hljs-literal">-o</span> test<br><span class="hljs-variable">$</span> size test <span class="hljs-comment"># 使用 size 查看大小</span><br><span class="hljs-variable">$</span> ldd test  <span class="hljs-comment"># 可以看出该可执行文件链接了很多其他动态库，主要是Linux的glibc动态库</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果使用命令“<code>gcc -static test.c -o test</code>”则会使用静态库进行链接，生成的 ELF 可执行文件的大小（使用 Binutils 的 size 命令查看）和链接的动态库（使用 Binutils 的 ldd 命令查看）如下所示：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-static</span> test.c <span class="hljs-literal">-o</span> test<br><span class="hljs-variable">$</span> size test <span class="hljs-comment"># 使用size查看大小</span><br><span class="hljs-variable">$</span> ldd test<br></code></pre></td></tr></table></figure>
+
+<p>链接器链接后生成的最终文件为 ELF 格式可执行文件，一个 ELF 可执行文件通常被链接为不同的段，常见的段如 <code>.text</code>、<code>.data</code>、<code>.rodata</code>、<code>.bss</code> 等段。</p>
+<p>可以看到，使用静态链接，最终生成的可执行文件的大小比使用动态链接的时候大了很多：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>关于 text、data、bss 这些段的信息可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a>。</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E7%BC%96%E8%AF%91/" class="print-no-link">#编译</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux 下 C/C++ 程序编译的过程</div>
+      <div>http://example.com/2024/09/08/Linux-C程序编译过程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/12/MQTT/" title="MQTT 协议概述">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MQTT 协议概述</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" title="FreeRTOS 队列 Queue 源码解析">
+                        <span class="hidden-mobile">FreeRTOS 队列 Queue 源码解析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

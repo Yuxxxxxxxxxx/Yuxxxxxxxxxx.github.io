@@ -1,0 +1,731 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ROM、RAM 和 Flash 的区别">
+<meta property="og:url" content="http://example.com/2024/10/02/ROM-RAM-Flash/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="[toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/10/02/ROM-RAM-Flash/1.png">
+<meta property="article:published_time" content="2024-10-02T02:12:17.000Z">
+<meta property="article:modified_time" content="2024-11-14T08:07:04.396Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="嵌入式">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/10/02/ROM-RAM-Flash/1.png">
+  
+  
+  
+  <title>ROM、RAM 和 Flash 的区别 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ROM、RAM 和 Flash 的区别"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-02 10:12" pubdate>
+          星期三, 十月 2日 2024, 10:12 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ROM、RAM 和 Flash 的区别</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>[toc]</p>
+<hr>
+<p>在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带动，速度与CPU相比就显得慢的多。内存指的就是主板上的存储部件，是 CPU 直接与之沟通，并用其存储数据的部件，存放当前正在使用的（即执行中）的数据和程序，它的物理实质就是一组或多组具备数据输入输出和数据存储功能的集成电路，内存只用于暂时存放程序和数据，一旦关闭电源或发生断电，其中的程序和数据就会丢失。</p>
+<p>存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是&#x3D;&#x3D;易失性存储器&#x3D;&#x3D;，蓝底是&#x3D;&#x3D;非易失性存储器&#x3D;&#x3D;x）：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>本文主要针对 ROM、RAM、Flash 这三种存储器进行介绍。</p>
+<h1 id="一、ROM"><a href="#一、ROM" class="headerlink" title="一、ROM"></a>一、ROM</h1><p>ROM（<em><strong>Read-Only Memory</strong></em>）是一种&#x3D;&#x3D;只读存储器&#x3D;&#x3D;，它的数据是在制造过程中被写入的，在工作是只能读出，用户无法对其进行修改，而不像随机存储器那样能快速地、方便地加以改写。ROM 可以存储固定的程序和数据，例如操作系统启动程序和固件程序等。由于其只读的特性，ROM 在电子设备中常用于存储固定程序和数据。</p>
+<p>ROM 特性如下：</p>
+<ol>
+<li>ROM数据不能随意更新，但在任何时候都可以读</li>
+<li>掉电可保留数据</li>
+</ol>
+<p>ROM 有很多种，PROM 是可编程的 ROM，PROM 和 EPROM（可擦除可编程 ROM）两者区别是，PROM 是一次性的，也就是软件灌入后，就无法修改了，这种是早期的产品，现在已经不可能使用了，而EPROM是通过紫外光的照射擦出原先的程序，是一种通用的存储器。另外一种 EEPROM 是通过电子擦出，价格很高，写入时间很长，写入很慢。</p>
+<p>ROM分类：</p>
+<ol>
+<li><code>MROM</code>：是一种特殊类型的 ROM，它使用金属线进行数据的编码和存储。</li>
+<li><code>PROM</code>：可编程一次性（无法修改的 ROM）</li>
+<li><code>EPROM</code>： 紫外线可擦除可编程的 ROM</li>
+<li><code>EEPROM</code>： 电可擦除可编程的 ROM<ul>
+<li>按字节进行删除和重写，所以写入时间很长，写入很慢</li>
+<li>可以随机访问和修改任何一个字节</li>
+<li>目前的 EEPROM 都是几十千字节到几百千字节的，绝少有超过 512k</li>
+</ul>
+</li>
+</ol>
+<h1 id="二、RAM"><a href="#二、RAM" class="headerlink" title="二、RAM"></a>二、RAM</h1><p>RAM（<em><strong>Random Access Memory</strong></em>）是一种随机存取存储器，它可以被任意读取和写入。RAM 是电子设备临时存储数据的地方，它的数据在设备上电之后才能被存储，&#x3D;&#x3D;断电后数据会被清空&#x3D;&#x3D;。RAM 的速度快，读取和写入速度都比较快，但是容量相对较小。</p>
+<p>RAM 分类：</p>
+<ol>
+<li>静态 RAM（<em><strong>static RAM&#x2F;SRAM</strong></em>）<ul>
+<li>SRAM 速度非常快，不需要刷新电路即能保存数据，是目前最快的存储设备</li>
+<li>集成度比较低，非常昂贵，多用于一级缓存、二级缓存（L1&#x2F;L2 Cache）</li>
+</ul>
+</li>
+<li>动态 RAM（<em><strong>Dynamic RAM&#x2F;DRAM</strong></em>）<ol>
+<li>DRAM 特点<ul>
+<li>DRAM 保留数据的时间很短，需要内存刷新电路，每隔一段时间，刷新充电一次，否则数据会消失</li>
+<li>速度比 SRAM 慢，不过它比任何 ROM 都要快</li>
+<li>价格便宜，内存一般都是 DRAM</li>
+</ul>
+</li>
+<li>DRAM 分类（有很多种，其中目前最流行的一种是 DDR RAM）<ul>
+<li>FPM DRAM（<em><strong>Fast page mode DRAM</strong></em>）：一种较旧类型的异步 DRAM，它通过允许以更快的速度重复访问单个“页面”内存来改进以前的类型。 1990 年代中期使用。</li>
+<li>EDO DRAM（<em><strong>Extended data out DRAM</strong></em>）：一种较旧类型的异步 DRAM，其访问时间比早期类型更快，因为它能够在上次访问的数据仍在传输的同时启动新的内存访问。在 1990 年代后期使用。</li>
+<li>DDR RAM（<em><strong>Date-Rate RAM</strong></em>）：这种 RAM 可以在一个时钟读写两次数据</li>
+<li>SDRAM：同步的 DRAM，即数据的读写需要时钟来同步</li>
+<li>DDR SDRAM（<strong>Double data rate SDRAM</strong>）：可以通过双泵（在时钟脉冲的上升沿和下降沿传输数据）在每个时钟周期传输两倍的数据（两个连续字）</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="1、内存工作原理"><a href="#1、内存工作原理" class="headerlink" title="1、内存工作原理"></a>1、内存工作原理</h2><p>内存是用来存放当前正在使用的（即执行中）的数据和程序，我们平常所提到的计算机的内存指的是动态内存（即 DRAM），动态内存中所谓的’动态’，指的是当我们将数据写入 DRAM 后，经过一段时间，数据会丢失，因此需要一个额外设电路进行内存刷新操作。</p>
+<p>具体的工作过程是这样的：一个 DRAM 的存储单元存储的是 0 还是 1 取决于电容是否有电荷，有电荷代表 1，无电荷代表 0。</p>
+<ul>
+<li>但时间一长，代表 1 的电容会放电，代表 0 的电容会吸收电荷，这就是数据丢失的原因；</li>
+<li>刷新操作定期对电容进行检查，若电量大于满电量的 1／2，则认为其代表 1，并把电容充满电；</li>
+<li>若电量小于1／2，则认为其代表 0，并把电容放电，藉此来保持数据的连续性。</li>
+</ul>
+<p>从一有计算机开始，就有内存。内存发展到今天也经历了很多次的技术改进，从最早的 DRAM 一直到 FPMDRAM、EDODRAM、SDRAM等，内存的速度一直在提高且容量也在不断的增加。</p>
+<h1 id="三、Flash"><a href="#三、Flash" class="headerlink" title="三、Flash"></a>三、Flash</h1><p>Flash 是一种可擦写的存储器，它结合了 ROM 和 RAM 的优点。它的数据可以被任意读取和写入，并且可以擦除和重新写入。Flash 的数据在断电后仍然能够保持，因此它可以作为长期存储器使用。Flash 的速度相对于 RAM 较慢，但相对于传统的硬盘存储器来说速度快得多。</p>
+<p>Flash特性：</p>
+<ol>
+<li>可擦除可编程，跟 EEPROM 一样</li>
+<li>断电不会丢失</li>
+<li>可以快速读取数据</li>
+<li>Flash 跟 EEPROM 最大的区别是 Flash 按扇区操作，相对于 EEPROM 的改进就是擦除时不再以字节为单位，而是以块为单位</li>
+</ol>
+<p>Flash 有两种：</p>
+<ol>
+<li>NOR Flash<ul>
+<li>用户可以直接运行装载在 NOR Flash 中的代码（主要是因为有 XIP 技术，片上执行，不像 NAND Flash 得将代码复制到 RAM 中才可以执行），这样可以减少 SRAM 的容量从而节约了成本。</li>
+<li>地址线和数据线分开，可以实现 RAM 一样的随机寻址，可以读取任意一个字节</li>
+<li>但擦除还是要以块为单位</li>
+</ul>
+</li>
+<li>NADN Flash<ul>
+<li>NAND Flash 没有采取内存的随机读取技术，它的读取是以一次读取一块的形式来进行的，通常是一次读取 512 个字节，采用这种技术的 Flash 比较廉价。用户不能直接运行 NAND Flash 上的代码，因此好多使用 NAND Flash 的开发板除了使用 NAND Flash 以外，还作上了一块小的 NOR Flash 来运行启动代码。</li>
+</ul>
+</li>
+</ol>
+<p>一般小容量的用 NOR Flash，因为其读取速度快，多用来存储操作系统等重要信息，而大容量的用 NAND FLASH，最常见的 NAND FLASH 应用是嵌入式系统采用的 DOC（Disk On Chip）和我们通常用的’闪盘’，可以在线擦除。目前市面上的 FLASH 主要来自 Intel，AMD，Fujitsu 和 Toshiba，而生产 NAND Flash 的主要厂家有 Samsung 和 Toshiba。</p>
+<p>总而言之，NOR Flash 和 NAND Flash 比较，NOR 可以支持随机访问，支持 XIP，NAND 不行；NOR 容量小，读的比 NAND 快；NAND 的容量较大，虽然读起来也快；NOR 写擦除都很慢，所以一般放代码段，而 NAND 写和擦除都很快，所以没有这个应用上的限制。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="print-no-link">#嵌入式</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ROM、RAM 和 Flash 的区别</div>
+      <div>http://example.com/2024/10/02/ROM-RAM-Flash/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" title="分散加载文件 scatter files">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">分散加载文件 scatter files</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" title="基于 STM32F407 的串口 IAP">
+                        <span class="hidden-mobile">基于 STM32F407 的串口 IAP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
