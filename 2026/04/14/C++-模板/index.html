@@ -27,9 +27,10 @@
 <meta property="og:description" content="一、引言C++ 通过函数重载可以实现对不同数据类型完成同一功能，但是这样写重复的代码就显得很臃肿，且代码的复用率较低，每当出现一个 新类型，就需要增加对应的函数。 由此，引入了模板。所谓模板，顾名思义就是一个通用的描述。也就是使用泛型来定义函数，就是编写与类型无关的代码，其中泛型可通过具体的类型来（如 int 或 double）替换。通过将类型作为参数传递给模板，可使编译器生成该类型的的函数。 二">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-14T15:05:54.000Z">
-<meta property="article:modified_time" content="2026-05-07T13:23:18.357Z">
+<meta property="article:modified_time" content="2026-05-07T14:13:00.847Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="C++">
+<meta property="article:tag" content="模板">
 <meta name="twitter:card" content="summary_large_image">
   
   
@@ -223,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.8k 字
+          2.9k 字
         
       </span>
     
@@ -333,6 +334,8 @@
 <li>使用候选函数列表创建可行函数列表。这些都是参数数目正确的函数，为此有一个隐式转换序列，其中包括实参类型与相应的形参类型完全匹配的情况。例如，使用 float 参数的函数调用可以将该参数转换为 double，从而与 double 形参匹配，而模板可以为 float 生成一个实例</li>
 <li>确定是否有最佳的可行函数。如果有，则使用它，否则该函数调用出错</li>
 </ol>
+<p>对类模板而言，优先级排列为：显式实例化 &gt; 全特化 &gt; 偏特化 &gt; 隐式实例化</p>
+<p>对于函数模板，匹配规则为：普通函数 &gt; 全特化 &gt; 显式实例化 &gt; 隐式实例化</p>
 <p>参数匹配过程中，从最佳到最差的顺序如下所述：</p>
 <ol>
 <li>完全匹配，但常规函数优先于模板</li>
@@ -410,6 +413,13 @@
   <a href="/categories/C/" class="category-chain-item">C++</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
 
       </span>
     
@@ -423,6 +433,8 @@
       <i class="iconfont icon-tags"></i>
       
         <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E6%A8%A1%E6%9D%BF/" class="print-no-link">#模板</a>
       
     </div>
   
