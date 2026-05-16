@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++11新特性(二)">
+<meta property="og:url" content="http://example.com/2026/05/11/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%BA%8C)/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-11T12:52:11.000Z">
+<meta property="article:modified_time" content="2026-05-12T05:21:43.128Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="语言特性">
+<meta property="article:tag" content="C++11">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>C++11新特性(二) - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++11新特性(二)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-11 20:52" pubdate>
+          星期一, 五月 11日 2026, 8:52 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++11新特性(二)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、nullptr"><a href="#一、nullptr" class="headerlink" title="一、nullptr"></a>一、nullptr</h1><p>在引入 <code>nullptr</code> 之前，C 和 C++ 使用的都是 <code>NULL</code>，但对于它的定义是不同的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> NULL</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cplusplus</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NULL 0</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NULL ((void *)0)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支持 <code>void*</code> 的隐式类型转换，则会带来语义二义性的问题。 </p>
+<p><code>nullptr</code> 是 C++11 用来表示空指针新引入的常量值，在 C++ 中如果表示空指针语义时建议使用 <code>nullptr</code> 而不要使用 <code>NULL</code>，因为 <code>NULL</code> 本质上是个 int 型的 0，其实不是个指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">void</span> *ptr)</span> </span>&#123;<br>    cout &lt;&lt; <span class="hljs-string">&quot;func ptr&quot;</span> &lt;&lt; endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    cout &lt;&lt; <span class="hljs-string">&quot;func i&quot;</span> &lt;&lt; endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">func</span>(<span class="hljs-literal">NULL</span>); <span class="hljs-comment">// 编译失败，会产生二义性</span><br>    <span class="hljs-built_in">func</span>(<span class="hljs-literal">nullptr</span>); <span class="hljs-comment">// 输出func ptr</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、final"><a href="#二、final" class="headerlink" title="二、final"></a>二、final</h1><p>在 C++11 中，引入了 <code>final</code> 关键字，用于防止类被继承或防止虚函数被重写。它主要有两个用途：修饰类和修饰虚函数。 </p>
+<h2 id="2-1-修饰类"><a href="#2-1-修饰类" class="headerlink" title="2.1 修饰类"></a>2.1 修饰类</h2><p>当 <strong>final</strong> 关键字用于类时，表示该类不能被其他类继承。这可以保护基类的设计，防止继承带来的复杂性和潜在错误。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> <span class="hljs-keyword">final</span> &#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>       std::cout &lt;&lt; <span class="hljs-string">&quot;Base display&quot;</span> &lt;&lt; std::endl;<br>   &#125;<br>&#125;;<br><br><span class="hljs-comment">// 以下代码会导致编译错误</span><br><span class="hljs-comment">// class Derived : public Base &#123;</span><br><span class="hljs-comment">// &#125;;</span><br></code></pre></td></tr></table></figure>
+
+<p>在这个例子中，<em>Base</em> 类被标记为 <strong>final</strong>，因此不能被继承。如果尝试继承 <em>Base</em> 类（如注释掉的 <em>Derived</em> 类），编译器将报错。</p>
+<h2 id="2-2-修饰虚函数"><a href="#2-2-修饰虚函数" class="headerlink" title="2.2 修饰虚函数"></a>2.2 修饰虚函数</h2><p>当 <strong>final</strong> 关键字用于虚函数时，表示该虚函数在派生类中不能被重写。这对于一些基类中实现了关键逻辑的函数非常有用，可以确保这些函数在派生类中不会被意外地修改。例如： </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>       std::cout &lt;&lt; <span class="hljs-string">&quot;Base display&quot;</span> &lt;&lt; std::endl;<br>   &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">final</span> </span>&#123;<br>       std::cout &lt;&lt; <span class="hljs-string">&quot;Derived display&quot;</span> &lt;&lt; std::endl;<br>   &#125;<br>&#125;;<br><br><span class="hljs-comment">// 以下代码会导致编译错误</span><br><span class="hljs-comment">// class FurtherDerived : public Derived &#123;</span><br><span class="hljs-comment">// public:</span><br><span class="hljs-comment">// void display() const override &#123;</span><br><span class="hljs-comment">// std::cout &lt;&lt; &quot;FurtherDerived display&quot; &lt;&lt; std::endl;</span><br><span class="hljs-comment">// &#125;</span><br><span class="hljs-comment">// &#125;;</span><br></code></pre></td></tr></table></figure>
+
+<p>在这个例子中，<em>Derived</em> 类中的 <em>display</em> 函数被标记为 <strong>final</strong>，因此 <em>FurtherDerived</em> 类不能重写它。如果尝试重写（如注释掉的 <em>FurtherDerived</em> 类），编译器将报错。</p>
+<h1 id="三、override"><a href="#三、override" class="headerlink" title="三、override"></a>三、override</h1><p><code>override</code> 关键字用于确保派生类中的函数正确地重写了基类中的虚函数。 </p>
+<p>当在派生类中声明虚函数时使用 <code>override</code>，编译器会检查该函数是否确实重写了基类中的同名虚函数。如果派生类的函数没有正确地重写基类中的虚函数，或者基类中根本没有这样的虚函数，编译器将报错，从而防止潜在的错误。 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">someFunction</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>= <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚函数</span><br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">someFunction</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">override</span> </span>&#123; <span class="hljs-comment">// 正确重写基类的纯虚函数</span><br>       <span class="hljs-comment">// 函数实现</span><br>   &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>在这个例子中，<em>Derived</em>类通过 <code>override</code> 关键字明确表示 <em>someFunction</em> 函数是对基类 <em>Base</em> 中的纯虚函数的重写。如果 <em>Derived</em> 类中的 <em>someFunction</em> 函数签名与 <em>Base</em> 类中的不一致，编译器将无法通过编译。</p>
+<p>使用<em>override</em>时，必须遵守以下规则：</p>
+<ul>
+<li>函数必须是虚函数</li>
+<li>函数签名（包括返回类型、参数类型和数量、const属性等）必须与基类中的虚函数完全一致</li>
+<li>不能重写基类中的非虚函数。</li>
+</ul>
+<h1 id="四、-default"><a href="#四、-default" class="headerlink" title="四、&#x3D;default"></a>四、&#x3D;default</h1><p>C++11 引入了 <code>=default</code> 关键字，用于显式声明类的特殊成员函数（如构造函数、析构函数、赋值操作符等）由编译器生成默认实现。 </p>
+<p>如果类中有了自定义的构造函数，编译器就不会隐式生成默认构造函数，如下代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> i) &#123; a = i; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a; <span class="hljs-comment">// 编译出错</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面代码编译出错，因为没有匹配的构造函数，因为编译器没有生成默认构造函数，而通过 <code>default</code>，程序员只需在函数声明后加上 <code>=default;</code>，就可将该函数声明为 defaulted 函数，编译器将为显式声明的 defaulted 函数自动生成函数体，如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-built_in">A</span>() = <span class="hljs-keyword">default</span>; <span class="hljs-comment">// 使用编译器生成的默认构造函数</span><br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> i) &#123; a = i; &#125; <span class="hljs-comment">// 自定义带参数的构造函数</span><br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>    	cout &lt;&lt; <span class="hljs-string">&quot;Data: &quot;</span> &lt;&lt; a &lt;&lt; endl;<br>    &#125;<br>    <br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> a;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a;<br>    <span class="hljs-function">A <span class="hljs-title">b</span><span class="hljs-params">(<span class="hljs-number">10</span>)</span></span>;<br>    <br>    a.<span class="hljs-built_in">display</span>(); <span class="hljs-comment">// output: 0</span><br>    b.<span class="hljs-built_in">display</span>(); <span class="hljs-comment">// output: 10</span><br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、-delete"><a href="#五、-delete" class="headerlink" title="五、&#x3D;delete"></a>五、&#x3D;delete</h1><p>C++11引入了 <code>=delete</code> 语法，允许显式地禁用类的某些函数（如拷贝构造函数和赋值运算符），以防止对象被意外复制。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-built_in">A</span>() = <span class="hljs-keyword">default</span>;<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">const</span> A&amp;) = <span class="hljs-keyword">delete</span>;<br>    A&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> A&amp;) = <span class="hljs-keyword">delete</span>;<br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> i) &#123; a = i; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a1;<br>    A a2 = a1;  <span class="hljs-comment">// 错误，拷贝构造函数被禁用</span><br>    A a3;<br>    a3 = a1;  <span class="hljs-comment">// 错误，拷贝赋值操作符被禁用</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>=delele</code> 在 C++11 中很常用，<code>std::unique_ptr</code> 就是通过 <code>=delete</code> 修饰来禁止对象的拷贝的。</p>
+<h1 id="六、explicit"><a href="#六、explicit" class="headerlink" title="六、explicit"></a>六、explicit</h1><p><code>explicit</code> 关键字是用于控制类构造函数的隐式类型转换的。当构造函数只有一个参数时，可以通过<code>explicit</code> 关键字来指定该构造函数是显式的，这样就可以防止编译器自动使用该构造函数进行隐式类型转换。 </p>
+<p>当一个构造函数被声明为显式的，它就不能被用于隐式转换和拷贝初始化。这意味着，你不能将一个单一的值赋给一个类类型的对象，除非你直接调用构造函数或者使用强制类型转换。 </p>
+<p>不用 <code>explicit</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> value) &#123; <span class="hljs-comment">// 没有explicit关键字</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;value&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a = <span class="hljs-number">1</span>; <span class="hljs-comment">// 可以隐式转换</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>explicit</code>:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">A</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span> </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;value&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a = <span class="hljs-number">1</span>; <span class="hljs-comment">// error，不可以隐式转换</span><br>    <span class="hljs-function">A <span class="hljs-title">aa</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span></span>; <span class="hljs-comment">// ok</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>explicit</code> 关键字可以避免由于隐式类型转换导致的错误和不明确的代码。在某些情况下，隐式类型转换可能会导致意外的行为，特别是当它发生在不期望的地方时。通过将构造函数声明为显式的，程序员可以确保只有在明确请求时才会进行类型转换。</p>
+<h1 id="七、noexcept"><a href="#七、noexcept" class="headerlink" title="七、noexcept"></a>七、noexcept</h1><p> <code>noexcept</code>是 C++11 引入的关键字，用于指定函数是否会抛出异常。它有两种用途：作为<strong>说明符</strong>（声明函数不会抛出异常）和作为<strong>运算符</strong>（检查表达式是否会抛出异常）。 </p>
+<p>如果一个声明为<code>noexcept</code>的函数抛出了异常：</p>
+<ol>
+<li>异常<strong>不会</strong>被传播到函数外部</li>
+<li>调用<code>std::terminate()</code>终止程序</li>
+<li>不保证会执行栈展开（不会调用局部对象的析构函数）</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">risky</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;危险操作&quot;</span>);  <span class="hljs-comment">// 程序会立即终止，不会传播异常</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译器可以对<code>noexcept</code>函数进行以下优化：</p>
+<ol>
+<li>不生成异常表（exception table）</li>
+<li>不保存用于栈展开的信息</li>
+<li>不需要在异常传播路径上进行析构操作的准备</li>
+</ol>
+<h2 id="7-1-noexcept作为说明符"><a href="#7-1-noexcept作为说明符" class="headerlink" title="7.1 noexcept作为说明符"></a>7.1 noexcept作为说明符</h2><p>基本语法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">返回类型 函数名(参数列表) <span class="hljs-keyword">noexcept</span>;  <span class="hljs-comment">// 简单形式</span><br>返回类型 函数名(参数列表) <span class="hljs-built_in">noexcept</span>(常量表达式);  <span class="hljs-comment">// 条件形式</span><br></code></pre></td></tr></table></figure>
+
+<p>例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 简单形式</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span></span>;  <span class="hljs-comment">// 承诺函数不会抛出异常</span><br><span class="hljs-comment">// 等价于</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span> <span class="hljs-title">noexcept</span><span class="hljs-params">(<span class="hljs-literal">true</span>)</span></span>;<br><br><span class="hljs-comment">// 条件形式</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T t)</span> <span class="hljs-title">noexcept</span><span class="hljs-params">(<span class="hljs-keyword">noexcept</span>(t.copy()))</span></span>;  <span class="hljs-comment">// 当且仅当t.copy()不抛出异常时，此函数也不抛出异常</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="7-2-noexcept作为运算符"><a href="#7-2-noexcept作为运算符" class="headerlink" title="7.2 noexcept作为运算符"></a>7.2 noexcept作为运算符</h2><p>基本语法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">noexcept</span>(表达式)  <span class="hljs-comment">// 如果表达式保证不抛出异常，则返回true</span><br></code></pre></td></tr></table></figure>
+
+<p>例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span> </span>&#123;&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">g</span><span class="hljs-params">()</span> </span>&#123;&#125;<br><br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> f_noexcept = <span class="hljs-built_in">noexcept</span>(<span class="hljs-built_in">f</span>());  <span class="hljs-comment">// true</span><br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">bool</span> g_noexcept = <span class="hljs-built_in">noexcept</span>(<span class="hljs-built_in">g</span>());  <span class="hljs-comment">// false</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-comment">// 编译时检查t.process()是否声明为noexcept</span><br>    <span class="hljs-built_in">static_assert</span>(<span class="hljs-built_in">noexcept</span>(t.<span class="hljs-built_in">process</span>()), <span class="hljs-string">&quot;T::process必须是noexcept的&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="7-3-noexcept与移动语义"><a href="#7-3-noexcept与移动语义" class="headerlink" title="7.3 noexcept与移动语义"></a>7.3 noexcept与移动语义</h2><blockquote>
+<p>移动语义见 <a href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" title="C++11新特性(一)">C++11新特性(一)</a></p>
+</blockquote>
+<p>移动构造函数和移动赋值运算符<strong>应该</strong>声明为<code>noexcept</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyString</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 移动构造函数声明为noexcept</span><br>    <span class="hljs-built_in">MyString</span>(MyString&amp;&amp; other) <span class="hljs-keyword">noexcept</span><br>        : <span class="hljs-built_in">data_</span>(other.data_), <span class="hljs-built_in">size_</span>(other.size_) &#123;<br>        other.data_ = <span class="hljs-literal">nullptr</span>;<br>        other.size_ = <span class="hljs-number">0</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 移动赋值运算符声明为noexcept</span><br>    MyString&amp; <span class="hljs-keyword">operator</span>=(MyString&amp;&amp; other) <span class="hljs-keyword">noexcept</span> &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> != &amp;other) &#123;<br>            <span class="hljs-keyword">delete</span>[] data_;<br>            data_ = other.data_;<br>            size_ = other.size_;<br>            other.data_ = <span class="hljs-literal">nullptr</span>;<br>            other.size_ = <span class="hljs-number">0</span>;<br>        &#125;<br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br>    <br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* data_;<br>    <span class="hljs-type">size_t</span> size_;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>标准库容器（如<code>std::vector</code>）在扩容时，会根据元素类型的移动构造函数是否为<code>noexcept</code>做出不同决策：</p>
+<ul>
+<li><strong>如果移动构造是<code>noexcept</code>：使用移动操作</strong></li>
+<li><strong>如果不是<code>noexcept</code>：使用复制操作（如果扩容过程中抛出异常，可以回滚）</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;MyString&gt; vec;<br><span class="hljs-comment">// 当vector扩容时，如果MyString::MyString(MyString&amp;&amp;)是noexcept，</span><br><span class="hljs-comment">// 将使用移动构造函数；否则使用复制构造函数</span><br>vec.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">MyString</span>(<span class="hljs-string">&quot;test&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-4-C-17中的自动noexcept推导"><a href="#7-4-C-17中的自动noexcept推导" class="headerlink" title="7.4 C++17中的自动noexcept推导"></a>7.4 C++17中的自动noexcept推导</h2><p>C++17自动为以下函数添加<code>noexcept</code>说明符：</p>
+<ol>
+<li>隐式生成的特殊成员函数（默认构造、析构、复制、移动）</li>
+<li>当且仅当操作中调用的所有函数都是<code>noexcept</code>时</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Widget</span> &#123;<br>    std::string s;<br>    <br>    <span class="hljs-comment">// C++17中，如果std::string的移动构造是noexcept，</span><br>    <span class="hljs-comment">// 则Widget的移动构造也自动成为noexcept</span><br>    <span class="hljs-built_in">Widget</span>(Widget&amp;&amp; w) = <span class="hljs-keyword">default</span>;  <span class="hljs-comment">// 自动推导noexcept</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-5-使用场景"><a href="#7-5-使用场景" class="headerlink" title="7.5 使用场景"></a>7.5 使用场景</h2><ol>
+<li><strong>移动操作</strong>：移动构造函数和移动赋值运算符</li>
+<li><strong>交换函数</strong>：<code>swap</code>函数通常不会失败</li>
+<li><strong>内存释放函数</strong>：析构函数，<code>delete[]</code>操作等</li>
+<li><strong>简单的getter&#x2F;setter</strong>：不包含复杂逻辑的访问器</li>
+<li><strong>默认操作</strong>：默认构造、赋值等操作</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Resource</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 析构函数默认已是noexcept</span><br>    ~<span class="hljs-built_in">Resource</span>();<br><br>    <span class="hljs-comment">// 移动操作</span><br>    <span class="hljs-built_in">Resource</span>(Resource&amp;&amp; other) <span class="hljs-keyword">noexcept</span>;<br>    Resource&amp; <span class="hljs-keyword">operator</span>=(Resource&amp;&amp; other) <span class="hljs-keyword">noexcept</span>;<br>    <br>    <span class="hljs-comment">// 简单访问器</span><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getValue</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">noexcept</span> </span>&#123; <span class="hljs-keyword">return</span> value_; &#125;<br>    <br>    <span class="hljs-comment">// 交换函数</span><br>    <span class="hljs-function"><span class="hljs-keyword">friend</span> <span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(Resource&amp; a, Resource&amp; b)</span> <span class="hljs-keyword">noexcept</span></span>;<br>    <br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> value_;<br>    std::unique_ptr&lt;<span class="hljs-type">int</span>[]&gt; data_;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>不适合使用noexcept的场景：</p>
+<ol>
+<li>可能分配内存的操作（除非有专门的错误处理策略）</li>
+<li>文件I&#x2F;O操作</li>
+<li>网络通信</li>
+<li>复杂算法执行</li>
+</ol>
+<p>实现高效异常安全的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DatabaseConnection</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 构造/析构可能抛出异常</span><br>    <span class="hljs-built_in">DatabaseConnection</span>(<span class="hljs-type">const</span> std::string&amp; connectionString);<br>    ~<span class="hljs-built_in">DatabaseConnection</span>();<br>    <br>    <span class="hljs-comment">// 查询操作可能抛出异常</span><br>    <span class="hljs-function">QueryResult <span class="hljs-title">executeQuery</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; query)</span></span>;<br>    <br>    <span class="hljs-comment">// 但关闭连接操作应该总是成功</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span></span>;<br>    <br>    <span class="hljs-comment">// 检查状态的操作通常不会抛出异常</span><br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isConnected</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">noexcept</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="print-no-link">#语言特性</a>
+      
+        <a href="/tags/C-11/" class="print-no-link">#C++11</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++11新特性(二)</div>
+      <div>http://example.com/2026/05/11/C++11新特性(二)/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/05/13/C++%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" title="C++智能指针">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++智能指针</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/11/C++RAII%E5%8E%9F%E7%90%86/" title="C++ RAII原理">
+                        <span class="hidden-mobile">C++ RAII原理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
