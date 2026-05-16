@@ -22,12 +22,12 @@
     <meta name="description" content="一、基本概念模板参数推导（Template Argument Deduction） 是编译器自动分析函数模板调用时的实参类型，从而确定模板参数的过程。  其核心工作就是当调用一个函数模板时，编译器会尝试将调用时传入的实参类型（A）与模板定义中的参数类型（P）进行匹配。  123template &lt;typename T&gt;void func(T param);func(10); &#x2F;&#x2F; 编译">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++模板参数推导">
-<meta property="og:url" content="http://example.com/2026/05/07/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/index.html">
+<meta property="og:url" content="http://example.com/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
 <meta property="og:description" content="一、基本概念模板参数推导（Template Argument Deduction） 是编译器自动分析函数模板调用时的实参类型，从而确定模板参数的过程。  其核心工作就是当调用一个函数模板时，编译器会尝试将调用时传入的实参类型（A）与模板定义中的参数类型（P）进行匹配。  123template &lt;typename T&gt;void func(T param);func(10); &#x2F;&#x2F; 编译">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2026-05-07T14:19:43.000Z">
-<meta property="article:modified_time" content="2026-05-10T14:34:22.042Z">
+<meta property="article:published_time" content="2026-05-06T14:19:43.000Z">
+<meta property="article:modified_time" content="2026-05-16T07:20:37.719Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="模板">
@@ -212,8 +212,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2026-05-07 22:19" pubdate>
-          星期四, 五月 7日 2026, 10:19 晚上
+        <time datetime="2026-05-06 22:19" pubdate>
+          星期三, 五月 6日 2026, 10:19 晚上
         </time>
       </span>
     
@@ -345,7 +345,7 @@
 <p>如果你在中间转手，如果不加特殊处理，变量转了一圈后，就全变成“左值”了。这时候就需要 <code>std::forward</code>。</p>
 <p>注意，虽然名字含义是转发，但它并不会做转发，和 <code>std::move</code> 一样也是做类型转换。 不过与 <code>move</code> 相比，<code>forward</code> 更强大，<code>move</code> 只能转出来右值，<code>forward</code> 都可以。 </p>
 <blockquote>
-<p><code>std::move</code> 见 <a href="/2026/05/10/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" title="C++右值引用">C++右值引用</a>。</p>
+<p><code>std::move</code> 见 <a href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" title="C++右值引用">C++右值引用</a>。</p>
 </blockquote>
 <h2 id="3-2-std-forward"><a href="#3-2-std-forward" class="headerlink" title="3.2 std::forward"></a>3.2 std::forward</h2><p><code>std::forward&lt;T&gt;(u)</code> 有两个参数：T 与 u：</p>
 <ul>
@@ -416,7 +416,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>C++模板参数推导</div>
-      <div>http://example.com/2026/05/07/C++模板推导/</div>
+      <div>http://example.com/2026/05/06/C++模板推导/</div>
     </div>
     <div class="license-meta">
       
@@ -428,7 +428,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2026年5月7日</div>
+          <div>2026年5月6日</div>
         </div>
       
       
@@ -460,7 +460,7 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/05/10/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" title="C++右值引用">
+                      <a href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" title="C++右值引用">
                         <i class="iconfont icon-arrowleft"></i>
                         <span class="hidden-mobile">C++右值引用</span>
                         <span class="visible-mobile">上一篇</span>
