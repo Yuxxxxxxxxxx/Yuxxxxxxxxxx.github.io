@@ -1,0 +1,722 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用情景： 在 C++11 之前，SFINAE 是实现类型检查的唯一手段。例如，你想编写一个函数，它只接受数字类型，而不接受字符串或自定义类，这时就需要 SFINAE  SFINAE(Substitution Failure Is Not An Error) 是 C++ 模板元编程的基石之一，字面意思是：“替换失败并非错误”。 简单来说，当编译器在模板实例化过程中，如果在替换模板参数时发生失败（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ SFINAE机制">
+<meta property="og:url" content="http://example.com/2026/05/17/C++-SFINAE%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="使用情景： 在 C++11 之前，SFINAE 是实现类型检查的唯一手段。例如，你想编写一个函数，它只接受数字类型，而不接受字符串或自定义类，这时就需要 SFINAE  SFINAE(Substitution Failure Is Not An Error) 是 C++ 模板元编程的基石之一，字面意思是：“替换失败并非错误”。 简单来说，当编译器在模板实例化过程中，如果在替换模板参数时发生失败（">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-16T23:51:27.000Z">
+<meta property="article:modified_time" content="2026-05-19T05:54:10.601Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="模板">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>C++ SFINAE机制 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++ SFINAE机制"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-17 07:51" pubdate>
+          星期日, 五月 17日 2026, 7:51 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++ SFINAE机制</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>使用情景： 在 C++11 之前，SFINAE 是实现类型检查的唯一手段。例如，你想编写一个函数，它只接受数字类型，而不接受字符串或自定义类，这时就需要 SFINAE</p>
+</blockquote>
+<p>SFINAE(Substitution Failure Is Not An Error) 是 C++ 模板元编程的基石之一，字面意思是：“替换失败并非错误”。</p>
+<p>简单来说，当编译器在模板实例化过程中，如果在替换模板参数时发生失败（例如类型不匹配、访问不存在的成员等），编译器<strong>不会抛出编译错误</strong>，而是会将该模板从候选者列表中移除，并继续寻找其他可能的匹配。</p>
+<h1 id="一、工作机制"><a href="#一、工作机制" class="headerlink" title="一、工作机制"></a>一、工作机制</h1><p>下面先从函数重载理解一下 Failure is not an error（FINAE）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span>: <span class="hljs-keyword">public</span> A &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">C</span> &#123;&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(A <span class="hljs-type">const</span>&amp;)</span> </span>&#123;&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(B <span class="hljs-type">const</span>&amp;)</span> </span>&#123;&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">callFoo</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-built_in">foo</span>( <span class="hljs-built_in">A</span>() );<br>  <span class="hljs-built_in">foo</span>( <span class="hljs-built_in">B</span>() );<br>  <span class="hljs-built_in">foo</span>( <span class="hljs-built_in">C</span>() );<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那么 <code>foo( A() )</code> 虽然匹配 <code>foo(B const&amp;)</code> 会失败，但是它起码能匹配 <code>foo(A const&amp;)</code>，所以它是正确的； <code>foo( B() )</code> 能同时匹配两个函数原型，但是B&amp;要更好一些，因此它选择了 B。而 <code>foo( C() )</code>; 因为两个函数都匹配失败（<strong>Failure</strong>）了，所以它找不到相应的原型，这时才会爆出一个编译器错误（<strong>Error</strong>）。 </p>
+<p>这样就好理解了，加上 S，就是说替换失败并不是失败。下面看：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">X</span> &#123;<br>  <span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> type;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Y</span> &#123;<br>  <span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> type2;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> T::type)</span></span>;    <span class="hljs-comment">// Foo0</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> T::type2)</span></span>;   <span class="hljs-comment">// Foo1</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T)</span></span>;                   <span class="hljs-comment">// Foo2</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">callFoo</span><span class="hljs-params">()</span> </span>&#123;<br>   <span class="hljs-built_in">foo</span>&lt;X&gt;(<span class="hljs-number">5</span>);    <span class="hljs-comment">// Foo0: Succeed, Foo1: Failed,  Foo2: Failed</span><br>   <span class="hljs-built_in">foo</span>&lt;Y&gt;(<span class="hljs-number">10</span>);   <span class="hljs-comment">// Foo0: Failed,  Foo1: Succeed, Foo2: Failed</span><br>   <span class="hljs-built_in">foo</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">15</span>); <span class="hljs-comment">// Foo0: Failed,  Foo1: Failed,  Foo2: Succeed</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这就是 SFINAE 机制所要实现的东西。 当我们指定 <code>foo&lt;Y&gt;</code> 的时候，Substitution 就开始工作了，而且会同时工作在三个不同的 foo 签名上。如果我们仅仅因为 Y 没有 type，就在匹配 Foo0 时宣布出错，那显然是武断的，因为我们起码能保证，也希望将这个函数匹配到 Foo1 上。 </p>
+<p>当编译器看到一个函数调用时，它会按以下步骤操作：</p>
+<ol>
+<li><strong>候选者收集</strong>：找出所有同名的模板函数和非模板函数。</li>
+<li><strong>替换</strong>：将实际的调用参数类型代入模板参数中。</li>
+<li><strong>判定</strong>：<ul>
+<li>如果代入后产生非法代码（如 <code>int::iterator</code> 或数组下标越界），编译器判定该模板“不适用”。</li>
+<li><strong>关键点</strong>：只要该失败发生在“模板参数推导或替换”的上下文中，编译器就会默默将其剔除，而不是报错。</li>
+</ul>
+</li>
+<li><strong>决策</strong>：如果在剔除所有无效模板后，剩下一个最佳匹配函数，则编译成功；否则报“找不到匹配的函数”。</li>
+</ol>
+<h1 id="二、enable-if"><a href="#二、enable-if" class="headerlink" title="二、enable_if"></a>二、enable_if</h1><p><code>std::enable_if</code> 是实现 SFINAE 的核心工具。</p>
+<h2 id="2-1-引入"><a href="#2-1-引入" class="headerlink" title="2.1 引入"></a>2.1 引入</h2><p>首先看一段场景：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">ICounter</span> &#123;<br>  <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">increase</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">ICounter</span>() &#123;&#125;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Counter</span>: <span class="hljs-keyword">public</span> ICounter &#123;<br>   <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">increase</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>      <span class="hljs-comment">// Implements</span><br>   &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">inc_counter</span><span class="hljs-params">(T&amp; counterObj)</span> </span>&#123;<br>  counterObj.<span class="hljs-built_in">increase</span>();<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">inc_counter</span><span class="hljs-params">(T&amp; intTypeCounter)</span></span>&#123;<br>  ++intTypeCounter;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>  Counter cntObj;<br>  <span class="hljs-type">uint32_t</span> cntUI32;<br><br>  <span class="hljs-built_in">inc_counter</span>(cntObj);<br>  <span class="hljs-built_in">inc_counter</span>(cntUI32);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们希望任何一个调用，两个 <code>inc_counter</code> 只有一个是正常工作的，但是这里明显是不行的——<code>redefinition</code>。</p>
+<p> 这里便要使用 <code>enable_if</code> 来帮助我们完成对不同实例做个限定：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">inc_counter</span><span class="hljs-params">(T &amp;counterObj,</span></span><br><span class="hljs-params"><span class="hljs-function">                 std::<span class="hljs-type">enable_if_t</span>&lt;std::is_base_of_v&lt;ICounter, T&gt;&gt; * = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    counterObj.<span class="hljs-built_in">increase</span>();<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">inc_counter</span><span class="hljs-params">(T &amp;intTypeCounter,</span></span><br><span class="hljs-params"><span class="hljs-function">                 std::<span class="hljs-type">enable_if_t</span>&lt;std::is_integral_v&lt;T&gt;&gt; * = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    ++intTypeCounter;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-enable-if-的使用"><a href="#2-2-enable-if-的使用" class="headerlink" title="2.2 enable_if  的使用"></a>2.2 enable_if  的使用</h2><p><code>std::enable_if</code> 是 C++11 引入的工具，用于实现 SFINAE。格式为 <code>std::enable_if&lt;Condition, T&gt;</code>：</p>
+<ul>
+<li>如果 <code>Condition</code> 为 <code>true</code>，它定义一个成员 <code>type</code> 为 <code>T</code>（默认为 void）。</li>
+<li>如果 <code>Condition</code> 为 <code>false</code>，则没有 <code>type</code> 成员，则不会产生任何类型。当编译器尝试访问这个不存在的 <code>type</code> 时，即触发 SFINAE。</li>
+</ul>
+<p>所以：<code>std::enable_if_t&lt;std::is_same_v&lt;U, int&gt;&gt;</code>：</p>
+<ul>
+<li>如果 <code>U == int</code> → 得到类型 <code>void</code></li>
+<li>如果 <code>U != int</code> → 产生“替换失败”</li>
+</ul>
+<p><code>std::enable_if</code> 定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// STRUCT TEMPLATE enable_if</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">bool</span> _Test, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span> = <span class="hljs-type">void</span>&gt;<br><span class="hljs-keyword">struct</span> enable_if &#123;&#125;; <span class="hljs-comment">// no member &quot;type&quot; when !_Test</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">enable_if</span>&lt;<span class="hljs-literal">true</span>, _Ty&gt; &#123; <span class="hljs-comment">// type is _Ty for _Test</span><br>    <span class="hljs-keyword">using</span> type = _Ty;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>只有 <code>_Test</code> 为 true 时，类成员才有定义。</p>
+<p><code>std::enable_if</code> 可以用作函数参数、返回类型或类模板或函数模板参数，以有条件地从重载中删除函数或类。 </p>
+<p>C++ 17 后可以使用别名 <code>enable_if_t</code>，其定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">bool</span> _Test, <span class="hljs-keyword">class</span> <span class="hljs-title class_">_Ty</span> = <span class="hljs-type">void</span>&gt;<br><span class="hljs-keyword">using</span> <span class="hljs-type">enable_if_t</span> = <span class="hljs-keyword">typename</span> enable_if&lt;_Test, _Ty&gt;::type;<br></code></pre></td></tr></table></figure>
+
+<p>例一：作为模板参数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Check2</span><br>&#123;<br>    <span class="hljs-comment">// 如果T的类型是int，则定义函数 int read()</span><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> U = T, <span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">int</span>&gt;, <span class="hljs-type">int</span>&gt; = <span class="hljs-number">0</span>&gt;<br>    U <span class="hljs-built_in">read</span>()<br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">42</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 如果T的类型是double，则定义函数 double read()</span><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> U = T, <span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">double</span>&gt;, <span class="hljs-type">int</span>&gt; = <span class="hljs-number">0</span>&gt;<br>    U <span class="hljs-built_in">read</span>()<br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">3.14</span>;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>例二：作为函数参数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Check1</span><br>&#123;<br>    <span class="hljs-comment">//如果T的类型是int，则定义函数 int read(void* = nullptr)</span><br>	<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U </span>= T&gt;<br>	<span class="hljs-function">U <span class="hljs-title">read</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">int</span>&gt; &gt;* = <span class="hljs-literal">nullptr</span>)</span> </span>&#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">42</span>;<br>	&#125;<br>    <br>    <span class="hljs-comment">//如果T的类型是double，则定义函数 double read(void* = nullptr)</span><br>	<span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U </span>= T&gt;<br>	<span class="hljs-function">U <span class="hljs-title">read</span><span class="hljs-params">(<span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">double</span>&gt; &gt;* = <span class="hljs-literal">nullptr</span>)</span> </span>&#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">3.14</span>;<br>	&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>例三：作为返回值类型</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Check3</span><br>&#123;<br>    <span class="hljs-comment">//如果T的类型是int，则定义函数 int read()</span><br>	<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U = T&gt;<br>	<span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">int</span>&gt;, U&gt; <span class="hljs-built_in">read</span>() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">42</span>;<br>	&#125;<br><br>    <span class="hljs-comment">//如果T的类型是double，则定义函数 double read()</span><br>	<span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> U = T&gt;<br>	<span class="hljs-keyword">typename</span> std::<span class="hljs-type">enable_if_t</span>&lt;std::is_same_v&lt;U, <span class="hljs-type">double</span>&gt;, U&gt; <span class="hljs-built_in">read</span>() &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">3.14</span>;<br>	&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>例四：类型偏特化</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// T是其它类型</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> = <span class="hljs-type">void</span>&gt;<br><span class="hljs-keyword">struct</span> zoo;<br><br><span class="hljs-comment">// 如果T是浮点类型</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">zoo</span>&lt;T, std::<span class="hljs-type">enable_if_t</span>&lt;std::is_integral_v&lt;T&gt;&gt;&gt;<br>&#123;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、实例"><a href="#三、实例" class="headerlink" title="三、实例"></a>三、实例</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><br><span class="hljs-comment">// 仅当 T 为整数时，enable_if 才有 type 成员</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">typename</span> std::enable_if&lt;std::is_integral&lt;T&gt;::value, <span class="hljs-type">void</span>&gt;::<span class="hljs-function">type</span><br><span class="hljs-function"><span class="hljs-title">process</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Integer: &quot;</span> &lt;&lt; t &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-comment">// 非整数类型会跳过上面的模板，使用下面这个</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">typename</span> std::enable_if&lt;!std::is_integral&lt;T&gt;::value, <span class="hljs-type">void</span>&gt;::<span class="hljs-function">type</span><br><span class="hljs-function"><span class="hljs-title">process</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Non-integer: &quot;</span> &lt;&lt; t &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">process</span>(<span class="hljs-number">10</span>);      <span class="hljs-comment">// 调用第一个</span><br>    <span class="hljs-built_in">process</span>(<span class="hljs-number">3.14</span>);    <span class="hljs-comment">// 调用第二个</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>正是由于 SFINAE 机制的存在，当 <code>T</code> 不满足 <code>std::enable_if</code> 中的条件时，编译器不会报错，而是排除该模板重载，继续寻找其他合适的模板重载，从而保证代码能够正确编译和运行。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E6%A8%A1%E6%9D%BF/" class="print-no-link">#模板</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++ SFINAE机制</div>
+      <div>http://example.com/2026/05/17/C++-SFINAE机制/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/05/17/C++-decay-decltype-declval/" title="C++ decay/decltype/declval">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++ decay/decltype/declval</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/16/C++-std-exception/" title="C++ std::exception">
+                        <span class="hidden-mobile">C++ std::exception</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
