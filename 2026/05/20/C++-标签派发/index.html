@@ -1,0 +1,711 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="标签派发是在 C++ 20 引入 concept 之前模板编程的一个手段：由于 C++ 不支持函数模板的偏特化，所以为例实现偏特化而产生的一个技巧  一、引入一般重载函数的设计是根据不同的参数决定具体做什么事情，编译器会根据参数匹配的原则确定正确的重载版本。但是对于函数模板，其参数类 型是泛化的模板参数，此时又如何让编译器选择我们希望的那个函数模板的实例呢？ 提供特化版本是一个方法，但是如果需要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++标签派发(Tag Dispatching)">
+<meta property="og:url" content="http://example.com/2026/05/20/C++-%E6%A0%87%E7%AD%BE%E6%B4%BE%E5%8F%91/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="标签派发是在 C++ 20 引入 concept 之前模板编程的一个手段：由于 C++ 不支持函数模板的偏特化，所以为例实现偏特化而产生的一个技巧  一、引入一般重载函数的设计是根据不同的参数决定具体做什么事情，编译器会根据参数匹配的原则确定正确的重载版本。但是对于函数模板，其参数类 型是泛化的模板参数，此时又如何让编译器选择我们希望的那个函数模板的实例呢？ 提供特化版本是一个方法，但是如果需要">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-20T14:50:28.000Z">
+<meta property="article:modified_time" content="2026-05-25T14:39:20.997Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="模板">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>C++标签派发(Tag Dispatching) - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++标签派发(Tag Dispatching)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-20 22:50" pubdate>
+          星期三, 五月 20日 2026, 10:50 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          19 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++标签派发(Tag Dispatching)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <blockquote>
+<p>标签派发是在 C++ 20 引入 <code>concept</code> 之前模板编程的一个手段：由于 C++ 不支持函数模板的偏特化，所以为例实现偏特化而产生的一个技巧</p>
+</blockquote>
+<h1 id="一、引入"><a href="#一、引入" class="headerlink" title="一、引入"></a>一、引入</h1><p>一般重载函数的设计是根据不同的参数决定具体做什么事情，编译器会根据参数匹配的原则确定正确的重载版本。但是对于函数模板，其参数类 型是泛化的模板参数，此时又如何让编译器选择我们希望的那个函数模板的实例呢？</p>
+<p>提供特化版本是一个方法，但是如果需要特殊处理的类型很多，就需要搞一大堆特化版本，非常不方便。C++ 11 的语言库提供了 std::enable_if，配合编译器的 SFINAE 原则（见 <a href="/2026/05/17/C++-SFINAE%E6%9C%BA%E5%88%B6/" title="C++ SFINAE机制">C++ SFINAE机制</a>）也可以实现在编译期间的特定选择。C++ 17 还提供了一个 <code>std::void_t</code>，以模板别名定义的语法形式提供了另一种利用 SFINAE 的方法。当然，同样是 C++ 17 提供的 <code>if constexpr</code> 语言特性配合各种 <code>type traits</code>，可以更优雅地实现编译期间的特定选择。本文要介绍的是另一种常用的习惯用法（或技术）：<strong>Tag Dispatching</strong>。  </p>
+<p>在现代 C++ 中，<strong>标签派发（Tag Dispatching）</strong> 是一种编译期分派技术。它利用函数重载机制，根据传递的“标签类型”（通常是一个空的结构体）来决定具体调用哪一个重载函数。</p>
+<p>这种技术常用于泛型编程（模板），以根据类型的特性（如迭代器类别、是否支持算术运算等）选择最优的算法实现。</p>
+<h1 id="二、核心机制"><a href="#二、核心机制" class="headerlink" title="二、核心机制"></a>二、核心机制</h1><p>标签派发的本质是：</p>
+<ol>
+<li><strong>定义标签类型</strong>：通过空的 <code>struct</code> 或 <code>class</code> 表示不同的状态或分类。</li>
+<li><strong>重载函数</strong>：编写多个相同名称但参数不同的函数，其中一个参数专门用于接收标签。</li>
+<li><strong>分发器（Dispatcher）</strong>：编写一个主函数，利用 <code>std::integral_constant</code> 或 <code>std::bool_constant</code> 等工具生成标签，并调用重载函数。</li>
+</ol>
+<p><code>Tag Dispatching</code> 是一种利用某种类型特征，在一系列重载函数之间进行编译期调度（分派、选择）的技术。<code>Tag Dispatching</code> 并不是 C++ 的某种特性，但是作为一种习惯用法在 C++ 中被广泛应用，尤其是在标准库中。这里说的 tag，其实就是定义一种没有操作、没有数据的类型，将这种类型作为重载函数的一个参数，通过不同的 tag 参数控制编译器的选择。定义一个 tag 非常简单，一般用 struct：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">tag1</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">tag2</span> &#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>虽然结构体都是空的，但是在 C++ 编译器看来，tag1 和 tag2 是两个完全不同的类型。基于 <code>Tag Dispatching</code> 的实现就是定义不同的 tag，并将 tag 设计成函数的一个参数。一般会将 tag 设计成 函数的最后一个参数，因为编译器在代码生成的时候对这种完全是空的参数类型会有针对性的优化。具体来说，就是将重载函数设计成这个样子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Function</span><span class="hljs-params">(T t, tag1)</span> </span>&#123; ... &#125;<br> <br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Function</span><span class="hljs-params">(T t, tag2)</span> </span>&#123; ... &#125;<br></code></pre></td></tr></table></figure>
+
+<p>这就是所谓的 <code>Tag Dispatching</code>，其实就是利用 tag1 和 tag2 是不同类型的特性，控制编译器在编译期间选择希望的重载版本，实现在编译期间的重载分派，比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-built_in">Function</span>(<span class="hljs-number">11</span>, <span class="hljs-built_in">tag1</span>());<br></code></pre></td></tr></table></figure>
+
+<p>下面是一个使用 <code>Tag Dispatching</code> 的简单例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;list&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iterator&gt;</span></span><br><br><span class="hljs-comment">// 1. 定义标签类型（通常标准库已有：std::random_access_iterator_tag 等）</span><br><span class="hljs-comment">// 这里为了演示自定义一套模拟标签</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">InputTag</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">RandomAccessTag</span> &#123;&#125;;<br><br><span class="hljs-comment">// 2. 实现具体的重载函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advanceImpl</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;<span class="hljs-type">int</span>&gt;::iterator&amp; it, <span class="hljs-type">int</span> n, RandomAccessTag)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;使用随机访问优化算法 (O(1))&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-comment">// it += n;</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advanceImpl</span><span class="hljs-params">(<span class="hljs-type">const</span> std::list&lt;<span class="hljs-type">int</span>&gt;::iterator&amp; it, <span class="hljs-type">int</span> n, InputTag)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;使用线性扫描算法 (O(n))&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-comment">// for(int i=0; i&lt;n; ++i) ++it;</span><br>&#125;<br><br><span class="hljs-comment">// 3. 分发器</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myAdvance</span><span class="hljs-params">(Iterator it, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>    <span class="hljs-comment">// 根据迭代器类型选择标签</span><br>    <span class="hljs-comment">// 实例化标签并调用</span><br>    <span class="hljs-built_in">advanceImpl</span>(it, n, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::iterator_category&#123;&#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、示例"><a href="#三、示例" class="headerlink" title="三、示例"></a>三、示例</h1><h2 id="3-1-advance"><a href="#3-1-advance" class="headerlink" title="3.1 advance"></a>3.1 advance</h2><p>最经典的应用场景是 STL 中的 <code>std::advance</code>。不同容器的迭代器能力不同（如随机访问 vs 单向访问），我们需要根据迭代器类型选择最优路径。<code>std::advance</code> 函数的作用是将迭代器向前（或向后）移动 n 个位置。这里需要注意的是，根据迭代器类型的不同，<code>std::advance</code> 函数内部是不同的实现。比如对于随机类型的迭代器，可以采用高效的 <code>it + n</code> 的形式移动位置，对于不支持随机访问的单向迭代器，只能通过执行 n 次 <code>++it</code> 的方式移动迭代器，而对于双向类型的迭代器，n 可以是负数，表示向后移动迭代器。</p>
+<p><code>std::advance</code> 函数首先针对不同类型的迭代器定义了相应的重载形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">RAIter</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Distance</span>&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(RAIter&amp; it, Distance n, </span></span><br><span class="hljs-params"><span class="hljs-function">             std::random_access_iterator_tag)</span> </span>&#123;<br>    it += n;<br>&#125;<br> <br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">BidirIter</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Distance</span>&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(BidirIter&amp; it, Distance n, </span></span><br><span class="hljs-params"><span class="hljs-function">             std::bidirectional_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (n &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">while</span> (n--) ++it;<br>    &#125;<br>    <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">while</span> (n++) --it;<br>    &#125;<br>&#125;<br> <br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">InputIter</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Distance</span>&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(InputIter&amp; it, Distance n, </span></span><br><span class="hljs-params"><span class="hljs-function">             std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (n--) &#123;<br>        ++it;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这几个重载函数的第三个参数就是所谓的 tag，以 <code>std::input_iterator_tag</code> 为例，标准库中的定义大概是这个样子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">input_iterator_tag</span> &#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>标准库还定义了 <code>iterator_traits&lt;&gt;</code> 类模板用于提取迭代器的 tag，对于支持随机访问的迭代器，它的 <code>iterator_category</code> 被特化处理为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">Iter</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span>&lt;Iter&gt; &#123;<br>    ....<br>    <span class="hljs-keyword">using</span> iterator_category = random_access_iterator_tag;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>可用 <code>iterator_traits&lt;Iter&gt;::iterator_category</code> 提取 Iter 类型迭代器的分类 tag。最终 <code>advance()</code> 的实现大致是这个样子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">Iter</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">Distance</span>&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(Iter&amp; it, Distance n)</span> </span>&#123;<br>         <span class="hljs-built_in">advance</span>(it, n, <br>         <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iter&gt;::iterator_category&#123;&#125; );<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-copy"><a href="#3-2-copy" class="headerlink" title="3.2 copy"></a>3.2 copy</h2><p>下面是一个 <code>std::copy</code> 实现的简化版本：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">pod_tag</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">non_pod_tag</span> &#123;&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">copy_trait</span> &#123; <span class="hljs-keyword">using</span> tag = non_pod_tag; &#125;;   <span class="hljs-comment">// T is not &quot;plain old data&quot;</span><br><br><span class="hljs-keyword">template</span>&lt;&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">copy_trait</span>&lt;<span class="hljs-type">int</span>&gt; &#123; <span class="hljs-keyword">using</span> tag = pod_tag; &#125;;         <span class="hljs-comment">// int is &quot;plain old data&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> Iter&gt;</span><br><span class="hljs-function">Out <span class="hljs-title">copy_helper</span><span class="hljs-params">(Iter first, Iter last, Iter out, pod_tag)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// use memmove</span><br>    <span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> n = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">size_t</span>&gt;(last - first);<br>    <span class="hljs-keyword">if</span> (n != <span class="hljs-number">0</span>)<br>        std::<span class="hljs-built_in">memmove</span>(out, first, n * <span class="hljs-built_in">sizeof</span>(Iter));<br>   	<span class="hljs-keyword">return</span> out + n;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> Iter&gt;</span><br><span class="hljs-function">Out <span class="hljs-title">copy_helper</span><span class="hljs-params">(Iter first, Iter last, Iter out, non_pod_tag)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// use loop calling copy constructors</span><br>	<span class="hljs-keyword">for</span> (; first != last; ++first, ++out)<br>        *out = *first;<br>   	<span class="hljs-keyword">return</span> out;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> Iter&gt;</span><br><span class="hljs-function">Out <span class="hljs-title">copy</span><span class="hljs-params">(Iter first, Iter last, Iter out)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">copy_helper</span>(first, last, out, <span class="hljs-keyword">typename</span> copy_trait&lt;Iter&gt;::tag&#123;&#125;)<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-built_in">use</span>(vector&lt;<span class="hljs-type">int</span>&gt;&amp; vi, vector&lt;<span class="hljs-type">int</span>&gt;&amp; vi2, vector&lt;string&gt;&amp; vs, vector&lt;string&gt;&amp; vs2)<br>&#123;<br>    <span class="hljs-built_in">copy</span>(vi.<span class="hljs-built_in">begin</span>(), vi.<span class="hljs-built_in">end</span>(), vi<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>()); <span class="hljs-comment">// uses memmove</span><br>    <span class="hljs-built_in">copy</span>(vs.<span class="hljs-built_in">begin</span>(), vs.<span class="hljs-built_in">end</span>(), vs<span class="hljs-number">2.</span><span class="hljs-built_in">begin</span>()); <span class="hljs-comment">// uses a loop calling copy constructors</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、使用场景"><a href="#四、使用场景" class="headerlink" title="四、使用场景"></a>四、使用场景</h1><p>以下是 <code>Tag Dispatching</code> 在 C++ 中的一些典型应用场景：</p>
+<ol>
+<li><strong>算法特化（Algorithm Specialization）</strong>：当算法对于不同的数据类型有不同的最优实现时，可以使用 <code>Tag Dispatching</code> 来提供特化的版本。例如，对于交换两个元素的操作，对于基本类型可能需要三次拷贝操作，但对于像 <code>std::vector</code> 这样的容器类型，可以直接使用其成员函数 <code>swap</code> 来避免拷贝，从而提高效率。</li>
+<li><strong>迭代器类型的优化</strong>：在 STL 中，不同的容器类型具有不同类型的迭代器（如输入迭代器、前向迭代器、双向迭代器和随机访问迭代器）。对于某些算法，根据迭代器的类型选择最优的实现方式可以提高效率。通过使用 <code>Tag Dispatching</code>，可以为不同类型的迭代器提供特化的算法实现。</li>
+<li><strong>类型属性的判断</strong>：当需要根据类型的某些属性（如是否为整数类型、是否支持某种操作等）来选择不同的行为时，可以使用 <code>Tag Dispatching</code>。通过定义与这些属性相关的标签类型，并在函数模板中使用这些标签作为参数，可以在编译时根据类型属性选择正确的实现。</li>
+<li><strong>编译时条件判断</strong>：在某些情况下，可能需要在编译时根据某些条件选择不同的函数实现。通过使用 <code>if constexpr</code> 和 <code>Tag Dispatching</code>，可以在编译时根据条件选择并执行相应的函数模板。</li>
+<li><strong>模板元编程</strong>：<code>Tag Dispatching</code> 在模板元编程中也有广泛应用。通过定义与类型特征相关的标签类型，并在模板元函数中使用这些标签作为参数，可以在编译时根据类型特征执行不同的元编程逻辑。</li>
+<li><strong>类型安全的接口设计</strong>：在设计类型安全的接口时，可以使用 <code>Tag Dispatching</code> 来确保函数只接受特定类型的参数。通过定义与参数类型相关的标签类型，并在函数模板中使用这些标签作为参数，可以在编译时检查参数类型，从而提高代码的类型安全性。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E6%A8%A1%E6%9D%BF/" class="print-no-link">#模板</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++标签派发(Tag Dispatching)</div>
+      <div>http://example.com/2026/05/20/C++-标签派发/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/05/21/C++-STL%E4%B8%AD%E7%9A%84iterator-traits/" title="C++ STL中的 iterator_traits">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++ STL中的 iterator_traits</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/19/C++-std-function/" title="C++ std::function">
+                        <span class="hidden-mobile">C++ std::function</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
