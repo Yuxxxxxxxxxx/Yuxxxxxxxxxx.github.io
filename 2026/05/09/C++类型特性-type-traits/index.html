@@ -19,15 +19,15 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、什么是 type_traitstype_traits(类型萃取) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。  &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是指">
+    <meta name="description" content="一、什么是 type_traitstype_traits(类型特性) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。  &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是指">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ type_traits">
-<meta property="og:url" content="http://example.com/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E8%90%83%E5%8F%96-type-traits/index.html">
+<meta property="og:url" content="http://example.com/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E7%89%B9%E6%80%A7-type-traits/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、什么是 type_traitstype_traits(类型萃取) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。  &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是指">
+<meta property="og:description" content="一、什么是 type_traitstype_traits(类型特性) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。  &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是指">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-09T02:47:38.000Z">
-<meta property="article:modified_time" content="2026-05-27T07:20:32.747Z">
+<meta property="article:modified_time" content="2026-05-28T08:23:08.534Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="C++">
 <meta name="twitter:card" content="summary_large_image">
@@ -223,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.3k 字
+          2.4k 字
         
       </span>
     
@@ -234,7 +234,7 @@
         
         
         
-          20 分钟
+          21 分钟
         
       </span>
     
@@ -276,14 +276,14 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一、什么是-type-traits"><a href="#一、什么是-type-traits" class="headerlink" title="一、什么是 type_traits"></a>一、什么是 type_traits</h1><p><code>type_traits</code>(类型萃取) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个<code>is_same</code> 来检查两个类型是否相同，或者定义一个 <code>remove_const</code> 来去除类型的 <code>const</code> 限定符。 </p>
+                <h1 id="一、什么是-type-traits"><a href="#一、什么是-type-traits" class="headerlink" title="一、什么是 type_traits"></a>一、什么是 type_traits</h1><p><code>type_traits</code>(类型特性) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个<code>is_same</code> 来检查两个类型是否相同，或者定义一个 <code>remove_const</code> 来去除类型的 <code>const</code> 限定符。 </p>
 <p><code>&lt;type_traits&gt;</code> 头文件中包含了一组编译期工具，用于：</p>
 <ol>
 <li><strong>查询（Query）</strong>：检查类型的属性（例如：是整数吗？是指针吗？是常量吗？）。</li>
 <li><strong>转换（Transform）</strong>：根据现有类型生成新类型（例如：去除常量、添加引用、获取指针指向的类型）。</li>
 </ol>
-<p>类型萃取可以帮我们检查和处理类型特性，从而优化代码、避免错误或提高性能。</p>
-<p>C++11 引入了 <code>&lt;type_traits&gt;</code> 头文件，其中包含许多内置的类型萃取。下面是一些常见的例子：</p>
+<p>类型特性可以帮我们检查和处理类型特性，从而优化代码、避免错误或提高性能。</p>
+<p>C++11 引入了 <code>&lt;type_traits&gt;</code> 头文件，其中包含许多内置的类型特性。下面是一些常见的例子：</p>
 <ol>
 <li><code>std::is_integral</code>：判断类型 T 是否为整数类型</li>
 <li><code>std::is_floating_point</code>：判断类型 T 是否为浮点数类型</li>
@@ -292,8 +292,8 @@
 <li><code>std::is_const</code>：判断类型 T 是否为 const 类型</li>
 <li><code>std::is_same</code>：判断类型 T 和 U 是否相同</li>
 </ol>
-<p>这些类型萃取通常具有一个静态布尔值 <code>value</code>，当类型符合特定条件时，它为 <code>true</code>，否则为 <code>false</code>。</p>
-<p>其实这些萃取函数原理都差不多，这里举一个例子说明下，比如 is_integral 用于判断一个变量是否是整形：</p>
+<p>这些类型特性通常具有一个静态布尔值 <code>value</code>，当类型符合特定条件时，它为 <code>true</code>，否则为 <code>false</code>。</p>
+<p>其实这些特性函数原理都差不多，这里举一个例子说明下，比如 is_integral 用于判断一个变量是否是整形：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span> : std::false_type &#123;&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span>&lt;<span class="hljs-type">bool</span>&gt; : std::true_type &#123;&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span>&lt;<span class="hljs-type">char</span>&gt; : std::true_type &#123;&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span>&lt;<span class="hljs-type">short</span>&gt; : std::true_type &#123;&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span>&lt;<span class="hljs-type">unsigned</span> <span class="hljs-type">short</span>&gt; : std::true_type &#123;&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral_helper</span>&lt;<span class="hljs-type">int</span>&gt; : std::true_type &#123;&#125;;<br><br><span class="hljs-comment">// ..... 依次类推各种整形都定义一个特化版本</span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral</span> : is_integral_helper&lt;<span class="hljs-keyword">typename</span> std::remove_cv&lt;T&gt;::type&gt; &#123;&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>在这个实现中，我们首先定义一个辅助模板 <code>is_integral_helper</code>，它默认继承自 <code>std::false_type</code>。</p>
@@ -310,7 +310,7 @@
 <li>结果通常通过继承自 <code>std::true_type</code> 或 <code>std::false_type</code> 来表示布尔值。</li>
 <li>配合 <code>if constexpr</code> (C++17) 或 <code>std::enable_if</code> (C++11&#x2F;14) 使用，可实现基于类型的逻辑分支。</li>
 </ul>
-<h1 id="二、标准库中的类型萃取"><a href="#二、标准库中的类型萃取" class="headerlink" title="二、标准库中的类型萃取"></a>二、标准库中的类型萃取</h1><p> 举一个例子，如何使用类型萃取来选择不同的函数实现： </p>
+<h1 id="二、标准库中的类型特性"><a href="#二、标准库中的类型特性" class="headerlink" title="二、标准库中的类型特性"></a>二、标准库中的类型特性</h1><p> 举一个例子，如何使用类型特性来选择不同的函数实现： </p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">typename</span> std::enable_if&lt;std::is_integral&lt;T&gt;::value, T&gt;::<span class="hljs-function">type</span><br><span class="hljs-function"><span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;foo() called with an integral type: &quot;</span> &lt;&lt; t &lt;&lt; std::endl;<br>    <span class="hljs-keyword">return</span> t;<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">typename</span> std::enable_if&lt;std::is_floating_point&lt;T&gt;::value, T&gt;::<span class="hljs-function">type</span><br><span class="hljs-function"><span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;foo() called with a floating point type: &quot;</span> &lt;&lt; t &lt;&lt; std::endl;<br>    <span class="hljs-keyword">return</span> t;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">foo</span>(<span class="hljs-number">42</span>); <span class="hljs-comment">// Output: foo() called with an integral type: 42</span><br>    <span class="hljs-built_in">foo</span>(<span class="hljs-number">3.14</span>); <span class="hljs-comment">// Output: foo() called with a floating point type: 3.14</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h1 id="三、分类"><a href="#三、分类" class="headerlink" title="三、分类"></a>三、分类</h1><p>为了方便记忆，我们将常用的 trait 分为三类：<strong>检查类</strong>、<strong>修改类</strong>、<strong>辅助类</strong>。</p>
@@ -390,6 +390,12 @@
 <td align="left">移动构造会抛异常吗？</td>
 <td align="left">用于优化容器扩容</td>
 </tr>
+<tr>
+<td align="left"></td>
+<td align="left"><code>std::is_trivially_destructible</code>（C++17）</td>
+<td align="left">判断类型 <em>T</em> 是否是平凡可销毁类型(有虚构函数且非虚函数)</td>
+<td align="left">在模板中根据类型是否平凡可销毁，决定是否需要显式调用析构函数</td>
+</tr>
 </tbody></table>
 <p>示例：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">check_type</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Is integral: &quot;</span> &lt;&lt; std::is_integral_v&lt;T&gt; &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>; <span class="hljs-comment">// C++17 简化写法</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Is pointer: &quot;</span> &lt;&lt; std::is_pointer_v&lt;T&gt; &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Is const: &quot;</span> &lt;&lt; std::is_const_v&lt;T&gt; &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">check_type</span>&lt;<span class="hljs-type">int</span>&gt;();          <span class="hljs-comment">// 1, 0, 0</span><br>    check_type&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>*&gt;;     <span class="hljs-comment">// 0, 1, 0 (注意：顶层是 pointer，pointer 本身不是 const)</span><br>    check_type&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&gt;;      <span class="hljs-comment">// 0, 0, 1</span><br>&#125;<br></code></pre></td></tr></table></figure>
@@ -442,9 +448,9 @@
 <li><code>std::conditional</code>: 如果 <code>B</code> 为 true，<code>type</code> 为 <code>T</code>，否则为 <code>F</code> (类似三元运算符)。</li>
 <li><code>std::void_t</code>: 用于检测表达式的有效性 (C++17)。</li>
 </ul>
-<h1 id="四、应用场景"><a href="#四、应用场景" class="headerlink" title="四、应用场景"></a>四、应用场景</h1><p>类型萃取之所以能“优化”代码，核心不在于缩短代码行数，而在于<strong>“消除运行时的冗余判断”</strong>和<strong>“实现编译期的多态选择”</strong>。 </p>
+<h1 id="四、应用场景"><a href="#四、应用场景" class="headerlink" title="四、应用场景"></a>四、应用场景</h1><p>类型特性之所以能“优化”代码，核心不在于缩短代码行数，而在于<strong>“消除运行时的冗余判断”</strong>和<strong>“实现编译期的多态选择”</strong>。 </p>
 <blockquote>
-<p> <strong>运行时做决策是低效的，利用类型萃取，让编译器在生成机器码之前，替你完成决策。</strong> </p>
+<p> <strong>运行时做决策是低效的，利用类型特性，让编译器在生成机器码之前，替你完成决策。</strong> </p>
 </blockquote>
 <h2 id="4-1-消除运行时的“虚函数”调用"><a href="#4-1-消除运行时的“虚函数”调用" class="headerlink" title="4.1 消除运行时的“虚函数”调用"></a>4.1 消除运行时的“虚函数”调用</h2><p>假设我们要编写一个 <code>Copy</code> 函数，如果类型是简单的内置类型（如 <code>int</code>, <code>double</code>），我们直接用 <code>memcpy</code>；如果类型是复杂的对象，我们必须使用拷贝构造函数。</p>
 <p>优化前（运行时判断）：</p>
@@ -460,7 +466,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 针对随机访问迭代器的实现</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-type">int</span> n, std::random_access_iterator_tag)</span> </span>&#123;<br>    it += n; <br>&#125;<br><br><span class="hljs-comment">// 针对其他迭代器的实现</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-type">int</span> n, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (n--) ++it;<br>&#125;<br><br><span class="hljs-comment">// 用户调用的函数</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>    <span class="hljs-comment">// std::iterator_traits 萃取器会分析 Iterator 的属性并返回对应的标签</span><br>    <span class="hljs-keyword">using</span> Category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::iterator_category;<br>    <span class="hljs-built_in">advance_impl</span>(it, n, <span class="hljs-built_in">Category</span>());<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>这种技术在编译期就确定了调用哪个函数版本，完全避免了运行时的 <code>if-else</code> 分支跳转，实现了<strong>零成本抽象（Zero-cost Abstractions）</strong>。 </p>
-<h2 id="4-3-类型安全与-API-简化"><a href="#4-3-类型安全与-API-简化" class="headerlink" title="4.3 类型安全与 API 简化"></a>4.3 类型安全与 API 简化</h2><p>类型萃取还可以用来<strong>禁止某些错误操作</strong>，从而优化程序的健壮性。</p>
+<h2 id="4-3-类型安全与-API-简化"><a href="#4-3-类型安全与-API-简化" class="headerlink" title="4.3 类型安全与 API 简化"></a>4.3 类型安全与 API 简化</h2><p>类型特性还可以用来<strong>禁止某些错误操作</strong>，从而优化程序的健壮性。</p>
 <p>假设你写了一个数学库，只希望用户传入数值类型：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MathTool</span> &#123;<br>    <span class="hljs-built_in">static_assert</span>(std::is_arithmetic_v&lt;T&gt;, <span class="hljs-string">&quot;MathTool 只支持数值类型！&quot;</span>);<br>    <span class="hljs-comment">// ...</span><br>&#125;;<br><br><span class="hljs-comment">// MathTool&lt;std::string&gt; tool; // 编译器在这里直接报错，而不是在运行时崩溃</span><br></code></pre></td></tr></table></figure>
 
@@ -494,8 +500,15 @@
   
     <span>></span>
     
-  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
+  
+  
+
   
 
   
@@ -524,7 +537,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>C++ type_traits</div>
-      <div>http://example.com/2026/05/09/C++类型萃取-type-traits/</div>
+      <div>http://example.com/2026/05/09/C++类型特性-type-traits/</div>
     </div>
     <div class="license-meta">
       

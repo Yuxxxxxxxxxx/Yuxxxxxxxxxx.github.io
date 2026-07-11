@@ -27,7 +27,7 @@
 <meta property="og:description" content="一、引言C++ 通过函数重载可以实现对不同数据类型完成同一功能，但是这样写重复的代码就显得很臃肿，且代码的复用率较低，每当出现一个 新类型，就需要增加对应的函数。 由此，引入了模板。所谓模板，顾名思义就是一个通用的描述。也就是使用泛型来定义函数，就是编写与类型无关的代码，其中泛型可通过具体的类型来（如 int 或 double）替换。通过将类型作为参数传递给模板，可使编译器生成该类型的的函数。 二">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-14T15:05:54.000Z">
-<meta property="article:modified_time" content="2026-05-07T14:13:00.847Z">
+<meta property="article:modified_time" content="2026-06-01T09:06:02.494Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="模板">
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          3.1k 字
         
       </span>
     
@@ -235,7 +235,7 @@
         
         
         
-          24 分钟
+          26 分钟
         
       </span>
     
@@ -328,7 +328,7 @@
 
 <p>我在测试的时候会报错：<code>类&quot;MyPair&lt;int *, int&gt;&quot; 没有成员 &quot;processPointer&quot;</code>，由此可见这个的规则匹配的是 <code>class MyPair&lt;T, int&gt;</code>。</p>
 <p>偏特化版本仍然是模板，它有自己的模板参数列表。它通过指定部分参数、参数类型（如指针、引用、数组）、或参数数量来比通用模板更具体。编译器在实例化时，会根据一个称为“模板参数推导和重载解析”的复杂规则，选择“最具体”的模板版本。匹配优先级为：全特化版本 &gt; 任何偏特化版本 &gt; 通用模板。</p>
-<h2 id="2-3-模板参数的匹配规则"><a href="#2-3-模板参数的匹配规则" class="headerlink" title="2.3 模板参数的匹配规则"></a>2.3 模板参数的匹配规则</h2><p>对于函数重载、函数模板和函数模板重载，C++需要(且有)一个定义良好的策略，来决定为函数调用使用哪一个函数定义，尤其是有多个参数时。这个过程称为重载解析（overloading resolution）。大致过程如下。</p>
+<h2 id="2-4-模板参数的匹配规则"><a href="#2-4-模板参数的匹配规则" class="headerlink" title="2.4 模板参数的匹配规则"></a>2.4 模板参数的匹配规则</h2><p>对于函数重载、函数模板和函数模板重载，C++需要(且有)一个定义良好的策略，来决定为函数调用使用哪一个函数定义，尤其是有多个参数时。这个过程称为重载解析（overloading resolution）。大致过程如下。</p>
 <ol>
 <li>创建候选函数列表。其中包含与被调用函数的名称相同的函数和模板函数</li>
 <li>使用候选函数列表创建可行函数列表。这些都是参数数目正确的函数，为此有一个隐式转换序列，其中包括实参类型与相应的形参类型完全匹配的情况。例如，使用 float 参数的函数调用可以将该参数转换为 double，从而与 double 形参匹配，而模板可以为 float 生成一个实例</li>
@@ -384,6 +384,14 @@
 <td>volatile Type *</td>
 </tr>
 </tbody></table>
+<h2 id="2-5-默认模板参数"><a href="#2-5-默认模板参数" class="headerlink" title="2.5 默认模板参数"></a>2.5 默认模板参数</h2><p>可以为模板参数定义默认值，这些值称为默认模板参数，可以用于任何类型的模板。</p>
+<blockquote>
+<p>C++11 前，因为历史原因，默认模板参数只允许在类模板中使用</p>
+</blockquote>
+<p>例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T = <span class="hljs-type">int</span>&gt;<br><span class="hljs-keyword">class</span> MyClass &#123;<br><span class="hljs-keyword">public</span>:<br>   T value;<br>   <span class="hljs-built_in">MyClass</span>(T val = <span class="hljs-number">0</span>) : <span class="hljs-built_in">value</span>(val) &#123;&#125;<br>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>   MyClass&lt;&gt; obj1; <span class="hljs-comment">// 使用默认的int类型</span><br>   <span class="hljs-function">MyClass&lt;<span class="hljs-type">double</span>&gt; <span class="hljs-title">obj2</span><span class="hljs-params">(<span class="hljs-number">3.14</span>)</span></span>; <span class="hljs-comment">// 使用指定的double类型</span><br>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注意：默认模板参数必须从右到左依次出现。例如，如果有多个模板参数，其中一些有默认值，那么这些带默认值的参数必须放在没有默认值的参数之后。</p>
 <h1 id="三、类模板"><a href="#三、类模板" class="headerlink" title="三、类模板"></a>三、类模板</h1><p>类模板是对成员数据类型不同的类的抽象，它说明了类的定义规则，<strong>一个类模板可以生成多种具体的类。与函数模板的定义形式类似， 类模板也是使用template关键字和尖括号“&lt;&gt;”中的模板形参进行说明，类的定义形式与普通类相同。</strong></p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T1</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">T2</span>, ..., <span class="hljs-keyword">class</span> <span class="hljs-title class_">Tn</span>&gt;<br><span class="hljs-keyword">class</span> 类模板名<br>&#123;<br>    <span class="hljs-comment">// 类成员定义</span><br>&#125;;<br></code></pre></td></tr></table></figure>
 

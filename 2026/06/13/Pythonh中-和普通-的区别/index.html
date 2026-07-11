@@ -1,0 +1,721 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在 Python 开发（特别是使用 PyTorch 进行深度学习训练）时，许多人认为 a &#x3D; a + b 和 a +&#x3D; b 是完全等价的。但在底层内存管理和性能表现上，它们有着本质的区别。理解这一点，对于优化数据处理管道和避免显存碎片化至关重要。 先看结论：  a + b：创建新对象，不会修改原变量 a，只是返回相加结果 a +&#x3D; b：原地修改（增量赋值），优先修改变量本身；分可变数据类型、不可变">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python中+&#x3D;和普通+的区别">
+<meta property="og:url" content="http://example.com/2026/06/13/Pythonh%E4%B8%AD-%E5%92%8C%E6%99%AE%E9%80%9A-%E7%9A%84%E5%8C%BA%E5%88%AB/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="在 Python 开发（特别是使用 PyTorch 进行深度学习训练）时，许多人认为 a &#x3D; a + b 和 a +&#x3D; b 是完全等价的。但在底层内存管理和性能表现上，它们有着本质的区别。理解这一点，对于优化数据处理管道和避免显存碎片化至关重要。 先看结论：  a + b：创建新对象，不会修改原变量 a，只是返回相加结果 a +&#x3D; b：原地修改（增量赋值），优先修改变量本身；分可变数据类型、不可变">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T07:42:10.000Z">
+<meta property="article:modified_time" content="2026-07-11T08:36:24.301Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="PyTorch">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Python中+=和普通+的区别 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Python中+=和普通+的区别"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-13 15:42" pubdate>
+          星期六, 六月 13日 2026, 3:42 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Python中+=和普通+的区别</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在 Python 开发（特别是使用 PyTorch 进行深度学习训练）时，许多人认为 <code>a = a + b</code> 和 <code>a += b</code> 是完全等价的。但在底层内存管理和性能表现上，它们有着本质的区别。理解这一点，对于优化数据处理管道和避免显存碎片化至关重要。</p>
+<p>先看结论：</p>
+<ul>
+<li><code>a + b</code>：<strong>创建新对象</strong>，不会修改原变量 <code>a</code>，只是返回相加结果</li>
+<li><code>a += b</code>：<strong>原地修改（增量赋值）</strong>，优先修改变量本身；分<strong>可变数据类型</strong>、<strong>不可变数据类型</strong>两种情况</li>
+</ul>
+<h1 id="一、可变数据类型与不可变数据类型"><a href="#一、可变数据类型与不可变数据类型" class="headerlink" title="一、可变数据类型与不可变数据类型"></a>一、可变数据类型与不可变数据类型</h1><p>Python3 中有六个标准的数据类型：</p>
+<ol>
+<li>Number（数字）</li>
+<li>String（字符串）</li>
+<li>List（列表）</li>
+<li>Tuple（元组）</li>
+<li>Set（集合）</li>
+<li>Dictionary（字典）</li>
+</ol>
+<p>其中：</p>
+<ul>
+<li>不可变数据（3 个）：Number（数字）、String（字符串）、Tuple（元组）；</li>
+<li>可变数据（3 个）：List（列表）、Dictionary（字典）、Set（集合）。</li>
+</ul>
+<h2 id="1-1-不可变数据类型"><a href="#1-1-不可变数据类型" class="headerlink" title="1.1 不可变数据类型"></a>1.1 不可变数据类型</h2><p>当该数据类型的对应变量的值发生了改变，那么它对应的内存地址也会发生改变，对于这种数据类型，就称不可变数据类型。 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">a = <span class="hljs-number">10</span><br>b = <span class="hljs-number">20</span><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a))<br>a = a + b<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a), a)<br>a = <span class="hljs-number">40</span><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a))<br>a += b<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a), a)<br>    <br><span class="hljs-string">&quot;&quot;&quot; output:</span><br><span class="hljs-string">2347873600016</span><br><span class="hljs-string">2347873600656 30</span><br><span class="hljs-string">2347873600976</span><br><span class="hljs-string">2347873601616 60</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="1-2-可变数据类型"><a href="#1-2-可变数据类型" class="headerlink" title="1.2 可变数据类型"></a>1.2 可变数据类型</h2><p>当该数据类型的对应变量的值发生了改变，那么它对应的内存地址不发生改变，对于这种数据类型，就称可变数据类型。 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">list</span> = [<span class="hljs-string">&quot;张三&quot;</span>, <span class="hljs-string">&quot;李四&quot;</span>, <span class="hljs-string">&quot;王五&quot;</span>]<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(<span class="hljs-built_in">list</span>))<br><span class="hljs-built_in">list</span>[<span class="hljs-number">0</span>] = <span class="hljs-string">&quot;阿三&quot;</span><br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(<span class="hljs-built_in">list</span>))<br><br><span class="hljs-string">&quot;&quot;&quot; output:</span><br><span class="hljs-string">list = [&quot;张三&quot;, &quot;李四&quot;, &quot;王五&quot;]</span><br><span class="hljs-string">print(id(list), list)</span><br><span class="hljs-string">list[0] = &quot;阿三&quot;</span><br><span class="hljs-string">print(id(list), list)</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、-和普通加法"><a href="#二、-和普通加法" class="headerlink" title="二、+&#x3D;和普通加法"></a>二、+&#x3D;和普通加法</h1><p>刚才研究了可变数据类型和不可变数据类型，下面回到加法的讨论。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">change_value</span>(<span class="hljs-params">data</span>):<br>    data += <span class="hljs-number">2</span> <span class="hljs-comment"># 原地运算，修改原tensor内存</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;change_value:id(data):<span class="hljs-subst">&#123;<span class="hljs-built_in">id</span>(data)&#125;</span>, data:<span class="hljs-subst">&#123;data&#125;</span>&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">not_change_value</span>(<span class="hljs-params">data</span>):<br>    data = data + <span class="hljs-number">2</span> <span class="hljs-comment"># 创建新tensor，仅修改局部变量data的指向</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;not_change_value, id(data):<span class="hljs-subst">&#123;<span class="hljs-built_in">id</span>(data)&#125;</span>,data:<span class="hljs-subst">&#123;data&#125;</span>&quot;</span>)<br>    <span class="hljs-keyword">return</span> data<br><br>x = torch.tensor([<span class="hljs-number">1</span>,<span class="hljs-number">2</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;original, id(x):<span class="hljs-subst">&#123;<span class="hljs-built_in">id</span>(x)&#125;</span>,x:<span class="hljs-subst">&#123;x&#125;</span>&quot;</span>)<br><br>change_value(x)<br>y = not_change_value(x)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;after not_change_value, id(x):<span class="hljs-subst">&#123;<span class="hljs-built_in">id</span>(x)&#125;</span>,x:<span class="hljs-subst">&#123;x&#125;</span>,id(y):<span class="hljs-subst">&#123;<span class="hljs-built_in">id</span>(y)&#125;</span>,y:<span class="hljs-subst">&#123;y&#125;</span>&quot;</span>)<br><br><span class="hljs-string">&quot;&quot;&quot; output:</span><br><span class="hljs-string">original, id(x):2667632061840,x:tensor([1, 2])</span><br><span class="hljs-string">change_value:id(data):2667632061840, data:tensor([3, 4])</span><br><span class="hljs-string">not_change_value, id(data):2667748901088,data:tensor([5, 6])</span><br><span class="hljs-string">after not_change_value, id(x):2667632061840,x:tensor([3, 4]),id(y):2667748901088,y:tensor([5, 6])</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里要注意一点：普通数字&#x2F;字符串是<strong>不可变对象</strong>，而 <code>torch.Tensor</code> 是<strong>可变容器对象</strong>，支持原地运算 <code>+=</code>。</p>
+<ul>
+<li><code>tensor += n</code>：原地自增，不新建张量</li>
+<li><code>tensor = tensor + n</code>：先计算 <code>tensor + n</code> 得到新张量，再把局部变量 <code>data</code> 指向新张量，和外部原张量断开关联</li>
+</ul>
+</blockquote>
+<p>由此可以看出，<code>data = data + 2</code> 这里其实是生成了一个全新的 <code>tensor</code>，然后将局部变量 data 重新绑定到这个新张量上，而原来外部 x 指向的张量没有发生变化，依旧是 <code>[3, 4]</code>。</p>
+<ol>
+<li><code>data += 2</code> 对应方法 <code>__iadd__</code>（原地加法）</li>
+</ol>
+<p>Tensor 实现了原地加法，逻辑：</p>
+<p> 直接在当前张量内存中修改数值，<strong>不分配新内存</strong></p>
+<p> 适用于 list、tensor、array 这类可变对象。</p>
+<ol start="2">
+<li><code>data = data + 2</code> 对应方法 <code>__add__</code>（普通加法）</li>
+</ol>
+<p>普通加法一定会创建新对象，流程：</p>
+<ol>
+<li>计算 <code>data + 2</code>，开辟新内存存储结果</li>
+<li>局部变量 <code>data</code> 放弃原有指向，绑定到新张量</li>
+<li>函数外的原变量 x 不受任何影响</li>
+</ol>
+<h1 id="三、应用"><a href="#三、应用" class="headerlink" title="三、应用"></a>三、应用</h1><p>为了方便进行原位操作，PyTorch 中的函数可以在调用之后加下划线，强调这是进行原位操作（在模型训练中经常用到的 <code>w.grad.zero()</code> 即为原位更新，注意 _ 是放在()之前的），简单得用上述例子进行实现，上述操作也可以这样使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">a = torch.ones((<span class="hljs-number">1</span>, ))<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a), a)<br><br>a.add_(torch.ones((<span class="hljs-number">1</span>,)))<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">id</span>(a),a)<br><br><span class="hljs-string">&quot;&quot;&quot; output:</span><br><span class="hljs-string">2018457103440 tensor([1.])</span><br><span class="hljs-string">2018457103440 tensor([2.])</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要注意的是，此种用下划线 _ 的原位操作方法在面对叶子节点的时候不可以使用。因为叶子节点在迭代过程中需要被用到其他量或梯度的求解，不允许被更改，如果轻易被修改，会导致其他的值计算错误。</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/PyTorch/" class="category-chain-item">PyTorch</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Python/" class="category-chain-item">Python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Python/" class="print-no-link">#Python</a>
+      
+        <a href="/tags/PyTorch/" class="print-no-link">#PyTorch</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Python中+=和普通+的区别</div>
+      <div>http://example.com/2026/06/13/Pythonh中-和普通-的区别/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/12/Pytorch%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" title="PyTorch安装过程记录">
+                        <span class="hidden-mobile">PyTorch安装过程记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

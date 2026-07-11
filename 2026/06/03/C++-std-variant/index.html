@@ -1,0 +1,706 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、基本概念std::variant 是C++17引入的一个新的标准库类型，它提供了一种类型安全的联合体（Type-safe Union）。这个类可以在同一时间持有几种可能类型中的一个值。 相较于传统的 C 风格 union，std::variant 最大的优势是类型安全：它知道自己当前存的是什么类型，并在析构时正确调用对应类型的析构函数，不会发生内存泄漏或未定义行为。 std::variant">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ std::variant">
+<meta property="og:url" content="http://example.com/2026/06/03/C++-std-variant/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、基本概念std::variant 是C++17引入的一个新的标准库类型，它提供了一种类型安全的联合体（Type-safe Union）。这个类可以在同一时间持有几种可能类型中的一个值。 相较于传统的 C 风格 union，std::variant 最大的优势是类型安全：它知道自己当前存的是什么类型，并在析构时正确调用对应类型的析构函数，不会发生内存泄漏或未定义行为。 std::variant">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-03T11:58:53.000Z">
+<meta property="article:modified_time" content="2026-06-15T12:35:23.536Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++17">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>C++ std::variant - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++ std::variant"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-03 19:58" pubdate>
+          星期三, 六月 3日 2026, 7:58 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++ std::variant</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h1><p><code>std::variant</code> 是C++17引入的一个新的标准库类型，它提供了一种类型安全的联合体（Type-safe Union）。这个类可以在同一时间持有几种可能类型中的一个值。</p>
+<p>相较于传统的 C 风格 <code>union</code>，<code>std::variant</code> 最大的优势是<strong>类型安全</strong>：它知道自己当前存的是什么类型，并在析构时正确调用对应类型的析构函数，不会发生内存泄漏或未定义行为。</p>
+<p><code>std::variant</code> 是一个模板类，可以存储几种不同类型中的一个值。它的声明如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span>... Types&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">variant</span>;<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>类型安全</strong>：与C风格的联合体不同，<code>std::variant</code> 是类型安全的。</li>
+<li><strong>无默认构造</strong>：如果第一个类型不是默认构造的，那么 <code>std::variant</code> 也不是默认构造的。</li>
+<li><strong>不允许引用、数组和void</strong>：这些类型不能作为 <code>std::variant</code> 的可选类型。</li>
+<li><strong>可以为空</strong>：通过使用 <code>std::monostate</code> 作为第一个类型，<code>std::variant</code> 可以表示”无值”状态。</li>
+<li><strong>内存分配</strong>：<strong>完全分配在栈上</strong>，不会发生动态内存分配（Heap Allocation），因此其性能显著优于基于多态（<code>std::unique_ptr</code>）或 <code>std::any</code> 的方案。</li>
+<li><strong>内存大小</strong>：<code>sizeof(std::variant)</code> 大约为 <code>max(sizeof(T1), sizeof(T2), sizeof(T3)) + sizeof(size_t)</code>（因为需要一个额外的 index 标记来记录当前是哪种类型）。</li>
+</ol>
+<h1 id="二、基本用法"><a href="#二、基本用法" class="headerlink" title="二、基本用法"></a>二、基本用法</h1><p>创建和访问：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::variant&lt;<span class="hljs-type">int</span>, <span class="hljs-type">float</span>, std::string&gt; v;<br>    v = <span class="hljs-number">42</span>; <span class="hljs-comment">// v 现在包含 int</span><br>    std::cout &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-type">int</span>&gt;(v) &lt;&lt; std::endl; <span class="hljs-comment">// 输出：42</span><br>    <br>    v = <span class="hljs-number">3.14f</span>; <span class="hljs-comment">// v 现在包含 float</span><br>    std::cout &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-type">float</span>&gt;(v) &lt;&lt; std::endl; <span class="hljs-comment">// 输出：3.14</span><br>    <br>    v = <span class="hljs-string">&quot;hello&quot;</span>; <span class="hljs-comment">// v 现在包含 string</span><br>    std::cout &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;std::string&gt;(v) &lt;&lt; std::endl; <span class="hljs-comment">// 输出：hello</span><br>    <br>    <span class="hljs-comment">// 使用 std::get_if 安全地获取值</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span> intPtr = std::<span class="hljs-built_in">get_if</span>&lt;<span class="hljs-type">int</span>&gt;(&amp;v)) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;It&#x27;s an int: &quot;</span> &lt;&lt; *intPtr &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;It&#x27;s not an int&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 使用 <code>std::holds_alternative</code> 检查当前类型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printValue</span><span class="hljs-params">(<span class="hljs-type">const</span> std::variant&lt;<span class="hljs-type">int</span>, <span class="hljs-type">double</span>, std::string&gt;&amp; v)</span> </span>&#123;<br>    <span class="hljs-comment">// 1. 检查当前是否持有某种类型</span><br>    <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">holds_alternative</span>&lt;<span class="hljs-type">int</span>&gt;(v)) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Int: &quot;</span> &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-type">int</span>&gt;(v) &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125; <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">holds_alternative</span>&lt;<span class="hljs-type">double</span>&gt;(v)) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Double: &quot;</span> &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-type">double</span>&gt;(v) &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125; <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">holds_alternative</span>&lt;std::string&gt;(v)) &#123;<br>        <span class="hljs-comment">// 使用 std::get 获取值（如果类型不匹配会抛出 std::bad_variant_access 异常）</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;String: &quot;</span> &lt;&lt; std::<span class="hljs-built_in">get</span>&lt;std::string&gt;(v) &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>std::visit</code> 访问：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br> <br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Visitor</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;It&#x27;s an int: &quot;</span> &lt;&lt; i &lt;&lt; std::endl; &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">float</span> f)</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;It&#x27;s a float: &quot;</span> &lt;&lt; f &lt;&lt; std::endl; &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; s)</span> </span>&#123; std::cout &lt;&lt; <span class="hljs-string">&quot;It&#x27;s a string: &quot;</span> &lt;&lt; s &lt;&lt; std::endl; &#125;<br>&#125;;<br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::variant&lt;<span class="hljs-type">int</span>, <span class="hljs-type">float</span>, std::string&gt; v = <span class="hljs-number">42</span>;<br>    std::<span class="hljs-built_in">visit</span>(Visitor&#123;&#125;, v); <span class="hljs-comment">// 输出：It&#x27;s an int: 42</span><br>    <br>    v = <span class="hljs-number">3.14f</span>;<br>    std::<span class="hljs-built_in">visit</span>(Visitor&#123;&#125;, v); <span class="hljs-comment">// 输出：It&#x27;s a float: 3.14</span><br>    <br>    v = <span class="hljs-string">&quot;hello&quot;</span>;<br>    std::<span class="hljs-built_in">visit</span>(Visitor&#123;&#125;, v); <span class="hljs-comment">// 输出：It&#x27;s a string: hello</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>使用 <code>std::monostate</code> (<code>std::monostate</code> 可以用来表示 “无值” 状态)：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::variant&lt;std::monostate, <span class="hljs-type">int</span>, std::string&gt; v;<br>    <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">holds_alternative</span>&lt;std::monostate&gt;(v)) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;The variant is empty&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>异常处理 -  当尝试访问错误的类型时，<code>std::get</code> 会抛出 <code>std::bad_variant_access</code> 异常：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdexcept&gt;</span></span><br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::variant&lt;<span class="hljs-type">int</span>, std::string&gt; v = <span class="hljs-number">42</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        std::<span class="hljs-built_in">get</span>&lt;std::string&gt;(v); <span class="hljs-comment">// 这会抛出异常</span><br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_variant_access&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>lambda 表达式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 网络连接的不同状态</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Connecting</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Connected</span> &#123; std::string ip; <span class="hljs-type">uint16_t</span> port; &#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Disconnected</span> &#123; std::string reason; &#125;;<br><br><span class="hljs-keyword">using</span> ConnectionState = std::variant&lt;Connecting, Connected, Disconnected&gt;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleState</span><span class="hljs-params">(<span class="hljs-type">const</span> ConnectionState&amp; state)</span> </span>&#123;<br>    std::<span class="hljs-built_in">visit</span>(overloaded &#123;<br>        [](<span class="hljs-type">const</span> Connecting&amp;) &#123; <br>            std::cout &lt;&lt; <span class="hljs-string">&quot;Connecting to server...\n&quot;</span>; <br>        &#125;,<br>        [](<span class="hljs-type">const</span> Connected&amp; conn) &#123; <br>            std::cout &lt;&lt; <span class="hljs-string">&quot;Connected to &quot;</span> &lt;&lt; conn.ip &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; conn.port &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>; <br>        &#125;,<br>        [](<span class="hljs-type">const</span> Disconnected&amp; dis) &#123; <br>            std::cout &lt;&lt; <span class="hljs-string">&quot;Disconnected! Reason: &quot;</span> &lt;&lt; dis.reason &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>; <br>        &#125;<br>    &#125;, state);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、使用注意"><a href="#三、使用注意" class="headerlink" title="三、使用注意"></a>三、使用注意</h1><p><code>std::variant</code> 在极少数情况下可能处于“无价值”状态。 例如：当你在给 <code>variant</code> 赋予一个新类型值时，新值的构造函数抛出了异常，此时旧的值已经被销毁，而新的值没有构造成功。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">BadCopy</span> &#123;<br>    <span class="hljs-built_in">BadCopy</span>() = <span class="hljs-keyword">default</span>;<br>    <span class="hljs-built_in">BadCopy</span>(<span class="hljs-type">const</span> BadCopy&amp;) &#123; <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Copy failed!&quot;</span>); &#125;<br>&#125;;<br><br>std::variant&lt;<span class="hljs-type">int</span>, BadCopy&gt; v = <span class="hljs-number">10</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    v = BadCopy&#123;&#125;; <span class="hljs-comment">// 赋值时抛出异常</span><br>&#125; <span class="hljs-built_in">catch</span> (...) &#123;<br>    <span class="hljs-comment">// 此时 v 可能不保存任何类型</span><br>    <span class="hljs-keyword">if</span> (v.<span class="hljs-built_in">valueless_by_exception</span>()) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Variant is empty/invalid!\n&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果 <code>std::variant</code> 的第一个类型没有默认构造函数，那么整个 <code>variant</code> 无法默认构造。</p>
+<ul>
+<li><strong>解决方法</strong>：将 <code>std::monostate</code> 作为第一个类型，用作占位符（代表空值&#x2F;未初始化状态）。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;variant&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">NoDefault</span> &#123;<br>    <span class="hljs-built_in">NoDefault</span>(<span class="hljs-type">int</span> x) &#123;&#125; <span class="hljs-comment">// 没有默认构造函数</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 编译失败：</span><br>    <span class="hljs-comment">// std::variant&lt;NoDefault, int&gt; v1; </span><br><br>    <span class="hljs-comment">// 编译成功：使用 std::monostate 充当“空”状态</span><br>    std::variant&lt;std::monostate, NoDefault, <span class="hljs-type">int</span>&gt; v2; <br>    <br>    <span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">holds_alternative</span>&lt;std::monostate&gt;(v2)) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Variant is currently empty (monostate)\n&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/C-17/" class="print-no-link">#C++17</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++ std::variant</div>
+      <div>http://example.com/2026/06/03/C++-std-variant/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/05/C++-std-any/" title="C++ std::any">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++ std::any</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/01/C++-std-optional/" title="C++ std::optional">
+                        <span class="hidden-mobile">C++ std::optional</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

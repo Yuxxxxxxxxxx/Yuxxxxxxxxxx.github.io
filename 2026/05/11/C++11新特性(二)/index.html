@@ -19,15 +19,15 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支">
+    <meta name="description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和 C++ 的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++11新特性(二)">
 <meta property="og:url" content="http://example.com/2026/05/11/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%BA%8C)/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支">
+<meta property="og:description" content="一、nullptr在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif  根本原因和 C++ 的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-11T12:52:11.000Z">
-<meta property="article:modified_time" content="2026-05-12T05:21:43.128Z">
+<meta property="article:modified_time" content="2026-05-29T03:00:02.044Z">
 <meta property="article:author" content="Yu xin">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="C++11">
@@ -225,7 +225,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.5k 字
+          2.7k 字
         
       </span>
     
@@ -236,7 +236,7 @@
         
         
         
-          22 分钟
+          23 分钟
         
       </span>
     
@@ -281,8 +281,16 @@
                 <h1 id="一、nullptr"><a href="#一、nullptr" class="headerlink" title="一、nullptr"></a>一、nullptr</h1><p>在引入 <code>nullptr</code> 之前，C 和 C++ 使用的都是 <code>NULL</code>，但对于它的定义是不同的：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> NULL</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cplusplus</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NULL 0</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NULL ((void *)0)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
-<p>根本原因和C++的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支持 <code>void*</code> 的隐式类型转换，则会带来语义二义性的问题。 </p>
-<p><code>nullptr</code> 是 C++11 用来表示空指针新引入的常量值，在 C++ 中如果表示空指针语义时建议使用 <code>nullptr</code> 而不要使用 <code>NULL</code>，因为 <code>NULL</code> 本质上是个 int 型的 0，其实不是个指针。</p>
+<p>根本原因和 C++ 的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果继续支持 <code>void*</code> 的隐式类型转换，则会带来语义二义性的问题。</p>
+<p>C++ 不允许直接将 <code>void *</code> 隐式转换到其他类型。但如果编译器尝试把 NULL 定义为 <code>((void*)0)</code>，那么在下面这句代码中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">char</span> *ch = <span class="hljs-literal">NULL</span>;<br></code></pre></td></tr></table></figure>
+
+<p>没有了 <code>void *</code> 隐式转换的 C++ 只好将 NULL 定义为 0。而这依然会产生新的问题，将 NULL 定义成 0 将导致 C++ 中重载特性发生混乱。考虑下面这两个 foo 函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">char</span> *)</span></span>;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>那么 <code>foo(NULL);</code> 这个语句将会去调用 <code>foo(int)</code>，从而导致代码违反直觉。</p>
+<p><code>nullptr</code> 是 C++11 用来表示空指针新引入的常量值，专门用来区分空指针和 0。而 nullptr 的类型为 <code>nullptr_t</code>，能够隐式的转换为任何指针或成员指针的类型，也能和他们进行相等或者不等的比较。</p>
+<p>在 C++ 中如果表示空指针语义时建议使用 <code>nullptr</code> 而不要使用 <code>NULL</code>，因为 <code>NULL</code> 本质上是个 int 型的 0，其实不是个指针。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">void</span> *ptr)</span> </span>&#123;<br>    cout &lt;&lt; <span class="hljs-string">&quot;func ptr&quot;</span> &lt;&lt; endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> i)</span> </span>&#123;<br>    cout &lt;&lt; <span class="hljs-string">&quot;func i&quot;</span> &lt;&lt; endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">func</span>(<span class="hljs-literal">NULL</span>); <span class="hljs-comment">// 编译失败，会产生二义性</span><br>    <span class="hljs-built_in">func</span>(<span class="hljs-literal">nullptr</span>); <span class="hljs-comment">// 输出func ptr</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 

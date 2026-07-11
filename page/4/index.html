@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" target="_self">
-          Git 查错记录
+        <a href="/2026/05/10/C++RAII%E5%8E%9F%E7%90%86/" target="_self">
+          C++ RAII原理
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/10/C++RAII%E5%8E%9F%E7%90%86/" target="_self">
         <div>
-          [toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read f
+          在 C++ 中，RAII (Resource Acquisition Is Initialization，资源获取即初始化) 是最核心的编程范式之一。它利用 C++ 的对象生命周期管理机制（构造函数与析构函数），实现对资源的自动化管理，从而避免内存泄漏、死锁等问题。  RAII 不是一种特殊的语法，而是 C++ 生命周期机制的一种应用习惯。只要遵循“将资源封装在对象内，并在析构函数中释放资源”这一
         </div>
       </a>
 
@@ -245,8 +245,503 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-11-03 20:18" pubdate>
-              2024-11-03
+            <time datetime="2026-05-10 14:03" pubdate>
+              2026-05-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E7%89%B9%E6%80%A7-type-traits/" target="_self">
+          C++ type_traits
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E7%89%B9%E6%80%A7-type-traits/" target="_self">
+        <div>
+          一、什么是 type_traitstype_traits(类型特性) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。  &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是指
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-05-09 10:47" pubdate>
+              2026-05-09
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" target="_self">
+          C++右值引用
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" target="_self">
+        <div>
+          一、左值、右值1.1 什么是左值、右值1int a = 5;  简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;    A(
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-05-08 22:50" pubdate>
+              2026-05-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/" target="_self">
+          C++模板参数推导
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/" target="_self">
+        <div>
+          一、基本概念模板参数推导（Template Argument Deduction） 是编译器自动分析函数模板调用时的实参类型，从而确定模板参数的过程。  其核心工作就是当调用一个函数模板时，编译器会尝试将调用时传入的实参类型（A）与模板定义中的参数类型（P）进行匹配。  123template &lt;typename T&gt;void func(T param);func(10); // 编译
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-05-06 22:19" pubdate>
+              2026-05-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/04/16/C++-%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9A%84typename/" target="_self">
+          C++模板中的typename
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/16/C++-%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9A%84typename/" target="_self">
+        <div>
+          一、class 和 typename如下例所示： 123456// 以下两种写法完全等价template &lt;typename T&gt;void func(T t) &#123;&#125;template &lt;class T&gt;void func(T t) &#123;&#125;  历史原因：class 是 C++98 引入模板时的关键字，typename 是后来加入的。现在更推
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-04-16 19:43" pubdate>
+              2026-04-16
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" target="_self">
+          C++11新特性(一)
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" target="_self">
+        <div>
+          一、auto &amp; decltype1.1 autoauto：让编译器在编译器就推导出变量的类型，可以通过&#x3D;右边的类型推导出变量的类型。  123456auto a = 10; // 10是int型，可以自动推导出a是intint i = 10;auto b = i; // b是int型auto d = 2.0; // d是double型  auto 推导规则：  auto 的使用
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-04-15 00:09" pubdate>
+              2026-04-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/C-11/">#C++11</a>
+            
+              <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/">#语言特性</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/04/14/C++-%E6%A8%A1%E6%9D%BF/" target="_self">
+          C++ 模板
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/14/C++-%E6%A8%A1%E6%9D%BF/" target="_self">
+        <div>
+          一、引言C++ 通过函数重载可以实现对不同数据类型完成同一功能，但是这样写重复的代码就显得很臃肿，且代码的复用率较低，每当出现一个 新类型，就需要增加对应的函数。 由此，引入了模板。所谓模板，顾名思义就是一个通用的描述。也就是使用泛型来定义函数，就是编写与类型无关的代码，其中泛型可通过具体的类型来（如 int 或 double）替换。通过将类型作为参数传递给模板，可使编译器生成该类型的的函数。 二
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-04-14 23:05" pubdate>
+              2026-04-14
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/02/13/Git%E6%9C%AC%E5%9C%B0%E4%B8%8EGithub%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E5%90%8C%E6%AD%A5/" target="_self">
+          Git本地与Github远程仓库同步
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/02/13/Git%E6%9C%AC%E5%9C%B0%E4%B8%8EGithub%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E5%90%8C%E6%AD%A5/" target="_self">
+        <div>
+          一、同步流程1、创建远程仓库如果还没有远程仓库，先在 Github 上创建远程仓库 2、克隆远程仓库首次使用远程仓库时，使用 git clone 命令将其克隆到本地： HTTPS 方式： 1git clone https://github.com/用户名/仓库名.git  SSH 方式（推荐）： 1git clone git@github.com:用户名/仓库名.git    如果你有现有的本地项
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-02-13 00:10" pubdate>
+              2026-02-13
             </time>
           </div>
         
@@ -283,10 +778,10 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+            
               <a href="/tags/Git/">#Git</a>
             
-              <a href="/tags/%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/">#查错记录</a>
-            
           </div>
         
       </div>
@@ -299,15 +794,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" target="_self">
-          【STM32】通过 DWT 实现毫秒级延时
+        <a href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" target="_self">
+          C语言中的可变参数和可变参数宏
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/26/C%E8%AF%AD%E8%A8%80%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%92%8C%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%E5%AE%8F/" target="_self">
         <div>
-          [toc]  零、前言在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容
+          一、可变参数在 C 语言中实现可变参数需要用到这下面这几个数据类型和函数（其实是宏定义）：  va_list va_start va_arg va_end  处理动态参数的过程是下面这 4 个步骤：  定义一个变量 va_list arg； 调用 va_start 来初始化 arg 变量，传入的第二个参数是可变参数(三个点)前面的那个变量； 使用 va_arg 函数提取可变参数：循环从 arg 中
         </div>
       </a>
 
@@ -315,8 +810,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-11-02 11:03" pubdate>
-              2024-11-02
+            <time datetime="2024-12-26 22:45" pubdate>
+              2024-12-26
             </time>
           </div>
         
@@ -331,15 +826,69 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  <a href="/categories/C%E8%AF%AD%E8%A8%80/" class="category-chain-item">C语言</a>
   
   
 
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C%E8%AF%AD%E8%A8%80/">#C语言</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" target="_self">
+          由 printf(结构体) 引发的错误
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/" target="_self">
+        <div>
+          一、问题引入首先，测试环境如下：  下面是测试代码： 12345678910111213141516171819#include &lt;unistd.h&gt;#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;typedef struct&#123;    int age;    char name[8];&#125; student;int ma
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-26 19:02" pubdate>
+              2024-12-26
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C%E8%AF%AD%E8%A8%80/" class="category-chain-item">C语言</a>
+  
   
 
       </span>
@@ -355,555 +904,7 @@
             
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/STM32/">#STM32</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" target="_self">
-          BLE 协议之 L2CAP
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" target="_self">
-        <div>
-          [toc]   一、简介经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel 只
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-11-01 18:49" pubdate>
-              2024-11-01
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
-            
-              <a href="/tags/BLE/">#BLE</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" target="_self">
-          BLE 协议之传输层
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" target="_self">
-        <div>
-          [toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。 上图即是 UART 传输层的功能框图。 一、HCI 简介 Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Control
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-25 08:42" pubdate>
-              2024-10-25
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
-            
-              <a href="/tags/BLE/">#BLE</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/24/STM32-Backtrace/" target="_self">
-          STM32 调试之栈回溯和 CmBacktrace 的使用
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/24/STM32-Backtrace/" target="_self">
-        <div>
-          [toc]  一、栈回溯1、寄存器知识在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP PSP(SP_process) MSP(SP_main)   1 个链
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-24 00:35" pubdate>
-              2024-10-24
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/STM32/">#STM32</a>
-            
-              <a href="/tags/%E8%B0%83%E8%AF%95/">#调试</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
-          动态链接过程分析
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
-        <div>
-          [toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-23 09:12" pubdate>
-              2024-10-23
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/">#动态链接</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
-          静态链接过程分析
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
-        <div>
-          @toc   本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)  一、开始首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021// swap.cint shared = 1;void swap(int *a, int *b)&#123;    in
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-22 12:18" pubdate>
-              2024-10-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5/">#静态链接</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
-          ESP32-IDF 非易失存储 NVS
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
-        <div>
-          @toc  零、前言NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行&#x3D;&#x3D;键值对&#x3D;&#x3D;的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-21 00:18" pubdate>
-              2024-10-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/ESP32/">#ESP32</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
-          ESP32-IDF 分区表
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
-        <div>
-          [toc]  一、基本介绍使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体1.1 esp_partition_t1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the par
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-20 08:18" pubdate>
-              2024-10-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/ESP32/">#ESP32</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
-          ESP32-IDF 通用定时器 GPTimer
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
-        <div>
-          @toc  一、基本介绍1、配置结构体1.1 gptimer_config_t1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      /*!&lt; GPTimer clock source */    gptimer_count_direction_t direction; /*!&lt;
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-19 08:33" pubdate>
-              2024-10-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/ESP32/">#ESP32</a>
+              <a href="/tags/C%E8%AF%AD%E8%A8%80/">#C语言</a>
             
           </div>
         
@@ -915,7 +916,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

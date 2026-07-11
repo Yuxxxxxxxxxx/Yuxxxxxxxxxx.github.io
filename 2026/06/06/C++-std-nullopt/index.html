@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、基本概念简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于“无值”（空）的状态。 在底层，std::nullopt 的定义非常简单：  它的类型是 **std::nullopt_t**（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常量">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ std::nullopt">
+<meta property="og:url" content="http://example.com/2026/06/06/C++-std-nullopt/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、基本概念简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于“无值”（空）的状态。 在底层，std::nullopt 的定义非常简单：  它的类型是 **std::nullopt_t**（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常量">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-06T08:43:57.000Z">
+<meta property="article:modified_time" content="2026-06-23T08:31:24.129Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++17">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>C++ std::nullopt - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++ std::nullopt"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-06 16:43" pubdate>
+          星期六, 六月 6日 2026, 4:43 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          729 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          7 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++ std::nullopt</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h1><p>简单来说，<code>std::nullopt</code> 是一个<strong>哨兵值（Sentinel Value）</strong>，专门用来表示 <code>std::optional</code> 处于<strong>“无值”（空）的状态</strong>。</p>
+<p>在底层，<code>std::nullopt</code> 的定义非常简单：</p>
+<ul>
+<li>它的类型是 **<code>std::nullopt_t</code>**（一个空的强类型结构体）。</li>
+<li><code>std::nullopt</code> 是 <code>std::nullopt_t</code> 的一个 <code>inline constexpr</code> 常量。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 标准库中的简化定义</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">nullopt_t</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-title">nullopt_t</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span> </span>&#123;&#125; <span class="hljs-comment">// 防止隐式转换</span><br>&#125;;<br><br><span class="hljs-keyword">inline</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">nullopt_t</span> <span class="hljs-literal">nullopt</span>&#123;<span class="hljs-number">0</span>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p><code>std::optional</code> 重载了接受 <code>std::nullopt_t</code> 的构造函数和赋值运算符。因此，当你把 <code>std::nullopt</code> 赋给 <code>std::optional</code> 时，它知道应该将内部状态标记为“空”。</p>
+<h1 id="二、使用场景"><a href="#二、使用场景" class="headerlink" title="二、使用场景"></a>二、使用场景</h1><ol>
+<li><p>作为函数返回值（表示失败或无结果）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;optional&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-function">std::optional&lt;<span class="hljs-type">double</span>&gt; <span class="hljs-title">safeDivide</span><span class="hljs-params">(<span class="hljs-type">double</span> a, <span class="hljs-type">double</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (b == <span class="hljs-number">0.0</span>) &#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-literal">nullopt</span>; <span class="hljs-comment">// 明确表达：由于除以0，无法返回有效计算结果</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> a / b;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>显示初始化</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 隐式初始化为空</span><br>std::optional&lt;<span class="hljs-type">int</span>&gt; opt1; <br><br><span class="hljs-comment">// 显式初始化为空（可读性更强，一眼看出它是可选的且当前为空）</span><br>std::optional&lt;<span class="hljs-type">int</span>&gt; opt2 = std::<span class="hljs-literal">nullopt</span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>重置一个 <code>std::optinonal</code> 对象</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;std::string&gt; cache = <span class="hljs-string">&quot;some cached data&quot;</span>;<br><br><span class="hljs-comment">// 方法 1：赋值为 std::nullopt（非常直观）</span><br>cache = std::<span class="hljs-literal">nullopt</span>; <br><br><span class="hljs-comment">// 方法 2：调用 .reset() 方法（效果完全相同）</span><br>cache.<span class="hljs-built_in">reset</span>();<br><br><span class="hljs-comment">// 注：此时 std::optional 内部保存的对象会被析构，释放其占用的资源，但 std::optional 本身占用的栈内存不会释放。</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>条件对比</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;<span class="hljs-type">int</span>&gt; opt = <span class="hljs-built_in">getSomeValue</span>();<br><br><span class="hljs-keyword">if</span> (opt == std::<span class="hljs-literal">nullopt</span>) &#123;<br>    <span class="hljs-comment">// 处理空值情况</span><br>&#125;<br><br><span class="hljs-comment">// 虽然这与下面的写法等价，但在某些语境下，与 nullopt 显式对比可读性更好：</span><br><span class="hljs-keyword">if</span> (!opt.<span class="hljs-built_in">has_value</span>()) &#123; ... &#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="三、std-nullopt-vs-nullptr-vs-NULL"><a href="#三、std-nullopt-vs-nullptr-vs-NULL" class="headerlink" title="三、std::nullopt vs nullptr vs NULL"></a>三、<code>std::nullopt</code> vs <code>nullptr</code> vs <code>NULL</code></h1><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left"><code>std::nullopt</code></th>
+<th align="left"><code>nullptr</code></th>
+<th align="left"><code>NULL</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>所属标准</strong></td>
+<td align="left">C++17</td>
+<td align="left">C++11</td>
+<td align="left">C++98 &#x2F; C 语言遗留</td>
+</tr>
+<tr>
+<td align="left"><strong>设计目的</strong></td>
+<td align="left">表示 <code>std::optional</code> 为空</td>
+<td align="left">表示<strong>空指针</strong>（不指向任何内存）</td>
+<td align="left">表示空指针（宏定义，通常是 <code>0</code>）</td>
+</tr>
+<tr>
+<td align="left"><strong>对应类型</strong></td>
+<td align="left"><code>std::nullopt_t</code></td>
+<td align="left"><code>std::nullptr_t</code></td>
+<td align="left">整型 <code>0</code> 或 <code>(void*)0</code></td>
+</tr>
+<tr>
+<td align="left"><strong>安全性</strong></td>
+<td align="left"><strong>极高</strong>（强类型，防止各种隐式转换）</td>
+<td align="left"><strong>高</strong>（解决 <code>NULL</code> 的整型重载二义性）</td>
+<td align="left"><strong>低</strong>（容易引发重载混乱和安全隐患）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>为什么不能用 <code>nullptr</code> 代替 <code>std::nullopt</code>？</p>
+</blockquote>
+<p>因为 <code>std::optional</code> 保存的是<strong>值</strong>，而不是<strong>指针</strong>。 如果一个 <code>std::optional</code> 保存的是一个指针，那么：</p>
+<ul>
+<li><code>opt = nullptr;</code> 意味着：<code>opt</code> <strong>有值</strong>，但这个值是一个<strong>空指针</strong>（<code>*opt</code> 的结果是 <code>nullptr</code>）。</li>
+<li><code>opt = std::nullopt;</code> 意味着：<code>opt</code> <strong>没有值</strong>（你连指针都没有，尝试 <code>*opt</code> 会触发未定义行为或抛出异常）。</li>
+</ul>
+<p>这就是类型安全的美妙之处，<code>std::nullopt</code> 完美规避了这种语义模糊。</p>
+<ol>
+<li><strong>写返回值时</strong>：如果函数可能无法产生值，返回 <code>std::nullopt</code> 比返回魔术值（如 <code>-1</code>、空字符串 <code>&quot;&quot;</code>）要安全和优雅得多。</li>
+<li><strong>清空对象时</strong>：<code>opt = std::nullopt;</code> 比 <code>opt = &#123;&#125;;</code> 语义更清晰。</li>
+<li><strong>不要滥用比较</strong>：虽然 <code>if (opt != std::nullopt)</code> 可行，但通常直接写 <code>if (opt)</code> 或 <code>if (opt.has_value())</code> 更符合 C++ 的现代习惯。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/C-17/" class="print-no-link">#C++17</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++ std::nullopt</div>
+      <div>http://example.com/2026/06/06/C++-std-nullopt/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/07/C++-%E5%8F%98%E9%87%8F%E6%A8%A1%E6%9D%BF/" title="C++ 变量模板">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++ 变量模板</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/05/C++-std-any/" title="C++ std::any">
+                        <span class="hidden-mobile">C++ std::any</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

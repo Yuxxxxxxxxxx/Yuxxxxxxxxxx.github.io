@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" target="_self">
-          STM32 通过 SPI 驱动 W25Q128
+        <a href="/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/" target="_self">
+          CMake 教程（二）添加库
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/15/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93/" target="_self">
         <div>
-          [toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128  一、STM32 SPI 框图 1、通讯引脚这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图： 所以连接方式为： 1
+          @toc  在第一节 CMake 教程（一）初识 CMake 中，我们已经了解和实现了通过 CMake 来创建一个基本项目。本节我们将通过两个实例来学习如何在项目中创建和使用库。 一、实例一——创建库1、add_library要在 CMake 中添加库，就需要使用 add_library 命令来指定哪些源文件应组成库。 1add_library(&lt;name&gt; [&lt;type&gt;
         </div>
       </a>
 
@@ -245,8 +245,148 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-21 13:33" pubdate>
-              2024-09-21
+            <time datetime="2024-10-15 17:45" pubdate>
+              2024-10-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/CMake/">#CMake</a>
+            
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" target="_self">
+          CMake 教程（一）初识 CMake
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/14/%E5%88%9D%E8%AF%86-CMake/" target="_self">
+        <div>
+          [toc]  CMake 是个一个开源的跨平台自动化建构系统，用来管理软件建置的程序，并不依赖于某特定编译器，并可支持多层目录、多个应用程序与多个函数库。 CMake 通过使用简单的配置文件 CMakeLists.txt，自动生成不同平台的构建文件（如 Makefile、Ninja 构建文件、Visual Studio 工程文件等），简化了项目的编译和构建过程。 CMake 本身不是构建工具，而是
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-14 21:36" pubdate>
+              2024-10-14
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/CMake/" class="category-chain-item">CMake</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/CMake/">#CMake</a>
+            
+              <a href="/tags/%E5%B7%A5%E5%85%B7/">#工具</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" target="_self">
+          Cortex-M 内核的 OS 特性
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/" target="_self">
+        <div>
+          @toc  一、通用堆栈知识在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-13 13:08" pubdate>
+              2024-10-13
             </time>
           </div>
         
@@ -287,8 +427,6 @@
             
               <a href="/tags/STM32/">#STM32</a>
             
-              <a href="/tags/SPI/">#SPI</a>
-            
           </div>
         
       </div>
@@ -301,15 +439,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" target="_self">
-          BLE 协议之链路层
+        <a href="/2024/10/10/DMA/" target="_self">
+          DMA 详解
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/10/DMA/" target="_self">
         <div>
-          [toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel
+          [toc]  一、简介DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的
         </div>
       </a>
 
@@ -317,78 +455,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-20 12:42" pubdate>
-              2024-09-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
-            
-              <a href="/tags/BLE/">#BLE</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" target="_self">
-          STM32 芯片启动过程
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" target="_self">
-        <div>
-          @toc  一、前言下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_sp、PC = Reset_Handler 初始化中断向量表 配置系统时钟 调用 C 库函数 _main 初始化用户堆栈，然后进入 main 函数  二、STM32 的启动模式启动模式决定了中断向量表的位置，STM32 有三种启动模式：  主闪存存储器启动：从 ST
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-18 16:56" pubdate>
-              2024-09-18
+            <time datetime="2024-10-10 18:35" pubdate>
+              2024-10-10
             </time>
           </div>
         
@@ -441,15 +509,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" target="_self">
-          BLE 协议之物理层
+        <a href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" target="_self">
+          STM32 位带操作
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/" target="_self">
         <div>
-          @toc   一、概述 物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym&#x2F;s 的无编码物理层 2M Sym&#x2F;s 的无编码物理层 1M Sy
+          [toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 = P2^0; // 控制到 P2.0 脚LED1 = 0; // 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D
         </div>
       </a>
 
@@ -457,8 +525,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-17 10:34" pubdate>
-              2024-09-17
+            <time datetime="2024-10-08 14:44" pubdate>
+              2024-10-08
             </time>
           </div>
         
@@ -473,12 +541,12 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
     <span>></span>
     
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/BLE/" class="category-chain-item">BLE</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
   
   
 
@@ -495,9 +563,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/BLE/">#BLE</a>
+              <a href="/tags/STM32/">#STM32</a>
             
           </div>
         
@@ -511,15 +579,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" target="_self">
-          结构体内存对齐
+        <a href="/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/" target="_self">
+          Cortex-M3/M4/M7 芯片 Fault 分析原理与实战
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/" target="_self">
         <div>
-          [toc]  一、什么是结构体内存对齐进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024];  思考一下 	nod
+          [toc]  一、简介1、异常类型HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任何其
         </div>
       </a>
 
@@ -527,8 +595,218 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-16 11:54" pubdate>
-              2024-09-16
+            <time datetime="2024-10-07 19:38" pubdate>
+              2024-10-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/STM32/">#STM32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" target="_self">
+          基于 STM32F407 的 SPI Flash下载算法
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/" target="_self">
+        <div>
+          [toc]  一、概述本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包含
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-06 17:09" pubdate>
+              2024-10-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/STM32/">#STM32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" target="_self">
+          分散加载文件 scatter files
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/02/%E5%88%86%E6%95%A3%E5%8A%A0%E8%BD%BD%E6%96%87%E4%BB%B6/" target="_self">
+        <div>
+          @toc  本文主要是对 浅析 Keil 中的 sct 文件 一文做进一步的补充和说明。 一、加载域和执行域镜像的各个域在加载时是被放置在系统存储器中的。 在执行镜像之前，可能必须将一些域移动到它们的执行地址，并创建 ZI 输出节。例如，初始化的 RW 数据可能必须从 ROM 中的加载地址复制到 RAM 中的执行地址。为了可以灵活的处理这种情况，ARM 定义了如下两个视图：   Load view
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-02 14:39" pubdate>
+              2024-10-02
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/STM32/">#STM32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/02/ROM-RAM-Flash/" target="_self">
+          ROM、RAM 和 Flash 的区别
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/02/ROM-RAM-Flash/" target="_self">
+        <div>
+          [toc]  在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-02 10:12" pubdate>
+              2024-10-02
             </time>
           </div>
         
@@ -560,8 +838,6 @@
             
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/">#内存对齐</a>
-            
           </div>
         
       </div>
@@ -574,15 +850,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/12/MQTT/" target="_self">
-          MQTT 协议概述
+        <a href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" target="_self">
+          基于 STM32F407 的串口 IAP
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/12/MQTT/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/01/STM32-%E4%B8%B2%E5%8F%A3IAP/" target="_self">
         <div>
-          @toc  一、概述MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish/subscribe）模式的“轻量级”通讯协议，该协议构建于 TCP/IP 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。MQTT 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据
+          [toc]  IAP（In Application Programming，在应用编程）是用户自己的程序在运行过程中对 User Flash 的部分区域进行烧写。简单来说，就是开发者代码出 bug 了或者添加新功能了，能够利用预留的通讯接口，对代码进行升级。 UART、SPI、IIC、USB 等等，当然还有 WIFI、4G、Bluetooth 等无线通讯手段，都可以作为 IAP 升级的方式，今天主
         </div>
       </a>
 
@@ -590,267 +866,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-12 16:40" pubdate>
-              2024-09-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
-            
-              <a href="/tags/MQTT/">#MQTT</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" target="_self">
-          Linux 下 C/C++ 程序编译的过程
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" target="_self">
-        <div>
-          [toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-08 15:52" pubdate>
-              2024-09-08
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/%E7%BC%96%E8%AF%91/">#编译</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-          FreeRTOS 队列 Queue 源码解析
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          [toc]  在 FreeRTOS 快速入门（四）之队列 一文中，我简单地叙述了 FreeRTOS 中队列的工作机制和基本使用。这一节我将依据 FreeRTOS V10.4.3 的源码深入地去探究队列是如何实现的。学好队列对我们后续学习信号量等知识的时候有很大的帮助。 一、队列1、队列结构体队列结构体定义在目录 queue.c 下： 12345678910111213141516171819202
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-06 10:03" pubdate>
-              2024-09-06
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/" target="_self">
-          ELF 文件格式
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/" target="_self">
-        <div>
-          @toc  一、概述ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。 二、种类ELF文件主要有四种类型  可执行文件（Executable File）：包含可执行的机器代码，可以直接在操作系统中运行。 可重定位文件（Relocatable
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-05 20:50" pubdate>
-              2024-09-05
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux/">#Linux</a>
-            
-              <a href="/tags/ELF/">#ELF</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" target="_self">
-          单片机内存区域划分
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/01/%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86/" target="_self">
-        <div>
-          @toc  一、C 语言内存分区C 语言在内存中一共分为如下几个区域，分别是：  下面分别介绍各个区域。 1、栈区栈区介绍：  栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区由编译器自动分配释放，由操作系统自动管理，无须手动管理。 栈区上的内容只在函数范围内存在，当函数运行结束，这些内容也会自动被销毁。 栈区按内存地址由高到低方向生长，其最大大小由&#x3D;&#x3D;编译&
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-01 18:09" pubdate>
-              2024-09-01
+            <time datetime="2024-10-01 16:39" pubdate>
+              2024-10-01
             </time>
           </div>
         
@@ -901,7 +918,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/6/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/8/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/6/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/8/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
