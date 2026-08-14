@@ -4,6 +4,27 @@
   
   
   <entry>
+    <title>CUDA开发环境配置（Win11 + CUDA 12.4 + VS2019）</title>
+    <link href="/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/"/>
+    <url>/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/</url>
+    
+    <content type="html"><![CDATA[<h1 id="一、CUDA-Toolkit-安装"><a href="#一、CUDA-Toolkit-安装" class="headerlink" title="一、CUDA Toolkit 安装"></a>一、CUDA Toolkit 安装</h1><p>这里选择自定义：</p><p><img src="1.jpg"></p><p>这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：</p><p><img src="2.jpg"></p><blockquote><p>这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。</p></blockquote><p>下载好后可以在 cmd 中进行验证：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">nvcc -V<br></code></pre></td></tr></table></figure><p><img src="3.jpg"></p><p>同时也可以看见它自动为我们创建好了环境变量：</p><p><img src="4.jpg"></p><h1 id="二、VS-2019-配置"><a href="#二、VS-2019-配置" class="headerlink" title="二、VS 2019 配置"></a>二、VS 2019 配置</h1><p>CUDA 为 Visual Studio 提供了搭建 CUDA 项目模板的插件，在安装 CUDA 时，该插件会被自动下载并配置。然而，如果是先安装 CUDA 后安装 Visual Studio，插件不会被自动配置到 VS 中，而需在下载了 VS 后手动配置，或者干脆重装CUDA。</p><p>下面介绍一下手动配置的方法。</p><p>首先来到 Toolkit 的下载路径，找到 CUDA 提供的 VS 模板插件：</p><p><img src="5.jpg"></p><p>来到路径：<code>G:\Visual Studio\Common7\IDE\Extensions</code> 下，先创建一个文件夹 <code>NVIDIA</code>，进入 <code>NVIDIA</code> 再创建一个文件夹 <code>CUDA 12.4 Wizards</code>。</p><p>然后，对这个存有模板的文件夹创建符号链接，链接至 <code>Visual Studio</code> 存放插件的文件夹下。</p><p>以管理员身份运行 cmd，输入：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mklink /d &quot;G:\Visual Studio\Common7\IDE\Extensions\NVIDIA\Nsight Visual Studio Edition\CUDA 12.4 Wizards&quot; &quot;D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\extras\visual_studio_integration\CudaProjectVsWizards\15&quot;<br></code></pre></td></tr></table></figure><p>然后通过 Win+S 键，找到 <code>Developer Command Prompt for VS 2019</code>，以管理员身份运行，来到 VS 的安装路径，输入：</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">G:\Visual Studio&gt; devenv /updateconfiguration<br></code></pre></td></tr></table></figure><p>运行完毕后打开 VS，创建新项目时就可以看见 CUDA 模板了：</p><p><img src="6.jpg"></p><p>现在新建一个 CUDA 项目并打开，下面要进行一些设置：</p><ol><li>项目右键–项目属性–VC++目录–包含目录：添加CUDA的include（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\include）</li><li>项目右键–项目属性–VC++目录–库目录：添加CUDA的lib（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\lib\x64）</li><li>项目右键–项目属性–链接器–输入：cuda.lib</li><li>项目右键–项目属性–CUDA C&#x2F;C++–common–CUDA Toolkit Common Dir：输入 CUDA 所在路径（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4）</li><li>项目右键–生成依赖项–生成自定义：勾选 CUDA 选项</li></ol><p><img src="7.jpg"></p><p><img src="8.jpg"></p><p><img src="10.jpg"></p><p><img src="9.jpg"></p><p>最后添加一下 CUDA 自带的集成文件到 VS 中，路径：</p><figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs moonscript"><span class="hljs-name">D</span>:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12<span class="hljs-number">.4</span>\extras\visual_studio_integration\MSBuildExtensions<br><br><span class="hljs-name">G</span>:\Visual Studio\MSBuild\Microsoft\VC\v160\BuildCustomizations<br></code></pre></td></tr></table></figure><p><img src="12.jpg"></p><p><img src="11.jpg"></p><p>现在来测试一下，新建文件（注意是 .cu 文件）：</p><p><img src="13.jpg"></p><p>写入代码并运行：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;cuda_runtime.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;device_launch_parameters.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstdio&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;vector_types.h&gt;</span></span><br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">hello_from_gpu</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span> bid = blockIdx.x;<br><span class="hljs-type">const</span> <span class="hljs-type">int</span> tid = threadIdx.x;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello World from block %d, from thread %d.\n&quot;</span>, bid, tid);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><span class="hljs-function"><span class="hljs-type">const</span> dim3 <span class="hljs-title">gridSize</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span></span>;<br><span class="hljs-function"><span class="hljs-type">const</span> dim3 <span class="hljs-title">blockSize</span><span class="hljs-params">(<span class="hljs-number">3</span>)</span></span>;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;start\n&quot;</span>);<br>hello_from_gpu &lt;&lt;&lt; gridSize, blockSize &gt;&gt;&gt; ();<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;endn\n&quot;</span>);<br><span class="hljs-built_in">cudaDeviceSynchronize</span>();<br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure><p>结果如下：</p><p><img src="14.jpg"></p><blockquote><p>注意：</p><p>（1）.cu文件中在声明使用CUDA线程数可能在：&lt;&lt;&lt;&gt;&gt;&gt;符号处报错，不用管，能够运行就行，该符号在cpp文件中是不能编译的，但是cu文件的编译方法与cpp不一样。</p><p>（2）cpp文件中不要 #include cu文件，直接声明函数并使用。如果include，相当于把.cu文件中的代码用cpp编译，&lt;&lt;&lt;&gt;&gt;&gt;则会报错。</p></blockquote>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>C++</tag>
+      
+      <tag>CUDA</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Python中+=和普通+的区别</title>
     <link href="/2026/06/13/Pythonh%E4%B8%AD-%E5%92%8C%E6%99%AE%E9%80%9A-%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
     <url>/2026/06/13/Pythonh%E4%B8%AD-%E5%92%8C%E6%99%AE%E9%80%9A-%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
@@ -542,9 +563,9 @@
       
       <category>语言特性</category>
       
-      <category>C++17</category>
-      
       <category>C++11</category>
+      
+      <category>C++17</category>
       
       <category>C++14</category>
       
@@ -650,9 +671,9 @@
       
       <tag>C++</tag>
       
-      <tag>语言特性</tag>
-      
       <tag>C++11</tag>
+      
+      <tag>语言特性</tag>
       
     </tags>
     
@@ -674,9 +695,9 @@
       
       <category>语言特性</category>
       
-      <category>C++17</category>
-      
       <category>C++11</category>
+      
+      <category>C++17</category>
       
     </categories>
     
@@ -685,9 +706,9 @@
       
       <tag>C++</tag>
       
-      <tag>语言特性</tag>
-      
       <tag>C++11</tag>
+      
+      <tag>语言特性</tag>
       
       <tag>C++17</tag>
       
@@ -749,9 +770,9 @@
       
       <tag>模板</tag>
       
-      <tag>语言特性</tag>
-      
       <tag>C++11</tag>
+      
+      <tag>语言特性</tag>
       
     </tags>
     
@@ -917,9 +938,9 @@
       
       <tag>C++</tag>
       
-      <tag>语言特性</tag>
-      
       <tag>C++11</tag>
+      
+      <tag>语言特性</tag>
       
     </tags>
     
@@ -1093,9 +1114,9 @@
       
       <tag>C++</tag>
       
-      <tag>语言特性</tag>
-      
       <tag>C++11</tag>
+      
+      <tag>语言特性</tag>
       
     </tags>
     
