@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel">
+    <meta name="description" content="[toc]    一、前言 在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Chann">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BLE 协议之链路层">
 <meta property="og:url" content="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、前言在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Channel">
+<meta property="og:description" content="[toc]    一、前言 在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Chann">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/1.png">
 <meta property="og:image" content="http://example.com/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/2.png">
@@ -307,8 +307,9 @@
                 
                 <p>[toc]</p>
 <hr>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142311240">BLE 协议之物理层
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="一-前言"><a class="markdownIt-Anchor" href="#一-前言"></a> 一、前言</h1>
+<p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142311240">BLE 协议之物理层<br>
 </a> 一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（<em><strong>Link Layer</strong></em>）了，它主要的功能，就是在这些 <code>Physical Channel</code> 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：</p>
 <ul>
 <li><strong>通道共享</strong> ： <code>Physical Layer</code> 仅仅提供了有限的 40 个 <code>Physical Channel</code>，而 BLE 中参与通信的实体的数量，肯定不是这个数量级。 <code>Link Layer</code> 需要解决 <code>Physical Channel</code> 的共享问题</li>
@@ -316,15 +317,16 @@
 <li><strong>可靠传输</strong> ： <code>Physical Channel</code> 是不可靠的，任何数据传输都可能由于干扰等问题而损毁、丢失，这对有些应用来说，是接受不了的。因此 <code>Link Layer</code> 需要提供校验、重传等机制，确保数据传输的可靠性</li>
 </ul>
 <p>接下来，就看一下链路层都做了哪些事。</p>
-<h1 id="二、状态和角色"><a href="#二、状态和角色" class="headerlink" title="二、状态和角色"></a>二、状态和角色</h1><p>BLE 协议在 <code>Link Layer</code> 层抽象出 5 种状态 ：</p>
+<h1 id="二-状态和角色"><a class="markdownIt-Anchor" href="#二-状态和角色"></a> 二、状态和角色</h1>
+<p>BLE 协议在 <code>Link Layer</code> 层抽象出 5 种状态 ：</p>
 <ul>
-<li><code>Standby State</code> ：&#x3D;&#x3D;待机状态&#x3D;&#x3D;，不发送数据，也不接收数据。该状态可以由任何状态进入，也可以切换到除 <code>Connection State</code> 外的任意一种状态。</li>
-<li><code>Advertising State</code> ：&#x3D;&#x3D;广播状态&#x3D;&#x3D;，可以发送，监听，响应广播通道包，由 <code>Standby State</code> 进入。</li>
-<li><code>Scanning State</code> ：&#x3D;&#x3D;扫描状态&#x3D;&#x3D;，能够监听广播设备发送的广播包，由 <code>Standby State</code> 进入。</li>
-<li><code>Initiating State</code> ：&#x3D;&#x3D;初始化状态&#x3D;&#x3D;，监听指定设备的广播通道包，并且响应广播包，并发送连接请求，以便和广播设备建立连接。当连接成功后， Initiater 和对应的 Advertiser 都会切换到 <code>Connection State</code>。该状态由 <code>Standby State</code> 进入。</li>
-<li><code>Connection State</code> ：和某个实体&#x3D;&#x3D;建立了单独通道的状态&#x3D;&#x3D;，在通道建立之后，由 <code>Initiating State</code> 或 <code>Advertising State</code> 进入。通道断开后，会重新回到 <code>Standby State</code>。</li>
+<li><code>Standby State</code> ：<mark>待机状态</mark>，不发送数据，也不接收数据。该状态可以由任何状态进入，也可以切换到除 <code>Connection State</code> 外的任意一种状态。</li>
+<li><code>Advertising State</code> ：<mark>广播状态</mark>，可以发送，监听，响应广播通道包，由 <code>Standby State</code> 进入。</li>
+<li><code>Scanning State</code> ：<mark>扫描状态</mark>，能够监听广播设备发送的广播包，由 <code>Standby State</code> 进入。</li>
+<li><code>Initiating State</code> ：<mark>初始化状态</mark>，监听指定设备的广播通道包，并且响应广播包，并发送连接请求，以便和广播设备建立连接。当连接成功后， Initiater 和对应的 Advertiser 都会切换到 <code>Connection State</code>。该状态由 <code>Standby State</code> 进入。</li>
+<li><code>Connection State</code> ：和某个实体<mark>建立了单独通道的状态</mark>，在通道建立之后，由 <code>Initiating State</code> 或 <code>Advertising State</code> 进入。通道断开后，会重新回到 <code>Standby State</code>。</li>
 </ul>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>进入 <code>Connect State</code> 后，又定义了两种角色 ：</p>
 <ul>
 <li><code>Master Role</code> ：由 <code>Initiating State</code> 进入的 <code>Connect State</code> ，连接成功后，变成了 <code>Master Role</code> 。</li>
@@ -337,7 +339,8 @@
 <li>Connection(Master) + Connection(Master)</li>
 </ul>
 <p>这也就意味着，BLE 协议栈是支持一主多从这种连接模式的。不过要注意，不支持一从多主模式，即一个从机同时与多个主机相连。并且，一个 BLE 设备在同一时刻不能同时为主机和从机角色。</p>
-<h1 id="三、Air-Interface-Packets"><a href="#三、Air-Interface-Packets" class="headerlink" title="三、Air Interface Packets"></a>三、Air Interface Packets</h1><p>状态和角色定义完成后，剩下的事情就简单了，主要包括两类：</p>
+<h1 id="三-air-interface-packets"><a class="markdownIt-Anchor" href="#三-air-interface-packets"></a> 三、Air Interface Packets</h1>
+<p>状态和角色定义完成后，剩下的事情就简单了，主要包括两类：</p>
 <ul>
 <li>提供某一状态下，和其它实体对应状态之间的数据交换机制 ；</li>
 <li>根据上层实体的指令，以及当前的实际情况，负责状态之间的切换 。</li>
@@ -345,25 +348,28 @@
 <p>BLE 协议中，这些事情是由空中接口数据包（<em><strong>Air Interface Packets</strong></em>）完成的。</p>
 <p><code>Air Interface Packets</code> 定义了一种包的格式，主要用于描述 <code>LE Uncoded PHY</code>、<code>advertising channel</code> 和 <code>data channel</code> 的通信格式 。</p>
 <p>其格式如下：</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>见 <code>Core5.4 P2684</code></p>
 </blockquote>
 <p>下面对各个字段继续详细分析。</p>
-<h2 id="1、Preamble-字段"><a href="#1、Preamble-字段" class="headerlink" title="1、Preamble 字段"></a>1、Preamble 字段</h2><p><code>Preamble</code>（前导码）： 是 0 和 1 的交替序列：</p>
+<h2 id="1-preamble-字段"><a class="markdownIt-Anchor" href="#1-preamble-字段"></a> 1、Preamble 字段</h2>
+<p><code>Preamble</code>（前导码）： 是 0 和 1 的交替序列：</p>
 <ul>
 <li>当物理通道为 <code>LE 1M PHY</code> 时，前导码为 1Byte ；</li>
 <li>当物理通道码为 <code>LE 2M PHY</code> 时，前导码为 2Byte 。</li>
 </ul>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="2、Access-Address-字段"><a href="#2、Access-Address-字段" class="headerlink" title="2、Access Address 字段"></a>2、Access Address 字段</h2><p><code>Access Address</code> ：对于所有在广播通道发送的数据包，其值都为 <code>0x8E89BED6</code>。</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="2-access-address-字段"><a class="markdownIt-Anchor" href="#2-access-address-字段"></a> 2、Access Address 字段</h2>
+<p><code>Access Address</code> ：对于所有在广播通道发送的数据包，其值都为 <code>0x8E89BED6</code>。</p>
 <p>一旦链路层处于 <code>Initiating State</code> 状态时，会生成一个新的 <code>Access Address</code> 用于连接。该 <code>Access Address</code> 为一个 4Byte 的值。</p>
 <p>蓝牙使用 <code>Access Address</code> 来标识不同的设，<code>Access Address</code> 可以是一个公共的地址，也可以是一个随机的地址 ，无论是哪一种类型的地址，均为 48bits 长度。</p>
 <ul>
 <li>公共地址 ：官方定义的一些规范，通用的地址，这里不做解释。</li>
 <li>随机地址 ：可能是静态地址 ，或者是私有地址 。</li>
 </ul>
-<h3 id="2-1-静态地址"><a href="#2-1-静态地址" class="headerlink" title="2.1 静态地址"></a>2.1 静态地址</h3><blockquote>
+<h3 id="21-静态地址"><a class="markdownIt-Anchor" href="#21-静态地址"></a> 2.1 静态地址</h3>
+<blockquote>
 <p>见 <code>Core5.4 P2679</code></p>
 </blockquote>
 <p>静态地址一般都是随机生成的，但是需要满足下面的几点规则：</p>
@@ -372,11 +378,12 @@
 <li>随机地址部分，至少有一位为 0</li>
 <li>随机地址部分，至少有一位为 1</li>
 </ul>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>大多数的设备（手机）都是在上电之后，初始化一次静态地址，一旦初始化后，静态地址就不变了；重新上电后，会生成新的静态地址。</p>
 </blockquote>
-<h3 id="2-2-私有地址"><a href="#2-2-私有地址" class="headerlink" title="2.2 私有地址"></a>2.2 私有地址</h3><blockquote>
+<h3 id="22-私有地址"><a class="markdownIt-Anchor" href="#22-私有地址"></a> 2.2 私有地址</h3>
+<blockquote>
 <p>见 <code>Core5.4 P2680</code></p>
 </blockquote>
 <p>私有地址又分为 ：不可解析私有地址和可解析的私有地址。</p>
@@ -390,7 +397,7 @@
 <li>随机地址部分，至少有一位为 1</li>
 <li>不能与公共地址有冲突</li>
 </ul>
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <ol start="2">
 <li><font color="yellowgreen" size="5px">可解析的私有地址</font></li>
 </ol>
@@ -401,11 +408,12 @@
 <li>随机地址部分，至少有一位为 0</li>
 <li>随机地址部分，至少有一位为 1</li>
 </ul>
-<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
-<p>&#x3D;&#x3D;总结&#x3D;&#x3D;：<font color="bnlugreen" size="5px">最高有效位的前两位，代表了设备地址的类型</font></p>
+<p><mark>总结</mark>：<font color="bnlugreen" size="5px">最高有效位的前两位，代表了设备地址的类型</font></p>
 </blockquote>
-<h2 id="3、PDU-字段"><a href="#3、PDU-字段" class="headerlink" title="3、PDU 字段"></a>3、PDU 字段</h2><blockquote>
+<h2 id="3-pdu-字段"><a class="markdownIt-Anchor" href="#3-pdu-字段"></a> 3、PDU 字段</h2>
+<blockquote>
 <p>前面介绍过，<code>Physical Layer</code> 将通道分为广播通道和数据通道，那么 <code>Link Layer</code> 也随之对应划分了两种 PDU 类型。</p>
 </blockquote>
 <p><code>PDU</code>（<em><strong>Package Data Unit</strong></em>） ：分为两种：</p>
@@ -413,39 +421,46 @@
 <li>广播通道上传输（<em><strong>Advertising Channel PDU</strong></em>）；</li>
 <li>数据通道上传输（<em><strong>Data Channel PDU</strong></em>），长度为 2-257 字节。</li>
 </ul>
-<h3 id="3-1-Advertising-Channel-PDU"><a href="#3-1-Advertising-Channel-PDU" class="headerlink" title="3.1 Advertising Channel PDU"></a>3.1 Advertising Channel PDU</h3><p>广播通道 PDU ，包括 <code>Advertising PDU</code>、<code>Scanning PDU</code>、<code>Initiating PDU</code> 三种类型。</p>
+<h3 id="31-advertising-channel-pdu"><a class="markdownIt-Anchor" href="#31-advertising-channel-pdu"></a> 3.1 Advertising Channel PDU</h3>
+<p>广播通道 PDU ，包括 <code>Advertising PDU</code>、<code>Scanning PDU</code>、<code>Initiating PDU</code> 三种类型。</p>
 <p>广播通道的 PDU ，由 16bit 的数据头和 1-255Byte 的可变大小数据组成。</p>
-<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="3-1-1-Header-字段"><a href="#3-1-1-Header-字段" class="headerlink" title="3.1.1 Header 字段"></a>3.1.1 Header 字段</h4><p>下面是 16bit 的数据头格式：</p>
-<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="311-header-字段"><a class="markdownIt-Anchor" href="#311-header-字段"></a> 3.1.1 Header 字段</h4>
+<p>下面是 16bit 的数据头格式：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>PDU Type 有多种，详细参考 <code>core 5.0 P2690</code></p>
 </blockquote>
-<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>ChSel</code> ：该位为 1，支持 <code>LE Channel Selection Algorithm</code> ，即 LE通道选择算法 ，反之，不支持。</li>
 <li><code>TxAdd</code> ：该位为 0，表明 <code>Payload</code> 的 AdvA 字段为公共的；该位为 1，表明 Payload 的 AdvA 字段为随机的。</li>
 <li><code>Length</code> ：该字段表明了 Payload 的长度</li>
 </ul>
-<h4 id="3-1-2-Payload-字段"><a href="#3-1-2-Payload-字段" class="headerlink" title="3.1.2 Payload 字段"></a>3.1.2 Payload 字段</h4><p>Payload字段组成如下 ：</p>
+<h4 id="312-payload-字段"><a class="markdownIt-Anchor" href="#312-payload-字段"></a> 3.1.2 Payload 字段</h4>
+<p>Payload字段组成如下 ：</p>
 <blockquote>
 <p>常见的 <code>Advertising PDU</code> 有 ：</p>
 </blockquote>
 <ul>
-<li><p><code>ADV_IND</code> ：该 PDU 用于连接和扫描无定向的广播事件。</p>
-<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<li>
+<p><code>ADV_IND</code> ：该 PDU 用于连接和扫描无定向的广播事件。</p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload alt></p>
 </li>
-<li><p><code>ADV_DIRECT_IND</code> ：该 PDU 用于连接和扫描定向的广播事件。</p>
+<li>
+<p><code>ADV_DIRECT_IND</code> ：该 PDU 用于连接和扫描定向的广播事件。</p>
 </li>
 </ul>
-<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
-<li><p><code>ADV_NONCONN_IND</code> ：该 PDU 用于不可连接和不可扫描的非定向广播事件</p>
-<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<li>
+<p><code>ADV_NONCONN_IND</code> ：该 PDU 用于不可连接和不可扫描的非定向广播事件</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
 </li>
-<li><p><code>ADV_SCAN_IND</code> ：该 PDU 仅可用于可扫描的非定向广播事件</p>
-<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<li>
+<p><code>ADV_SCAN_IND</code> ：该 PDU 仅可用于可扫描的非定向广播事件</p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
 </li>
 </ul>
 <blockquote>
@@ -454,55 +469,61 @@
 <ul>
 <li><code>SCAN_REQ</code> ：该 PDU 为发送扫描请求</li>
 </ul>
-<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>SCAN_RSP</code> ：该 PDU 包括了广播者的地址和返回的扫描响应数据。</li>
 </ul>
-<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>常见的 <code>Initiating PDU</code> 有 ：</p>
 </blockquote>
 <ul>
 <li><code>CONNECT_IND</code> ：该 PDU 用于建立连接</li>
 </ul>
-<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
-<p>  <img src="19.png" srcset="/img/loading.gif" lazyload></p>
-<p>  综上可见，每一种 PDU Type ，都会定义自己的 Payload 组成。</p>
-<h3 id="3-2-Data-Channel-PDU"><a href="#3-2-Data-Channel-PDU" class="headerlink" title="3.2 Data Channel PDU"></a>3.2 Data Channel PDU</h3><p>数据通道 PDU 的格式，包括 16bit 的 Header ，可变大小的 Payload ，以及可选的消息完整性检查 MIC 字段。</p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>综上可见，每一种 PDU Type ，都会定义自己的 Payload 组成。</p>
+<h3 id="32-data-channel-pdu"><a class="markdownIt-Anchor" href="#32-data-channel-pdu"></a> 3.2 Data Channel PDU</h3>
+<p>数据通道 PDU 的格式，包括 16bit 的 Header ，可变大小的 Payload ，以及可选的消息完整性检查 MIC 字段。</p>
 <p>包的格式如下：</p>
-<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="3-2-1-Header-字段"><a href="#3-2-1-Header-字段" class="headerlink" title="3.2.1 Header 字段"></a>3.2.1 Header 字段</h4><ul>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="321-header-字段"><a class="markdownIt-Anchor" href="#321-header-字段"></a> 3.2.1 Header 字段</h4>
+<ul>
 <li><code>Header</code> 包括：</li>
 </ul>
-<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>LLID</code> ：该字段标识了这个包为 <code>LL Data PDU</code> 或者 <code>LL Control PDU</code></li>
 <li><code>NESN</code> ：下次期望的序列号</li>
 </ul>
-<p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="3-2-2-Payload-字段"><a href="#3-2-2-Payload-字段" class="headerlink" title="3.2.2 Payload 字段"></a>3.2.2 Payload 字段</h4><p>根据 LLID 字段，<code>Data Channel PDU</code> 又分为 <code>LL Data PDU</code> 和 <code>LL Control PDU</code> 两种类型。</p>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="322-payload-字段"><a class="markdownIt-Anchor" href="#322-payload-字段"></a> 3.2.2 Payload 字段</h4>
+<p>根据 LLID 字段，<code>Data Channel PDU</code> 又分为 <code>LL Data PDU</code> 和 <code>LL Control PDU</code> 两种类型。</p>
 <ul>
-<li><code>LL Data PDU</code> ：该 PDU 用于发送链路层的数据。<ul>
-<li>当 LLID 为 01b 时，并且 Length&#x3D;0 时，表示一个 Empty PDU 。</li>
+<li><code>LL Data PDU</code> ：该 PDU 用于发送链路层的数据。
+<ul>
+<li>当 LLID 为 01b 时，并且 Length=0 时，表示一个 Empty PDU 。</li>
 <li>当 LLID 为 10b 时，则 Length 不能设置为 0。</li>
 </ul>
 </li>
 <li><code>LL Control PDU</code> ：该 PDU 用于控制链路层的连接。</li>
 </ul>
-<p><img src="23.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>Opcode 操作码也有多种：</p>
 <blockquote>
 <p>每一种操作码对应不同的数据长度。详细可见 <code>core5.0 P2716</code></p>
-<p><img src="24.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="25.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="25.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
-<p><img src="26.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="4、CRC-字段"><a href="#4、CRC-字段" class="headerlink" title="4、CRC 字段"></a>4、CRC 字段</h2><ul>
+<p><img src="26.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="4-crc-字段"><a class="markdownIt-Anchor" href="#4-crc-字段"></a> 4、CRC 字段</h2>
+<ul>
 <li><code>CRC</code> 字段：在链路层包的最后，校验所有的 PDU 数据，大小长度为 3Byte 。</li>
 </ul>
 <p>如果 PDU 数据加密，则 CRC 将会计算加密后的 PDU 数据。</p>
 <p>CRC 算法采用多项式求和的形式进行，感兴趣的可以自行查阅资料了解。</p>
-<h1 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h1><p><img src="27.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="四-小结"><a class="markdownIt-Anchor" href="#四-小结"></a> 四、小结</h1>
+<p><img src="27.png" srcset="/img/loading.gif" lazyload alt></p>
 
                 
               </div>

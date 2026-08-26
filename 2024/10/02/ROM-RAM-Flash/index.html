@@ -281,10 +281,11 @@
                 <p>[toc]</p>
 <hr>
 <p>在计算机的组成结构中，有一个很重要的部分，就是存储器。存储器是用来存储程序和数据的部件，对于计算机来说，有了存储器，才有记忆功能，才能保证正常工作。存储器的种类很多，按其用途可分为主存储器和辅助存储器，主存储器又称内存储器（简称内存），辅助存储器又称外存储器（简称外存）。外存通常是磁性介质或光盘，像硬盘，软盘，磁带，CD 等，能长期保存信息，并且不依赖于电来保存信息，但是由机械部件带动，速度与CPU相比就显得慢的多。内存指的就是主板上的存储部件，是 CPU 直接与之沟通，并用其存储数据的部件，存放当前正在使用的（即执行中）的数据和程序，它的物理实质就是一组或多组具备数据输入输出和数据存储功能的集成电路，内存只用于暂时存放程序和数据，一旦关闭电源或发生断电，其中的程序和数据就会丢失。</p>
-<p>存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是&#x3D;&#x3D;易失性存储器&#x3D;&#x3D;，蓝底是&#x3D;&#x3D;非易失性存储器&#x3D;&#x3D;x）：</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p>存储器分类有很多方法，下图是一个按照存储介质的不同的分类示意图（红底是<mark>易失性存储器</mark>，蓝底是<mark>非易失性存储器</mark>x）：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>本文主要针对 ROM、RAM、Flash 这三种存储器进行介绍。</p>
-<h1 id="一、ROM"><a href="#一、ROM" class="headerlink" title="一、ROM"></a>一、ROM</h1><p>ROM（<em><strong>Read-Only Memory</strong></em>）是一种&#x3D;&#x3D;只读存储器&#x3D;&#x3D;，它的数据是在制造过程中被写入的，在工作是只能读出，用户无法对其进行修改，而不像随机存储器那样能快速地、方便地加以改写。ROM 可以存储固定的程序和数据，例如操作系统启动程序和固件程序等。由于其只读的特性，ROM 在电子设备中常用于存储固定程序和数据。</p>
+<h1 id="一-rom"><a class="markdownIt-Anchor" href="#一-rom"></a> 一、ROM</h1>
+<p>ROM（<em><strong>Read-Only Memory</strong></em>）是一种<mark>只读存储器</mark>，它的数据是在制造过程中被写入的，在工作是只能读出，用户无法对其进行修改，而不像随机存储器那样能快速地、方便地加以改写。ROM 可以存储固定的程序和数据，例如操作系统启动程序和固件程序等。由于其只读的特性，ROM 在电子设备中常用于存储固定程序和数据。</p>
 <p>ROM 特性如下：</p>
 <ol>
 <li>ROM数据不能随意更新，但在任何时候都可以读</li>
@@ -296,29 +297,35 @@
 <li><code>MROM</code>：是一种特殊类型的 ROM，它使用金属线进行数据的编码和存储。</li>
 <li><code>PROM</code>：可编程一次性（无法修改的 ROM）</li>
 <li><code>EPROM</code>： 紫外线可擦除可编程的 ROM</li>
-<li><code>EEPROM</code>： 电可擦除可编程的 ROM<ul>
+<li><code>EEPROM</code>： 电可擦除可编程的 ROM
+<ul>
 <li>按字节进行删除和重写，所以写入时间很长，写入很慢</li>
 <li>可以随机访问和修改任何一个字节</li>
 <li>目前的 EEPROM 都是几十千字节到几百千字节的，绝少有超过 512k</li>
 </ul>
 </li>
 </ol>
-<h1 id="二、RAM"><a href="#二、RAM" class="headerlink" title="二、RAM"></a>二、RAM</h1><p>RAM（<em><strong>Random Access Memory</strong></em>）是一种随机存取存储器，它可以被任意读取和写入。RAM 是电子设备临时存储数据的地方，它的数据在设备上电之后才能被存储，&#x3D;&#x3D;断电后数据会被清空&#x3D;&#x3D;。RAM 的速度快，读取和写入速度都比较快，但是容量相对较小。</p>
+<h1 id="二-ram"><a class="markdownIt-Anchor" href="#二-ram"></a> 二、RAM</h1>
+<p>RAM（<em><strong>Random Access Memory</strong></em>）是一种随机存取存储器，它可以被任意读取和写入。RAM 是电子设备临时存储数据的地方，它的数据在设备上电之后才能被存储，<mark>断电后数据会被清空</mark>。RAM 的速度快，读取和写入速度都比较快，但是容量相对较小。</p>
 <p>RAM 分类：</p>
 <ol>
-<li>静态 RAM（<em><strong>static RAM&#x2F;SRAM</strong></em>）<ul>
+<li>静态 RAM（<em><strong>static RAM/SRAM</strong></em>）
+<ul>
 <li>SRAM 速度非常快，不需要刷新电路即能保存数据，是目前最快的存储设备</li>
-<li>集成度比较低，非常昂贵，多用于一级缓存、二级缓存（L1&#x2F;L2 Cache）</li>
+<li>集成度比较低，非常昂贵，多用于一级缓存、二级缓存（L1/L2 Cache）</li>
 </ul>
 </li>
-<li>动态 RAM（<em><strong>Dynamic RAM&#x2F;DRAM</strong></em>）<ol>
-<li>DRAM 特点<ul>
+<li>动态 RAM（<em><strong>Dynamic RAM/DRAM</strong></em>）
+<ol>
+<li>DRAM 特点
+<ul>
 <li>DRAM 保留数据的时间很短，需要内存刷新电路，每隔一段时间，刷新充电一次，否则数据会消失</li>
 <li>速度比 SRAM 慢，不过它比任何 ROM 都要快</li>
 <li>价格便宜，内存一般都是 DRAM</li>
 </ul>
 </li>
-<li>DRAM 分类（有很多种，其中目前最流行的一种是 DDR RAM）<ul>
+<li>DRAM 分类（有很多种，其中目前最流行的一种是 DDR RAM）
+<ul>
 <li>FPM DRAM（<em><strong>Fast page mode DRAM</strong></em>）：一种较旧类型的异步 DRAM，它通过允许以更快的速度重复访问单个“页面”内存来改进以前的类型。 1990 年代中期使用。</li>
 <li>EDO DRAM（<em><strong>Extended data out DRAM</strong></em>）：一种较旧类型的异步 DRAM，其访问时间比早期类型更快，因为它能够在上次访问的数据仍在传输的同时启动新的内存访问。在 1990 年代后期使用。</li>
 <li>DDR RAM（<em><strong>Date-Rate RAM</strong></em>）：这种 RAM 可以在一个时钟读写两次数据</li>
@@ -329,7 +336,8 @@
 </ol>
 </li>
 </ol>
-<h2 id="1、内存工作原理"><a href="#1、内存工作原理" class="headerlink" title="1、内存工作原理"></a>1、内存工作原理</h2><p>内存是用来存放当前正在使用的（即执行中）的数据和程序，我们平常所提到的计算机的内存指的是动态内存（即 DRAM），动态内存中所谓的’动态’，指的是当我们将数据写入 DRAM 后，经过一段时间，数据会丢失，因此需要一个额外设电路进行内存刷新操作。</p>
+<h2 id="1-内存工作原理"><a class="markdownIt-Anchor" href="#1-内存工作原理"></a> 1、内存工作原理</h2>
+<p>内存是用来存放当前正在使用的（即执行中）的数据和程序，我们平常所提到的计算机的内存指的是动态内存（即 DRAM），动态内存中所谓的’动态’，指的是当我们将数据写入 DRAM 后，经过一段时间，数据会丢失，因此需要一个额外设电路进行内存刷新操作。</p>
 <p>具体的工作过程是这样的：一个 DRAM 的存储单元存储的是 0 还是 1 取决于电容是否有电荷，有电荷代表 1，无电荷代表 0。</p>
 <ul>
 <li>但时间一长，代表 1 的电容会放电，代表 0 的电容会吸收电荷，这就是数据丢失的原因；</li>
@@ -337,7 +345,8 @@
 <li>若电量小于1／2，则认为其代表 0，并把电容放电，藉此来保持数据的连续性。</li>
 </ul>
 <p>从一有计算机开始，就有内存。内存发展到今天也经历了很多次的技术改进，从最早的 DRAM 一直到 FPMDRAM、EDODRAM、SDRAM等，内存的速度一直在提高且容量也在不断的增加。</p>
-<h1 id="三、Flash"><a href="#三、Flash" class="headerlink" title="三、Flash"></a>三、Flash</h1><p>Flash 是一种可擦写的存储器，它结合了 ROM 和 RAM 的优点。它的数据可以被任意读取和写入，并且可以擦除和重新写入。Flash 的数据在断电后仍然能够保持，因此它可以作为长期存储器使用。Flash 的速度相对于 RAM 较慢，但相对于传统的硬盘存储器来说速度快得多。</p>
+<h1 id="三-flash"><a class="markdownIt-Anchor" href="#三-flash"></a> 三、Flash</h1>
+<p>Flash 是一种可擦写的存储器，它结合了 ROM 和 RAM 的优点。它的数据可以被任意读取和写入，并且可以擦除和重新写入。Flash 的数据在断电后仍然能够保持，因此它可以作为长期存储器使用。Flash 的速度相对于 RAM 较慢，但相对于传统的硬盘存储器来说速度快得多。</p>
 <p>Flash特性：</p>
 <ol>
 <li>可擦除可编程，跟 EEPROM 一样</li>
@@ -347,13 +356,15 @@
 </ol>
 <p>Flash 有两种：</p>
 <ol>
-<li>NOR Flash<ul>
+<li>NOR Flash
+<ul>
 <li>用户可以直接运行装载在 NOR Flash 中的代码（主要是因为有 XIP 技术，片上执行，不像 NAND Flash 得将代码复制到 RAM 中才可以执行），这样可以减少 SRAM 的容量从而节约了成本。</li>
 <li>地址线和数据线分开，可以实现 RAM 一样的随机寻址，可以读取任意一个字节</li>
 <li>但擦除还是要以块为单位</li>
 </ul>
 </li>
-<li>NADN Flash<ul>
+<li>NADN Flash
+<ul>
 <li>NAND Flash 没有采取内存的随机读取技术，它的读取是以一次读取一块的形式来进行的，通常是一次读取 512 个字节，采用这种技术的 Flash 比较廉价。用户不能直接运行 NAND Flash 上的代码，因此好多使用 NAND Flash 的开发板除了使用 NAND Flash 以外，还作上了一块小的 NOR Flash 来运行启动代码。</li>
 </ul>
 </li>

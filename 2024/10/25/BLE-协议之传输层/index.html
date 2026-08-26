@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。 上图即是 UART 传输层的功能框图。 一、HCI 简介 Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Control">
+    <meta name="description" content="[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。  上图即是 UART 传输层的功能框图。  一、HCI 简介  Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Cont">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BLE 协议之传输层">
 <meta property="og:url" content="http://example.com/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。 上图即是 UART 传输层的功能框图。 一、HCI 简介 Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Control">
+<meta property="og:description" content="[toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。  上图即是 UART 传输层的功能框图。  一、HCI 简介  Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Cont">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/1.png">
 <meta property="og:image" content="http://example.com/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/2.png">
@@ -277,7 +277,7 @@
         
         
         
-          17 分钟
+          16 分钟
         
       </span>
     
@@ -321,20 +321,24 @@
                 
                 <p>[toc]</p>
 <hr>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在 BLE 协议中，传输层位于 <code>Host</code> 和 <code>Controller</code> 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。</p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload><br>上图即是 UART 传输层的功能框图。</p>
-<h1 id="一、HCI-简介"><a href="#一、HCI-简介" class="headerlink" title="一、HCI 简介"></a>一、HCI 简介</h1><blockquote>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt><br>
+上图即是 UART 传输层的功能框图。</p>
+<h1 id="一-hci-简介"><a class="markdownIt-Anchor" href="#一-hci-简介"></a> 一、HCI 简介</h1>
+<blockquote>
 <p>Core5.4 P1728</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
 <p>该图展示了两个设备之间的数据传输路径。Host 通过 <code>HCI Driver</code> 和 <code>Controller</code> 硬件上的 <code>HCI Firmware</code> 交换数据和命令，这就是 HCI 的功能。</p>
 <ul>
 <li><code>HCI</code> 提供了一种统一接口用来访问，控制 <code>Controller</code> ，传输层是透明的，独立于底层传输技术，并且无需关系 <code>Host</code> 传输给 <code>Controller</code> 的数据是什么内容.</li>
 <li>在 <code>HOST</code> 与 <code>Controller</code> 之间，以 <code>Command</code> 与 <code>Event</code> 命令方式进行传输。 <code>Host</code> 发送 <code>Command</code> 信息到 <code>Controller</code> ， <code>Controller</code> 将 <code>Command Status</code> 和 <code>Params</code> 以 <code>Event</code> 的形式返回给 <code>Host</code> ，最后返回 <code>Command Complete Event</code> 表示连接完成。</li>
 </ul>
-<h1 id="二、HCI-数据包"><a href="#二、HCI-数据包" class="headerlink" title="二、HCI 数据包"></a>二、HCI 数据包</h1><h2 id="1、HCI-数据包类型"><a href="#1、HCI-数据包类型" class="headerlink" title="1、HCI 数据包类型"></a>1、HCI 数据包类型</h2><p><code>HCI</code> 有五种类型的包格式，见下表：</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二-hci-数据包"><a class="markdownIt-Anchor" href="#二-hci-数据包"></a> 二、HCI 数据包</h1>
+<h2 id="1-hci-数据包类型"><a class="markdownIt-Anchor" href="#1-hci-数据包类型"></a> 1、HCI 数据包类型</h2>
+<p><code>HCI</code> 有五种类型的包格式，见下表：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>HCI Command Packet</code> ：由主机向控制器发送命令，即 <code>Host -&gt; Controller</code></li>
 <li><code>HCI Event Packet</code> ：由蓝牙芯片上报给蓝牙协议栈的事件，即 <code>Controller -&gt; Host</code></li>
@@ -345,16 +349,19 @@
 <p>在 <code>Host</code> 和 <code>Controller</code> 之间，HCI 的命令和事件类型如下：</p>
 <blockquote>
 <p>详见 Core v5.4 P1731</p>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
-<h2 id="2、HCI-数据包格式"><a href="#2、HCI-数据包格式" class="headerlink" title="2、HCI 数据包格式"></a>2、HCI 数据包格式</h2><p>下面对刚才讲到的五种 HCI 通信包的格式进行分析。</p>
+<h2 id="2-hci-数据包格式"><a class="markdownIt-Anchor" href="#2-hci-数据包格式"></a> 2、HCI 数据包格式</h2>
+<p>下面对刚才讲到的五种 HCI 通信包的格式进行分析。</p>
 <blockquote>
 <p>Core v5.4 P1800</p>
 </blockquote>
-<h3 id="2-1-HCI-Command-packet"><a href="#2-1-HCI-Command-packet" class="headerlink" title="2.1 HCI Command packet"></a>2.1 HCI Command packet</h3><p>HCI Comand 包用于从主机向控制器发送命令。HCI Command 数据包的格式如下图所示，下面将解释每个字段的定义。</p>
+<h3 id="21-hci-command-packet"><a class="markdownIt-Anchor" href="#21-hci-command-packet"></a> 2.1 HCI Command packet</h3>
+<p>HCI Comand 包用于从主机向控制器发送命令。HCI Command 数据包的格式如下图所示，下面将解释每个字段的定义。</p>
 <p>控制器应该能够接受 HCI Command 包的数据最多 255 字节，不包括 HCI 命令包头。HCI 命令报文头是报文的前 3 个字节。</p>
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-1-1-Opcode-字段"><a href="#2-1-1-Opcode-字段" class="headerlink" title="2.1.1 Opcode 字段"></a>2.1.1 Opcode 字段</h4><p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="211-opcode-字段"><a class="markdownIt-Anchor" href="#211-opcode-字段"></a> 2.1.1 Opcode 字段</h4>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>每个命令都分配了一个 2 字节的操作码（Opcode），用于唯一标识不同类型的命令。Opcode 参数分为两个字段，分别称为操作码组字段（<em><strong>Opcode Group Field</strong></em>，OGF）和操作码命令字段（<em><strong>Opcode Command Field</strong></em>，OCF）。</p>
 <ul>
 <li><code>OGF</code> ：占据高 6bit，对应不同类别的蓝牙命令</li>
@@ -363,65 +370,92 @@
 <blockquote>
 <p>比如有一个二维数组，也就是多个一维数组的集合，<code>OGF</code> 则定位到是第几个一维数组，<code>OCF</code> 则是定位到一维数组的的具体的元素上</p>
 </blockquote>
-<h4 id="2-1-2-Parameter-Total-Length-字段"><a href="#2-1-2-Parameter-Total-Length-字段" class="headerlink" title="2.1.2 Parameter_Total_Length 字段"></a>2.1.2 Parameter_Total_Length 字段</h4><p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="212-parameter_total_length-字段"><a class="markdownIt-Anchor" href="#212-parameter_total_length-字段"></a> 2.1.2 Parameter_Total_Length 字段</h4>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>Paramter_Total_Length</code> ：数据包中所有参数的长度。</p>
-<h4 id="2-1-3-Parameter-0-N-字段"><a href="#2-1-3-Parameter-0-N-字段" class="headerlink" title="2.1.3 Parameter 0 - N 字段"></a>2.1.3 Parameter 0 - N 字段</h4><p><img src="9.png" srcset="/img/loading.gif" lazyload><br>这个 <code>Paramter</code> ，每一组命令要求的参数都不一样，所以根据实际情况来选择。</p>
-<h3 id="2-2-HCI-ACL-Data-packets"><a href="#2-2-HCI-ACL-Data-packets" class="headerlink" title="2.2 HCI ACL Data packets"></a>2.2 HCI ACL Data packets</h3><p>HCI ACL Data 包用于主机和控制器之间的数据交换。HCI ACL Data 包有两种类型：</p>
+<h4 id="213-parameter-0-n-字段"><a class="markdownIt-Anchor" href="#213-parameter-0-n-字段"></a> 2.1.3 Parameter 0 - N 字段</h4>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload alt><br>
+这个 <code>Paramter</code> ，每一组命令要求的参数都不一样，所以根据实际情况来选择。</p>
+<h3 id="22-hci-acl-data-packets"><a class="markdownIt-Anchor" href="#22-hci-acl-data-packets"></a> 2.2 HCI ACL Data packets</h3>
+<p>HCI ACL Data 包用于主机和控制器之间的数据交换。HCI ACL Data 包有两种类型：</p>
 <ul>
-<li><code>Automatically-Flushable</code>：自动刷新<ul>
+<li><code>Automatically-Flushable</code>：自动刷新
+<ul>
 <li>自动刷新包，其自动刷新的时间取决于设定的时间。</li>
 </ul>
 </li>
-<li><code>Non-Automatically-Flushable</code>：非自动刷新<ul>
+<li><code>Non-Automatically-Flushable</code>：非自动刷新
+<ul>
 <li>非自动刷新，则不会自动刷新数据包。</li>
 </ul>
 </li>
 </ul>
-<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-2-1-Headle-字段"><a href="#2-2-1-Headle-字段" class="headerlink" title="2.2.1 Headle 字段"></a>2.2.1 Headle 字段</h4><p><code>Handle</code> ： 逻辑链路的通道的标识 ，这里分为三类：<br>    1. <code>Connection_Handles</code><br>    2. <code>Logical Link Handles</code><br>    3. <code>Physical Link Handles</code></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="221-headle-字段"><a class="markdownIt-Anchor" href="#221-headle-字段"></a> 2.2.1 Headle 字段</h4>
+<p><code>Handle</code> ： 逻辑链路的通道的标识 ，这里分为三类：<br>
+1. <code>Connection_Handles</code><br>
+2. <code>Logical Link Handles</code><br>
+3. <code>Physical Link Handles</code></p>
 <p><code>Connection_Handles</code> ：被 <code>Primary Controller Handles</code> 分配，标识主机和主控制器之间的逻辑通道，当一个新的逻辑链路被建立的时候， <code>Connection_Handles</code> 会被分配。</p>
 <p>该 Handle 主要被用在： <code>Connection Complete</code>、<code>Synchronous Connection Complete</code>、<code>LE Connection Complete</code>、<code>LE Enhanced Connection Complete</code> 的 Event 事件中。</p>
 <p>Host 在第一次上电或者重启的时候，第一次发送 HCI 数据包，此时分配一个 <code>Connection_Handle</code> 。此后，使用该 Handle 去广播。</p>
 <p><code>AMP Controllers</code> 包括两种： <code>Logical Link Handles</code> 和 <code>Physical Link Handles</code>。</p>
 <p>对于 Host 与 AMP Controller 之间的 Data、Command 和 Event 操作，如果 <code>Physical Link Handles</code> 被指定，则使用该 Handle ，如果未被指定，则在指定 <code>Connection_Handle</code> 的地方使用 <code>Logical Link Handles</code>。</p>
-<h4 id="2-2-2-Flag-字段"><a href="#2-2-2-Flag-字段" class="headerlink" title="2.2.2 Flag 字段"></a>2.2.2 Flag 字段</h4><p><code>Flag</code> 包括： <code>PB Flag</code> 和 <code>BC Flag</code>，即 <code>Packet_Boundary_Flag</code> 与 <code>Broadcast_Flag</code>。</p>
+<h4 id="222-flag-字段"><a class="markdownIt-Anchor" href="#222-flag-字段"></a> 2.2.2 Flag 字段</h4>
+<p><code>Flag</code> 包括： <code>PB Flag</code> 和 <code>BC Flag</code>，即 <code>Packet_Boundary_Flag</code> 与 <code>Broadcast_Flag</code>。</p>
 <p>在 HCI ACL Data 包的第二个字段部分，<code>Packet_Boundary_Flag</code> 位于第 4 位和第 5 位，<code>Broadcast_Flag</code> 位于第 6 位和第 7 位。</p>
-<p><img src="11.png" srcset="/img/loading.gif" lazyload><br><img src="12.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="2-3-HCI-Synchronous-Data-packets"><a href="#2-3-HCI-Synchronous-Data-packets" class="headerlink" title="2.3 HCI Synchronous Data packets"></a>2.3 HCI Synchronous Data packets</h3><p>该数据包，被用于在 Host 和 Controller 之间交换同步数据，HCI Synchronous Data 包头是数据包的前 3 个字节。</p>
-<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-3-1-Connection-Handle-字段"><a href="#2-3-1-Connection-Handle-字段" class="headerlink" title="2.3.1 Connection_Handle 字段"></a>2.3.1 Connection_Handle 字段</h4><p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-3-2-Packet-Status-Flag-字段"><a href="#2-3-2-Packet-Status-Flag-字段" class="headerlink" title="2.3.2 Packet_Status_Flag 字段"></a>2.3.2 Packet_Status_Flag 字段</h4><p><code>Packet_Status_Flag</code> 由两个比特组成，分别位于 HCI Synchronous Data 包的第二个字节的第 4 到 5 比特之间。</p>
-<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload alt><br>
+<img src="12.png" srcset="/img/loading.gif" lazyload alt></p>
+<h3 id="23-hci-synchronous-data-packets"><a class="markdownIt-Anchor" href="#23-hci-synchronous-data-packets"></a> 2.3 HCI Synchronous Data packets</h3>
+<p>该数据包，被用于在 Host 和 Controller 之间交换同步数据，HCI Synchronous Data 包头是数据包的前 3 个字节。</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="231-connection_handle-字段"><a class="markdownIt-Anchor" href="#231-connection_handle-字段"></a> 2.3.1 Connection_Handle 字段</h4>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="232-packet_status_flag-字段"><a class="markdownIt-Anchor" href="#232-packet_status_flag-字段"></a> 2.3.2 Packet_Status_Flag 字段</h4>
+<p><code>Packet_Status_Flag</code> 由两个比特组成，分别位于 HCI Synchronous Data 包的第二个字节的第 4 到 5 比特之间。</p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>该字段与 <code>Erroneous_Data_Reporting</code> 参数有关：</p>
 <ul>
 <li>如果 <code>Erroneous_Data_Reporting</code> 参数设置为 disable ，则 <code>Packet_Status_Flag</code> 字段设置为 00</li>
 <li>如果 <code>Erroneous_Data_Reporting</code> 参数设置为 enable ，则 <code>Packet_Status_Flag</code> 字段依据下面表格设置</li>
 </ul>
 <blockquote>
-<p>主机应设置 <code>Packet_Status_Flag</code> 位为 $0b00$。</p>
+<p>主机应设置 <code>Packet_Status_Flag</code> 位为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>b</mi><mn>00</mn></mrow><annotation encoding="application/x-tex">0b00</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">b</span><span class="mord">0</span><span class="mord">0</span></span></span></span>。</p>
 </blockquote>
-<h3 id="2-4-HCI-Event-packet"><a href="#2-4-HCI-Event-packet" class="headerlink" title="2.4 HCI Event packet"></a>2.4 HCI Event packet</h3><p>每个 Command 命令发出之后，对返回的参数要求不同，根据不同的返回参数要求，返回指定的数据。</p>
-<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="24-hci-event-packet"><a class="markdownIt-Anchor" href="#24-hci-event-packet"></a> 2.4 HCI Event packet</h3>
+<p>每个 Command 命令发出之后，对返回的参数要求不同，根据不同的返回参数要求，返回指定的数据。</p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>如果控制器发送一个 HCI Event 包，其中包含一个主机未屏蔽且不支持的 event code 或 LE subbevent code，则主机应忽略该包。本部分未提及的任何 Event code 或 LE subevent code 将保留供将来使用。主机应该能够接受不包括 HCI 事件包头的 255 字节数据的 HCI Event packet。</p>
 </blockquote>
 <p>事件代码 0xFE 保留为将来使用（用于规范开发）。事件代码 0xFF 是为特定于供应商的调试事件保留的。</p>
-<h4 id="2-4-1-Event-Code-字段"><a href="#2-4-1-Event-Code-字段" class="headerlink" title="2.4.1 Event_Code 字段"></a>2.4.1 Event_Code 字段</h4><p><code>Event_Code</code> 用于标识不同的事件类型。</p>
-<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-4-2-Parameter-Total-Length-字段"><a href="#2-4-2-Parameter-Total-Length-字段" class="headerlink" title="2.4.2 Parameter_Total_Length 字段"></a>2.4.2 Parameter_Total_Length 字段</h4><p><code>Parameter_Total_Length</code> 表示参数总长度。</p>
-<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-4-3-Event-Parameter-字段"><a href="#2-4-3-Event-Parameter-字段" class="headerlink" title="2.4.3 Event_Parameter 字段"></a>2.4.3 Event_Parameter 字段</h4><p><code>Event_Parameter</code> 相关参数，与上文一样，每个命令有不同的参数返回。</p>
-<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="2-5-HCI-ISO-Data-packets"><a href="#2-5-HCI-ISO-Data-packets" class="headerlink" title="2.5 HCI ISO Data packets"></a>2.5 HCI ISO Data packets</h3><p>HCI ISO Data 包用于在 Host 和 Controller 之间进行同步数据交换。一个 HCI ISO Data 包包含一个 SDU 或 SDU 的一部分。在 Host 到 Controller 的方向上，它包含的数据不能超过 Controller 支持的缓冲区大小。如果 SDU 的长度大于 Controller 的缓冲区大小，Host 可能需要对该 SDU 进行分片。Controller 不应开始向 Host 发送 SDU 或 SDU 的分片，直到所有包含该 SDU 数据的 PDU 都已接收到，或已通过最后一次传输机会而无法再接收到。HCI 产生的 SDU 片段与 ISOAL 产生的 SDU 片段无关。</p>
-<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-5-1-PB-Flag-字段"><a href="#2-5-1-PB-Flag-字段" class="headerlink" title="2.5.1 PB_Flag 字段"></a>2.5.1 PB_Flag 字段</h4><p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-5-2-TS-Flag-字段"><a href="#2-5-2-TS-Flag-字段" class="headerlink" title="2.5.2 TS_Flag 字段"></a>2.5.2 TS_Flag 字段</h4><p><img src="22.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-5-3-Data-Total-Length-字段"><a href="#2-5-3-Data-Total-Length-字段" class="headerlink" title="2.5.3 Data_Total_Length 字段"></a>2.5.3 Data_Total_Length 字段</h4><p><img src="23.png" srcset="/img/loading.gif" lazyload><br>在 Host 到 Controller 的方向，<code>Data_Total_Length</code> 应小于或等于控制器支持的缓冲区大小（使用 LE Read buffer size 命令的 <code>ISO_Data_Packet_Length</code> 返回参数返回）。</p>
+<h4 id="241-event_code-字段"><a class="markdownIt-Anchor" href="#241-event_code-字段"></a> 2.4.1 Event_Code 字段</h4>
+<p><code>Event_Code</code> 用于标识不同的事件类型。</p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="242-parameter_total_length-字段"><a class="markdownIt-Anchor" href="#242-parameter_total_length-字段"></a> 2.4.2 Parameter_Total_Length 字段</h4>
+<p><code>Parameter_Total_Length</code> 表示参数总长度。</p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="243-event_parameter-字段"><a class="markdownIt-Anchor" href="#243-event_parameter-字段"></a> 2.4.3 Event_Parameter 字段</h4>
+<p><code>Event_Parameter</code> 相关参数，与上文一样，每个命令有不同的参数返回。</p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload alt></p>
+<h3 id="25-hci-iso-data-packets"><a class="markdownIt-Anchor" href="#25-hci-iso-data-packets"></a> 2.5 HCI ISO Data packets</h3>
+<p>HCI ISO Data 包用于在 Host 和 Controller 之间进行同步数据交换。一个 HCI ISO Data 包包含一个 SDU 或 SDU 的一部分。在 Host 到 Controller 的方向上，它包含的数据不能超过 Controller 支持的缓冲区大小。如果 SDU 的长度大于 Controller 的缓冲区大小，Host 可能需要对该 SDU 进行分片。Controller 不应开始向 Host 发送 SDU 或 SDU 的分片，直到所有包含该 SDU 数据的 PDU 都已接收到，或已通过最后一次传输机会而无法再接收到。HCI 产生的 SDU 片段与 ISOAL 产生的 SDU 片段无关。</p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="251-pb_flag-字段"><a class="markdownIt-Anchor" href="#251-pb_flag-字段"></a> 2.5.1 PB_Flag 字段</h4>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="252-ts_flag-字段"><a class="markdownIt-Anchor" href="#252-ts_flag-字段"></a> 2.5.2 TS_Flag 字段</h4>
+<p><img src="22.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="253-data_total_length-字段"><a class="markdownIt-Anchor" href="#253-data_total_length-字段"></a> 2.5.3 Data_Total_Length 字段</h4>
+<p><img src="23.png" srcset="/img/loading.gif" lazyload alt><br>
+在 Host 到 Controller 的方向，<code>Data_Total_Length</code> 应小于或等于控制器支持的缓冲区大小（使用 LE Read buffer size 命令的 <code>ISO_Data_Packet_Length</code> 返回参数返回）。</p>
 <p>如果 <code>PB_Flag</code> 为 0b01 或 0b11 ，则 <code>Data_Total_Length</code> 可以为 0。否则，<code>TS_Flag</code> 为 0 时 <code>Data_Total_Length</code> 至少为 4，<code>TS_Flag</code> 为 1 时<code>Data_Total_Length</code> 至少为 8。</p>
-<h4 id="2-5-4-Time-Stamp-字段"><a href="#2-5-4-Time-Stamp-字段" class="headerlink" title="2.5.4 Time_Stamp 字段"></a>2.5.4 Time_Stamp 字段</h4><p><img src="24.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="2-5-5-Packet-Status-Flag-字段"><a href="#2-5-5-Packet-Status-Flag-字段" class="headerlink" title="2.5.5 Packet_Status_Flag 字段"></a>2.5.5 Packet_Status_Flag 字段</h4><p><code>Packet_Status_Flag</code> 字段表示控制器通过同步物理通道接收到的报文状态。<code>Packet_Status_Flag</code> 字段仅在控制器发送的 HCI ISO Data 包中有效，并保留用于主机发送的数据包。</p>
-<p><img src="25.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="三、HCI-连接示例"><a href="#三、HCI-连接示例" class="headerlink" title="三、HCI 连接示例"></a>三、HCI 连接示例</h1><p>HCI 连接命令流程：</p>
+<h4 id="254-time_stamp-字段"><a class="markdownIt-Anchor" href="#254-time_stamp-字段"></a> 2.5.4 Time_Stamp 字段</h4>
+<p><img src="24.png" srcset="/img/loading.gif" lazyload alt></p>
+<h4 id="255-packet_status_flag-字段"><a class="markdownIt-Anchor" href="#255-packet_status_flag-字段"></a> 2.5.5 Packet_Status_Flag 字段</h4>
+<p><code>Packet_Status_Flag</code> 字段表示控制器通过同步物理通道接收到的报文状态。<code>Packet_Status_Flag</code> 字段仅在控制器发送的 HCI ISO Data 包中有效，并保留用于主机发送的数据包。</p>
+<p><img src="25.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="三-hci-连接示例"><a class="markdownIt-Anchor" href="#三-hci-连接示例"></a> 三、HCI 连接示例</h1>
+<p>HCI 连接命令流程：</p>
 <ol>
 <li>蓝牙协议栈向芯片发送连接命令： <code>HCI Connect command</code></li>
 <li>蓝牙芯片上报命令状态到蓝牙协议栈： <code>HCI Command Complete</code></li>
@@ -430,80 +464,93 @@
 <blockquote>
 <p>更多事件类型查阅 Core</p>
 </blockquote>
-<h2 id="1、HCI-Connect-command"><a href="#1、HCI-Connect-command" class="headerlink" title="1、HCI Connect command"></a>1、HCI Connect command</h2><blockquote>
+<h2 id="1-hci-connect-command"><a class="markdownIt-Anchor" href="#1-hci-connect-command"></a> 1、HCI Connect command</h2>
+<blockquote>
 <p>Core v5.4 P1843</p>
 </blockquote>
 <p>该命令用于让 Link Manager 链路管理器去连接远程设备。</p>
 <p>封包格式如下：</p>
-<p><img src="26.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="26.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
-<li><p><code>OCF</code> ：这里可以看到OCF的值，那么 OGF 值为多少呢？</p>
+<li>
+<p><code>OCF</code> ：这里可以看到OCF的值，那么 OGF 值为多少呢？</p>
 <ul>
 <li>打开 Core v5.4 P1843，我们可以看到 <code>HCI_Create_Connection</code> 命令属于 <code>LINK CONTROL COMMANDS</code> 链路控制命令组，该组 OGF 为0x01。详见 Core v5.4 P1836：“For the Link Control commands, the OGF is defined as 0x01”.</li>
 </ul>
 </li>
-<li><p><code>BD_ADDR</code> ：要连接的远程设备的蓝牙地址，6 个字节。</p>
+<li>
+<p><code>BD_ADDR</code> ：要连接的远程设备的蓝牙地址，6 个字节。</p>
 </li>
-<li><p><code>Packet_Type</code> ：支持的数据封包类型，2 个字节。<br><img src="27.png" srcset="/img/loading.gif" lazyload></p>
+<li>
+<p><code>Packet_Type</code> ：支持的数据封包类型，2 个字节。<br>
+<img src="27.png" srcset="/img/loading.gif" lazyload alt></p>
 </li>
-<li><p><code>Page_Scan_Repetition_Mode</code> ：是否重复扫描</p>
+<li>
+<p><code>Page_Scan_Repetition_Mode</code> ：是否重复扫描</p>
 </li>
 </ul>
-<p><img src="28.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="28.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
-<li><p><code>Clock_Offset</code> ：主从设备之间的时钟偏移。<br><img src="29.png" srcset="/img/loading.gif" lazyload></p>
+<li>
+<p><code>Clock_Offset</code> ：主从设备之间的时钟偏移。<br>
+<img src="29.png" srcset="/img/loading.gif" lazyload alt></p>
 </li>
-<li><p><code>Allow_Role_Switch</code> ：是否支持主从角色转换</p>
+<li>
+<p><code>Allow_Role_Switch</code> ：是否支持主从角色转换</p>
 </li>
 </ul>
-<p><img src="30.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="2、Command-Complete-Event"><a href="#2、Command-Complete-Event" class="headerlink" title="2、Command Complete Event"></a>2、Command Complete Event</h2><blockquote>
+<p><img src="30.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="2-command-complete-event"><a class="markdownIt-Anchor" href="#2-command-complete-event"></a> 2、Command Complete Event</h2>
+<blockquote>
 <p>Core v5.4 P2178</p>
 </blockquote>
 <p>当 Controller 接收到 <code>Create_Connection</code> 命令，会发送一个 <code>Command Complete</code> 事件给 Host 。</p>
 <p>事件格式如下：</p>
-<p><img src="31.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="31.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>该事件被用于大多数命令发送后的状态返回。</p>
 <ul>
 <li><code>Event Code</code> ：事件代码</li>
 <li><code>Num_HCI_Command_Packets</code> ：设置 Host 可以发送给 Controller 的命令包的个数，如果不允许，则设置为0</li>
 </ul>
-<p><img src="32.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="32.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Command_Opcode</code> ：表示相应的命令代码</li>
 </ul>
-<p><img src="33.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="33.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
-<li><code>Return_Parameters</code> ：返回命令指定的参数<br><img src="34.png" srcset="/img/loading.gif" lazyload></li>
+<li><code>Return_Parameters</code> ：返回命令指定的参数<br>
+<img src="34.png" srcset="/img/loading.gif" lazyload alt></li>
 </ul>
-<h2 id="3、Connection-Complete-Event"><a href="#3、Connection-Complete-Event" class="headerlink" title="3、Connection Complete Event"></a>3、Connection Complete Event</h2><blockquote>
+<h2 id="3-connection-complete-event"><a class="markdownIt-Anchor" href="#3-connection-complete-event"></a> 3、Connection Complete Event</h2>
+<blockquote>
 <p>Core v5.4 P2160</p>
 </blockquote>
 <p>该事件表明了 Host 与 Controller 之间建立连接通道成功。</p>
-<p><img src="35.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="35.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Event Code</code> ：事件代码</li>
 <li><code>Status</code> ：连接状态</li>
 </ul>
-<p><img src="36.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="36.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Connection_Handle</code> ：连接成功后，生成的 Handle 值</li>
 </ul>
-<p><img src="37.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="37.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>BD_ADDR</code> ：连接成功后的MAC地址</li>
 </ul>
-<p><img src="38.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="38.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Link_Type</code> ：连接类型</li>
 </ul>
-<p><img src="39.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="39.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Encryption_Enabled</code> ：是否加密</li>
 </ul>
-<p><img src="40.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h1><p>看一下 HCI 在协议栈中的位置 ：</p>
-<p><img src="41.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="40.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="四-小结"><a class="markdownIt-Anchor" href="#四-小结"></a> 四、小结</h1>
+<p>看一下 HCI 在协议栈中的位置 ：</p>
+<p><img src="41.png" srcset="/img/loading.gif" lazyload alt></p>
 
                 
               </div>

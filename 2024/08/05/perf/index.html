@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事">
+    <meta name="description" content="[TOC]   一、概述  1、perf 作用 perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 perf 的使用">
 <meta property="og:url" content="http://example.com/2024/08/05/perf/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]  一、概述1、perf 作用perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事">
+<meta property="og:description" content="[TOC]   一、概述  1、perf 作用 perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 perf_event 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。 perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/05/perf/1.png">
 <meta property="og:image" content="http://example.com/2024/08/05/perf/2.png">
@@ -286,9 +286,12 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><h2 id="1、perf-作用"><a href="#1、perf-作用" class="headerlink" title="1、perf 作用"></a>1、perf 作用</h2><p>perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 <code>perf_event</code> 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。</p>
+<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h2 id="1-perf-作用"><a class="markdownIt-Anchor" href="#1-perf-作用"></a> 1、perf 作用</h2>
+<p>perf 是一个性能分析工具（基于 Linux 内核提供的性能事件 <code>perf_event</code> 口），用于对 Linux 系统进行性能调优和性能分析。它可以通过收集硬件性能计数器、跟踪系统事件和采样程序调用栈等方式来提供详细的性能统计信息。</p>
 <p>perf 依赖事件进行统计，这里的事件是通过采样机制，并不是 clock 级别的统计；根据使用 perf 工具的不同按测量事件的类型进行统计。</p>
-<h2 id="2、常用的工具集"><a href="#2、常用的工具集" class="headerlink" title="2、常用的工具集"></a>2、常用的工具集</h2><p>除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：</p>
+<h2 id="2-常用的工具集"><a class="markdownIt-Anchor" href="#2-常用的工具集"></a> 2、常用的工具集</h2>
+<p>除了 perf 命令本身，还有一些常用的工具集可以与 perf 搭配使用来进行更深入的性能分析和调优。以下是一些常用的 perf 工具集：</p>
 <ol>
 <li><code>perf stat</code>：用于收集和显示性能计数器统计信息，可以通过 <code>perf stat</code> 命令来监测进程或命令的整体性能指标，如指令数、缓存命中率、分支预测错误等。</li>
 <li><code>perf record</code>：用于采集程序执行期间的硬件性能计数器数据、事件和调用栈信息，并将其保存到数据文件中。可以使用 <code>perf record</code> 命令来启动采样，并通过 <code>perf report</code> 命令来分析采样数据。</li>
@@ -300,15 +303,17 @@
 </ol>
 <p>还有一些针对性性能检查工具：如针对锁的 lock；针对调度的 sched；针对 slab 分配器性能 kmem；自定义检查点 probe 等。可以通过命令：<code>perf</code> 或 <code>perf -h</code> 来查看：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs bash">[projectsauron]:~/$ perf -h <span class="hljs-comment">## 或 perf</span><br><br> usage: perf [--version] [--<span class="hljs-built_in">help</span>] [OPTIONS] COMMAND [ARGS]<br><br> The most commonly used perf commands are:<br>   annotate        Read perf.data (created by perf record) and display annotated code<br>   archive         Create archive with object files with build-ids found <span class="hljs-keyword">in</span> perf.data file<br>   bench           General framework <span class="hljs-keyword">for</span> benchmark suites<br>   buildid-cache   Manage build-id cache.<br>   buildid-list    List the buildids <span class="hljs-keyword">in</span> a perf.data file<br>   c2c             Shared Data C2C/HITM Analyzer.<br>   config          Get and <span class="hljs-built_in">set</span> variables <span class="hljs-keyword">in</span> a configuration file.<br>   daemon          Run record sessions on background<br>   data            Data file related processing<br>   diff            Read perf.data files and display the differential profile<br>   evlist          List the event names <span class="hljs-keyword">in</span> a perf.data file<br>   ftrace          simple wrapper <span class="hljs-keyword">for</span> kernel<span class="hljs-string">&#x27;s ftrace functionality</span><br><span class="hljs-string">   inject          Filter to augment the events stream with additional information</span><br><span class="hljs-string">   iostat          Show I/O performance metrics</span><br><span class="hljs-string">   kallsyms        Searches running kernel for symbols</span><br><span class="hljs-string">   kmem            Tool to trace/measure kernel memory properties</span><br><span class="hljs-string">   kvm             Tool to trace/measure kvm guest os</span><br><span class="hljs-string">   list            List all symbolic event types</span><br><span class="hljs-string">   lock            Analyze lock events</span><br><span class="hljs-string">   mem             Profile memory accesses</span><br><span class="hljs-string">   record          Run a command and record its profile into perf.data</span><br><span class="hljs-string">   report          Read perf.data (created by perf record) and display the profile</span><br><span class="hljs-string">   sched           Tool to trace/measure scheduler properties (latencies)</span><br><span class="hljs-string">   script          Read perf.data (created by perf record) and display trace output</span><br><span class="hljs-string">   stat            Run a command and gather performance counter statistics</span><br><span class="hljs-string">   test            Runs sanity tests.</span><br><span class="hljs-string">   timechart       Tool to visualize total system behavior during a workload</span><br><span class="hljs-string">   top             System profiling tool.</span><br><span class="hljs-string">   version         display the version of perf binary</span><br><span class="hljs-string">   probe           Define new dynamic tracepoints</span><br><span class="hljs-string">   trace           strace inspired tool</span><br><span class="hljs-string"></span><br><span class="hljs-string"> See &#x27;</span>perf <span class="hljs-built_in">help</span> COMMAND<span class="hljs-string">&#x27; for more information on a specific command.</span><br></code></pre></td></tr></table></figure>
-
-<h1 id="二、perf-工具的使用"><a href="#二、perf-工具的使用" class="headerlink" title="二、perf 工具的使用"></a>二、perf 工具的使用</h1><h2 id="1、perf-list"><a href="#1、perf-list" class="headerlink" title="1、perf list"></a>1、perf list</h2><p>perf 自身是基于内核提供的事件统计机制的，用 <code>perf list</code> 命令查看，这些事件主要有由以下三种构成：</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二-perf-工具的使用"><a class="markdownIt-Anchor" href="#二-perf-工具的使用"></a> 二、perf 工具的使用</h1>
+<h2 id="1-perf-list"><a class="markdownIt-Anchor" href="#1-perf-list"></a> 1、perf list</h2>
+<p>perf 自身是基于内核提供的事件统计机制的，用 <code>perf list</code> 命令查看，这些事件主要有由以下三种构成：</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Hardware event</code>：由 PMU（<em><strong>Performance Monitoring Unit</strong></em>，性能检测单元）产生的事件，如 L1 缓存等。</li>
 <li><code>Software event</code>：由内核产生的事件，如进程切换等。</li>
 <li><code>Tracepoints event</code>：由内核静态跟踪点所触发的事件。</li>
 </ul>
-<h2 id="2、perf-stat"><a href="#2、perf-stat" class="headerlink" title="2、perf stat"></a>2、perf stat</h2><p><code>perf stat</code> 主要在程序执行的过程中统计支持的事件计数，简单的在屏幕输出。可以使用 <code>perf stat [options] cmd</code> 方式执行 cmd&#96;命令，在执行结束后会输出各类事件的统计。</p>
+<h2 id="2-perf-stat"><a class="markdownIt-Anchor" href="#2-perf-stat"></a> 2、perf stat</h2>
+<p><code>perf stat</code> 主要在程序执行的过程中统计支持的事件计数，简单的在屏幕输出。可以使用 <code>perf stat [options] cmd</code> 方式执行 cmd`命令，在执行结束后会输出各类事件的统计。</p>
 <p><code>perf stat</code> 命令的选项如下所示（通过命令 <code>perf stat -h</code> 查看）：</p>
 <ul>
 <li><strong>-a</strong>：显示所有 CPU 上的统计信息。</li>
@@ -319,10 +324,11 @@
 <li><strong>-p</strong>：指定要显示的进程的 ID。</li>
 <li><strong>-t</strong>：指定要显示的线程的 ID。</li>
 </ul>
-<p>例如，测试执行脚本文件 udisk.sh：</p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload><br>上面显示参数的描述如下：</p>
+<p>例如，测试执行脚本文件 <a target="_blank" rel="noopener" href="http://udisk.sh">udisk.sh</a>：</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt><br>
+上面显示参数的描述如下：</p>
 <ol>
-<li><code>task-clock</code>：任务真正占用的处理器时间，单位为 ms。(CPU占用率 &#x3D; task-clock &#x2F; time elapsed)</li>
+<li><code>task-clock</code>：任务真正占用的处理器时间，单位为 ms。(CPU占用率 = task-clock / time elapsed)</li>
 <li><code>context-switches</code>：上下文的切换次数。</li>
 <li><code>CPU-migrations</code>：处理器迁移次数，为了维持多处理器负载均衡，特定条件下会将某个任务迁移到另一个 CPU。</li>
 <li><code>page-faults</code>：缺页异常的次数。当应用程序请求的页面尚未建立、请求的页面不在内存中，或者请求的页面虽然在内存中，但物理地址和虚拟地址的映射关系尚未建立时，都会触发一次缺页异常。另外 TLB 不命中，页面访问权限不匹配等情况也会触发缺页异常。</li>
@@ -331,13 +337,15 @@
 <li><code>branches</code>：遇到的分支指令数。</li>
 <li><code>branches-misses</code>：是预测错误的分支指令数。</li>
 </ol>
-<h2 id="3、perf-top"><a href="#3、perf-top" class="headerlink" title="3、perf top"></a>3、perf top</h2><p><code>perf top</code> 工具的使用类似 Linux 的 top 命令，实时的输出函数采样按某一统计事件的排序结果，默认事件为是 cycles（消耗的处理器周期数），默认按降序排序；<code>perf top</code> 会统计全部用户态和内核态的函数，默认是全部 CPU，也可以指定某个 CPU 监控器。</p>
+<h2 id="3-perf-top"><a class="markdownIt-Anchor" href="#3-perf-top"></a> 3、perf top</h2>
+<p><code>perf top</code> 工具的使用类似 Linux 的 top 命令，实时的输出函数采样按某一统计事件的排序结果，默认事件为是 cycles（消耗的处理器周期数），默认按降序排序；<code>perf top</code> 会统计全部用户态和内核态的函数，默认是全部 CPU，也可以指定某个 CPU 监控器。</p>
 <p><code>perf top</code> 可以提供一个实时的性能统计报告，显示当前系统上正在发生的性能瓶颈。通过分析这些统计数据，我们可以快速定位和解决问题。</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>常用参数（通过命令 <code>perf top -h</code> 查看）：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt><br>
+常用参数（通过命令 <code>perf top -h</code> 查看）：</p>
 <ul>
 <li><strong>-a</strong>：显示在所有 CPU 上的性能统计信息</li>
-<li>**-c&lt;n&gt;**：指定采样周期</li>
-<li>**-C&lt;cpu&gt;**：显示在指定 CPU 上的性能统计信息</li>
+<li><strong>-c&lt;n&gt;</strong>：指定采样周期</li>
+<li><strong>-C&lt;cpu&gt;</strong>：显示在指定 CPU 上的性能统计信息</li>
 <li><strong>-e</strong>：指定性能事件</li>
 <li><strong>-g</strong>：展示调用关系（通过光标上下移动，enter 展开）</li>
 <li><strong>-K</strong>：隐藏内核统计信息</li>
@@ -346,8 +354,10 @@
 <li><strong>-t</strong>：指定线程 TID</li>
 <li><strong>-U</strong>：隐藏用户空间的统计信息</li>
 </ul>
-<h2 id="4、perf-record-report"><a href="#4、perf-record-report" class="headerlink" title="4、perf record&#x2F;report"></a>4、perf record&#x2F;report</h2><p>可以通过 <code>perf record cmd</code> 来针对 cmd 命令进行统计。收集一段时间内的性能事件到文件 perf.data(默认)，随后需要用 <code>perf report</code> 命令分析。可以统计单个线程、进程、或者 CPU 事件。默认统计事件也是按照 cycles（消耗的处理器周期数），默认的平均统计频率为 1 秒 1000 次，也就是 1000Hz。</p>
-<h3 id="4-1-perf-record"><a href="#4-1-perf-record" class="headerlink" title="4.1 perf record"></a>4.1 perf record</h3><p><code>perf record</code>命令用来采集数据，并且把数据写入数据文件中。</p>
+<h2 id="4-perf-recordreport"><a class="markdownIt-Anchor" href="#4-perf-recordreport"></a> 4、perf record/report</h2>
+<p>可以通过 <code>perf record cmd</code> 来针对 cmd 命令进行统计。收集一段时间内的性能事件到文件 perf.data(默认)，随后需要用 <code>perf report</code> 命令分析。可以统计单个线程、进程、或者 CPU 事件。默认统计事件也是按照 cycles（消耗的处理器周期数），默认的平均统计频率为 1 秒 1000 次，也就是 1000Hz。</p>
+<h3 id="41-perf-record"><a class="markdownIt-Anchor" href="#41-perf-record"></a> 4.1 perf record</h3>
+<p><code>perf record</code>命令用来采集数据，并且把数据写入数据文件中。</p>
 <p><code>perf record</code> 常用的选项有（通过命令 <code>perf record -h</code> 查看）：</p>
 <ul>
 <li><strong>-a</strong>：分析整个系统的性能</li>
@@ -363,31 +373,31 @@
 </ul>
 <p>例如，用 1000 统计频率，统计一个 sleep 5 秒过程中，全部 CPU 上的事件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">root@projectsauron:~/# perf record -a -F 1000 <span class="hljs-built_in">sleep</span> 5<br>[ perf record: Woken up 17 <span class="hljs-built_in">times</span> to write data ]<br>[ perf record: Captured and wrote 5.204 MB perf.data (80049 samples) ]<br></code></pre></td></tr></table></figure>
-
-<h3 id="4-2-perf-report"><a href="#4-2-perf-report" class="headerlink" title="4.2 perf report"></a>4.2 perf report</h3><p><code>perf report</code> 对 <code>perf record</code> 生成的数据文件进行分析。</p>
+<h3 id="42-perf-report"><a class="markdownIt-Anchor" href="#42-perf-report"></a> 4.2 perf report</h3>
+<p><code>perf report</code> 对 <code>perf record</code> 生成的数据文件进行分析。</p>
 <p><code>perf report</code> 常用的选项有（通过命令 <code>perf report-h</code> 查看）：</p>
 <ul>
-<li>**-c&lt;n&gt;**：指定采样周期</li>
-<li>**-C&lt;cpu&gt;**：只显示指定 CPU 的信息</li>
-<li>**-d&lt;dos&gt;**：只显示指定 dos 的符号</li>
+<li><strong>-c&lt;n&gt;</strong>：指定采样周期</li>
+<li><strong>-C&lt;cpu&gt;</strong>：只显示指定 CPU 的信息</li>
+<li><strong>-d&lt;dos&gt;</strong>：只显示指定 dos 的符号</li>
 <li><strong>-g</strong>：生成函数调用关系图，具体等同于 <code>perf top</code> 命令中的 	-g</li>
 <li><strong>-i</strong>：导入的数据文件的名称，默认为 perf.data</li>
 <li><strong>-M</strong>：以指定汇编指令风格显示</li>
-<li><strong>–sort</strong>：分类统计信息，如 PID、COMM、CPU 等</li>
+<li><strong>--sort</strong>：分类统计信息，如 PID、COMM、CPU 等</li>
 <li><strong>-S</strong>：只考虑指定符号</li>
 <li><strong>-U</strong>：只显示已解析的符号</li>
 <li><strong>-v</strong>：显示每个符号的地址</li>
 </ul>
 <p>下面对上面<code>perf record</code> 生成的数据文件进行分析：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">root@projectsauron:~/# perf report-i perf.data<br></code></pre></td></tr></table></figure>
-
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="5、perf-annotate"><a href="#5、perf-annotate" class="headerlink" title="5、perf annotate"></a>5、perf annotate</h2><p><code>perf annotate</code> 用于分析和显示指定函数或指令的性能特征。它提供指令级别的 record 文件定位。使用调试信息 -g 编译的文件能够显示汇编和本身源码信息。</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="5-perf-annotate"><a class="markdownIt-Anchor" href="#5-perf-annotate"></a> 5、perf annotate</h2>
+<p><code>perf annotate</code> 用于分析和显示指定函数或指令的性能特征。它提供指令级别的 record 文件定位。使用调试信息 -g 编译的文件能够显示汇编和本身源码信息。</p>
 <p>但要注意， annotate 命令并不能够解析内核 image 中的符号，必须要传递未压缩的内核 image 给 annotate 才能正常的解析内核符号，比如：<code>perf annotate -k /tmp/vmlinux -d symbol</code>。</p>
 <p><code>perf annotate</code> 可以帮助我们深入了解程序中的热点代码，包括函数调用、循环等，以及这些代码的性能特征，如执行时间、缓存命中率等。通过分析这些性能特征，我们可以了解到程序的瓶颈所在，并进行优化。</p>
 <p><code>perf annotate</code> 常用的选项有（通过命令 <code>perf annotate-h</code> 查看）：</p>
 <ul>
-<li>**-C&lt;cpu&gt;**：指定某个 CPU 事件</li>
+<li><strong>-C&lt;cpu&gt;</strong>：指定某个 CPU 事件</li>
 <li><strong>-d</strong>：只解析指定文件中符号</li>
 <li><strong>-i</strong>：指定输入文件</li>
 <li><strong>-k</strong>：指定内核文件</li>
@@ -398,23 +408,22 @@
 <li>先写一个 main.c，内容如下：</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_a</span><span class="hljs-params">()</span> &#123;<br>   <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> num = <span class="hljs-number">1</span>;<br>   <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>      num *= <span class="hljs-number">2</span>;<br>      num = <span class="hljs-number">1</span>;<br>   &#125;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">func_b</span><span class="hljs-params">()</span> &#123;<br>   <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> num = <span class="hljs-number">1</span>;<br>   <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>      num &lt;&lt;= <span class="hljs-number">1</span>;<br>      num = <span class="hljs-number">1</span>;<br>   &#125;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>   func_a();<br>   func_b();<br>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <ol start="2">
-<li><p>再使用 gcc 命令编译：<code>gcc -g -O0 main.c -o main</code>。（-g 是 debug 信息，保留符号表等；-O0 表示不进行优化处理）</p>
+<li>
+<p>再使用 gcc 命令编译：<code>gcc -g -O0 main.c -o main</code>。（-g 是 debug 信息，保留符号表等；-O0 表示不进行优化处理）</p>
 </li>
-<li><p>执行统计命令：<code>perf record -a -g ./main</code></p>
+<li>
+<p>执行统计命令：<code>perf record -a -g ./main</code></p>
 </li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">root@projectsauron:~# perf record -a -g ./main<br>[ perf record: Woken up 1 <span class="hljs-built_in">times</span> to write data ]<br>[ perf record: Captured and wrote 1.266 MB perf.data (2474 samples) ]<br></code></pre></td></tr></table></figure>
-
 <ol start="4">
 <li>查看结果</li>
 </ol>
 <p>执行 <code>perf report -i perf.data</code>：</p>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>执行 <code>perf annotate -i perf.data</code>：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">func_a  /home/projectsauron/test/main           <br>       │    <span class="hljs-type">void</span> <span class="hljs-title function_">func_a</span><span class="hljs-params">()</span> &#123;<br>       │      push   %rbp<br>       │      mov    %rsp,%rbp<br>       │       <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> num = <span class="hljs-number">1</span>;<br>       │      movl   $<span class="hljs-number">0x1</span>,<span class="hljs-number">-0x8</span>(%rbp)<br>       │       <span class="hljs-type">int</span> i;<br>       │       <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">10000000</span>; i++) &#123;<br>       │      movl   $<span class="hljs-number">0x0</span>,<span class="hljs-number">-0x4</span>(%rbp)<br>       │    ↓ jmp    <span class="hljs-number">22</span><br>       │          num *= <span class="hljs-number">2</span>;<br> <span class="hljs-number">11.11</span> │<span class="hljs-number">14</span>:┌─→shll   <span class="hljs-number">-0x8</span>(%rbp)<br>       │   │      num = <span class="hljs-number">1</span>;<br>       │   │  movl   $<span class="hljs-number">0x1</span>,<span class="hljs-number">-0x8</span>(%rbp)<br>       │   │<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br>       │   │<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span><br>       │   │<span class="hljs-type">void</span> <span class="hljs-title function_">func_a</span><span class="hljs-params">()</span> &#123;<br>       │   │   <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> num = <span class="hljs-number">1</span>;<br>       │   │   <span class="hljs-type">int</span> i;<br>       │   │   <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">10000000</span>; i++) &#123;<br>  <span class="hljs-number">5.56</span> │   │  addl   $<span class="hljs-number">0x1</span>,<span class="hljs-number">-0x4</span>(%rbp)<br> <span class="hljs-number">33.33</span> │<span class="hljs-number">22</span>:│  cmpl   $<span class="hljs-number">0x98967f</span>,<span class="hljs-number">-0x4</span>(%rbp)<br> <span class="hljs-number">50.00</span> │   └──jle    <span class="hljs-number">14</span><br>       │          num *= <span class="hljs-number">2</span>;<br>       │          num = <span class="hljs-number">1</span>;<br>       │       &#125;<br>       │    &#125;<br>       │      pop    %rbp<br>       │    ← retq<br><br></code></pre></td></tr></table></figure>
-
 
                 
               </div>

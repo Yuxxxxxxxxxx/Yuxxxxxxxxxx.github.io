@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、基本概念简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于“无值”（空）的状态。 在底层，std::nullopt 的定义非常简单：  它的类型是 **std::nullopt_t**（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常量">
+    <meta name="description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ std::nullopt">
 <meta property="og:url" content="http://example.com/2026/06/06/C++-std-nullopt/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、基本概念简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于“无值”（空）的状态。 在底层，std::nullopt 的定义非常简单：  它的类型是 **std::nullopt_t**（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常量">
+<meta property="og:description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-06T08:43:57.000Z">
 <meta property="article:modified_time" content="2026-06-23T08:31:24.129Z">
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          729 字
+          728 字
         
       </span>
     
@@ -277,62 +277,71 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h1><p>简单来说，<code>std::nullopt</code> 是一个<strong>哨兵值（Sentinel Value）</strong>，专门用来表示 <code>std::optional</code> 处于<strong>“无值”（空）的状态</strong>。</p>
+                <h1 id="一-基本概念"><a class="markdownIt-Anchor" href="#一-基本概念"></a> 一、基本概念</h1>
+<p>简单来说，<code>std::nullopt</code> 是一个<strong>哨兵值（Sentinel Value）</strong>，专门用来表示 <code>std::optional</code> 处于**“无值”（空）的状态**。</p>
 <p>在底层，<code>std::nullopt</code> 的定义非常简单：</p>
 <ul>
-<li>它的类型是 **<code>std::nullopt_t</code>**（一个空的强类型结构体）。</li>
+<li>它的类型是 <strong><code>std::nullopt_t</code></strong>（一个空的强类型结构体）。</li>
 <li><code>std::nullopt</code> 是 <code>std::nullopt_t</code> 的一个 <code>inline constexpr</code> 常量。</li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 标准库中的简化定义</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">nullopt_t</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-title">nullopt_t</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span> </span>&#123;&#125; <span class="hljs-comment">// 防止隐式转换</span><br>&#125;;<br><br><span class="hljs-keyword">inline</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">nullopt_t</span> <span class="hljs-literal">nullopt</span>&#123;<span class="hljs-number">0</span>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p><code>std::optional</code> 重载了接受 <code>std::nullopt_t</code> 的构造函数和赋值运算符。因此，当你把 <code>std::nullopt</code> 赋给 <code>std::optional</code> 时，它知道应该将内部状态标记为“空”。</p>
-<h1 id="二、使用场景"><a href="#二、使用场景" class="headerlink" title="二、使用场景"></a>二、使用场景</h1><ol>
-<li><p>作为函数返回值（表示失败或无结果）</p>
+<h1 id="二-使用场景"><a class="markdownIt-Anchor" href="#二-使用场景"></a> 二、使用场景</h1>
+<ol>
+<li>
+<p>作为函数返回值（表示失败或无结果）</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;optional&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-function">std::optional&lt;<span class="hljs-type">double</span>&gt; <span class="hljs-title">safeDivide</span><span class="hljs-params">(<span class="hljs-type">double</span> a, <span class="hljs-type">double</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (b == <span class="hljs-number">0.0</span>) &#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-literal">nullopt</span>; <span class="hljs-comment">// 明确表达：由于除以0，无法返回有效计算结果</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> a / b;<br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>显示初始化</p>
+<li>
+<p>显示初始化</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 隐式初始化为空</span><br>std::optional&lt;<span class="hljs-type">int</span>&gt; opt1; <br><br><span class="hljs-comment">// 显式初始化为空（可读性更强，一眼看出它是可选的且当前为空）</span><br>std::optional&lt;<span class="hljs-type">int</span>&gt; opt2 = std::<span class="hljs-literal">nullopt</span>;<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>重置一个 <code>std::optinonal</code> 对象</p>
+<li>
+<p>重置一个 <code>std::optinonal</code> 对象</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;std::string&gt; cache = <span class="hljs-string">&quot;some cached data&quot;</span>;<br><br><span class="hljs-comment">// 方法 1：赋值为 std::nullopt（非常直观）</span><br>cache = std::<span class="hljs-literal">nullopt</span>; <br><br><span class="hljs-comment">// 方法 2：调用 .reset() 方法（效果完全相同）</span><br>cache.<span class="hljs-built_in">reset</span>();<br><br><span class="hljs-comment">// 注：此时 std::optional 内部保存的对象会被析构，释放其占用的资源，但 std::optional 本身占用的栈内存不会释放。</span><br></code></pre></td></tr></table></figure>
 </li>
-<li><p>条件对比</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;<span class="hljs-type">int</span>&gt; opt = <span class="hljs-built_in">getSomeValue</span>();<br><br><span class="hljs-keyword">if</span> (opt == std::<span class="hljs-literal">nullopt</span>) &#123;<br>    <span class="hljs-comment">// 处理空值情况</span><br>&#125;<br><br><span class="hljs-comment">// 虽然这与下面的写法等价，但在某些语境下，与 nullopt 显式对比可读性更好：</span><br><span class="hljs-keyword">if</span> (!opt.<span class="hljs-built_in">has_value</span>()) &#123; ... &#125;<br></code></pre></td></tr></table></figure></li>
+<li>
+<p>条件对比</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;<span class="hljs-type">int</span>&gt; opt = <span class="hljs-built_in">getSomeValue</span>();<br><br><span class="hljs-keyword">if</span> (opt == std::<span class="hljs-literal">nullopt</span>) &#123;<br>    <span class="hljs-comment">// 处理空值情况</span><br>&#125;<br><br><span class="hljs-comment">// 虽然这与下面的写法等价，但在某些语境下，与 nullopt 显式对比可读性更好：</span><br><span class="hljs-keyword">if</span> (!opt.<span class="hljs-built_in">has_value</span>()) &#123; ... &#125;<br></code></pre></td></tr></table></figure>
+</li>
 </ol>
-<h1 id="三、std-nullopt-vs-nullptr-vs-NULL"><a href="#三、std-nullopt-vs-nullptr-vs-NULL" class="headerlink" title="三、std::nullopt vs nullptr vs NULL"></a>三、<code>std::nullopt</code> vs <code>nullptr</code> vs <code>NULL</code></h1><table>
+<h1 id="三-stdnullopt-vs-nullptr-vs-null"><a class="markdownIt-Anchor" href="#三-stdnullopt-vs-nullptr-vs-null"></a> 三、<code>std::nullopt</code> vs <code>nullptr</code> vs <code>NULL</code></h1>
+<table>
 <thead>
 <tr>
-<th align="left">特性</th>
-<th align="left"><code>std::nullopt</code></th>
-<th align="left"><code>nullptr</code></th>
-<th align="left"><code>NULL</code></th>
+<th style="text-align:left">特性</th>
+<th style="text-align:left"><code>std::nullopt</code></th>
+<th style="text-align:left"><code>nullptr</code></th>
+<th style="text-align:left"><code>NULL</code></th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left"><strong>所属标准</strong></td>
-<td align="left">C++17</td>
-<td align="left">C++11</td>
-<td align="left">C++98 &#x2F; C 语言遗留</td>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>所属标准</strong></td>
+<td style="text-align:left">C++17</td>
+<td style="text-align:left">C++11</td>
+<td style="text-align:left">C++98 / C 语言遗留</td>
 </tr>
 <tr>
-<td align="left"><strong>设计目的</strong></td>
-<td align="left">表示 <code>std::optional</code> 为空</td>
-<td align="left">表示<strong>空指针</strong>（不指向任何内存）</td>
-<td align="left">表示空指针（宏定义，通常是 <code>0</code>）</td>
+<td style="text-align:left"><strong>设计目的</strong></td>
+<td style="text-align:left">表示 <code>std::optional</code> 为空</td>
+<td style="text-align:left">表示<strong>空指针</strong>（不指向任何内存）</td>
+<td style="text-align:left">表示空指针（宏定义，通常是 <code>0</code>）</td>
 </tr>
 <tr>
-<td align="left"><strong>对应类型</strong></td>
-<td align="left"><code>std::nullopt_t</code></td>
-<td align="left"><code>std::nullptr_t</code></td>
-<td align="left">整型 <code>0</code> 或 <code>(void*)0</code></td>
+<td style="text-align:left"><strong>对应类型</strong></td>
+<td style="text-align:left"><code>std::nullopt_t</code></td>
+<td style="text-align:left"><code>std::nullptr_t</code></td>
+<td style="text-align:left">整型 <code>0</code> 或 <code>(void*)0</code></td>
 </tr>
 <tr>
-<td align="left"><strong>安全性</strong></td>
-<td align="left"><strong>极高</strong>（强类型，防止各种隐式转换）</td>
-<td align="left"><strong>高</strong>（解决 <code>NULL</code> 的整型重载二义性）</td>
-<td align="left"><strong>低</strong>（容易引发重载混乱和安全隐患）</td>
+<td style="text-align:left"><strong>安全性</strong></td>
+<td style="text-align:left"><strong>极高</strong>（强类型，防止各种隐式转换）</td>
+<td style="text-align:left"><strong>高</strong>（解决 <code>NULL</code> 的整型重载二义性）</td>
+<td style="text-align:left"><strong>低</strong>（容易引发重载混乱和安全隐患）</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p>为什么不能用 <code>nullptr</code> 代替 <code>std::nullopt</code>？</p>
 </blockquote>

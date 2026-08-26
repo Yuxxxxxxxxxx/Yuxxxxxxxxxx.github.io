@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  一、任务通知1、基本概念FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然">
+    <meta name="description" content="[toc]   一、任务通知  1、基本概念 FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FreeRTOS 快速入门（八）之任务通知">
 <meta property="og:url" content="http://example.com/2024/08/25/FreeRTOS%E5%85%A5%E9%97%A8%E5%85%AB/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  一、任务通知1、基本概念FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然">
+<meta property="og:description" content="[toc]   一、任务通知  1、基本概念 FreeRTOS 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。 相对于以前使用 FreeRTOS 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-25T10:43:19.000Z">
 <meta property="article:modified_time" content="2024-11-14T00:37:19.522Z">
@@ -279,8 +279,10 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一、任务通知"><a href="#一、任务通知" class="headerlink" title="一、任务通知"></a>一、任务通知</h1><h2 id="1、基本概念"><a href="#1、基本概念" class="headerlink" title="1、基本概念"></a>1、基本概念</h2><p><code>FreeRTOS</code> 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。</p>
-<p>相对于以前使用 <code>FreeRTOS</code> 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然更灵活。按照 FreeRTOS 官方的说法，使用任务通知比通过信号量等 ICP 通信方式解除阻塞的任务要快 45%，并且更加省 RAM 内存空间（使用 GCC 编译器，-o2 优化级别），任务通知的使用无需创建队列。 </p>
+<h1 id="一-任务通知"><a class="markdownIt-Anchor" href="#一-任务通知"></a> 一、任务通知</h1>
+<h2 id="1-基本概念"><a class="markdownIt-Anchor" href="#1-基本概念"></a> 1、基本概念</h2>
+<p><code>FreeRTOS</code> 从 V8.2.0 版本开始提供任务通知这个功能，每个任务都有 一个 32 位 的通知值，在大多数情况下，任务通知可以 替代二值信号量、计数信号量、事件组，也可以替代长度为 1 的队列（可以保存一个 32 位整数或指针值）。</p>
+<p>相对于以前使用 <code>FreeRTOS</code> 内核通信的资源，必须创建队列、二进制信号量、计数信号量或事件组的情况，使用任务通知显然更灵活。按照 FreeRTOS 官方的说法，使用任务通知比通过信号量等 ICP 通信方式解除阻塞的任务要快 45%，并且更加省 RAM 内存空间（使用 GCC 编译器，-o2 优化级别），任务通知的使用无需创建队列。</p>
 <p>想要使用任务通知，必须将 <code>FreeRTOSConfig.h</code> 中的宏定义 <code>configUSE_TASK_NOTIFICATIONS</code> 设置为 1，其实<code>FreeRTOS</code> 默认是为 1 的，所以任务通知是默认使能的。</p>
 <p><code>FreeRTOS</code> 提供以下几种方式发送通知给任务 ：</p>
 <ul>
@@ -290,7 +292,8 @@
 <li>发送通知给任务，递增通知值，可以当做计数信号量使用。</li>
 </ul>
 <p>通过对以上任务通知方式的合理使用，可以在一定场合下替代 <code>FreeRTOS</code> 的信号量，队列、事件组等。</p>
-<h2 id="2、优势及限制"><a href="#2、优势及限制" class="headerlink" title="2、优势及限制"></a>2、优势及限制</h2><p>任务通知的优势：</p>
+<h2 id="2-优势及限制"><a class="markdownIt-Anchor" href="#2-优势及限制"></a> 2、优势及限制</h2>
+<p>任务通知的优势：</p>
 <ul>
 <li>效率更高：使用任务通知来发送事件、数据给某个任务时，效率更高。比队列、信号量、事件组都有大的优势。</li>
 <li>更节省内存：使用其他方法时都要先创建对应的结构体，使用任务通知时无需额外创建结构体。</li>
@@ -303,13 +306,13 @@
 <li>无法广播给多个任务</li>
 <li>如果发送受阻，发送方无法进入阻塞状态等待</li>
 </ul>
-<h2 id="3、通知状态和通知值"><a href="#3、通知状态和通知值" class="headerlink" title="3、通知状态和通知值"></a>3、通知状态和通知值</h2><p>每个任务都有一个结构体：TCB（<em><strong>Task Control Block</strong></em>），里面有 2 个成员：</p>
+<h2 id="3-通知状态和通知值"><a class="markdownIt-Anchor" href="#3-通知状态和通知值"></a> 3、通知状态和通知值</h2>
+<p>每个任务都有一个结构体：TCB（<em><strong>Task Control Block</strong></em>），里面有 2 个成员：</p>
 <ul>
-<li>一个是 uint8_t 类型，用来表示&#x3D;&#x3D;通知状态&#x3D;&#x3D;</li>
-<li>一个是 uint32_t 类型，用来表示&#x3D;&#x3D;通知值&#x3D;&#x3D;</li>
+<li>一个是 uint8_t 类型，用来表示<mark>通知状态</mark></li>
+<li>一个是 uint32_t 类型，用来表示<mark>通知值</mark></li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">tskTaskControlBlock</span></span><br><span class="hljs-class">&#123;</span><br>	......<br>	<span class="hljs-comment">/* configTASK_NOTIFICATION_ARRAY_ENTRIES = 1 */</span><br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span> ulNotifiedValue[ configTASK_NOTIFICATION_ARRAY_ENTRIES ];<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint8_t</span> ucNotifyState[ configTASK_NOTIFICATION_ARRAY_ENTRIES ];<br>	......<br>&#125; tskTCB;<br></code></pre></td></tr></table></figure>
-
 <p>通知状态有 3 种取值：</p>
 <ul>
 <li><code>taskNOT_WAITING_NOTIFICATION</code>：任务没有在等待通知</li>
@@ -317,14 +320,14 @@
 <li><code>taskNOTIFICATION_RECEIVED</code>：任务接收到了通知，也被称为 pending(有数据了，待处理)</li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskNOT_WAITING_NOTIFICATION ( ( uint8_t ) 0 ) <span class="hljs-comment">/* 也是初始状态 */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskWAITING_NOTIFICATION ( ( uint8_t ) 1 )</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> taskNOTIFICATION_RECEIVED ( ( uint8_t ) 2 )</span><br></code></pre></td></tr></table></figure>
-
 <p>通知值可以有很多种类型：</p>
 <ul>
 <li>计数值</li>
 <li>位(类似事件组)</li>
 <li>任意数值</li>
 </ul>
-<h1 id="二、任务通知的使用"><a href="#二、任务通知的使用" class="headerlink" title="二、任务通知的使用"></a>二、任务通知的使用</h1><p>使用任务通知，可以实现轻量级的队列（长度为 1）、邮箱(覆盖的队列)、计数型信号量、二进制信号量、事件组。</p>
+<h1 id="二-任务通知的使用"><a class="markdownIt-Anchor" href="#二-任务通知的使用"></a> 二、任务通知的使用</h1>
+<p>使用任务通知，可以实现轻量级的队列（长度为 1）、邮箱(覆盖的队列)、计数型信号量、二进制信号量、事件组。</p>
 <p>任务通知有两套函数，简化版、专业版，列表如下：</p>
 <ul>
 <li>简化版函数的使用比较简单，它实际上也是使用专业版函数实现的</li>
@@ -338,7 +341,8 @@
 <th>专业版</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>发出通知</td>
 <td><code>xTaskNotifyGive</code><br><code>vTaskNotifyGiveFromISR</code></td>
 <td><code>xTaskNotify</code><br><code>xTaskNotifyFromISR</code></td>
@@ -348,11 +352,14 @@
 <td><code>ulTaskNotifyTake</code></td>
 <td><code>xTaskNotifyWait</code></td>
 </tr>
-</tbody></table>
-<h2 id="1、xTaskNotifyGive-ulTaskNotifyTake"><a href="#1、xTaskNotifyGive-ulTaskNotifyTake" class="headerlink" title="1、xTaskNotifyGive&#x2F;ulTaskNotifyTake"></a>1、xTaskNotifyGive&#x2F;ulTaskNotifyTake</h2><p>在任务中使用 <code>xTaskNotifyGive</code> 函数，在 ISR 中使用 <code>vTaskNotifyGiveFromISR</code> 函数，都是直接给其他任务<br>发送通知：</p>
+</tbody>
+</table>
+<h2 id="1-xtasknotifygiveultasknotifytake"><a class="markdownIt-Anchor" href="#1-xtasknotifygiveultasknotifytake"></a> 1、xTaskNotifyGive/ulTaskNotifyTake</h2>
+<p>在任务中使用 <code>xTaskNotifyGive</code> 函数，在 ISR 中使用 <code>vTaskNotifyGiveFromISR</code> 函数，都是直接给其他任务<br>
+发送通知：</p>
 <ul>
 <li>使得通知值加一</li>
-<li>并使得通知状态变为”pending”，也就是 <code>taskNOTIFICATION_RECEIVED</code>，表示有数据了、待处理</li>
+<li>并使得通知状态变为&quot;pending&quot;，也就是 <code>taskNOTIFICATION_RECEIVED</code>，表示有数据了、待处理</li>
 </ul>
 <p>可以使用 <code>ulTaskNotifyTake</code> 函数来取出通知值：</p>
 <ul>
@@ -365,8 +372,8 @@
 </blockquote>
 <p>原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify : 任务句柄(创建任务时得到)，给哪个任务发通知</span><br><span class="hljs-comment"> * 返回值 : 必定返回pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyGive</span><span class="hljs-params">( TaskHandle_t xTaskToNotify )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskHandle : 任务句柄(创建任务时得到)，给哪个任务发通知</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken : 被通知的任务，可能正处于阻塞状态。此函数发出通知后，</span><br><span class="hljs-comment">      会把它从阻塞状态切换为就绪态。如果被唤醒的任务的优先级，高于当前任务的优先级，则 </span><br><span class="hljs-comment">      *pxHigherPriorityTaskWoken 被设置为pdTRUE，这表示在中断返回之前要进行任务切换。</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vTaskNotifyGiveFromISR</span><span class="hljs-params">( TaskHandle_t xTaskHandle, BaseType_t</span><br><span class="hljs-params">						*pxHigherPriorityTaskWoken )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xClearCountOnExit : 函数返回前是否清零：</span><br><span class="hljs-comment"> *                    pdTRUE：把通知值清零</span><br><span class="hljs-comment"> *                    pdFALSE：如果通知值大于0，则把通知值减一</span><br><span class="hljs-comment"> * xTicksToWait : 任务进入阻塞态的超时时间，它在等待通知值大于0。</span><br><span class="hljs-comment"> *                 0：不等待，即刻返回；</span><br><span class="hljs-comment"> *                 portMAX_DELAY：一直等待，直到通知值大于0；</span><br><span class="hljs-comment"> *                 其他值：Tick Count，可以用pdMS_TO_TICKS() 把ms转换为Tick Count</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">uint32_t</span> <span class="hljs-title function_">ulTaskNotifyTake</span><span class="hljs-params">( BaseType_t xClearCountOnExit, TickType_t </span><br><span class="hljs-params">						  xTicksToWait</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
-
-<h2 id="2、xTaskNotify-xTaskNotifyWait"><a href="#2、xTaskNotify-xTaskNotifyWait" class="headerlink" title="2、xTaskNotify&#x2F;xTaskNotifyWait"></a>2、xTaskNotify&#x2F;xTaskNotifyWait</h2><p><code>xTaskNotify</code> 函数功能更强大，可以使用不同参数实现各类功能，比如：</p>
+<h2 id="2-xtasknotifyxtasknotifywait"><a class="markdownIt-Anchor" href="#2-xtasknotifyxtasknotifywait"></a> 2、xTaskNotify/xTaskNotifyWait</h2>
+<p><code>xTaskNotify</code> 函数功能更强大，可以使用不同参数实现各类功能，比如：</p>
 <ul>
 <li>让接收任务的通知值加一：这时 <code>xTaskNotify()</code> 等同于 <code>xTaskNotifyGive()</code></li>
 <li>设置接收任务的通知值的某一位、某些位，这就是一个轻量级的、更高效的事件组</li>
@@ -376,12 +383,11 @@
 <p><code>xTaskNotify()</code> 比 <code>xTaskNotifyGive()</code> 更灵活、强大，使用上也就更复杂。<code>xTaskNotifyFromISR()</code> 是它对应的 ISR 版本。</p>
 <p>使用 <code>xTaskNotifyWait()</code> 函数来取出任务通知。它比 <code>ulTaskNotifyTake()</code> 更复杂：</p>
 <ul>
-<li>可以让任务等待(可以加上超时时间)，等到任务状态为”pending”(也就是有数据)</li>
+<li>可以让任务等待(可以加上超时时间)，等到任务状态为&quot;pending&quot;(也就是有数据)</li>
 <li>还可以在函数进入、退出时，清除通知值的指定位</li>
 </ul>
 <p>原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见下面表格</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotify</span><span class="hljs-params">( TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">						<span class="hljs-type">uint32_t</span> ulValue,</span><br><span class="hljs-params">						eNotifyAction eAction )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见下面表格</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken：在使用之前必须先初始化为 pdFALSE。当调用该函数发送一个任务通知时，</span><br><span class="hljs-comment">   		目标任务接收到通知后将从阻塞态变为就绪态，并且如果其优先级比当前运行的任务的优先级高，</span><br><span class="hljs-comment">   		那么 *pxHigherPriorityTaskWoken 会被设置为 pdTRUE，然后在中断退出前执行一次上下文切换，</span><br><span class="hljs-comment">   		去执行刚刚被唤醒的中断优先级较高的任务。pxHigherPriorityTaskWoken 是一个可选的参数可以设置为 NULL</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyFromISR</span><span class="hljs-params">( TaskHandle_t xTaskToNotify,</span><br><span class="hljs-params">						        <span class="hljs-type">uint32_t</span> ulValue,</span><br><span class="hljs-params">								eNotifyAction eAction,</span><br><span class="hljs-params">								BaseType_t *pxHigherPriorityTaskWoken )</span>;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * ulBitsToClearOnEntry：ulBitsToClearOnEntry 表示在使用通知之前，将任务通知值的哪些位清 0，</span><br><span class="hljs-comment"> 		实现过程就是将任务的通知值与参数 ulBitsToClearOnEntry 的按位取反值按位与操作。</span><br><span class="hljs-comment"> 		如果 ulBitsToClearOnEntry 设置为 0x01，那么在函数进入前，任务通知值的位1会被清0，其他位保持不变。</span><br><span class="hljs-comment"> 		如果 ulBitsToClearOnEntry 设置为 0xFFFFFFFF (ULONG_MAX)，那么在进入函数前任务通知值的所有位都</span><br><span class="hljs-comment"> 		会被清 0，表示清零任务通知值</span><br><span class="hljs-comment"> * pulNotificationValue：用于保存接收到的任务通知值。如果接收到的任务通知不需要使用，则设置为 NULL 即可。</span><br><span class="hljs-comment"> 		这个通知值在参数 ulBitsToClearOnExit 起作用前将通知值拷贝到 *pulNotificationValue 中</span><br><span class="hljs-comment"> * xTicksToWait：等待超时时间，单位为系统节拍周期。宏 pdMS_TO_TICKS 用于将单位毫秒转化为系统节拍数</span><br><span class="hljs-comment"> * 返回值：如果获取任务通知成功则返回 pdTRUE，失败则返回 pdFALSE</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyWait</span><span class="hljs-params">( <span class="hljs-type">uint32_t</span> ulBitsToClearOnEntry,</span><br><span class="hljs-params">							<span class="hljs-type">uint32_t</span> ulBitsToClearOnExit,</span><br><span class="hljs-params">							<span class="hljs-type">uint32_t</span> *pulNotificationValue,</span><br><span class="hljs-params">							TickType_t xTicksToWait )</span>;<br></code></pre></td></tr></table></figure>
-
 <p>其中，<code>eAcrtion</code> 的取值如下：</p>
 <table>
 <thead>
@@ -390,7 +396,8 @@
 <th>含义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>eNoAction</td>
 <td>对象任务接收任务通知，但是任务自身的任务通知值不更新，即形参 ulValue 没有用。</td>
 </tr>
@@ -410,8 +417,10 @@
 <td>eSetValueWithoutOverwrite</td>
 <td>对象任务接收任务通知，且对象任务没有通知值，那么通知值就会被设置为 ulValue。<br>对象任务接收任务通知，但是上一次接收到的通知值并没有取走，那么本次的通知值将不会更新，同时函数返回 pdFALSE。<br> 在这种方式下，任务通知可以看成是函数 <code>xQueueSend()</code> 应用在队列深度为 1 的队列上的一种轻量型实现，速度更快。</td>
 </tr>
-</tbody></table>
-<h2 id="3、xTaskNotifyAndQuery"><a href="#3、xTaskNotifyAndQuery" class="headerlink" title="3、xTaskNotifyAndQuery"></a>3、xTaskNotifyAndQuery</h2><p><code>xTaskNotifyAndQuery()</code> 与 <code>xTaskNotify()</code> 很像，都是调用通用的任务通知发送函数 <code>xTaskGenericNotify()</code> 来实现通知的发送，不同的是多了一个附加的参数 <code>pulPreviousNotifyValue</code> 用于回传接收任务的上一个通知值。</p>
+</tbody>
+</table>
+<h2 id="3-xtasknotifyandquery"><a class="markdownIt-Anchor" href="#3-xtasknotifyandquery"></a> 3、xTaskNotifyAndQuery</h2>
+<p><code>xTaskNotifyAndQuery()</code> 与 <code>xTaskNotify()</code> 很像，都是调用通用的任务通知发送函数 <code>xTaskGenericNotify()</code> 来实现通知的发送，不同的是多了一个附加的参数 <code>pulPreviousNotifyValue</code> 用于回传接收任务的上一个通知值。</p>
 <p><code>xTaskNotifyAndQuery()</code> 函数不能用在中断中，而是必须使用带中断保护功能的 <code>xTaskNotifyAndQuery()FromISR</code> 来代替。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见上面表格</span><br><span class="hljs-comment"> * pulPreviousNotifyValue：对象任务的上一个任务通知值，如果为 NULL，则不需要回传，</span><br><span class="hljs-comment"> 		这个时候就等价于函数 xTaskNotify()</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyAndQuery</span><span class="hljs-params">( TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">								<span class="hljs-type">uint32_t</span> ulValue, </span><br><span class="hljs-params">								eNotifyAction eAction, </span><br><span class="hljs-params">								<span class="hljs-type">uint32_t</span> *pulPreviousNotifyValue )</span><br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xTaskToNotify：接收通知的任务句</span><br><span class="hljs-comment"> * ulValue：用于更新接收任务通知的任务通知值，具体如何更新由形参 eAction 决定</span><br><span class="hljs-comment"> * eAction：任务通知值更新方式，具体见上面表格</span><br><span class="hljs-comment"> * pulPreviousNotifyValue：对象任务的上一个任务通知值，如果为 NULL，则不需要回传，</span><br><span class="hljs-comment"> 		这个时候就等价于函数 xTaskNotify()</span><br><span class="hljs-comment"> * pxHigherPriorityTaskWoken：在使用之前必须先初始化为 pdFALSE。当调用该函数发送一个任务通知时，</span><br><span class="hljs-comment"> 		目标任务接收到通知后将从阻塞态变为就绪态，并且如果其优先级比当前运行的任务的优先级高，那么 </span><br><span class="hljs-comment"> 		*pxHigherPriorityTaskWoken 会被设置为 pdTRUE，然后在中断退出前执行一次上下文切换，</span><br><span class="hljs-comment"> 		去执行刚刚被唤醒的中断优先级较高的任务。</span><br><span class="hljs-comment"> 		pxHigherPriorityTaskWoken 是一个可选的参数可以设置为 NULL</span><br><span class="hljs-comment"> * 返回值：参数 eAction 为 eSetValueWithoutOverwrite 时，如果被通知任务还没取走上一个通知，</span><br><span class="hljs-comment"> 		又接收到了一个通知，则这次通知值未能更新并返回 pdFALSE，而其他情况均返回 pdPASS</span><br><span class="hljs-comment"> */</span><br>BaseType_t <span class="hljs-title function_">xTaskNotifyAndQueryFromISR</span><span class="hljs-params">(  TaskHandle_t xTaskToNotify, </span><br><span class="hljs-params">										<span class="hljs-type">uint32_t</span> ulValue, </span><br><span class="hljs-params">										eNotifyAction eAction, </span><br><span class="hljs-params">										<span class="hljs-type">uint32_t</span> *pulPreviousNotifyValue, </span><br><span class="hljs-params">										BaseType_t *pxHigherPriorityTaskWoken )</span><br></code></pre></td></tr></table></figure>
                 

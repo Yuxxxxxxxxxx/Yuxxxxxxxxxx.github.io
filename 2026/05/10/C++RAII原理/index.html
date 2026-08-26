@@ -281,19 +281,20 @@
 <blockquote>
 <p>RAII 不是一种特殊的语法，而是 C++ <strong>生命周期机制的一种应用习惯</strong>。只要遵循“<strong>将资源封装在对象内，并在析构函数中释放资源</strong>”这一原则，就能写出极具健壮性的现代 C++ 代码。</p>
 </blockquote>
-<h1 id="一、核心思想"><a href="#一、核心思想" class="headerlink" title="一、核心思想"></a>一、核心思想</h1><p>RAII 的核心思想是将<strong>资源的生命周期绑定到对象的生命周期上</strong>：</p>
+<h1 id="一-核心思想"><a class="markdownIt-Anchor" href="#一-核心思想"></a> 一、核心思想</h1>
+<p>RAII 的核心思想是将<strong>资源的生命周期绑定到对象的生命周期上</strong>：</p>
 <ul>
 <li><strong>获取资源</strong>：在构造函数中分配资源（如堆内存、文件句柄、网络套接字、互斥锁）。</li>
 <li><strong>释放资源</strong>：在析构函数中释放资源。</li>
 </ul>
 <p><strong>关键前提</strong>：C++ 保证无论程序是通过正常结束、还是由于异常抛出（Exception）导致栈展开（Stack Unwinding），局部变量的析构函数都会被调用。</p>
-<h1 id="二、实现原理"><a href="#二、实现原理" class="headerlink" title="二、实现原理"></a>二、实现原理</h1><p>手动管理容易出错，可能发生资源泄露等异常：</p>
+<h1 id="二-实现原理"><a class="markdownIt-Anchor" href="#二-实现原理"></a> 二、实现原理</h1>
+<p>手动管理容易出错，可能发生资源泄露等异常：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">processFile</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; filename)</span> </span>&#123;<br>    FILE* fp = <span class="hljs-built_in">fopen</span>(filename.<span class="hljs-built_in">c_str</span>(), <span class="hljs-string">&quot;r&quot;</span>);<br>    <span class="hljs-keyword">if</span> (!fp) <span class="hljs-keyword">return</span>;<br><br>    <span class="hljs-keyword">if</span> (someErrorCondition) &#123;<br>        <span class="hljs-comment">// 如果这里直接 return 或抛出异常，fp 就没被 fclose，导致资源泄漏</span><br>        <span class="hljs-keyword">return</span>; <br>    &#125;<br><br>    <span class="hljs-built_in">fclose</span>(fp); <span class="hljs-comment">// 这里的逻辑往往容易被遗忘</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>而 RAII 管理则更安全且简洁：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">FileGuard</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">FileGuard</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; filename)</span> </span>&#123;<br>        m_fp = <span class="hljs-built_in">fopen</span>(filename.<span class="hljs-built_in">c_str</span>(), <span class="hljs-string">&quot;r&quot;</span>);<br>        <span class="hljs-keyword">if</span> (!m_fp) <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Cannot open file&quot;</span>);<br>    &#125;<br>    ~<span class="hljs-built_in">FileGuard</span>() &#123;<br>        <span class="hljs-keyword">if</span> (m_fp) <span class="hljs-built_in">fclose</span>(m_fp);<br>    &#125;<br>    <span class="hljs-comment">// 禁止拷贝，防止资源双重释放</span><br>    <span class="hljs-built_in">FileGuard</span>(<span class="hljs-type">const</span> FileGuard&amp;) = <span class="hljs-keyword">delete</span>;<br>    FileGuard&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> FileGuard&amp;) = <span class="hljs-keyword">delete</span>;<br><br><span class="hljs-keyword">private</span>:<br>    FILE* m_fp;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
-<h1 id="三、现代C-中的RAII应用"><a href="#三、现代C-中的RAII应用" class="headerlink" title="三、现代C++中的RAII应用"></a>三、现代C++中的RAII应用</h1><p>现代 C++ 几乎所有的资源管理都基于 RAII：</p>
+<h1 id="三-现代c中的raii应用"><a class="markdownIt-Anchor" href="#三-现代c中的raii应用"></a> 三、现代C++中的RAII应用</h1>
+<p>现代 C++ 几乎所有的资源管理都基于 RAII：</p>
 <ul>
 <li><strong>内存管理</strong>：<code>std::unique_ptr</code> 和 <code>std::shared_ptr</code>。它们在超出作用域时会自动释放堆内存。</li>
 <li><strong>容器</strong>：<code>std::vector</code>、<code>std::string</code>。它们在生命周期结束时会自动回收内部申请的堆空间。</li>
@@ -301,13 +302,12 @@
 </ul>
 <p><strong>示例：使用 <code>std::lock_guard</code> 防止死锁</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::mutex mtx;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">safeIncrement</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock</span><span class="hljs-params">(mtx)</span></span>; <span class="hljs-comment">// 构造时加锁</span><br>    <span class="hljs-comment">// ... 执行业务逻辑</span><br>    <span class="hljs-comment">// 函数结束时，lock 析构，自动释放锁</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-<h1 id="四、RAII的“三大律”"><a href="#四、RAII的“三大律”" class="headerlink" title="四、RAII的“三大律”"></a>四、RAII的“三大律”</h1><p>由于 RAII 类通常管理一个资源，因此必须谨慎处理<strong>拷贝和赋值</strong>：</p>
+<h1 id="四-raii的三大律"><a class="markdownIt-Anchor" href="#四-raii的三大律"></a> 四、RAII的“三大律”</h1>
+<p>由于 RAII 类通常管理一个资源，因此必须谨慎处理<strong>拷贝和赋值</strong>：</p>
 <ol>
 <li><strong>拷贝构造与拷贝赋值</strong>：如果你执行了拷贝，两个对象会指向同一个资源，析构时会导致<strong>重复释放（Double Free）</strong>。</li>
-<li>解决方法：<ul>
+<li>解决方法：
+<ul>
 <li><strong>禁止拷贝</strong>：<code>T(const T&amp;) = delete;</code> （适用于互斥锁、文件句柄）。</li>
 <li><strong>实现深拷贝</strong>：分配新资源。</li>
 <li><strong>转移所有权</strong>：使用移动语义 <code>std::move</code>（如 <code>std::unique_ptr</code>）。</li>

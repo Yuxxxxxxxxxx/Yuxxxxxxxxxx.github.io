@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]  前言在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT1、什么是 GDT全局描述符表（Global Descriptor Table，GDT）。在单处理器">
+    <meta name="description" content="[TOC]   前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。  一、GDT  1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内存管理（二）之GDT与LDT">
 <meta property="og:url" content="http://example.com/2024/07/20/GDTLDT/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]  前言在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT1、什么是 GDT全局描述符表（Global Descriptor Table，GDT）。在单处理器">
+<meta property="og:description" content="[TOC]   前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。  一、GDT  1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/07/20/GDTLDT/1.png">
 <meta property="og:image" content="http://example.com/2024/07/20/GDTLDT/2.png">
@@ -285,15 +285,19 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在 Linux 系统中，GDT（<em>Global Descriptor Table</em>）和 LDT（<em>Local Descriptor Table</em>）是用来管理和定义内存段（<em>segment</em>）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。</p>
-<h1 id="一、GDT"><a href="#一、GDT" class="headerlink" title="一、GDT"></a>一、GDT</h1><h2 id="1、什么是-GDT"><a href="#1、什么是-GDT" class="headerlink" title="1、什么是 GDT"></a>1、什么是 GDT</h2><p>全局描述符表（<em>Global Descriptor Table</em>，<em>GDT</em>）。在单处理器系统中只有一个 GDT，而在多处理器系统中每个 CPU 对应一个 GDT。</p>
+<h1 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h1>
+<p>在 Linux 系统中，GDT（<em>Global Descriptor Table</em>）和 LDT（<em>Local Descriptor Table</em>）是用来管理和定义内存段（<em>segment</em>）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。</p>
+<h1 id="一-gdt"><a class="markdownIt-Anchor" href="#一-gdt"></a> 一、GDT</h1>
+<h2 id="1-什么是-gdt"><a class="markdownIt-Anchor" href="#1-什么是-gdt"></a> 1、什么是 GDT</h2>
+<p>全局描述符表（<em>Global Descriptor Table</em>，<em>GDT</em>）。在单处理器系统中只有一个 GDT，而在多处理器系统中每个 CPU 对应一个 GDT。</p>
 <p>GDT 可以放置在内存的任何位置。当程序员通过段寄存器引用一个段描述符时，CPU 必须知道 GDT 的入口地址，即基地址放在何处。为此，Intel 的设计者提供了一个 GDTR 寄存器，用于存放GDT的基地址。程序员将 GDT 设定在内存的某个位置后，可以通过 LGDT 指令将 GDT 的基地址加载到 GDTR 寄存器中。从此，CPU 便根据 GDTR 寄存器中的内容作为 GDT 的入口来访问 GDT。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="GDTR 寄存器结构"></p>
-<p>GDTR 寄存器长度为 6 字节，前两个字节为 GDT 界限，后 4 个字节为 GDT 表的基地址。所以说，GDT 最多只能拥有 8192 个描述符（$65536 &#x2F; 8$）。</p>
-<h2 id="2、GDT-的作用"><a href="#2、GDT-的作用" class="headerlink" title="2、GDT 的作用"></a>2、GDT 的作用</h2><p>GDT 是用来管理和定义操作系统中所有内存段的数据结构。在操作系统加载时，会初始化 GDT，然后使用 GDT 中的描述符来设置每个段的基地址、段限长和访问权限等信息。这些描述符将用于处理内存分页、保护模式和特权级等操作。</p>
-<h2 id="3、GDT-的结构"><a href="#3、GDT-的结构" class="headerlink" title="3、GDT 的结构"></a>3、GDT 的结构</h2><p>所有的 GDT 都存放在 <code>cpu_gdt_table</code> 数组中，而所有 GDT 的地址和它们的大小（当初始化 gdtr 寄存器时使用）被存放在 <code>cpu_gdt_descr</code> 数组中。这两个数组都在文件 <code>arch/i386/kernel/head.S</code> 中，如下：</p>
+<p>GDTR 寄存器长度为 6 字节，前两个字节为 GDT 界限，后 4 个字节为 GDT 表的基地址。所以说，GDT 最多只能拥有 8192 个描述符（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>65536</mn><mi mathvariant="normal">/</mi><mn>8</mn></mrow><annotation encoding="application/x-tex">65536 / 8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">6</span><span class="mord">5</span><span class="mord">5</span><span class="mord">3</span><span class="mord">6</span><span class="mord">/</span><span class="mord">8</span></span></span></span>）。</p>
+<h2 id="2-gdt-的作用"><a class="markdownIt-Anchor" href="#2-gdt-的作用"></a> 2、GDT 的作用</h2>
+<p>GDT 是用来管理和定义操作系统中所有内存段的数据结构。在操作系统加载时，会初始化 GDT，然后使用 GDT 中的描述符来设置每个段的基地址、段限长和访问权限等信息。这些描述符将用于处理内存分页、保护模式和特权级等操作。</p>
+<h2 id="3-gdt-的结构"><a class="markdownIt-Anchor" href="#3-gdt-的结构"></a> 3、GDT 的结构</h2>
+<p>所有的 GDT 都存放在 <code>cpu_gdt_table</code> 数组中，而所有 GDT 的地址和它们的大小（当初始化 gdtr 寄存器时使用）被存放在 <code>cpu_gdt_descr</code> 数组中。这两个数组都在文件 <code>arch/i386/kernel/head.S</code> 中，如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs asm">cpu_gdt_descr:<br>	.word GDT_ENTRIES*8-1<br>	.long cpu_gdt_table<br><br>......<br><br>ENTRY(cpu_gdt_table)<br>	.quad 0x0000000000000000	/* NULL descriptor */<br>	.quad 0x0000000000000000	/* 0x0b reserved */<br>	.quad 0x0000000000000000	/* 0x13 reserved */<br>	.quad 0x0000000000000000	/* 0x1b reserved */<br>	.quad 0x0000000000000000	/* 0x20 unused */<br>	.quad 0x0000000000000000	/* 0x28 unused */<br>	.quad 0x0000000000000000	/* 0x33 TLS entry 1 */<br>	.quad 0x0000000000000000	/* 0x3b TLS entry 2 */<br>	.quad 0x0000000000000000	/* 0x43 TLS entry 3 */<br>	.quad 0x0000000000000000	/* 0x4b reserved */<br>	.quad 0x0000000000000000	/* 0x53 reserved */<br>	.quad 0x0000000000000000	/* 0x5b reserved */<br><br>	.quad 0x00cf9a000000ffff	/* 0x60 kernel 4GB code at 0x00000000 */<br>	.quad 0x00cf92000000ffff	/* 0x68 kernel 4GB data at 0x00000000 */<br>	.quad 0x00cffa000000ffff	/* 0x73 user 4GB code at 0x00000000 */<br>	.quad 0x00cff2000000ffff	/* 0x7b user 4GB data at 0x00000000 */<br><br>	.quad 0x0000000000000000	/* 0x80 TSS descriptor */<br>	.quad 0x0000000000000000	/* 0x88 LDT descriptor */<br><br>	/* Segments used for calling PnP BIOS */<br>	.quad 0x00c09a0000000000	/* 0x90 32-bit code */<br>	.quad 0x00809a0000000000	/* 0x98 16-bit code */<br>	.quad 0x0080920000000000	/* 0xa0 16-bit data */<br>	.quad 0x0080920000000000	/* 0xa8 16-bit data */<br>	.quad 0x0080920000000000	/* 0xb0 16-bit data */<br>	/*<br>	 * The APM segments have byte granularity and their bases<br>	 * and limits are set at run time.<br>	 */<br>	.quad 0x00409a0000000000	/* 0xb8 APM CS    code */<br>	.quad 0x00009a0000000000	/* 0xc0 APM CS 16 code (16 bit) */<br>	.quad 0x0040920000000000	/* 0xc8 APM DS    data */<br><br>	.quad 0x0000000000000000	/* 0xd0 - unused */<br>	.quad 0x0000000000000000	/* 0xd8 - unused */<br>	.quad 0x0000000000000000	/* 0xe0 - unused */<br>	.quad 0x0000000000000000	/* 0xe8 - unused */<br>	.quad 0x0000000000000000	/* 0xf0 - unused */<br>	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */<br></code></pre></td></tr></table></figure>
-
 <p>如下是 GDT 的布局示意图。每个 GDT 包含 18 个段描述符和 14 空的，未使用的，或保留的项。</p>
 <blockquote>
 <p>插入未使用的项的目的是为了使经常一起访问的描述符能够处于同一个 32 字节的硬件高速缓存行中。</p>
@@ -317,18 +321,20 @@
 <p><em>AMP</em>（<em>Active Management Technology</em>） 是一种由 Intel 提供的远程管理和监控技术，它允许管理员通过网络远程控制和管理计算机，无需操作系统的支持。AMP 段提供了与 Active Management Technology 相关的功能和接口。</p>
 </blockquote>
 <ul>
-<li><strong>double fault TSS</strong>：被内核用来处理“双重错误”异常的特殊 TSS 段。（处理一个异常时可能会引发另一个异常，在这种情况下产生双重错误。）</li>
+<li><strong>double fault TSS</strong>：被内核用来处理“双重错误&quot;异常的特殊 TSS 段。（处理一个异常时可能会引发另一个异常，在这种情况下产生双重错误。）</li>
 </ul>
 <br>
-
 <p>如前所述，系统中每个处理器都有一个 GDT 副本。除少数几种情况以外，所有 GDT 的副本都存放相同的表项，比如：</p>
 <ol>
 <li>首先，每个处理器都有它自己的 TSS 段，因此其对应的 GDT 项不同。</li>
 <li>其次，GDT 中只有少数项可能依赖于 CPU 正在执行的进程（LDT 和 TLS 段描述符）。</li>
 <li>最后，在某些情况下，处理器可能临时修改 GDT 副本里的某个项，例如，当调用 APM 的 BIOS 例程时就会发生这种情况。</li>
 </ol>
-<h2 id="4、基于-GDT-的内存寻址"><a href="#4、基于-GDT-的内存寻址" class="headerlink" title="4、基于 GDT 的内存寻址"></a>4、基于 GDT 的内存寻址</h2><p>该部分在前面已经比较详细地介绍了，可以看：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140531630">Linux 内存管理（一）之分段机制</a>。</p>
-<h1 id="二、LDT"><a href="#二、LDT" class="headerlink" title="二、LDT"></a>二、LDT</h1><h2 id="1、什么是-LDT"><a href="#1、什么是-LDT" class="headerlink" title="1、什么是 LDT"></a>1、什么是 LDT</h2><p>局部描述符表（<em>Local Descriptor Table</em>，<em>LDT</em>）和前面提到的 LDT 类似，不过有以下区别：</p>
+<h2 id="4-基于-gdt-的内存寻址"><a class="markdownIt-Anchor" href="#4-基于-gdt-的内存寻址"></a> 4、基于 GDT 的内存寻址</h2>
+<p>该部分在前面已经比较详细地介绍了，可以看：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140531630">Linux 内存管理（一）之分段机制</a>。</p>
+<h1 id="二-ldt"><a class="markdownIt-Anchor" href="#二-ldt"></a> 二、LDT</h1>
+<h2 id="1-什么是-ldt"><a class="markdownIt-Anchor" href="#1-什么是-ldt"></a> 1、什么是 LDT</h2>
+<p>局部描述符表（<em>Local Descriptor Table</em>，<em>LDT</em>）和前面提到的 LDT 类似，不过有以下区别：</p>
 <ol>
 <li>GDT 是全局的，为整个系统定义了全局的段描述符。它包含了系统中所有进程和线程所使用的公共段描述符；LDT 是进程本地的，为每个进程定义了私有的段描述符。</li>
 <li>LDT 表存放在 LDT 类型的段之中，此时 GDT 必须含有 LDT 的段描述符。</li>
@@ -337,18 +343,21 @@
 <p>查找 GDT 在线性地址中的基地址，需要借助 GDTR；而查找 LDT 相应基地址，需要的是 GDT 中的段描述符。访问 LDT 需要使用段选择符，为了减少访问 LDT 时候的段转换次数，LDT 的段选择符，段基址，段限长都要放在 LDTR 寄存器之中。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt="LDRT 寄存器结构"></p>
 <p>注意，此时 LDTR 高 13  位存放的是对应 LDT 段描述符在 GDT 中的索引号。</p>
-<h2 id="2、LDT-的作用"><a href="#2、LDT-的作用" class="headerlink" title="2、LDT 的作用"></a>2、LDT 的作用</h2><p>LDT 的作用是实现进程的虚拟内存隔离和保护。每个进程都可以拥有自己的 LDT，并且通过任务状态段来引用和切换不同的 LDT。</p>
+<h2 id="2-ldt-的作用"><a class="markdownIt-Anchor" href="#2-ldt-的作用"></a> 2、LDT 的作用</h2>
+<p>LDT 的作用是实现进程的虚拟内存隔离和保护。每个进程都可以拥有自己的 LDT，并且通过任务状态段来引用和切换不同的 LDT。</p>
 <p>通过 LDT，每个进程可以定义自己的代码段、数据段、堆栈段等。这样，不同进程之间的内存可以隔离开来，一个进程无法直接访问其他进程的内存。</p>
-<p>大多数用户态下的 Linux 程序不使用局部描述符表，这样内核就定义了一个缺省的 LDT 供大多数进程共享。缺省的局部描述符表存放在 <code>default_ldt</code> 数组中。它包含 5 个项但内核仅仅有效地使用了其中的两个项：用于 <strong>iBCS</strong> 执行文件的调用门和 <strong>Solaris&#x2F;x86</strong> 可执行文件的调用门。（调用门是 80x86 微处理器提供的一种机制，用于在调用预定义函数时改变 CPU 的特权级。）</p>
-<h2 id="3、基于-LDT-的内存寻址"><a href="#3、基于-LDT-的内存寻址" class="headerlink" title="3、基于 LDT 的内存寻址"></a>3、基于 LDT 的内存寻址</h2><p><img src="4.png" srcset="/img/loading.gif" lazyload alt="基于 LDT 的内存寻址"></p>
+<p>大多数用户态下的 Linux 程序不使用局部描述符表，这样内核就定义了一个缺省的 LDT 供大多数进程共享。缺省的局部描述符表存放在 <code>default_ldt</code> 数组中。它包含 5 个项但内核仅仅有效地使用了其中的两个项：用于 <strong>iBCS</strong> 执行文件的调用门和 <strong>Solaris/x86</strong> 可执行文件的调用门。（调用门是 80x86 微处理器提供的一种机制，用于在调用预定义函数时改变 CPU 的特权级。）</p>
+<h2 id="3-基于-ldt-的内存寻址"><a class="markdownIt-Anchor" href="#3-基于-ldt-的内存寻址"></a> 3、基于 LDT 的内存寻址</h2>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt="基于 LDT 的内存寻址"></p>
 <ol>
 <li>首先从 GDTR 寄存器中获取 GDT 的基址。</li>
 <li>然后从 LDTR 寄存器中获取对应 LDT 段描述符在 GDT 中的索引号。</li>
-<li>从上一步得到的 LDT 段描述符得到 LDT 段基址。 </li>
+<li>从上一步得到的 LDT 段描述符得到 LDT 段基址。</li>
 <li>用段选择符高 13 位位置索引值（注意要乘以8）从 LDT 段中得到段描述符。</li>
 <li>段描述符符包含段的基址、限长、优先级等各种属性，这就得到了段基址，再加上偏移地址得到最后的线性地址。</li>
 </ol>
-<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>GDT 和 LDT 的结构关系如下：</p>
+<h1 id="三-总结"><a class="markdownIt-Anchor" href="#三-总结"></a> 三、总结</h1>
+<p>GDT 和 LDT 的结构关系如下：</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt="GDT、LDT关系"></p>
 <p>对于操作系统来说，每个系统必须定义一个 GDT，用于系统中的所有任务和程序。可选择性定义若干个 LDT。GDT 本身不是一个段，而是线性地址空间的一个数据结构；GDT 的线性基地址和长度必须加载进 GDTR 之中。因为每个描述符长度是 8，所以 GDT 的基地址最好进行 8 字节对齐。</p>
 <p>然而，随着技术的发展，现代操作系统更倾向于使用页表和虚拟内存管理来实现进程的隔离和保护。当然理解 GDT 和 LDT 可以帮助我们更深入了解操作系统的底层机制。这些内容将在后面继续讨论。</p>

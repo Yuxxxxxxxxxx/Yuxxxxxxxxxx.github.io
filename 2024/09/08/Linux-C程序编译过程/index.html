@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编">
+    <meta name="description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。  一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 C&#x2F;C++ 程序编译的过程">
 <meta property="og:url" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编">
+<meta property="og:description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。  一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/1.jpeg">
 <meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/2.png">
@@ -287,21 +287,26 @@
                 
                 <p>[toc]</p>
 <hr>
-<p>本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（<em><strong>Preprocessing</strong></em>）编译（<em><strong>Compilation</strong></em>）汇编（<em><strong>Assembly</strong></em>）链接（<em><strong>Linking</strong></em>）。</p>
-<p><img src="1.jpeg" srcset="/img/loading.gif" lazyload></p>
+<p>本文将介绍如何将 C/C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（<em><strong>Preprocessing</strong></em>）编译（<em><strong>Compilation</strong></em>）汇编（<em><strong>Assembly</strong></em>）链接（<em><strong>Linking</strong></em>）。</p>
+<p><img src="1.jpeg" srcset="/img/loading.gif" lazyload alt></p>
 <p>在此之前，首先来看一下 GCC 工具链。</p>
-<h1 id="一、GCC-工具链"><a href="#一、GCC-工具链" class="headerlink" title="一、GCC 工具链"></a>一、GCC 工具链</h1><p><code>GCC</code> 是 <code>GUN Compiler Collection</code> 的简称，是 Linux 系统上常用的编译工具。GCC 工具链软件包括 <code>GCC</code>、<code>Binutils</code>、C 运行库等。</p>
+<h1 id="一-gcc-工具链"><a class="markdownIt-Anchor" href="#一-gcc-工具链"></a> 一、GCC 工具链</h1>
+<p><code>GCC</code> 是 <code>GUN Compiler Collection</code> 的简称，是 Linux 系统上常用的编译工具。GCC 工具链软件包括 <code>GCC</code>、<code>Binutils</code>、C 运行库等。</p>
 <ul>
-<li><font size="5px"><strong>GCC</strong></font><ul>
-<li><code>GCC</code>（<em><strong>GNU C Compiler</strong></em>）是编译工具。本文所要介绍的将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程即由编译器完成。</li>
+<li><font size="5px"><strong>GCC</strong></font>
+<ul>
+<li><code>GCC</code>（<em><strong>GNU C Compiler</strong></em>）是编译工具。本文所要介绍的将 C/C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程即由编译器完成。</li>
 </ul>
 </li>
-<li><font size="5px"><strong>Binutils</strong></font><ul>
-<li>一组二进制程序处理工具，包括：<code>addr2line</code>、<code>ar</code>、<code>objcopy</code>、<code>objdump</code>、<code>as</code>、<code>ld</code>、<code>ldd</code>、<code>readelf</code>、<code>size</code>等。这一组工具是开发和调试不可缺少的工具，分别简介如下：<ul>
+<li><font size="5px"><strong>Binutils</strong></font>
+<ul>
+<li>一组二进制程序处理工具，包括：<code>addr2line</code>、<code>ar</code>、<code>objcopy</code>、<code>objdump</code>、<code>as</code>、<code>ld</code>、<code>ldd</code>、<code>readelf</code>、<code>size</code>等。这一组工具是开发和调试不可缺少的工具，分别简介如下：
+<ul>
 <li><code>addr2line</code>：用来将程序地址转换成其所对应的程序源文件及所对应的代码行，也可以得到所对应的函数。该工具将帮助调试器在调试的过程中定位对应的源代码位置。</li>
 <li><code>as</code>：主要用于汇编，有关汇编的详细介绍请参见后文。</li>
 <li><code>ld</code>：主要用于链接，有关链接的详细介绍请参见后文。</li>
-<li><code>ar</code>：主要用于创建静态库。为了便于初学者理解，在此介绍动态库与静态库的概念：<ul>
+<li><code>ar</code>：主要用于创建静态库。为了便于初学者理解，在此介绍动态库与静态库的概念：
+<ul>
 <li>如果要将多个 <code>.o</code> 目标文件生成一个库文件，则存在两种类型的库，一种是静态库，另一种是动态库。</li>
 <li>在 windows 中静态库是以 <code>.lib</code> 为后缀的文件，共享库是以 <code>.dll</code> 为后缀的文件。</li>
 <li>在 Linux 中静态库是以 <code>.a</code> 为后缀的文件，共享库是以 <code>.so</code> 为后缀的文件。</li>
@@ -318,7 +323,8 @@
 </li>
 </ul>
 </li>
-<li><font size="5px"><strong>C 运行库</strong></font><ul>
+<li><font size="5px"><strong>C 运行库</strong></font>
+<ul>
 <li>C 语言标准主要由两部分组成：一部分描述 C 的语法，另一部分描述 C 标准库。</li>
 <li>C 标准库定义了一组标准头文件，每个头文件中包含一些相关的函数、变量、类型声明和宏定义，譬如常见的 <code>printf</code> 函数便是一个 C 标准库函数，其原型定义在 <code>stdio</code> 头文件中。</li>
 <li>C 语言标准仅仅定义了 C 标准库函数原型，并没有提供实现。</li>
@@ -327,10 +333,11 @@
 </ul>
 </li>
 </ul>
-<h1 id="二、编译过程"><a href="#二、编译过程" class="headerlink" title="二、编译过程"></a>二、编译过程</h1><p>示例程序：</p>
+<h1 id="二-编译过程"><a class="markdownIt-Anchor" href="#二-编译过程"></a> 二、编译过程</h1>
+<p>示例程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a,<span class="hljs-type">int</span>  b)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Number are added together\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> a,b;<br>    a = <span class="hljs-number">3</span>;<br>    b = <span class="hljs-number">4</span>;<br>    <span class="hljs-type">int</span> ret = add(a,b);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Result:%u\n&quot;</span>,ret);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<h2 id="1、预处理"><a href="#1、预处理" class="headerlink" title="1、预处理"></a>1、预处理</h2><p>预处理的过程主要包括以下过程：</p>
+<h2 id="1-预处理"><a class="markdownIt-Anchor" href="#1-预处理"></a> 1、预处理</h2>
+<p>预处理的过程主要包括以下过程：</p>
 <ul>
 <li>将所有的 <code>#define</code> 删除，并且展开所有的宏定义，并且处理所有的条件预编译指令，比如 <code>#if</code>、<code>#ifdef</code>、<code>#elif</code>、<code>#else</code>、<code>#endif</code> 等。</li>
 <li>处理 <code>#include</code> 预编译指令，将被包含的文件插入到该预编译指令的位置。</li>
@@ -340,12 +347,12 @@
 </ul>
 <p>使用 GCC 进行预处理的命令如下：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-E</span> test.c <span class="hljs-literal">-o</span> test.i<br></code></pre></td></tr></table></figure>
-
 <p>下面是 <code>test.i</code> 文件的一部分内容：</p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>正如前文所说，预处理过程删去了文件中的头文件，并将对应文件中的内容包含到当前文件中：</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="2、编译"><a href="#2、编译" class="headerlink" title="2、编译"></a>2、编译</h2><blockquote>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="2-编译"><a class="markdownIt-Anchor" href="#2-编译"></a> 2、编译</h2>
+<blockquote>
 <p>编译过程就是对预处理完的文件进行一系列的词法分析，语法分析，语义分析及优化后生成相应的汇编代码。</p>
 </blockquote>
 <ul>
@@ -361,10 +368,10 @@
 </blockquote>
 <p>使用 GCC 进行编译的命令如下：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-S</span> test.i <span class="hljs-literal">-o</span> test.s<br></code></pre></td></tr></table></figure>
-
 <p>上述命令生成的汇编程序 <code>test.s</code> 的代码片段如下所示，其全部为汇编代码。</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="3、汇编"><a href="#3、汇编" class="headerlink" title="3、汇编"></a>3、汇编</h2><blockquote>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="3-汇编"><a class="markdownIt-Anchor" href="#3-汇编"></a> 3、汇编</h2>
+<blockquote>
 <p>汇编过程调用对汇编代码进行处理，生成处理器能识别的指令，保存在后缀为 <code>.o</code> 的目标文件中。由于每一个汇编语句几乎都对应一条处理器指令，因此，汇编相对于编译过程比较简单，通过调用 <code>Binutils</code> 中的汇编器 <code>as</code> 根据汇编指令和处理器指令的对照表一一翻译即可。当程序由多个源代码文件构成时，每个文件都要先完成汇编工作，生成 <code>.o</code> 目标文件后，才能进入下一步的链接工作。注意：目标文件已经是最终程序的某一部分了，但是在链接之前还不能执行。</p>
 </blockquote>
 <ul>
@@ -376,20 +383,22 @@
 </ul>
 <p>使用 GCC 进行汇编的命令如下：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-c</span> test.s <span class="hljs-literal">-o</span> test.o<br><br><span class="hljs-comment"># 或者直接调用as进行汇编</span><br><span class="hljs-variable">$</span> as <span class="hljs-literal">-c</span> test.s <span class="hljs-literal">-o</span> test.o<br></code></pre></td></tr></table></figure>
-
 <p>可以看出，<code>test.o</code> 目标文件为 ELF 格式的可重定向文件。</p>
 <blockquote>
 <p>ELF 文件可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141938589">ELF 文件格式</a></p>
 </blockquote>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="4、链接"><a href="#4、链接" class="headerlink" title="4、链接"></a>4、链接</h2><p>链接也分为静态链接和动态链接，其要点如下：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="4-链接"><a class="markdownIt-Anchor" href="#4-链接"></a> 4、链接</h2>
+<p>链接也分为静态链接和动态链接，其要点如下：</p>
 <ul>
-<li>静态链接是指在编译阶段直接把静态库加入到可执行文件中去，这样可执行文件会比较大。链接器将函数的代码从其所在地（不同的目标文件或静态链接库中）拷贝到最终的可执行程序中。为创建可执行文件，链接器必须要完成的主要任务是：<ul>
+<li>静态链接是指在编译阶段直接把静态库加入到可执行文件中去，这样可执行文件会比较大。链接器将函数的代码从其所在地（不同的目标文件或静态链接库中）拷贝到最终的可执行程序中。为创建可执行文件，链接器必须要完成的主要任务是：
+<ul>
 <li>符号解析（把目标文件中符号的定义和引用联系起来）</li>
 <li>重定位（把符号定义和内存地址对应起来然后修改所有对符号的引用）。</li>
 </ul>
 </li>
-<li>动态链接则是指链接阶段仅仅只加入一些描述信息，而程序执行时再从系统中把相应动态库加载到内存中去。<ul>
+<li>动态链接则是指链接阶段仅仅只加入一些描述信息，而程序执行时再从系统中把相应动态库加载到内存中去。
+<ul>
 <li>在 Linux 系统中，gcc 编译链接时的动态库搜索路径的顺序通常为：首先从 gcc 命令的参数 <code>-L</code> 指定的路径寻找；再从环境变量<code>LIBRARY_PATH</code> 指定的路径寻址；再从默认路径 <code>/lib</code>、<code>/usr/lib</code>、<code>/usr/local/lib</code> 寻找。</li>
 <li>在 Linux 系统中，执行二进制文件时的动态库搜索路径的顺序通常为：首先搜索编译目标代码时指定的动态库搜索路径；再从环境变量<code>LD_LIBRARY_PATH</code> 指定的路径寻址；再从配置文件 <code>/etc/ld.so.conf</code> 中指定的动态库搜索路径；再从默认路径 <code>/lib</code>、<code>/usr/lib</code> 寻找。</li>
 <li>在 Linux 系统中，可以用 <code>ldd</code> 命令查看一个可执行程序依赖的共享库。</li>
@@ -398,14 +407,12 @@
 </ul>
 <p>由于链接动态库和静态库的路径可能有重合，所以如果在路径中有同名的静态库文件和动态库文件，比如 <code>libtest.a</code> 和 <code>libtest.so</code>，gcc 链接时默认优先选择动态库，会链接 <code>libtest.so</code>，如果要让 gcc 选择链接 <code>libtest.a</code> 则可以指定 gcc 选项 <code>-static</code>，该选项会强制使用静态库进行链接。以上面的程序为例：如果使用命令“<code>gcc test.c -o test</code>”则会使用动态库进行链接，生成的 ELF 可执行文件的大小（使用 <code>Binutils</code> 的 size 命令查看）和链接的动态库（使用 Binutils 的 ldd 命令查看）如下所示：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc test.c <span class="hljs-literal">-o</span> test<br><span class="hljs-variable">$</span> size test <span class="hljs-comment"># 使用 size 查看大小</span><br><span class="hljs-variable">$</span> ldd test  <span class="hljs-comment"># 可以看出该可执行文件链接了很多其他动态库，主要是Linux的glibc动态库</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>如果使用命令“<code>gcc -static test.c -o test</code>”则会使用静态库进行链接，生成的 ELF 可执行文件的大小（使用 Binutils 的 size 命令查看）和链接的动态库（使用 Binutils 的 ldd 命令查看）如下所示：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-static</span> test.c <span class="hljs-literal">-o</span> test<br><span class="hljs-variable">$</span> size test <span class="hljs-comment"># 使用size查看大小</span><br><span class="hljs-variable">$</span> ldd test<br></code></pre></td></tr></table></figure>
-
 <p>链接器链接后生成的最终文件为 ELF 格式可执行文件，一个 ELF 可执行文件通常被链接为不同的段，常见的段如 <code>.text</code>、<code>.data</code>、<code>.rodata</code>、<code>.bss</code> 等段。</p>
 <p>可以看到，使用静态链接，最终生成的可执行文件的大小比使用动态链接的时候大了很多：</p>
-<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>关于 text、data、bss 这些段的信息可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a>。</p>
 </blockquote>

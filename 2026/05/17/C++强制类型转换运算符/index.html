@@ -278,20 +278,18 @@
                 
                 <p>将类型名作为强制类型转换运算符的做法是 C 语言的老式做法，C++ 为保持兼容而予以保留。</p>
 <p>C++ 引入了四种功能不同的强制类型转换运算符以进行强制类型转换：<code>static_cast</code>、<code>reinterpret_cast</code>、<code>const_cast</code> 和 <code>dynamic_cast</code>。</p>
-<p>强制类型转换是有一定风险的，有的转换并不一定安全，如把整型数值转换成指针，把基类指针转换成派生类指针，把一种函数指针转换成另一种函数指针，把常量指针转换成非常量指针等。 </p>
+<p>强制类型转换是有一定风险的，有的转换并不一定安全，如把整型数值转换成指针，把基类指针转换成派生类指针，把一种函数指针转换成另一种函数指针，把常量指针转换成非常量指针等。</p>
 <p>C++ 强制类型转换运算符的用法如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">强制类型转换运算符 &lt;要转换到的类型&gt; (待转换的表达式)<br></code></pre></td></tr></table></figure>
-
 <p>例如：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">double</span> d = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">double</span>&gt; (<span class="hljs-number">3</span>*<span class="hljs-number">5</span>); <span class="hljs-comment">//将 3*5 的值转换成实数</span><br></code></pre></td></tr></table></figure>
-
-
-
-<h1 id="一、static-cast"><a href="#一、static-cast" class="headerlink" title="一、static_cast"></a>一、static_cast</h1><p>这是最常用的转换，用于<strong>“逻辑上相关的类型转换”</strong>。</p>
+<h1 id="一-static_cast"><a class="markdownIt-Anchor" href="#一-static_cast"></a> 一、static_cast</h1>
+<p>这是最常用的转换，用于**“逻辑上相关的类型转换”**。</p>
 <ul>
-<li>特点：<ul>
+<li>特点：
+<ul>
 <li>用于基本数据类型转换（如 <code>int</code> 转 <code>double</code>）</li>
-<li>用于类层次结构中，将派生类指针&#x2F;引用转换为基类指针&#x2F;引用（向上转型，安全）</li>
+<li>用于类层次结构中，将派生类指针/引用转换为基类指针/引用（向上转型，安全）</li>
 <li>将基类指针转换为派生类指针（向下转型，不安全，因为不检查运行时类型）</li>
 <li>将 <code>void*</code> 转回具体的指针类型</li>
 <li><strong>没有运行时类型检查</strong>，如果转换不合理，结果通常是未定义行为</li>
@@ -299,12 +297,11 @@
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">operator</span> <span class="hljs-title">int</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>; &#125;<br>    <span class="hljs-keyword">operator</span> <span class="hljs-type">char</span>*() &#123; <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    A a;<br>    <span class="hljs-type">int</span> n;<br>    <span class="hljs-type">char</span>* p = <span class="hljs-string">&quot;New Dragon Inn&quot;</span>;<br>    n = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">int</span>&gt; (<span class="hljs-number">3.14</span>);  <span class="hljs-comment">// n 的值变为 3</span><br>    n = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">int</span>&gt; (a);  <span class="hljs-comment">//调用 a.operator int，n 的值变为 1</span><br>    p = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">char</span>*&gt; (a);  <span class="hljs-comment">//调用 a.operator char*，p 的值变为 NULL</span><br>    n = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">int</span>&gt; (p);  <span class="hljs-comment">//编译错误，static_cast不能将指针转换成整型</span><br>    p = <span class="hljs-keyword">static_cast</span> &lt;<span class="hljs-type">char</span>*&gt; (n);  <span class="hljs-comment">//编译错误，static_cast 不能将整型转换成指针</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-<h1 id="二、reinterpret-cast"><a href="#二、reinterpret-cast" class="headerlink" title="二、reinterpret_cast"></a>二、reinterpret_cast</h1><p>这是“重新解释”位模式的转换，<strong>最危险且不可移植</strong>。<code>reinterpret_cast</code> 用于进行各种不同类型的指针之间、不同类型的引用之间以及指针和能容纳指针的整数类型之间的转换。转换时，执行的是<strong>逐个比特</strong>复制的操作。</p>
+<h1 id="二-reinterpret_cast"><a class="markdownIt-Anchor" href="#二-reinterpret_cast"></a> 二、reinterpret_cast</h1>
+<p>这是“重新解释”位模式的转换，<strong>最危险且不可移植</strong>。<code>reinterpret_cast</code> 用于进行各种不同类型的指针之间、不同类型的引用之间以及指针和能容纳指针的整数类型之间的转换。转换时，执行的是<strong>逐个比特</strong>复制的操作。</p>
 <ul>
-<li>特点：<ul>
+<li>特点：
+<ul>
 <li>它不进行任何值的转换，只是告诉编译器将这块内存空间看作另一种类型</li>
 <li>常用于指针与整数之间的转换，或不同指针类型之间的直接强转</li>
 <li><strong>极易导致内存错误</strong>，除非你非常清楚自己在操作底层位数据，否则应尽可能避免使用</li>
@@ -312,29 +309,30 @@
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">int</span> i;<br>    <span class="hljs-type">int</span> j;<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> n):<span class="hljs-built_in">i</span>(n),<span class="hljs-built_in">j</span>(n) &#123; &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">A <span class="hljs-title">a</span><span class="hljs-params">(<span class="hljs-number">100</span>)</span></span>;<br>    <span class="hljs-type">int</span> &amp;r = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">int</span>&amp;&gt;(a); <span class="hljs-comment">//强行让 r 引用 a</span><br>    r = <span class="hljs-number">200</span>;  <span class="hljs-comment">//把 a.i 变成了 200</span><br>    cout &lt;&lt; a.i &lt;&lt; <span class="hljs-string">&quot;,&quot;</span> &lt;&lt; a.j &lt;&lt; endl;  <span class="hljs-comment">// 输出 200,100</span><br>    <span class="hljs-type">int</span> n = <span class="hljs-number">300</span>;<br>    A *pa = <span class="hljs-built_in">reinterpret_cast</span>&lt;A*&gt; ( &amp; n); <span class="hljs-comment">//强行让 pa 指向 n</span><br>    pa-&gt;i = <span class="hljs-number">400</span>;  <span class="hljs-comment">// n 变成 400</span><br>    pa-&gt;j = <span class="hljs-number">500</span>;  <span class="hljs-comment">//此条语句不安全，很可能导致程序崩溃</span><br>    cout &lt;&lt; n &lt;&lt; endl;  <span class="hljs-comment">// 输出 400</span><br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> la = <span class="hljs-number">0x12345678abcdLL</span>;<br>    pa = <span class="hljs-built_in">reinterpret_cast</span>&lt;A*&gt;(la); <span class="hljs-comment">//la太长，只取低32位0x5678abcd拷贝给pa</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> u = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>&gt;(pa);<span class="hljs-comment">//pa逐个比特拷贝到u</span><br>    cout &lt;&lt; hex &lt;&lt; u &lt;&lt; endl;  <span class="hljs-comment">//输出 5678abcd</span><br>    <span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(* PF1)</span> <span class="hljs-params">(<span class="hljs-type">int</span>)</span></span>;<br>    <span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">int</span> <span class="hljs-params">(* PF2)</span> <span class="hljs-params">(<span class="hljs-type">int</span>,<span class="hljs-type">char</span> *)</span></span>;<br>    PF1 pf1;  PF2 pf2;<br>    pf2 = <span class="hljs-built_in">reinterpret_cast</span>&lt;PF2&gt;(pf1); <span class="hljs-comment">//两个不同类型的函数指针之间可以互相转换</span><br>&#125;<br><br><span class="hljs-comment">/* output</span><br><span class="hljs-comment">200, 100</span><br><span class="hljs-comment">400</span><br><span class="hljs-comment">5678abed</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
-
-<p> 第 2 行的代码不安全，因为在编译器看来，pa-&gt;j 的存放位置就是 n 后面的 4 个字节。 本条语句会向这 4 个字节中写入 500。但这 4 个字节不知道是用来存放什么的，贸然向其中写入可能会导致程序错误甚至崩溃。</p>
+<p>第 2 行的代码不安全，因为在编译器看来，pa-&gt;j 的存放位置就是 n 后面的 4 个字节。 本条语句会向这 4 个字节中写入 500。但这 4 个字节不知道是用来存放什么的，贸然向其中写入可能会导致程序错误甚至崩溃。</p>
 <p>上面程序中的各种转换都没有实际意义，只是为了演示 <code>reinteipret_cast</code> 的用法而已。在编写黑客程序、病毒或反病毒程序时，也许会用到这样怪异的转换。</p>
-<p><code>reinterpret_cast</code> 体现了 C++ 语言的设计思想：用户可以做任何操作，但要为自己的行为负责。 </p>
-<h1 id="三、const-cast"><a href="#三、const-cast" class="headerlink" title="三、const_cast"></a>三、const_cast</h1><p>专门用于<strong>移除或添加 <code>const</code> 或 <code>volatile</code> 属性</strong>。</p>
+<p><code>reinterpret_cast</code> 体现了 C++ 语言的设计思想：用户可以做任何操作，但要为自己的行为负责。</p>
+<h1 id="三-const_cast"><a class="markdownIt-Anchor" href="#三-const_cast"></a> 三、const_cast</h1>
+<p>专门用于<strong>移除或添加 <code>const</code> 或 <code>volatile</code> 属性</strong>。</p>
 <ul>
-<li>特点：<ul>
+<li>特点：
+<ul>
 <li>它是唯一可以改变对象 <code>const</code> 性质的转换运算符。</li>
 <li><strong>注意</strong>：移除 <code>const</code> 后，尝试修改原本声明为 <code>const</code> 的原始变量是<strong>未定义行为</strong>。它通常用于调用第三方库中未标记 <code>const</code> 但实际上不会修改对象的函数。</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> string s = <span class="hljs-string">&quot;Inception&quot;</span>;<br>string&amp; p = <span class="hljs-keyword">const_cast</span> &lt;string&amp;&gt; (s);<br>string* ps = <span class="hljs-keyword">const_cast</span> &lt;string*&gt; (&amp;s);  <span class="hljs-comment">// &amp;s 的类型是 const string*</span><br></code></pre></td></tr></table></figure>
-
-
-
-<h1 id="四、dynamic-cast"><a href="#四、dynamic-cast" class="headerlink" title="四、dynamic_cast"></a>四、dynamic_cast</h1><p>用 <code>reinterpret_cast</code> 可以将多态基类（包含虚函数的基类）的指针强制转换为派生类的指针，但是这种转换不检查安全性，即不检查转换后的指针是否确实指向一个派生类对象。<code>dynamic_cast</code> 专门用于将多态基类的指针或引用强制转换为派生类的指针或引用，而且能够检查转换的安全性。对于不安全的指针转换，转换结果返回 NULL 指针。</p>
+<h1 id="四-dynamic_cast"><a class="markdownIt-Anchor" href="#四-dynamic_cast"></a> 四、dynamic_cast</h1>
+<p>用 <code>reinterpret_cast</code> 可以将多态基类（包含虚函数的基类）的指针强制转换为派生类的指针，但是这种转换不检查安全性，即不检查转换后的指针是否确实指向一个派生类对象。<code>dynamic_cast</code> 专门用于将多态基类的指针或引用强制转换为派生类的指针或引用，而且能够检查转换的安全性。对于不安全的指针转换，转换结果返回 NULL 指针。</p>
 <p><code>dynamic_cast</code> 是通过“运行时类型检查”来保证安全性的。<code>dynamic_cast</code> 不能用于将非多态基类的指针或引用强制转换为派生类的指针或引用——这种转换没法保证安全性，只好用 <code>reinterpret_cast</code> 来完成。</p>
 <p>这是唯一<strong>具备运行时类型检查</strong>的转换，专门用于<strong>多态场景</strong>。</p>
 <ul>
-<li>特点：<ul>
+<li>特点：
+<ul>
 <li>要求目标类型必须是“多态类型”（即基类中至少包含一个虚函数）。</li>
-<li>如果转换失败（例如向下转型到不正确的派生类）：<ul>
+<li>如果转换失败（例如向下转型到不正确的派生类）：
+<ul>
 <li>若是<strong>指针转换</strong>，返回 <code>nullptr</code>。</li>
 <li>若是<strong>引用转换</strong>，抛出 <code>std::bad_cast</code> 异常。</li>
 </ul>
@@ -344,7 +342,6 @@
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span><br>&#123;  <span class="hljs-comment">//有虚函数，因此是多态基类</span><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() &#123;&#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123; &#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    Base b;<br>    Derived d;<br>    Derived* pd;<br>    pd = <span class="hljs-keyword">reinterpret_cast</span> &lt;Derived*&gt; (&amp;b);<br>    <span class="hljs-keyword">if</span> (pd == <span class="hljs-literal">NULL</span>)<br>        <span class="hljs-comment">//此处pd不会为 NULL。reinterpret_cast不检查安全性，总是进行转换</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;unsafe reinterpret_cast&quot;</span> &lt;&lt; endl; <span class="hljs-comment">//不会执行</span><br>    pd = <span class="hljs-keyword">dynamic_cast</span> &lt;Derived*&gt; (&amp;b);<br>    <span class="hljs-keyword">if</span> (pd == <span class="hljs-literal">NULL</span>)  <span class="hljs-comment">//结果会是NULL，因为 &amp;b 不指向派生类对象，此转换不安全</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;unsafe dynamic_cast1&quot;</span> &lt;&lt; endl;  <span class="hljs-comment">//会执行</span><br>    pd = <span class="hljs-keyword">dynamic_cast</span> &lt;Derived*&gt; (&amp;d);  <span class="hljs-comment">//安全的转换</span><br>    <span class="hljs-keyword">if</span> (pd == <span class="hljs-literal">NULL</span>)  <span class="hljs-comment">//此处 pd 不会为 NULL</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;unsafe dynamic_cast2&quot;</span> &lt;&lt; endl;  <span class="hljs-comment">//不会执行</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/* output:</span><br><span class="hljs-comment">unsafe dynamic_cast1</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
-
 
                 
               </div>

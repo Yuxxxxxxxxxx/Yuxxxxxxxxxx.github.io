@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc   本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)  一、开始首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021&#x2F;&#x2F; swap.cint shared &#x3D; 1;void swap(int *a, int *b)&#123;    in">
+    <meta name="description" content="1、sub.o 文件分析 2、main.o 文件分析 1、绝对寻址 2、相对寻址 1、绝对地址重定位 2、相对地址重定位     本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)   一、开始 首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021">
 <meta property="og:type" content="article">
 <meta property="og:title" content="静态链接过程分析">
 <meta property="og:url" content="http://example.com/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc   本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)  一、开始首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021&#x2F;&#x2F; swap.cint shared &#x3D; 1;void swap(int *a, int *b)&#123;    in">
+<meta property="og:description" content="1、sub.o 文件分析 2、main.o 文件分析 1、绝对寻址 2、相对寻址 1、绝对地址重定位 2、相对地址重定位     本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)   一、开始 首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
 <meta property="og:image" content="http://example.com/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/2.png">
@@ -257,7 +257,7 @@
         
         
         
-          29 分钟
+          30 分钟
         
       </span>
     
@@ -299,58 +299,63 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+                <p><ul class="markdownIt-TOC">
+<li><a href="#1-subo-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90">1、sub.o 文件分析</a></li>
+<li><a href="#2-maino-%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90">2、main.o 文件分析</a></li>
+<li><a href="#1-%E7%BB%9D%E5%AF%B9%E5%AF%BB%E5%9D%80">1、绝对寻址</a></li>
+<li><a href="#2-%E7%9B%B8%E5%AF%B9%E5%AF%BB%E5%9D%80">2、相对寻址</a></li>
+<li><a href="#1-%E7%BB%9D%E5%AF%B9%E5%9C%B0%E5%9D%80%E9%87%8D%E5%AE%9A%E4%BD%8D">1、绝对地址重定位</a></li>
+<li><a href="#2-%E7%9B%B8%E5%AF%B9%E5%9C%B0%E5%9D%80%E9%87%8D%E5%AE%9A%E4%BD%8D">2、相对地址重定位</a></li>
+</ul>
+</p>
 <hr>
 <blockquote>
 <p>本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)</p>
 </blockquote>
-<h1 id="一、开始"><a href="#一、开始" class="headerlink" title="一、开始"></a>一、开始</h1><p>首先，编写两个简单的文件用于待会儿的分析：</p>
+<h1 id="一-开始"><a class="markdownIt-Anchor" href="#一-开始"></a> 一、开始</h1>
+<p>首先，编写两个简单的文件用于待会儿的分析：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// swap.c</span><br><span class="hljs-type">int</span> shared = <span class="hljs-number">1</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">swap</span><span class="hljs-params">(<span class="hljs-type">int</span> *a, <span class="hljs-type">int</span> *b)</span><br>&#123;<br>    <span class="hljs-type">int</span> tmp = *a;<br>    *a = *b;<br>    *b = tmp;<br>&#125;<br><br><span class="hljs-comment">// main.c</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> shared;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">swap</span><span class="hljs-params">(<span class="hljs-type">int</span> *a, <span class="hljs-type">int</span> *b)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">2</span>;<br>    swap(&amp;a, &amp;shared);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>代码很简单，在 <code>swap.c</code> 中定义了一个全局变量和函数，然后在 <code>main.c</code> 中使用了这个全局变量和函数。</p>
 <p>然后我们来分析一下编译、链接这两个过程。</p>
-<h1 id="二、目标文件分析"><a href="#二、目标文件分析" class="headerlink" title="二、目标文件分析"></a>二、目标文件分析</h1><h2 id="1、sub-o-文件分析"><a href="#1、sub-o-文件分析" class="headerlink" title="1、sub.o 文件分析"></a>1、sub.o 文件分析</h2><p>接下来首先把这两个文件编译成目标文件(<code>.o</code>)：</p>
+<h1 id="二-目标文件分析"><a class="markdownIt-Anchor" href="#二-目标文件分析"></a> 二、目标文件分析</h1>
+<h2 id="1-subo-文件分析"><a class="markdownIt-Anchor" href="#1-subo-文件分析"></a> 1、sub.o 文件分析</h2>
+<p>接下来首先把这两个文件编译成目标文件(<code>.o</code>)：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -c main.c</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">gcc -m32 -c sub.c</span><br></code></pre></td></tr></table></figure>
-
 <blockquote>
 <p>在 Linux 系统中，目标文件(<code>.o</code>) 和可执行文件都是 ELF 格式的，ELF 文件可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141938589">ELF 文件格式</a></p>
 </blockquote>
 <p>首先来分析 <code>sub.o</code> 文件：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -S swap.o</span><br></code></pre></td></tr></table></figure>
-
 <blockquote>
 <p>利用 <code>readelf</code> 工具可以很方便地分析 ELF 格式的文件</p>
 </blockquote>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>我们主要关注代码段（<code>.text</code>）和数据段（<code>.data</code>），因为 <code>shared</code> 在数据段，<code>swap</code> 在代码段，不知道的可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a>。</p>
 <p>注意看，它们的 <code>Addr</code> 字段都是 0，因为这是目标文件，不是可执行文件，所以不会安排地址。然后看：</p>
 <ul>
-<li><code>.text</code> 在 <code>sub.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x3c</code>，大小（<code>size</code>）是 $0x31$</li>
-<li><code>.data</code> 在 <code>sub.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x70</code>，大小（<code>size</code>）是 $0x04$</li>
+<li><code>.text</code> 在 <code>sub.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x3c</code>，大小（<code>size</code>）是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>31</mn></mrow><annotation encoding="application/x-tex">0x31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">3</span><span class="mord">1</span></span></span></span></li>
+<li><code>.data</code> 在 <code>sub.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x70</code>，大小（<code>size</code>）是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>04</mn></mrow><annotation encoding="application/x-tex">0x04</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">4</span></span></span></span></li>
 </ul>
 <blockquote>
 <p>仔细看这里的数据，后面会用到。还要注意，这里的数据是十六进制的。</p>
 </blockquote>
 <p>然后看一下 ELF 的 header：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -h swap.o</span><br></code></pre></td></tr></table></figure>
-
 <blockquote>
 <p>ELF Header 是 ELF 文件的开头部分，它包含了描述整个文件的信息。ELF 头的结构如下：</p>
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> e_ident[<span class="hljs-number">16</span>];      <span class="hljs-comment">// ELF魔数和其他标识信息</span><br>    Elf64_Half    e_type;           <span class="hljs-comment">// 文件类型（可执行文件、共享库、目标文件等）</span><br>    Elf64_Half    e_machine;        <span class="hljs-comment">// 目标机器体系结构（x86、ARM、MIPS等）</span><br>    Elf64_Word    e_version;        <span class="hljs-comment">// ELF文件版本</span><br>    Elf64_Addr    e_entry;          <span class="hljs-comment">// 程序的入口地址</span><br>    Elf64_Off     e_phoff;          <span class="hljs-comment">// 程序头表（Program Header Table）在文件中的偏移地址</span><br>    Elf64_Off     e_shoff;          <span class="hljs-comment">// 节头表（Section Header Table）在文件中的偏移地址</span><br>    Elf64_Word    e_flags;          <span class="hljs-comment">// 特定于体系结构的标志位</span><br>    Elf64_Half    e_ehsize;         <span class="hljs-comment">// ELF头的大小</span><br>    Elf64_Half    e_phentsize;      <span class="hljs-comment">// 程序头表每个条目的大小</span><br>    Elf64_Half    e_phnum;          <span class="hljs-comment">// 程序头表的条目个数</span><br>    Elf64_Half    e_shentsize;      <span class="hljs-comment">// 节头表每个条目的大小</span><br>    Elf64_Half    e_shnum;          <span class="hljs-comment">// 节头表的条目个数</span><br>    Elf64_Half    e_shstrndx;       <span class="hljs-comment">// 节头表中字符串表的索引</span><br>&#125; Elf64_Ehdr;<br></code></pre></td></tr></table></figure>
-
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>ELF header 的大小是 52 字节，也就是 0x34。所以 <code>sub.o</code> 的内存映像如下：</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>然后来看符号表：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt><br>
+然后来看符号表：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -s swap.o</span><br></code></pre></td></tr></table></figure>
-
 <blockquote>
 <p>符号表是 ELF 文件中的一个节（section），用于存储程序中定义和引用的符号信息。符号表记录了函数、变量以及其他可执行代码中使用的符号的名称、类型和地址等信息。</p>
 </blockquote>
 <p>ELF符号表的结构如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    Elf64_Word    st_name;      <span class="hljs-comment">// 符号的名称在字符串表中的偏移地址</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> st_info;      <span class="hljs-comment">// 符号的类型和绑定信息</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> st_other;     <span class="hljs-comment">// 保留字段，当前未使用</span><br>    Elf64_Half    st_shndx;     <span class="hljs-comment">// 符号所在的节的索引</span><br>    Elf64_Addr    st_value;     <span class="hljs-comment">// 符号的地址或相对地址</span><br>    Elf64_Xword   st_size;      <span class="hljs-comment">// 符号的大小</span><br>&#125; Elf64_Sym;<br></code></pre></td></tr></table></figure>
-
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>首先看 <code>shared</code>：</p>
 <ul>
 <li><code>Size = 4</code>，大小为 4 字节</li>
@@ -365,26 +370,24 @@
 <li><code>Bind = GLOBAL</code>，表示这是全局的，也就是在其他文件中可以使用</li>
 <li><code>Ndx = 2</code>，说明这个符号是属于第 2 个段，就是代码段(<code>.text</code>)</li>
 </ul>
-<h2 id="2、main-o-文件分析"><a href="#2、main-o-文件分析" class="headerlink" title="2、main.o 文件分析"></a>2、main.o 文件分析</h2><p>和 <code>sub.o</code> 文件一样，看一下这几个信息。</p>
+<h2 id="2-maino-文件分析"><a class="markdownIt-Anchor" href="#2-maino-文件分析"></a> 2、main.o 文件分析</h2>
+<p>和 <code>sub.o</code> 文件一样，看一下这几个信息。</p>
 <p>首先是段信息：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -S main.o</span><br></code></pre></td></tr></table></figure>
-
-
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>类似地，它们的 <code>Addr</code> 字段都是 0，因为这是目标文件，不是可执行文件，所以不会安排地址。然后看：</p>
 <ul>
-<li><code>.text</code> 在 <code>main.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x3c</code>，大小（<code>size</code>）是 $0x4e$</li>
-<li><code>.data</code> 在 <code>main.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x8a</code>，大小（<code>size</code>）是 $0x00$，因为它没有定义变量</li>
+<li><code>.text</code> 在 <code>main.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x3c</code>，大小（<code>size</code>）是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>4</mn><mi>e</mi></mrow><annotation encoding="application/x-tex">0x4e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">4</span><span class="mord mathnormal">e</span></span></span></span></li>
+<li><code>.data</code> 在 <code>main.o</code> 文件中的偏移量（<code>off</code>）是 <code>0x8a</code>，大小（<code>size</code>）是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>00</mn></mrow><annotation encoding="application/x-tex">0x00</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">0</span></span></span></span>，因为它没有定义变量</li>
 </ul>
 <p>还有 header：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -h main.o</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>内存映像如下：</p>
-<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>最后是符号表信息：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">readelf -s main.o</span><br></code></pre></td></tr></table></figure>
-<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>main</code>：</p>
 <ul>
 <li><code>Size = 78</code>，大小为 78 字节</li>
@@ -393,80 +396,82 @@
 <li><code>Ndx = 2</code>，说明这个符号是属于第 2 个段，就是代码段(<code>.text</code>)</li>
 </ul>
 <p>不过在这里 <code>shared</code> 和 <code>swap</code> 的 Ndx 都变成了 UND，表示这两个符号被 <code>main.o</code> 引用，但是定义在其它文件中。</p>
-<h1 id="三、地址信息"><a href="#三、地址信息" class="headerlink" title="三、地址信息"></a>三、地址信息</h1><p>当链接成可执行文件时，所有的符号都必须有确定的地址（虚拟地址），所以链接器就需要在链接的过程中找到这 2 个符号在可执行文件中的地址，然后把这两个地址填写到 main 的代码段中。</p>
+<h1 id="三-地址信息"><a class="markdownIt-Anchor" href="#三-地址信息"></a> 三、地址信息</h1>
+<p>当链接成可执行文件时，所有的符号都必须有确定的地址（虚拟地址），所以链接器就需要在链接的过程中找到这 2 个符号在可执行文件中的地址，然后把这两个地址填写到 main 的代码段中。</p>
 <p>可以先来看一下 <code>main.o</code> 的反汇编代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">objdump -d main.o<br></code></pre></td></tr></table></figure>
-
 <p>注意红色圈住的两句：</p>
-<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>上面那个圈中的 <code>00 00 00 00</code> 就应该是符号 <code>shared</code> 的地址，只不过此时 <code>main.o</code> 还不知道这个符号的将会被链接器安排在什么地址，所以只能空着(以 4 个字节的 00 来占位)。</p>
 <p>红色部分的调用（<code>call</code>）地址为什么是 <code>fc ff ff ff</code>?</p>
 <p>按照小端格式计算一下：<code>0xfffffffc</code>，十进制的值就是 -4，为什么设置成 -4 呢？</p>
 <p>对于 x86 平台的 ELF 格式来说，对地址进行修正的方式有两种：绝对寻址和相对寻址。</p>
-<h2 id="1、绝对寻址"><a href="#1、绝对寻址" class="headerlink" title="1、绝对寻址"></a>1、绝对寻址</h2><p>对于 <code>shared</code> 符号就是绝对寻址，在链接成可执行文件时，这个地址在代码段中偏移 0x2c 个字节（上面的那个红色圈中指令码偏移 0x2a 个字节，跨过两个字节的指令码 8b 和 90 就是 0x2c 个字节)，这个地方 4 个字节的当前值是 <code>00 00 00 00</code>。</p>
+<h2 id="1-绝对寻址"><a class="markdownIt-Anchor" href="#1-绝对寻址"></a> 1、绝对寻址</h2>
+<p>对于 <code>shared</code> 符号就是绝对寻址，在链接成可执行文件时，这个地址在代码段中偏移 0x2c 个字节（上面的那个红色圈中指令码偏移 0x2a 个字节，跨过两个字节的指令码 8b 和 90 就是 0x2c 个字节)，这个地方 4 个字节的当前值是 <code>00 00 00 00</code>。</p>
 <p>链接器在修正的时候(就是链接成可执行文件的时候)，会把这 4 个字节修改为 <code>shared</code> 变量在可执行文件中的实际地址(虚拟地址)。</p>
-<h2 id="2、相对寻址"><a href="#2、相对寻址" class="headerlink" title="2、相对寻址"></a>2、相对寻址</h2><p>而下面那个红色框中的函数调用（<code>swap</code> 符号)，就是相对寻址，就是说：当 CPU 执行到这条指令的时候，把 PC 寄存中的值加上这个&#x3D;&#x3D;偏移地址&#x3D;&#x3D;，就是被调用对象的实际地址。</p>
+<h2 id="2-相对寻址"><a class="markdownIt-Anchor" href="#2-相对寻址"></a> 2、相对寻址</h2>
+<p>而下面那个红色框中的函数调用（<code>swap</code> 符号)，就是相对寻址，就是说：当 CPU 执行到这条指令的时候，把 PC 寄存中的值加上这个<mark>偏移地址</mark>，就是被调用对象的实际地址。</p>
 <p>链接器在重定位的时候，目的就是计算出相对地址，然后替换掉 <code>fc ff ff ff</code> 这四个字节。</p>
 <p>PC 寄存器中的值是确定的，当 <code>call</code> 这条指令被 CPU 取到之后，PC 寄存器被自动增加，指向下一条指令的开始地址（偏移 0x61 地址处）。</p>
-<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>所以：<code>实际地址=PC 值 + xxxx</code>，故有：<code>xxxx=实际地址-PC 值</code>。</p>
 <blockquote>
 <p>前面已经说了，xxxx 是相对偏移地址</p>
 </blockquote>
 <p>而 PC 值与 xxxx 所在的地址之间是有关系的：<code>PC值 + (-4)</code> 就得到 xxxx 所在的地址，因此在 <code>main.o</code> 中预先在这个地址处填 <code>fc ff ff ff</code>（-4）。</p>
 <p>下面就来看，上面说的两个地址是怎么修正的。</p>
-<h1 id="四、重定位表"><a href="#四、重定位表" class="headerlink" title="四、重定位表"></a>四、重定位表</h1><p>下面看一下重定位表信息：</p>
+<h1 id="四-重定位表"><a class="markdownIt-Anchor" href="#四-重定位表"></a> 四、重定位表</h1>
+<p>下面看一下重定位表信息：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -r main.o</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>重定位表就表示：该目标文件中，有哪些符号需要在链接的时候进行地址重定位。</p>
 <p>可以看到，<code>shared</code> 和 <code>swap</code> 就是需要重定位的：</p>
-<p><code>TYPE</code> 列：<br>    - <code>R_386_32</code> 表示绝对寻址<br>    - <code>R_386_PC32</code> 表示相对寻址 </p>
+<p><code>TYPE</code> 列：<br>
+- <code>R_386_32</code> 表示绝对寻址<br>
+- <code>R_386_PC32</code> 表示相对寻址</p>
 <p><code>OFFSET</code> 列表示需要重定位的符号在 <code>main.o</code> 文件代码段中的偏移位置，可以看出，和刚才反汇编 <code>main.o</code> 得到的汇编指令中的偏移是一样的。</p>
-<h1 id="五、可执行文件"><a href="#五、可执行文件" class="headerlink" title="五、可执行文件"></a>五、可执行文件</h1><p>有了 <code>swap.o</code> 和 <code>main.o</code> 这两个目标文件，就可以链接得到可执行程序了：</p>
+<h1 id="五-可执行文件"><a class="markdownIt-Anchor" href="#五-可执行文件"></a> 五、可执行文件</h1>
+<p>有了 <code>swap.o</code> 和 <code>main.o</code> 这两个目标文件，就可以链接得到可执行程序了：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ ld -m elf_i386 main.o swap.o -e main -o main<br></code></pre></td></tr></table></figure>
-
-
-
 <blockquote>
 <p><code>-e main</code>：指定链接后程序的入口是 main 函数；<code>-o main</code> 表示链接后的文件名。</p>
 </blockquote>
 <blockquote>
 <p>如果你报了如下错：</p>
-<p><img src="12.png" srcset="/img/loading.gif" lazyload><br><br> 可以尝试如下方法解决：</p>
-<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload alt><br>
+<br> 可以尝试如下方法解决：</p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
 <p>使用 <code>readelf</code> 工具来看一下 main 可执行文件中的段信息：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ readelf -S main<br></code></pre></td></tr></table></figure>
-
-<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>符号表信息：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ readelf -s main<br></code></pre></td></tr></table></figure>
-
-<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>swap</code> 属于代码段，长度为 49 字节，虚拟地址是 <code>0x0804 9052</code>（因为还有代码段中还有一部分是 main 函数）</li>
 <li><code>shared</code> 属于数据段，长度为 4 字节，虚拟地址是 <code>0x0804 c00c</code></li>
 </ul>
 <p>可以看出，可执行文件 main 的代码段中，先存放的是 main 函数，虚拟地址为 <code>0x0804 9000</code>，长度为 78 字节。</p>
-<p><img src="17.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
 <ol>
 <li>链接器在第一遍扫描所有的目标文件时，把所有相同类型的段进行合并，安排到相应的虚拟地址，如上图所示。</li>
 </ol>
 <p>所谓的安排虚拟地址，就是指定这块内容被加载到虚拟内存的什么地方。当可执行文件被执行的时候，加载器就把每一块内容复制到虚拟内存相应的地址处。</p>
-<p>同时，链接器还会建立一个&#x3D;&#x3D;全局符号表&#x3D;&#x3D;，把每一个目标文件中的符号信息都复制到这个全局符号表中。</p>
+<p>同时，链接器还会建立一个<mark>全局符号表</mark>，把每一个目标文件中的符号信息都复制到这个全局符号表中。</p>
 <p>对于我们的实例程序，全局符号表中包括：</p>
 <ul>
 <li><code>shared</code>：属于 <code>swap.o</code> 文件，数据段，安排在虚拟地址 <code>0x0804 c00c</code>;</li>
 <li><code>swap</code>：属于 <code>swap.o</code> 文件，代码段，安排在虚拟地址 <code>0x0804 9052</code>;</li>
-<li>其它符号信息…</li>
+<li>其它符号信息...</li>
 </ul>
-<h2 id="1、绝对地址重定位"><a href="#1、绝对地址重定位" class="headerlink" title="1、绝对地址重定位"></a>1、绝对地址重定位</h2><p>然后，链接器第二遍扫描所有的目标文件，检查哪些目标文件中的符号需要进行重定位。</p>
+<h2 id="1-绝对地址重定位"><a class="markdownIt-Anchor" href="#1-绝对地址重定位"></a> 1、绝对地址重定位</h2>
+<p>然后，链接器第二遍扫描所有的目标文件，检查哪些目标文件中的符号需要进行重定位。</p>
 <ol start="2">
 <li>对于我们的示例程序，首先来看一下 <code>main.o</code> 中使用的外部变量 <code>shared</code> 的重定位。</li>
 </ol>
-<p><img src="18.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>从 <code>main.o</code> 的重定位表中可知：<code>shared</code> 符号需要进行重定位，需要把这个符号在执行时刻的绝对寻址(虚拟地址)，写入到 main 可执行文件中代码段中偏移 0x2c 字节处。</p>
 <p>也就是说需要解决 2 个问题：</p>
 <ul>
@@ -481,17 +486,16 @@
 <p>链接器从全局符号表中发现：<code>shared</code> 符号属于 <code>swap.o</code> 文件，已经被安排在虚拟地址 <code>0x0804 c00c</code> 处，因此只需要把 <code>0x0804 c00c</code> 填写到可执行文件 main 中偏移 0x102c（十进制 4140）的地方。</p>
 <p>我们来读取 main 文件，验证一下这个位置处的虚拟地址是否正确：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">od</span> -Ax -t x1 -j 4140 -N 4 main</span><br></code></pre></td></tr></table></figure>
-
-
 <ul>
 <li><code>-Ax</code>: 显示地址的时候，用十六进制来表示。如果使用 <code>-Ad</code>，意思就是用十进制来显示地址;</li>
 <li><code>-t -x1</code>: 显示字节码内容的时候，使用十六进制(x)，每次显示一个字节(1);</li>
 <li><code>-j 166</code>: 跨过 166 个字节(十六进制 0xa6);</li>
 <li><code>-N 4</code>：只需要读取 4 个字节;</li>
 </ul>
-<p><img src="19.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="19.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>结果验证成功！</p>
-<h2 id="2、相对地址重定位"><a href="#2、相对地址重定位" class="headerlink" title="2、相对地址重定位"></a>2、相对地址重定位</h2><p><code>main.o</code> 代码段中的 &#96;&#96; 符号也需要重定位，而且是相对寻址。</p>
+<h2 id="2-相对地址重定位"><a class="markdownIt-Anchor" href="#2-相对地址重定位"></a> 2、相对地址重定位</h2>
+<p><code>main.o</code> 代码段中的 `` 符号也需要重定位，而且是相对寻址。</p>
 <p>链接器需要把 <code>swap</code> 符号在执行时刻的绝对地址（虚拟地址），减去 call 指令的下一条指令(PC 寄存器) 之后的差值，填写到执行文件 main中的 <code>main.o</code> 代码段偏移 0x38 的地方。</p>
 <p>同样的道理，需要解决 2 个问题：</p>
 <ol>
@@ -510,12 +514,12 @@
 <p>也就是说：在可执行文件 main 中偏移为 0x1038（十进制 4152）的地方，填入相对地址 <code>0x0000 0013</code> 就完成了 <code>swap</code> 符号的重定位。</p>
 <p>还是用 od 指令来读取 main 文件的内容来验证一下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">od</span> -Ax -t x1 -j 4152 -N 4 main</span><br></code></pre></td></tr></table></figure>
-<p><img src="20.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h1><p>这样，通过两个重定位操作，<code>main.c</code> 的两个外部符号就解决了地址重定位问题。</p>
+<p><img src="20.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="六-总结"><a class="markdownIt-Anchor" href="#六-总结"></a> 六、总结</h1>
+<p>这样，通过两个重定位操作，<code>main.c</code> 的两个外部符号就解决了地址重定位问题。</p>
 <p>下面通过反汇编代码看一下我们的计算是否正确：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -d main</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="21.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>中间圈出的两个数据和前面计算的是一样的！</p>
 <p>以上就是静态链接过程中地址重定位的基本过程，与动态链接相比，静态链接还是相对简单很多。</p>
 

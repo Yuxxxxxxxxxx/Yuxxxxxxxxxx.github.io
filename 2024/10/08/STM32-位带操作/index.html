@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&amp;#x3D">
+    <meta name="description" content="[toc]   一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对单一的比特进行读写。 而我们也知道，在 STM32 中并不能直接">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 位带操作">
 <meta property="og:url" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  一、简介如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平  通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&amp;#x3D">
+<meta property="og:description" content="[toc]   一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对单一的比特进行读写。 而我们也知道，在 STM32 中并不能直接">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/1.png">
 <meta property="og:image" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/2.png">
@@ -287,54 +287,63 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下：</p>
+<h1 id="一-简介"><a class="markdownIt-Anchor" href="#一-简介"></a> 一、简介</h1>
+<p>如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">sbit LED1 = P2^<span class="hljs-number">0</span>; <span class="hljs-comment">// 控制到 P2.0 脚</span><br>LED1 = <span class="hljs-number">0</span>; <span class="hljs-comment">// 输出一个低电平</span><br></code></pre></td></tr></table></figure>
-
-<p>通过简单的两句话就可以点亮一个 led 了。这就是位带（<code>Bit-banding</code>）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。</p>
+<p>通过简单的两句话就可以点亮一个 led 了。这就是位带（<code>Bit-banding</code>）操作，支持位带操作后，可以使用普通的加载/存储指令来对<mark>单一的比特</mark>进行读写。</p>
 <p>而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是映射操作。</p>
 <blockquote>
 <p>参考 &lt;&lt;CM3权威指南&gt;&gt; 第五章(P87~P92)</p>
 </blockquote>
-<h1 id="二、映射关系"><a href="#二、映射关系" class="headerlink" title="二、映射关系"></a>二、映射关系</h1><p>不过，在 STM32F407 中，有两个地方实现了位带：</p>
+<h1 id="二-映射关系"><a class="markdownIt-Anchor" href="#二-映射关系"></a> 二、映射关系</h1>
+<p>不过，在 STM32F407 中，有两个地方实现了位带：</p>
 <ol>
-<li><p>SRAM 区的最低 1MB 空间<br> SRAM 的位带区的地址为：**<code>0X2000 0000~X200F 0000</code><strong>，大小为 1MB，经过膨胀后的位带别名区地址为：</strong><code>0X2200 0000~0X23FF FFFF</code>**，大小为 32MB。操作 SRAM 的比特位这个用得很少。</p>
+<li>
+<p>SRAM 区的最低 1MB 空间<br>
+SRAM 的位带区的地址为：<strong><code>0X2000 0000~X200F 0000</code></strong>，大小为 1MB，经过膨胀后的位带别名区地址为：<strong><code>0X2200 0000~0X23FF FFFF</code></strong>，大小为 32MB。操作 SRAM 的比特位这个用得很少。</p>
 </li>
-<li><p>外设区最低 1MB 空间。<br> 外设位带区的地址为：**<code>0X40000000~0X400F0000</code><strong>，大小为 1MB，这 1MB 的大小包含了 APB1&#x2F;2 和 AHB1 上所有外设的寄存器，AHB2&#x2F;3 总线上的寄存器没有包括。 AHB2 总线上的外设地址范围为：</strong>0X50000000<del>0X50060BFF<strong>，AHB3 总线上的外设地址范围为：</strong>0XA0000000</del>0XA0000FFF<strong>。 外设位带区经过膨胀后的位带别名区地址为：</strong><code>0X42000000~0X43FFFFFF</code>**，这部分地址空间为保留地址，没有跟任何的外设地址重合。</p>
+<li>
+<p>外设区最低 1MB 空间。<br>
+外设位带区的地址为：<strong><code>0X40000000~0X400F0000</code></strong>，大小为 1MB，这 1MB 的大小包含了 APB1/2 和 AHB1 上所有外设的寄存器，AHB2/3 总线上的寄存器没有包括。 AHB2 总线上的外设地址范围为：<strong>0X50000000~0X50060BFF</strong>，AHB3 总线上的外设地址范围为：<strong>0XA0000000~0XA0000FFF</strong>。 外设位带区经过膨胀后的位带别名区地址为：<strong><code>0X42000000~0X43FFFFFF</code></strong>，这部分地址空间为保留地址，没有跟任何的外设地址重合。</p>
 </li>
 </ol>
 <p>这两个 1MB 的空间除了可以像正常的 RAM 一样操作外， 他们还有自己的位带别名区，位带别名区把这 1MB 的空间的每一个位膨胀成一个 32 位的字，当访问位带别名区的这些字时，就可以达到访问位带区某个比特位的目的。</p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>也就是说，位带操作就是把位带区中一个地址的 8 个位分别映射到位带别名区的 8 个地址（LSB 有效，即最低位有效），通过操作相应地址的方式实现操作某个位。</p>
 <blockquote>
-<p>为什么 LSB 有效？<br>因为 STM32 的系统总线是 32 位的， 按照 4 个字节访问的时候是最快的，所以膨胀成 4 个字节来访问是最高效的。</p>
+<p>为什么 LSB 有效？<br>
+因为 STM32 的系统总线是 32 位的， 按照 4 个字节访问的时候是最快的，所以膨胀成 4 个字节来访问是最高效的。</p>
 </blockquote>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
-<p>位带区里每个地址的每 1 位膨胀为别名区里一个 32 位的字（32 位处理器中，1字&#x3D;4字节），例如：<code>0x20000000</code> 的第 0 位对应 <code>0x22000000</code>，第 1 位对应 <code>0x22000004</code> 等。</p>
-<h1 id="三、地址转换"><a href="#三、地址转换" class="headerlink" title="三、地址转换"></a>三、地址转换</h1><h2 id="1、外设位带别名区地址"><a href="#1、外设位带别名区地址" class="headerlink" title="1、外设位带别名区地址"></a>1、外设位带别名区地址</h2><p>对于片上外设位带区的某个比特，记它所在字节的地址为 A，位序号为 n ($0&lt;&#x3D;n&lt;&#x3D;31$)(n的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>位带区里每个地址的每 1 位膨胀为别名区里一个 32 位的字（32 位处理器中，1字=4字节），例如：<code>0x20000000</code> 的第 0 位对应 <code>0x22000000</code>，第 1 位对应 <code>0x22000004</code> 等。</p>
+<h1 id="三-地址转换"><a class="markdownIt-Anchor" href="#三-地址转换"></a> 三、地址转换</h1>
+<h2 id="1-外设位带别名区地址"><a class="markdownIt-Anchor" href="#1-外设位带别名区地址"></a> 1、外设位带别名区地址</h2>
+<p>对于片上外设位带区的某个比特，记它所在字节的地址为 A，位序号为 n (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mo>=</mo><mi>n</mi><mo>&lt;</mo><mo>=</mo><mn>31</mn></mrow><annotation encoding="application/x-tex">0&lt;=n&lt;=31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68354em;vertical-align:-0.0391em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">1</span></span></span></span>)(n的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">AliasAddr= =<span class="hljs-number">0x42000000</span> + (A<span class="hljs-number">-0x40000000</span>)*<span class="hljs-number">8</span>*<span class="hljs-number">4</span> +n*<span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
-
 <ul>
 <li><code>0X42000000</code> 是外设位带别名区的起始地址</li>
 <li><code>0x40000000</code>是外设位带区的起始地址，则（<code>A-0x40000000</code>）表示该比特前面有多少个字节</li>
 <li>一个字节有 8 位，所以 <code>*8</code>；而一个位膨胀后是 4 个字节，所以 <code>*4</code></li>
 <li>n 表示该比特在 A 地址的序号，因为一个位经过膨胀后是四个字节，所以也 <code>*4</code>。</li>
 </ul>
-<h2 id="2、SRAM-位带别名区地址"><a href="#2、SRAM-位带别名区地址" class="headerlink" title="2、SRAM 位带别名区地址"></a>2、SRAM 位带别名区地址</h2><p>对于 SRAM 位带区的某个比特，记它所在字节的地址为 A，位序号为 n ($0&lt;&#x3D;n&lt;&#x3D;31$)(n 的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
+<h2 id="2-sram-位带别名区地址"><a class="markdownIt-Anchor" href="#2-sram-位带别名区地址"></a> 2、SRAM 位带别名区地址</h2>
+<p>对于 SRAM 位带区的某个比特，记它所在字节的地址为 A，位序号为 n (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mo>=</mo><mi>n</mi><mo>&lt;</mo><mo>=</mo><mn>31</mn></mrow><annotation encoding="application/x-tex">0&lt;=n&lt;=31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68354em;vertical-align:-0.0391em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">1</span></span></span></span>)(n 的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">AliasAddr= =<span class="hljs-number">0x22000000</span>+ (A<span class="hljs-number">-0x20000000</span>)*<span class="hljs-number">8</span>*<span class="hljs-number">4</span> +n*<span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
-
 <p>公式分析同上。</p>
-<h2 id="3、统一公式"><a href="#3、统一公式" class="headerlink" title="3、统一公式"></a>3、统一公式</h2><p>为了方便操作，我们可以把这两个公式合并成一个公式，把“位带地址+位序号”转换成别名区地址统一成一个宏。</p>
+<h2 id="3-统一公式"><a class="markdownIt-Anchor" href="#3-统一公式"></a> 3、统一公式</h2>
+<p>为了方便操作，我们可以把这两个公式合并成一个公式，把“位带地址+位序号”转换成别名区地址统一成一个宏。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BITBAND(addr, bitnum) ((addr &amp; 0xF0000000)+0x02000000+((addr &amp; 0x000FFFFF)&lt;&lt;5)+(bitnum&lt;&lt;2))</span><br></code></pre></td></tr></table></figure>
-
 <ul>
-<li><code>addr &amp; 0xF0000000</code> 是为了区别 SRAM 还是外设，实际效果就是取出 4 或者 2：<ul>
+<li><code>addr &amp; 0xF0000000</code> 是为了区别 SRAM 还是外设，实际效果就是取出 4 或者 2：
+<ul>
 <li>如果是外设，则取出的是 4，<code>+ 0X02000000</code> 之后就等于 <code>0X42000000</code>，<code>0X42000000</code> 是外设别名区的起始地址</li>
 <li>如果是 SRAM，则取出的是 2，<code>+ 0X02000000</code> 之后就等于 <code>0X22000000</code>，<code>0X22000000</code> 是 SRAM 别名区的起始地址。</li>
 </ul>
 </li>
-<li><code>addr &amp; 0x00FFFFFF</code> 屏蔽了高三位，相当于减去 <code>0X20000000</code> 或者 <code>0X40000000</code>，但是为什么是屏蔽高三位？<ul>
+<li><code>addr &amp; 0x00FFFFFF</code> 屏蔽了高三位，相当于减去 <code>0X20000000</code> 或者 <code>0X40000000</code>，但是为什么是屏蔽高三位？
+<ul>
 <li>因为外设的最高地址是：<code>0X20100000</code>， 跟起始地址 <code>0X20000000</code> 相减的时候，总是低 5 位才有效，所以干脆就把高三位屏蔽掉来达到减去起始地址的效果，具体屏蔽掉多少位跟最高地址有关。</li>
 <li>SRAM 同理分析即可。<code>&lt;&lt;5</code> 相当于 <code>*8*4</code>，<code>&lt;&lt;2</code> 相当于 <code>*4</code>，这两个我们在上面分析过。</li>
 </ul>
@@ -342,18 +351,17 @@
 </ul>
 <p>最后我们就可以通过指针的形式操作这些位带别名区地址，最终实现位带区的比特位操作。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 把一个地址转换成一个指针</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MEM_ADDR(addr)  *((volatile unsigned long  *)(addr))</span><br><br><span class="hljs-comment">// 把位带别名区地址转换成指针</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT_ADDR(addr, bitnum)   MEM_ADDR(BITBAND(addr, bitnum))</span><br></code></pre></td></tr></table></figure>
-
-<h1 id="四、GPIO-位带操作"><a href="#四、GPIO-位带操作" class="headerlink" title="四、GPIO 位带操作"></a>四、GPIO 位带操作</h1><p>经过上面的铺垫，就可以轻松实现 STM32 上 GPIO 位带操作了：</p>
+<h1 id="四-gpio-位带操作"><a class="markdownIt-Anchor" href="#四-gpio-位带操作"></a> 四、GPIO 位带操作</h1>
+<p>经过上面的铺垫，就可以轻松实现 STM32 上 GPIO 位带操作了：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BITBAND(addr, bitnum) ((addr &amp; 0xF0000000) + 0x2000000 + ((addr &amp; 0x000FFFFF) &lt;&lt; 5) + (bitnum &lt;&lt; 2))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MEM_ADDR(addr) *((volatile unsigned long *)(addr))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT_ADDR(addr, bitnum) MEM_ADDR(BITBAND(addr, bitnum))</span><br><br><span class="hljs-comment">// IO口地址映射</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOA_ODR_Addr (GPIOA_BASE + 20) <span class="hljs-comment">// 0x40020014</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOB_ODR_Addr (GPIOB_BASE + 20) <span class="hljs-comment">// 0x40020414</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOC_ODR_Addr (GPIOC_BASE + 20) <span class="hljs-comment">// 0x40020814</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOD_ODR_Addr (GPIOD_BASE + 20) <span class="hljs-comment">// 0x40020C14</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOE_ODR_Addr (GPIOE_BASE + 20) <span class="hljs-comment">// 0x40021014</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOF_ODR_Addr (GPIOF_BASE + 20) <span class="hljs-comment">// 0x40021414</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOG_ODR_Addr (GPIOG_BASE + 20) <span class="hljs-comment">// 0x40021814</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOH_ODR_Addr (GPIOH_BASE + 20) <span class="hljs-comment">// 0x40021C14</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOI_ODR_Addr (GPIOI_BASE + 20) <span class="hljs-comment">// 0x40022014</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOA_IDR_Addr (GPIOA_BASE + 16) <span class="hljs-comment">// 0x40020010</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOB_IDR_Addr (GPIOB_BASE + 16) <span class="hljs-comment">// 0x40020410</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOC_IDR_Addr (GPIOC_BASE + 16) <span class="hljs-comment">// 0x40020810</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOD_IDR_Addr (GPIOD_BASE + 16) <span class="hljs-comment">// 0x40020C10</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOE_IDR_Addr (GPIOE_BASE + 16) <span class="hljs-comment">// 0x40021010</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOF_IDR_Addr (GPIOF_BASE + 16) <span class="hljs-comment">// 0x40021410</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOG_IDR_Addr (GPIOG_BASE + 16) <span class="hljs-comment">// 0x40021810</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOH_IDR_Addr (GPIOH_BASE + 16) <span class="hljs-comment">// 0x40021C10</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOI_IDR_Addr (GPIOI_BASE + 16) <span class="hljs-comment">// 0x40022010</span></span><br><br><span class="hljs-comment">// IO口操作,只对单一的IO口!</span><br><span class="hljs-comment">// 确保n的值小于16!</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAout(n) BIT_ADDR(GPIOA_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAin(n) BIT_ADDR(GPIOA_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PBout(n) BIT_ADDR(GPIOB_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PBin(n) BIT_ADDR(GPIOB_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PCout(n) BIT_ADDR(GPIOC_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PCin(n) BIT_ADDR(GPIOC_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PDout(n) BIT_ADDR(GPIOD_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PDin(n) BIT_ADDR(GPIOD_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PEout(n) BIT_ADDR(GPIOE_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PEin(n) BIT_ADDR(GPIOE_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PFout(n) BIT_ADDR(GPIOF_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PFin(n) BIT_ADDR(GPIOF_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PGout(n) BIT_ADDR(GPIOG_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PGin(n) BIT_ADDR(GPIOG_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHout(n) BIT_ADDR(GPIOH_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHin(n) BIT_ADDR(GPIOH_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PIout(n) BIT_ADDR(GPIOI_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PIin(n) BIT_ADDR(GPIOI_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br></code></pre></td></tr></table></figure>
-
-<p>使用位带操作，不仅更加方便，而且步骤少，更重要的是&#x3D;&#x3D;位带操作属于原子操作&#x3D;&#x3D;。</p>
+<p>使用位带操作，不仅更加方便，而且步骤少，更重要的是<mark>位带操作属于原子操作</mark>。</p>
 <p>比如，欲设置地址 <code>0x2000 0000</code> 中的比特 2，则使用位带操作的设置过程如下图所示：</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>对应的汇编代码如下：</p>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>写操作同理：</p>
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 
                 
               </div>

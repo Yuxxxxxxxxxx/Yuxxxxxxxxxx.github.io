@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、前置下载首先在VS Code中下载扩展 Claude Code for VS Code：  Claude Code 在 Windows 上依赖 Git Bash，必须先安装 Git。 下载地址： https:&#x2F;&#x2F;git-scm.com&#x2F;install&#x2F;windows 二、通过API平台获取API由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。 在平台上">
+    <meta name="description" content="一、前置下载 首先在VS Code中下载扩展 Claude Code for VS Code：  Claude Code 在 Windows 上依赖 Git Bash，必须先安装 Git。 下载地址： https:&#x2F;&#x2F;git-scm.com&#x2F;install&#x2F;windows  二、通过API平台获取API 由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="VS Code配置Claude Code（通过API方式）">
 <meta property="og:url" content="http://example.com/2026/05/15/VS-Code%E9%85%8D%E7%BD%AEClaude-Code%EF%BC%88%E9%80%9A%E8%BF%87API%E6%96%B9%E5%BC%8F%EF%BC%89/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、前置下载首先在VS Code中下载扩展 Claude Code for VS Code：  Claude Code 在 Windows 上依赖 Git Bash，必须先安装 Git。 下载地址： https:&#x2F;&#x2F;git-scm.com&#x2F;install&#x2F;windows 二、通过API平台获取API由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。 在平台上">
+<meta property="og:description" content="一、前置下载 首先在VS Code中下载扩展 Claude Code for VS Code：  Claude Code 在 Windows 上依赖 Git Bash，必须先安装 Git。 下载地址： https:&#x2F;&#x2F;git-scm.com&#x2F;install&#x2F;windows  二、通过API平台获取API 由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2026/05/15/VS-Code%E9%85%8D%E7%BD%AEClaude-Code%EF%BC%88%E9%80%9A%E8%BF%87API%E6%96%B9%E5%BC%8F%EF%BC%89/1.jpg">
 <meta property="og:image" content="http://example.com/2026/05/15/VS-Code%E9%85%8D%E7%BD%AEClaude-Code%EF%BC%88%E9%80%9A%E8%BF%87API%E6%96%B9%E5%BC%8F%EF%BC%89/2.jpg">
@@ -280,19 +280,22 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一、前置下载"><a href="#一、前置下载" class="headerlink" title="一、前置下载"></a>一、前置下载</h1><p>首先在VS Code中下载扩展 <code>Claude Code for VS Code</code>：</p>
-<p><img src="1.jpg" srcset="/img/loading.gif" lazyload></p>
+                <h1 id="一-前置下载"><a class="markdownIt-Anchor" href="#一-前置下载"></a> 一、前置下载</h1>
+<p>首先在VS Code中下载扩展 <code>Claude Code for VS Code</code>：</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
 <p>Claude Code 在 Windows 上依赖 <code>Git Bash</code>，必须先安装 Git。</p>
 <p>下载地址： <a target="_blank" rel="noopener" href="https://git-scm.com/install/windows">https://git-scm.com/install/windows</a></p>
-<h1 id="二、通过API平台获取API"><a href="#二、通过API平台获取API" class="headerlink" title="二、通过API平台获取API"></a>二、通过API平台获取API</h1><p>由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。</p>
+<h1 id="二-通过api平台获取api"><a class="markdownIt-Anchor" href="#二-通过api平台获取api"></a> 二、通过API平台获取API</h1>
+<p>由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。</p>
 <p>在平台上添加好令牌后复制API密钥，并在模型广场中找到要使用的模型，并记住名称。</p>
-<p><img src="2.jpg" srcset="/img/loading.gif" lazyload></p>
-<h1 id="三、VS-Code-配置"><a href="#三、VS-Code-配置" class="headerlink" title="三、VS Code 配置"></a>三、VS Code 配置</h1><p>在 VS Code 中按下 <code>Ctrl + Shift + P</code>，搜索 <code>Open User Settings(JSON)</code> 打开配置文件，添加一下内容：</p>
+<p><img src="2.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="三-vs-code-配置"><a class="markdownIt-Anchor" href="#三-vs-code-配置"></a> 三、VS Code 配置</h1>
+<p>在 VS Code 中按下 <code>Ctrl + Shift + P</code>，搜索 <code>Open User Settings(JSON)</code> 打开配置文件，添加一下内容：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-attr">&quot;claudeCode.preferredLocation&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;panel&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;claudeCode.environmentVariables&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>        <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ANTHROPIC_AUTH_TOKEN&quot;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-attr">&quot;value&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;填写你的API-key&quot;</span><br>        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ANTHROPIC_BASE_URL&quot;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-attr">&quot;value&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;API 平台地址&quot;</span><br>        <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-punctuation">&#123;</span><br>            <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ANTHROPIC_MODEL&quot;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-attr">&quot;value&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;claude-4.5-haiku&quot;</span> <span class="hljs-comment">// 模型名称</span><br>        <span class="hljs-punctuation">&#125;</span><br>    <span class="hljs-punctuation">]</span><br></code></pre></td></tr></table></figure>
-
-<h1 id="四、验证"><a href="#四、验证" class="headerlink" title="四、验证"></a>四、验证</h1><p>保存 settings.json 后，重启 VS Code。</p>
+<h1 id="四-验证"><a class="markdownIt-Anchor" href="#四-验证"></a> 四、验证</h1>
+<p>保存 settings.json 后，重启 VS Code。</p>
 <p>点击右上角的火花按钮即可打开 Claude Code 面板，看到正常回复说明配置成功。</p>
-<p><img src="3.jpg" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.jpg" srcset="/img/loading.gif" lazyload alt></p>
 
                 
               </div>

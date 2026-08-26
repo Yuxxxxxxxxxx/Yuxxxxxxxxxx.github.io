@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc  在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文">
+    <meta name="description" content="在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文将针对这">
 <meta property="og:type" content="article">
 <meta property="og:title" content="hex 文件和 bin 文件剖析">
 <meta property="og:url" content="http://example.com/2024/09/30/hex-%E5%92%8C-bin-%E6%96%87%E4%BB%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc  在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文">
+<meta property="og:description" content="在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。 而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。 哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文将针对这">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/30/hex-%E5%92%8C-bin-%E6%96%87%E4%BB%B6/1.png">
 <meta property="og:image" content="http://example.com/2024/09/30/hex-%E5%92%8C-bin-%E6%96%87%E4%BB%B6/2.png">
@@ -239,7 +239,7 @@
         
         
         
-          13 分钟
+          14 分钟
         
       </span>
     
@@ -281,35 +281,37 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+                <p></p>
 <hr>
 <p>在单片机开发中，hex 文件和 bin 文件是非常常见的两种烧写文件格式。比如在 Keil 中，编译好程序后，点击 Download 就可以把 hex 文件烧录到板子上。</p>
 <p>而有时候在我们实现 IAP 时，有需要生成 bin 文件格式，再将其传输到单片机中，通过 Bootloader 将 bin 接收移到相应地址。</p>
 <p>哪这两个文件有什么区别？为什么有时候用 bin，而有时候用 hex？本文将针对这两个文件进行讨论。</p>
-<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><blockquote>
-<p>二进制文件（<em><strong>Binary File</strong></em>）是一种以二进制形式存储的计算机文件，其中的数据以字节为单位进行编码。二进制文件可以包含任意类型的数据，如图像、音频、视频、可执行文件等。与之相对的是文本文件，文本文件使用字符编码（如 ASCII 或 Unicode）表示数据。<br><br>十六进制文件（<em><strong>Hex File</strong></em>）是一种特殊的二进制文件，其中的数据以十六进制表示。每个十六进制数对应 4 个二进制位，因此可以更直观地查看和编辑二进制数据。十六进制文件常用于存储和传输机器码（即可执行文件），特别是在处理嵌入式系统中常见的固件或软件升级时。</p>
+<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<blockquote>
+<p>二进制文件（<em><strong>Binary File</strong></em>）是一种以二进制形式存储的计算机文件，其中的数据以字节为单位进行编码。二进制文件可以包含任意类型的数据，如图像、音频、视频、可执行文件等。与之相对的是文本文件，文本文件使用字符编码（如 ASCII 或 Unicode）表示数据。<br><br>
+十六进制文件（<em><strong>Hex File</strong></em>）是一种特殊的二进制文件，其中的数据以十六进制表示。每个十六进制数对应 4 个二进制位，因此可以更直观地查看和编辑二进制数据。十六进制文件常用于存储和传输机器码（即可执行文件），特别是在处理嵌入式系统中常见的固件或软件升级时。</p>
 </blockquote>
 <p>更具体地说，<code>*.bin</code> 文件是二进制文件，是纯粹的 Flash 映像，不含任何额外信息；而 <code>*.hex</code> 是 Intex Hex 格式的映像文件，可理解为带存储地址描述格式的 bin 文件。</p>
 <p>在 Keil 中，可以通过如下方式来生成 bin 和 hex 文件：</p>
 <p>要生成 hex 比较简单，选中这个选项即可：</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>要生成 bin 文件需要借助 <code>fromelf</code> 工具：</p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>指令为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">fromelf --bin -o <span class="hljs-string">&quot;$L@L.bin&quot;</span> <span class="hljs-string">&quot;#L&quot;</span><br><br><span class="hljs-comment">// 或</span><br>fromelf --bin -o ./OBJECT<span class="hljs-comment">/**.bin ./OBJECT/**.axf</span><br></code></pre></td></tr></table></figure>
-
 <blockquote>
 <p>注意，下面那种写法要写清楚自己的 bin 要放在哪个目录，以及 Keil 生成的 axf 所在的目录</p>
 </blockquote>
-<h1 id="二、hex-文件"><a href="#二、hex-文件" class="headerlink" title="二、hex 文件"></a>二、hex 文件</h1><p>hex 是 Intel 公司制定的一种使用 ASCII 文本记录机器码或常量数据的文件格式，这种文件常常用来记录将要存储到 ROM 中的数据，绝大多数下载器支持该格式。</p>
-<p>一个 hex 文件由多条记录组成，而每条记录由五个部分组成，格式形如”<font size="5px"><strong>:</strong></font> <font size="5px" color="red">ll</font> <font size="5px" color="yellowgreen">aaaa</font> <font size="5px" color="redgreen">tt</font> <font size="5px" color="blured">[dd…]</font> <font size="5px" color="green">cc</font>“</p>
+<h1 id="二-hex-文件"><a class="markdownIt-Anchor" href="#二-hex-文件"></a> 二、hex 文件</h1>
+<p>hex 是 Intel 公司制定的一种使用 ASCII 文本记录机器码或常量数据的文件格式，这种文件常常用来记录将要存储到 ROM 中的数据，绝大多数下载器支持该格式。</p>
+<p>一个 hex 文件由多条记录组成，而每条记录由五个部分组成，格式形如&quot;<font size="5px"><strong>:</strong></font> <font size="5px" color="red">ll</font> <font size="5px" color="yellowgreen">aaaa</font> <font size="5px" color="redgreen">tt</font> <font size="5px" color="blured">[dd...]</font> <font size="5px" color="green">cc</font>&quot;</p>
 <blockquote>
 <p>这里用不同的颜色和空格只是为了方便区分位</p>
 </blockquote>
 <p>解释如下：</p>
 <ol>
 <li><font size="5px"><strong>:</strong></font>：每条记录的开头都使用冒号来表示一条记录的开始</li>
-<li><font size="5px" color="red">ll</font>：以 16 进制数表示这条记录的主体数据区的长度（即后面 <font size="5px" color="blured">[dd…]</font> 的长度）</li>
+<li><font size="5px" color="red">ll</font>：以 16 进制数表示这条记录的主体数据区的长度（即后面 <font size="5px" color="blured">[dd...]</font> 的长度）</li>
 <li><font size="5px" color="yellowgreen">aaaa</font>：表示这条记录中的内容应存放到 Flash 中的起始地址</li>
 <li><font size="5px" color="redgreen">tt</font>：表示这条记录的类型，它包含中的各种类型，类型见下表：</li>
 </ol>
@@ -320,7 +322,8 @@
 <th>代表的类型</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>00</td>
 <td>数据记录</td>
 </tr>
@@ -340,21 +343,21 @@
 <td>05</td>
 <td>表示一个线性地址记录的起始(只适用于 ARM)</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ol start="5">
-<li><font size="5px" color="blured">[dd…]</font>：表示一个字节的数据，一条记录中可以有多个字节数据，<font size="5px" color="red">ll</font> 区表示了它有多少个字节的数据</li>
-<li><font size="5px" color="green">cc</font>：表示本条记录的校验和（<em><strong>CheckSum</strong></em>），它是前面所有 16 进制数据（&#x3D;&#x3D;除冒号外，两个为一组&#x3D;&#x3D;）的和对 $256$ 取模运算的结果的补码</li>
+<li><font size="5px" color="blured">[dd...]</font>：表示一个字节的数据，一条记录中可以有多个字节数据，<font size="5px" color="red">ll</font> 区表示了它有多少个字节的数据</li>
+<li><font size="5px" color="green">cc</font>：表示本条记录的校验和（<em><strong>CheckSum</strong></em>），它是前面所有 16 进制数据（<mark>除冒号外，两个为一组</mark>）的和对 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn></mrow><annotation encoding="application/x-tex">256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span> 取模运算的结果的补码</li>
 </ol>
 <p>例：下面以一个 hex 文件的前两行来分析：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">:<span class="hljs-number">020000040800F</span>2<br>:<span class="hljs-number">10000000E81</span>B002091010008390B00088508000852<br><br><span class="hljs-comment">// 下面分下段方便查看</span><br>:<span class="hljs-number">02</span> <span class="hljs-number">0000</span> <span class="hljs-number">04</span> <span class="hljs-number">0800</span> F2<br>:<span class="hljs-number">10</span> <span class="hljs-number">0000</span> <span class="hljs-number">00</span> E81B002091010008390B000885080008 <span class="hljs-number">52</span><br></code></pre></td></tr></table></figure>
-
 <p>首先看第一条记录：</p>
 <ol>
 <li><strong>02</strong>：表示这条记录数据区的长度为两字节</li>
 <li><strong>0000</strong>：表示这条记录要存储到 Flash 中地址为 0000 处</li>
 <li><strong>04</strong>：表示这是一条扩展线性地址记录</li>
-<li><strong>0800</strong>：由于这是一条扩展线性地址记录，所以这部分表示地址的高16位，与前面的”0000”结合在一起，表示要扩展的线性地址为”<code>0x0800 0000</code>“，这正好是 STM32 内部 Flash 的首地址 (^人^)</li>
-<li><strong>F2</strong>：表示校验和，它的值为 $(0x02+0x00+0x00+0x04+0x08+0x00)%256$ 的值再取补码。</li>
+<li><strong>0800</strong>：由于这是一条扩展线性地址记录，所以这部分表示地址的高16位，与前面的&quot;0000&quot;结合在一起，表示要扩展的线性地址为&quot;<code>0x0800 0000</code>&quot;，这正好是 STM32 内部 Flash 的首地址 (^人^)</li>
+<li><strong>F2</strong>：表示校验和，它的值为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>0</mn><mi>x</mi><mn>02</mn><mo>+</mo><mn>0</mn><mi>x</mi><mn>00</mn><mo>+</mo><mn>0</mn><mi>x</mi><mn>00</mn><mo>+</mo><mn>0</mn><mi>x</mi><mn>04</mn><mo>+</mo><mn>0</mn><mi>x</mi><mn>08</mn><mo>+</mo><mn>0</mn><mi>x</mi><mn>00</mn><mo stretchy="false">)</mo><mi mathvariant="normal">%</mi><mn>256</mn></mrow><annotation encoding="application/x-tex">(0x02+0x00+0x00+0x04+0x08+0x00)\%256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">8</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">0</span><span class="mord">0</span><span class="mclose">)</span><span class="mord">%</span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span> 的值再取补码。</li>
 </ol>
 <p>下面是第二条记录：</p>
 <ol>
@@ -366,11 +369,9 @@
 </ol>
 <p>再往后看，第三、四行数据如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">:<span class="hljs-number">10001000350B</span>0008410200084913000800000000E9<br>:<span class="hljs-number">10002000000000000000000000000000B</span>70E000803<br></code></pre></td></tr></table></figure>
-
 <p>可以看到，从第二行开始，它们的地址都只相隔了 0x10。Hex 文件内大部分都是这种格式。</p>
 <p>最后两行如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">:<span class="hljs-number">04000005080000</span>ED02<br>:<span class="hljs-number">00000001F</span>F<br><br><span class="hljs-comment">// 分隔开</span><br>:<span class="hljs-number">04</span> <span class="hljs-number">0000</span> <span class="hljs-number">05</span> <span class="hljs-number">080000</span>ED <span class="hljs-number">02</span><br>:<span class="hljs-number">00</span> <span class="hljs-number">0000</span> <span class="hljs-number">01</span> FF<br></code></pre></td></tr></table></figure>
-
 <p>首先看倒数第二行，数据类型是 05，表示起始线性地址记录，其实它表示的是一个函数入口地址，但是这个函数地址并不会影响实际烧写到 Flash 中的内容，我们可以不管它，MDK 官方的解释是大多数情况下可以忽略它。</p>
 <p>而倒数第一行，就纯粹表示文件结尾，没有别的含义，所有的 hex 文件的结尾都可以是这个。</p>
 <p>我们在做有 IAP 功能的项目时，有时需要把 Bootloader 和 APP 两段代码合并以后烧写，这样可以大大简化操作步骤，此时，可以把两个 hex 文件手动合并。</p>
@@ -379,10 +380,11 @@
 <p>当然，两个文件的地址区不应该有重叠</p>
 </blockquote>
 <p>到这里，hex 的一些基本内容就介绍完了。</p>
-<h1 id="三、bin-文件"><a href="#三、bin-文件" class="headerlink" title="三、bin 文件"></a>三、bin 文件</h1><p>相比于 hex 文件，bin 文件就简单多了。bin 文件保存了需要烧写的目标文件内容，是没有任何附加格式的原始二进制文件。bin 文件其实就是 hex 文件中的数据部分：</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三-bin-文件"><a class="markdownIt-Anchor" href="#三-bin-文件"></a> 三、bin 文件</h1>
+<p>相比于 hex 文件，bin 文件就简单多了。bin 文件保存了需要烧写的目标文件内容，是没有任何附加格式的原始二进制文件。bin 文件其实就是 hex 文件中的数据部分：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>结尾：</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>有关 bin 文件的一些信息，我在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142333178">STM32 芯片启动过程</a> 一位中做过一些介绍</p>
 </blockquote>

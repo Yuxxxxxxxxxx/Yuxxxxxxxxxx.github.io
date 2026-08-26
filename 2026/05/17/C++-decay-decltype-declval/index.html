@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、decay 在 C++ 14 后，可使用别名 std::decay_t 在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。   在 C++11 中，标准库提供了 std::decay（定义在 &#96;&#96; 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。 Decay-co">
+    <meta name="description" content="一、decay  在 C++ 14 后，可使用别名 std::decay_t 在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。  在 C++11 中，标准库提供了 std::decay（定义在 &#96;&#96; 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。 Decay-copy（“衰变复">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ decay&#x2F;decltype&#x2F;declval">
 <meta property="og:url" content="http://example.com/2026/05/17/C++-decay-decltype-declval/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、decay 在 C++ 14 后，可使用别名 std::decay_t 在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。   在 C++11 中，标准库提供了 std::decay（定义在 &#96;&#96; 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。 Decay-co">
+<meta property="og:description" content="一、decay  在 C++ 14 后，可使用别名 std::decay_t 在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。  在 C++11 中，标准库提供了 std::decay（定义在 &#96;&#96; 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。 Decay-copy（“衰变复">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-17T02:42:58.000Z">
 <meta property="article:modified_time" content="2026-05-19T08:42:06.521Z">
@@ -279,11 +279,12 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一、decay"><a href="#一、decay" class="headerlink" title="一、decay"></a>一、decay</h1><blockquote>
+                <h1 id="一-decay"><a class="markdownIt-Anchor" href="#一-decay"></a> 一、decay</h1>
+<blockquote>
 <p>在 C++ 14 后，可使用别名 <code>std::decay_t</code></p>
-<p>在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。 </p>
+<p>在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。</p>
 </blockquote>
-<p>在 C++11 中，标准库提供了 <code>std::decay</code>（定义在 &#96;&#96; 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。</p>
+<p>在 C++11 中，标准库提供了 <code>std::decay</code>（定义在 `` 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。</p>
 <p>Decay-copy（“衰变复制”或“退化复制”）是 C++ 标准库中一个非常重要的概念，它通常在涉及泛型编程和模板时发挥作用，尤其是在处理右值引用和转发引用时。</p>
 <p>这个概念的核心在于 <code>std::decay</code> 类型特性和完美转发的应用。</p>
 <p><code>std::decay&lt;T&gt;::type</code> 的作用是模拟函数按值传递时参数类型的“衰变”（类型转换）。</p>
@@ -293,22 +294,17 @@
 <li>将函数类型（如 <code>void(int)</code>）衰变成函数指针类型（如 <code>void(*)(int)</code>）</li>
 <li>去除引用（<code>&amp;</code>、<code>&amp;&amp;</code>）</li>
 </ul>
-<p>这套转换规则正是 C++ 函数按值传参时编译器自动执行的类型调整。<code>std::decay</code>把它抽象成一个模板元函数，让我们能在编译期获取“退化后”的类型。 </p>
-<p>Decay-copy 本质上是使用 <code>std::decay</code> 处理后的类型进行复制。在 C++11&#x2F;14&#x2F;17 中，标准库的一些组件（如 <code>std::bind</code>、<code>std::thread::thread</code> 构造函数）在内部会使用 <code>std::decay_t</code>（C++14&#x2F;17 别名）或类似机制来保存（复制）它们所捕获或接收的参数。</p>
+<p>这套转换规则正是 C++ 函数按值传参时编译器自动执行的类型调整。<code>std::decay</code>把它抽象成一个模板元函数，让我们能在编译期获取“退化后”的类型。</p>
+<p>Decay-copy 本质上是使用 <code>std::decay</code> 处理后的类型进行复制。在 C<ins>11/14/17 中，标准库的一些组件（如 <code>std::bind</code>、<code>std::thread::thread</code> 构造函数）在内部会使用 <code>std::decay_t</code>（C</ins>14/17 别名）或类似机制来保存（复制）它们所捕获或接收的参数。</p>
 <p>实例：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;type_traits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">checkType</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> DecayedType = <span class="hljs-keyword">typename</span> std::decay&lt;T&gt;::type;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Original: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(T).<span class="hljs-built_in">name</span>() <br>              &lt;&lt; <span class="hljs-string">&quot; -&gt; Decayed: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(DecayedType).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">checkType</span>&lt;<span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp;&gt;();      <span class="hljs-comment">// -&gt; int</span><br>    <span class="hljs-built_in">checkType</span>&lt;<span class="hljs-type">int</span>[<span class="hljs-number">5</span>]&gt;();          <span class="hljs-comment">// -&gt; int*</span><br>    <span class="hljs-built_in">checkType</span>&lt;<span class="hljs-built_in">int</span>(<span class="hljs-type">int</span>)&gt;();        <span class="hljs-comment">// -&gt; int (*)(int)</span><br>    <span class="hljs-built_in">checkType</span>&lt;<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span>&amp;&amp;&gt;();  <span class="hljs-comment">// -&gt; int</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Counter</span><br>&#123;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">increase</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;increase&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">int_counter</span><span class="hljs-params">(T &amp;intTypeCounter, std::<span class="hljs-type">decay_t</span>&lt;<span class="hljs-keyword">decltype</span>(++intTypeCounter)&gt; * = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    ++intTypeCounter;<br>    cout &lt;&lt; <span class="hljs-string">&quot;num: &quot;</span> &lt;&lt; intTypeCounter &lt;&lt; endl;<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">int_counter</span><span class="hljs-params">(T &amp;counterObj, std::<span class="hljs-type">decay_t</span>&lt;<span class="hljs-keyword">decltype</span>(counterObj.increase())&gt; * = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    counterObj.<span class="hljs-built_in">increase</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    Counter cntObj;<br>    <span class="hljs-type">uint32_t</span> cntUI32 = <span class="hljs-number">1</span>;<br><br>    <span class="hljs-built_in">int_counter</span>(cntObj);<br>    <span class="hljs-built_in">int_counter</span>(cntUI32);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">test</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-<h1 id="二、decltype"><a href="#二、decltype" class="headerlink" title="二、decltype"></a>二、decltype</h1><p>见 <a href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" title="C++11新特性(一)">C++11新特性(一)</a></p>
-<h1 id="三、declval"><a href="#三、declval" class="headerlink" title="三、declval"></a>三、declval</h1><p>在模板元编程中，<code>std::declval</code> 是一个“虚构对象”，它定义在 <code>&lt;utility&gt;</code> 头文件中。</p>
+<h1 id="二-decltype"><a class="markdownIt-Anchor" href="#二-decltype"></a> 二、decltype</h1>
+<p>见 <a href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" title="C++11新特性(一)">C++11新特性(一)</a></p>
+<h1 id="三-declval"><a class="markdownIt-Anchor" href="#三-declval"></a> 三、declval</h1>
+<p>在模板元编程中，<code>std::declval</code> 是一个“虚构对象”，它定义在 <code>&lt;utility&gt;</code> 头文件中。</p>
 <p>它的核心作用是：在编译期，欺骗编译器，让它认为你已经拥有了一个类型为 <code>T</code> 的对象。用于在不实际调用构造函数的情况下生成一个对象引用，以便在类型推导中使用。通常在需要引用某个类型的对象但实际无法创建该对象的上下文中使用，例如在函数返回类型推导中：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-keyword">auto</span> <span class="hljs-title">createAndProcess</span><span class="hljs-params">()</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(std::declval&lt;T&gt;().process())</span> </span>&#123;<br>    <span class="hljs-comment">// 此处只是用于类型推导，并不会实际创建 T 的对象</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>在模板中，如果你想获取某个表达式（例如调用某个成员函数）后的返回类型，你通常需要写出： <code>decltype(obj.method())</code></p>
 <p>但如果 <code>obj</code> 的类型 <code>T</code>：</p>
 <ul>
@@ -321,13 +317,11 @@
 <p>实例：推导一个复杂的返回类型</p>
 <p>假设我们有一个类 <code>Widget</code>，它没有默认构造函数：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Widget</span> &#123;<br>    <span class="hljs-built_in">Widget</span>(<span class="hljs-type">int</span>, <span class="hljs-type">double</span>) &#123;&#125; <span class="hljs-comment">// 无默认构造函数</span><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">compute</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123; <span class="hljs-keyword">return</span> x * <span class="hljs-number">2</span>; &#125;<br>&#125;;<br><br><span class="hljs-comment">// 如果没有 declval，我们很难写出 compute 的返回类型推导</span><br><span class="hljs-keyword">using</span> ReturnType = <span class="hljs-keyword">decltype</span>(std::<span class="hljs-built_in">declval</span>&lt;Widget&gt;().<span class="hljs-built_in">compute</span>(<span class="hljs-number">0</span>));<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 验证推导结果</span><br>    <span class="hljs-built_in">static_assert</span>(std::is_same_v&lt;ReturnType, <span class="hljs-type">int</span>&gt;);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;推导成功！&quot;</span> &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
 <p>注意：</p>
 <ol>
 <li>绝对不要在运行时调用：<code>std::declval()</code> 仅存在于编译器眼中。如果在你的普通函数体内调用它，会导致编译链接失败</li>
-<li>左值 vs 右值：<ul>
+<li>左值 vs 右值：
+<ul>
 <li><code>std::declval()</code>：返回 <code>T&amp;&amp;</code>（右值）。</li>
 <li><code>std::declval()</code>：返回 <code>T&amp;</code>（左值）。</li>
 <li>这对于重载函数的分辨非常重要（例如判断一个类是否支持 <code>push_back(T&amp;&amp;)</code> 和 <code>push_back(const T&amp;)</code>）。</li>

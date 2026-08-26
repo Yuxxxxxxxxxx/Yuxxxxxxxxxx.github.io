@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc 一、实例——添加库的使用要求目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：  target_compile_definitions() target_compile_options() target_include_directories() target_link_directories()">
+    <meta name="description" content="一、实例——添加库的使用要求 目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：  target_compile_definitions() target_compile_options() target_include_directories() target_link_directories() t">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CMake 教程（三）添加库的使用要求">
 <meta property="og:url" content="http://example.com/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc 一、实例——添加库的使用要求目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：  target_compile_definitions() target_compile_options() target_include_directories() target_link_directories()">
+<meta property="og:description" content="一、实例——添加库的使用要求 目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：  target_compile_definitions() target_compile_options() target_include_directories() target_link_directories() t">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/1.png">
 <meta property="og:image" content="http://example.com/2024/10/16/CMake%E6%B7%BB%E5%8A%A0%E5%BA%93%E7%9A%84%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82/2.png">
@@ -227,7 +227,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          509 字
+          508 字
         
       </span>
     
@@ -280,8 +280,9 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
-<h1 id="一、实例——添加库的使用要求"><a href="#一、实例——添加库的使用要求" class="headerlink" title="一、实例——添加库的使用要求"></a>一、实例——添加库的使用要求</h1><p>目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：</p>
+                <p></p>
+<h1 id="一-实例添加库的使用要求"><a class="markdownIt-Anchor" href="#一-实例添加库的使用要求"></a> 一、实例——添加库的使用要求</h1>
+<p>目标参数的使用要求可以更好地控制库或可执行文件的链接和包含行，同时还能在 CMake 内部更好地控制目标的传递属性。利用使用要求的主要命令有：</p>
 <ul>
 <li><code>target_compile_definitions()</code></li>
 <li><code>target_compile_options()</code></li>
@@ -295,17 +296,12 @@
 <p>我们希望规定，链接到 <code>MYSQRT</code> 的任何人都需要包含当前源代码目录，而 <code>MYSQRT</code> 本身则不需要。这可以用 <code>INTERFACE</code> 使用要求来表达。不过，要记住，<code>INTERFACE</code> 意味着消费者需要但生产者不需要的东西。</p>
 <p>在 <code>lib/CMakeLists.txt</code> 的末尾，使用带有 <code>INTERFACE</code> 关键字的 <code>target_include_directories()</code>，如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// lib/CMakeLists.txt</span><br>target_include_directories(MYSQRT<br>                           INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>                           )<br></code></pre></td></tr></table></figure>
-
 <p>现在我们已经指定了 <code>MYSQRT</code> 的使用要求，我们可以安全地从顶级 <code>CMakeLists.txt</code> 中删除对 <code>EXTRA_INCLUDES</code> 变量的使用，并从 <code>target_include_directories</code> 中删除 <code>EXTRA_INCLUDES</code>：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 顶层 CMakeLists.txt</span><br><span class="hljs-built_in">list</span>(APPEND EXTRA_INCLUDES <span class="hljs-string">&quot;$&#123;PROJECT_SOURCE_DIR&#125;/lib&quot;</span>)<br>target_include_directories(test03 PUBLIC<br>                          <span class="hljs-string">&quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;</span><br>                          )<br></code></pre></td></tr></table></figure>
-
 <p>完整 <code>CMakeLists.txt</code> 代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// lib/CMakeLists.txt</span><br>cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>project(my_lib)<br><br>LINK_LIBRARIES(m)<br><br>add_library(MYSQRT math_func.c)<br><br>option(USE_MYMATH <span class="hljs-string">&quot;Use projectsauron provided math implementation&quot;</span> ON)<br><br>target_include_directories(MYSQRT<br>                           INTERFACE $&#123;CMAKE_CURRENT_SOURCE_DIR&#125;<br>                           )<br><br><span class="hljs-keyword">if</span> (USE_MYMATH)<br>    target_compile_definitions(MYSQRT PRIVATE <span class="hljs-string">&quot;USE_MYMATH&quot;</span>)<br><br>    add_library(SqrtLibrary STATIC<br>              my_sqrt.c<br>              )<br><br>    target_link_libraries(MYSQRT PRIVATE SqrtLibrary)<br>endif()<br><br><span class="hljs-comment">// 顶层 CMakeLists.txt</span><br>cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>add_executable(test03 main.c)<br><br>project(test03 VERSION <span class="hljs-number">1.1</span>)<br><br>add_subdirectory(lib)<br><br>target_link_libraries(test03 PUBLIC MYSQRT)<br><br>target_include_directories(test03 PUBLIC<br>                          <span class="hljs-string">&quot;$&#123;PROJECT_BINARY_DIR&#125;&quot;</span><br>                          )<br><br><span class="hljs-built_in">list</span>(APPEND EXTRA_INCLUDES <span class="hljs-string">&quot;$&#123;PROJECT_SOURCE_DIR&#125;/lib&quot;</span>)<br></code></pre></td></tr></table></figure>
-
-
-
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>再按照上一节的方法来编译运行，效果一致。</p>
 <p>请注意，使用这种技术，我们的可执行目标要使用我们的库，唯一要做的就是调用 <code>target_link_libraries()</code>，并输入目标库的名称。在大型项目中，手动指定库依赖关系的传统方法很快就会变得非常复杂。</p>
 

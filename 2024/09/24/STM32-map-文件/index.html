@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References）">
+    <meta name="description" content="[toc]   一、概述 .map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross Reference">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 map 文件浅析">
 <meta property="og:url" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  一、概述.map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross References）">
+<meta property="og:description" content="[toc]   一、概述 .map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c&#x2F;.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross Reference">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/1.png">
 <meta property="og:image" content="https://i-blog.csdnimg.cn/direct/adbe200ba478497c9beba338b78fb797.png">
@@ -252,7 +252,7 @@
         
         
         
-          17 分钟
+          18 分钟
         
       </span>
     
@@ -296,7 +296,8 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p><code>.map</code> 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 <code>.map</code> 文件，我们可以知道整个工程的函数调用关系、<code>FLASH</code> 和 <code>RAM</code> 占用情况及其详细汇总信息，能具体到单个源文件（<code>.c/.s</code>）的占用情况，根据这些信息，我们可以对代码进行优化。<code>.map</code> 文件可以分为以下 5 个组成部分：</p>
+<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<p><code>.map</code> 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 <code>.map</code> 文件，我们可以知道整个工程的函数调用关系、<code>FLASH</code> 和 <code>RAM</code> 占用情况及其详细汇总信息，能具体到单个源文件（<code>.c/.s</code>）的占用情况，根据这些信息，我们可以对代码进行优化。<code>.map</code> 文件可以分为以下 5 个组成部分：</p>
 <ol>
 <li>程序段交叉引用关系（<code>Section Cross References</code>）</li>
 <li>删除映像未使用的程序段（<code>Removing Unused input sections from the image</code>）</li>
@@ -304,10 +305,12 @@
 <li>映像内存分布图（<code>Memory Map of the image</code>）</li>
 <li>映像组件大小（<code>Image component sizes</code>）</li>
 </ol>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
-<p>我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：<br><img src="https://i-blog.csdnimg.cn/direct/adbe200ba478497c9beba338b78fb797.png" srcset="/img/loading.gif" lazyload><br>这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 <code>.map</code> 文件里有详细列表。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>我们在 Keil 中最常见的就是在编译之后，编译窗口会显示类似如下一段关于程序和数据大小的信息：<br>
+<img src="https://i-blog.csdnimg.cn/direct/adbe200ba478497c9beba338b78fb797.png" srcset="/img/loading.gif" lazyload alt><br>
+这一段提示信息其实是汇总了程序和数据的信息，这些信息其实是单个模块汇总而成，在 <code>.map</code> 文件里有详细列表。</p>
 <p><code>.map</code> 文件输出信息的配置位于：Project -&gt; Options for Target -&gt; Listing，如下图：</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>主要包含配置：</p>
 <ul>
 <li><code>Memory Map</code>：内存映射</li>
@@ -321,30 +324,35 @@
 </ul>
 <p>我们可根据自己情况，想要输出什么信息，勾选对应信息即可。</p>
 <p>接下来将针对 <code>.map</code> 文件的五部分内容进行讲解。</p>
-<h1 id="二、Section-Cross-References"><a href="#二、Section-Cross-References" class="headerlink" title="二、Section Cross References"></a>二、Section Cross References</h1><p>这部分内容描述了各个文件（.c&#x2F;.s 等）之间函数（程序段）的调用关系，如下图所示：</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="二-section-cross-references"><a class="markdownIt-Anchor" href="#二-section-cross-references"></a> 二、Section Cross References</h1>
+<p>这部分内容描述了各个文件（.c/.s 等）之间函数（程序段）的调用关系，如下图所示：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>比如下面这段：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">board.o(i.board_lowlevel_init) refers to stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd) <span class="hljs-keyword">for</span> RCC_AHB1PeriphClockCmd<br></code></pre></td></tr></table></figure>
-
 <p>表示的意思是：<code>board.c</code> 文件中的 <code>board_lowlevel_init</code> 函数调用了 <code>stm32f4xx_rcc.c</code> 文件中的 <code>RCC_AHB1PeriphClockCmd</code> 函数。</p>
 <blockquote>
 <p><code>i.board_lowlevel_init</code> 表示 <code>board_lowlevel_init</code> 函数的入口地址，同理 <code>i.RCC_AHB1PeriphClockCmd</code> 表示 <code>RCC_AHB1PeriphClockCmd</code> 的入口地址</p>
 <p><code>board.o</code> 是 <code>board.c</code> 源文件生成的目标文件模块</p>
 </blockquote>
-<h1 id="三、Removing-Unused-input-sections-from-the-image"><a href="#三、Removing-Unused-input-sections-from-the-image" class="headerlink" title="三、Removing Unused input sections from the image"></a>三、Removing Unused input sections from the image</h1><p>这部分内容描述了工程中由于未被调用而被删除的冗余程序段（函数&#x2F;数据）：</p>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="三-removing-unused-input-sections-from-the-image"><a class="markdownIt-Anchor" href="#三-removing-unused-input-sections-from-the-image"></a> 三、Removing Unused input sections from the image</h1>
+<p>这部分内容描述了工程中由于未被调用而被删除的冗余程序段（函数/数据）：</p>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在结尾还列出了一个统计数据，表示共移除l 849 个程序段，共 37144 字节。</p>
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="四、Memory-Map-of-the-image"><a href="#四、Memory-Map-of-the-image" class="headerlink" title="四、Memory Map of the image"></a>四、Memory Map of the image</h1><p>映像符号表（<code>Image Symbol Table</code>）描述了被引用的各个符号（程序段&#x2F;数据）在存储器中的存储地址、类型、大小等信息。映像符号表分为两类：本地符号（<code>Local Symbols</code>）和全局符号（<code>Global Symbols</code>）。</p>
-<h2 id="1、Local-Symbols"><a href="#1、Local-Symbols" class="headerlink" title="1、Local Symbols"></a>1、Local Symbols</h2><p>本地符号（Local Symbols）记录了用static 声明的全局变量地址和大小，c 文件中函数的地址和用static 声明的函数代码大小，汇编文件中的标号地址（作用域：限本文件），见下： </p>
-<p><img src="7.png" srcset="/img/loading.gif" lazyload></p>
-<p>下面红框处，表示 <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为 <code>0x080001ec</code>，类型为：Section（程序段）<br>，大小为 0。</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="四-memory-map-of-the-image"><a class="markdownIt-Anchor" href="#四-memory-map-of-the-image"></a> 四、Memory Map of the image</h1>
+<p>映像符号表（<code>Image Symbol Table</code>）描述了被引用的各个符号（程序段/数据）在存储器中的存储地址、类型、大小等信息。映像符号表分为两类：本地符号（<code>Local Symbols</code>）和全局符号（<code>Global Symbols</code>）。</p>
+<h2 id="1-local-symbols"><a class="markdownIt-Anchor" href="#1-local-symbols"></a> 1、Local Symbols</h2>
+<p>本地符号（Local Symbols）记录了用static 声明的全局变量地址和大小，c 文件中函数的地址和用static 声明的函数代码大小，汇编文件中的标号地址（作用域：限本文件），见下：</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>下面红框处，表示 <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为 <code>0x080001ec</code>，类型为：Section（程序段）<br>
+，大小为 0。</p>
 <blockquote>
 <p>因为：<code>i.sys_stm32_clock_init</code> 仅仅表示 <code>sys_stm32_clock_init</code> 函数入口地址，并不是指令，所以没有大小。在全局符号段，会列出<code>sys_stm32_clock_init</code> 函数的大小。</p>
-<p><img src="8.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
-<h2 id="2、全局符号（Global-Symbols）"><a href="#2、全局符号（Global-Symbols）" class="headerlink" title="2、全局符号（Global Symbols）"></a>2、全局符号（Global Symbols）</h2><p>全局符号（<code>Global Symbols</code>）记录了全局变量的地址和大小，C 文件中函数的地址及其代码大小，汇编文件中的标号地址（作用域：全工程），见下：</p>
-<p><img src="9.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="2-全局符号global-symbols"><a class="markdownIt-Anchor" href="#2-全局符号global-symbols"></a> 2、全局符号（Global Symbols）</h2>
+<p>全局符号（<code>Global Symbols</code>）记录了全局变量的地址和大小，C 文件中函数的地址及其代码大小，汇编文件中的标号地址（作用域：全工程），见下：</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
 <ol>
 <li><code>Symbol Name</code>：符号名称，名称命名及分类请看最后给出的官方参考文档。</li>
 <li><code>Value</code>：存储对应的地址，大家会发现有 <code>0x0800xxxx</code>、<code>0x2000xxxx</code> 这样的地址。<code>0x0800xxxx</code> 指存储在 FLASH 里面的代码、变量等。<code>0x2000xxxx</code> 指存储在内存 RAM 中的变量 Data 等。</li>
@@ -352,18 +360,20 @@
 <li><code>Size</code>：存储大小，就是当前行 <code>Symbol</code> 占用大小。</li>
 <li><code>Object(Section)</code>：段目标，这里一般指所在模块（源文件）。</li>
 </ol>
-<p>图中红框框处部分，表示  <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为：<code>0x080001ed</code>，类型为：<code>Thumb Code</code>（程序段）<br>，大小为 38 字节。</p>
+<p>图中红框框处部分，表示  <code>stm32f4x_dma.c</code> 文件中的 <code>DMA_ClearFlag</code> 函数的入口地址为：<code>0x080001ed</code>，类型为：<code>Thumb Code</code>（程序段）<br>
+，大小为 38 字节。</p>
 <blockquote>
-<p>注意，此处的地址用的 <code>0x08002bc9</code>，和上一节的 <code>0x080001ec</code> 地址不符，这是因为 ARM 规定 Thumb 指令集的所有指令（Thumb 指令集更节省空间），其最低位必须为 1，<code>0x080001ed</code> &#x3D; <code>0x080001ec</code> + 1，所以才会有 2 个不同的地址，且总是差 1，实际上就是同一个函数。</p>
-<p><img src="10.png" srcset="/img/loading.gif" lazyload></p>
+<p>注意，此处的地址用的 <code>0x08002bc9</code>，和上一节的 <code>0x080001ec</code> 地址不符，这是因为 ARM 规定 Thumb 指令集的所有指令（Thumb 指令集更节省空间），其最低位必须为 1，<code>0x080001ed</code> = <code>0x080001ec</code> + 1，所以才会有 2 个不同的地址，且总是差 1，实际上就是同一个函数。</p>
+<p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
-<h1 id="五、Image-Symbol-Table"><a href="#五、Image-Symbol-Table" class="headerlink" title="五、Image Symbol Table"></a>五、Image Symbol Table</h1><p>映像文件分为加载域（<code>Load Region</code>）和运行域（<code>Execution Region</code>），一个加载域必须有至少一个运行域（可以有多个运行域），而一个程序又可以有多个加载域。加载域为映像程序的实际存储区域，而运行域则是 MCU 上电后的运行状态。加载域和运行域的简化关系（这里仅表示一个加载域的情况）图如下图：</p>
-<p><img src="11.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="五-image-symbol-table"><a class="markdownIt-Anchor" href="#五-image-symbol-table"></a> 五、Image Symbol Table</h1>
+<p>映像文件分为加载域（<code>Load Region</code>）和运行域（<code>Execution Region</code>），一个加载域必须有至少一个运行域（可以有多个运行域），而一个程序又可以有多个加载域。加载域为映像程序的实际存储区域，而运行域则是 MCU 上电后的运行状态。加载域和运行域的简化关系（这里仅表示一个加载域的情况）图如下图：</p>
+<p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>有关内存方面的内容可以参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141786133">单片机内存区域划分</a></p>
 </blockquote>
 <p>由图可知，RW 区也是存放在 ROM（FLASH）里面的，在执行 main 函数之前，RW（有初值且不为 0 的变量）数据会被拷贝到 RAM 区，同时还会在 RAM 里面创建 ZI 区（初始化为 0 的变量）。</p>
-<p><img src="12.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="12.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>Image Entry point : 0x08000189</code> 表示映射入口地址。</p>
 <p><code>Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00001068, Max: 0x00080000, ABSOLUTE)</code> 表示加载区域位于 <code>LR_IROM1</code> 开始地址<code>0x08000000</code>，大小有 <code>0x00001068</code>，这块区域最大为 <code>0x00080000</code></p>
 <p>执行区域有两段：</p>
@@ -372,28 +382,31 @@
 <li><code>Execution Region RW_IRAM1</code>：在内部FLASH 运行域，所有需要放内部 FLASH 的代码，都应该放到这个运行域里面</li>
 </ol>
 <p>这个区域，其实就是对应我们目标配置中的区域，如下所示：</p>
-<p><img src="13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Exec Addr</code>：执行地址</li>
 <li><code>Load Addr</code>：加载地址</li>
 <li><code>Size</code>：存储大小</li>
-<li><code>Type</code>：类型<ol>
+<li><code>Type</code>：类型
+<ol>
 <li><code>Data</code>：数据类型</li>
 <li><code>Code</code>：代码类</li>
 <li><code>Zero</code>：未初始化变量类型</li>
 <li><code>PAD</code>：这个类型在 map 文件中放在这个位置，其实它不能算这里的类型。要翻译的话，只能说的“补充类型”。ARM 处理器是 32 位的，如果定义一个 8 位或者 16 位变量就会剩余一部分，这里就是指的“补充”的那部分，会发现后面的其他几个选项都没有对应的值。</li>
 </ol>
 </li>
-<li>Attr：属性<ol>
-<li><code>RO</code>：存储在 ROM 中的段 </li>
+<li>Attr：属性
+<ol>
+<li><code>RO</code>：存储在 ROM 中的段</li>
 <li><code>RW</code>：存储在 RAM 中的段</li>
 </ol>
 </li>
 <li><code>Section Name</code>：段名。这里也可以说为入口分类名，大概包含：<code>RESET</code>、<code>ARM</code>、<code>.text</code>、<code>i</code>、<code>.data</code>、<code>.bss</code>、<code>HEAP</code>、<code>STACK</code> 等。</li>
 <li><code>Object</code>：目标</li>
 </ul>
-<h1 id="六、Image-component-sizes"><a href="#六、Image-component-sizes" class="headerlink" title="六、Image component sizes"></a>六、Image component sizes</h1><p>映像组件大小（<code>Image component sizes</code>）给出了整个映像所有代码（<code>.o</code>）占用空间的汇总信息，对我们比较有用，如图所示：</p>
-<p><img src="14.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="六-image-component-sizes"><a class="markdownIt-Anchor" href="#六-image-component-sizes"></a> 六、Image component sizes</h1>
+<p>映像组件大小（<code>Image component sizes</code>）给出了整个映像所有代码（<code>.o</code>）占用空间的汇总信息，对我们比较有用，如图所示：</p>
+<p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Code</code>：指代码的大小；</li>
 <li><code>RO-data</code>：指除了内联数据(<code>inline data</code>)之外的常量数据；</li>
@@ -409,13 +422,17 @@
 <li><code>Code</code>、<code>Ro-data</code>：位于 <code>FLASH</code> 中；</li>
 <li><code>RW-data</code>、<code>ZI-data</code>：位于 <code>RAM</code> 中；</li>
 <li><code>RW-data</code> 已初始化的数据会存储在 <code>Flash</code> 中，上电会从 <code>FLASH</code> 搬移至 <code>RAM</code>。<br>
+<br><br>
 关系如下：</li>
 </ul>
-<p>$$<br>RO Size &#x3D; Code + RO Data\<br>RW Size &#x3D; RW Data + ZI Data \<br>ROM Size &#x3D; Code + RO Data + RW Data<br>$$</p>
+<p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>R</mi><mi>O</mi><mi>S</mi><mi>i</mi><mi>z</mi><mi>e</mi><mo>=</mo><mi>C</mi><mi>o</mi><mi>d</mi><mi>e</mi><mo>+</mo><mi>R</mi><mi>O</mi><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mspace linebreak="newline"></mspace><mi>R</mi><mi>W</mi><mi>S</mi><mi>i</mi><mi>z</mi><mi>e</mi><mo>=</mo><mi>R</mi><mi>W</mi><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mo>+</mo><mi>Z</mi><mi>I</mi><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mspace linebreak="newline"></mspace><mi>R</mi><mi>O</mi><mi>M</mi><mi>S</mi><mi>i</mi><mi>z</mi><mi>e</mi><mo>=</mo><mi>C</mi><mi>o</mi><mi>d</mi><mi>e</mi><mo>+</mo><mi>R</mi><mi>O</mi><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mo>+</mo><mi>R</mi><mi>W</mi><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">RO Size = Code + RO Data\\
+RW Size = RW Data + ZI Data \\
+ROM Size = Code + RO Data + RW Data
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">Z</span><span class="mord mathnormal" style="margin-right:0.07847em;">I</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.10903em;">M</span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.04398em;">z</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="mord mathnormal" style="margin-right:0.13889em;">W</span><span class="mord mathnormal" style="margin-right:0.02778em;">D</span><span class="mord mathnormal">a</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span></span></span></span></span></p>
 </blockquote>
-<p><img src="15.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>这里表示被提取的库成员（<code>.lib</code> 添加到映像中的部分所占空间大小。各项意义同前面提到的说明。我们一般只用看 <code>Library Totals</code> 来分析库所占空间的大小即可。</p>
-<p><img src="16.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>Grand Totals</code>：表示整个映像所占空间大小。</li>
 <li><code>ELF Image Totals</code>：表示 ELF 可执行链接格式映像文件的大小，一般和 <code>Grand Totals</code> 一样大小。</li>

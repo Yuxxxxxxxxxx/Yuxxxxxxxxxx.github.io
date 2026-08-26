@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的">
+    <meta name="description" content="1、下载 2、常用选项 3、&#x2F;proc&#x2F;diskstats 文件 3、一般使用 1、下载 2、常用选项 3、一般使用     一、概述 在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 利用 iostat 和 iotop 进行 IO 分析">
 <meta property="og:url" content="http://example.com/2024/08/06/iostatiotop/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc  一、概述在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。 如果在进程输出中你没有看到很大的">
+<meta property="og:description" content="1、下载 2、常用选项 3、&#x2F;proc&#x2F;diskstats 文件 3、一般使用 1、下载 2、常用选项 3、一般使用     一、概述 在Linux 系统上，iostat 和 iotop 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。 如果 Linux 系统性能变慢，我们会用 top 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/06/iostatiotop/1.png">
 <meta property="og:image" content="http://example.com/2024/08/06/iostatiotop/2.png">
@@ -288,53 +288,60 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+                <p><ul class="markdownIt-TOC">
+<li><a href="#1-%E4%B8%8B%E8%BD%BD">1、下载</a></li>
+<li><a href="#2-%E5%B8%B8%E7%94%A8%E9%80%89%E9%A1%B9">2、常用选项</a></li>
+<li><a href="#3-procdiskstats-%E6%96%87%E4%BB%B6">3、/proc/diskstats 文件</a></li>
+<li><a href="#3-%E4%B8%80%E8%88%AC%E4%BD%BF%E7%94%A8">3、一般使用</a></li>
+<li><a href="#1-%E4%B8%8B%E8%BD%BD-2">1、下载</a></li>
+<li><a href="#2-%E5%B8%B8%E7%94%A8%E9%80%89%E9%A1%B9-2">2、常用选项</a></li>
+<li><a href="#3-%E4%B8%80%E8%88%AC%E4%BD%BF%E7%94%A8-2">3、一般使用</a></li>
+</ul>
+</p>
 <hr>
-<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>在Linux 系统上，<code>iostat</code> 和 <code>iotop</code> 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。</p>
+<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<p>在Linux 系统上，<code>iostat</code> 和 <code>iotop</code> 这两个 IO 数据工具非常常用。它们都是性能分析领域中不可缺少的工具性软件。</p>
 <p>如果 Linux 系统性能变慢，我们会用 <code>top</code> 命令 来查看系统性能。它被用来检查是什么进程在服务器上占有如此高的使用率，对于大多数 Linux 系统管理员来说很常见，现实世界中被 Linux 系统管理员广泛采用。</p>
-<p>如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 <code>top</code> 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I&#x2F;O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I&#x2F;O 活动。</p>
-<p>我们可以在 Linux 中使用 <code>iotop</code> 和 <code>iostat</code> 命令监控所有的磁盘和文件系统的磁盘 I&#x2F;O 统计。</p>
-<h1 id="二、iostat"><a href="#二、iostat" class="headerlink" title="二、iostat"></a>二、iostat</h1><h2 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h2><p><code>iostat</code> 工具是 <code>sysstat</code> 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。</p>
+<p>如果在进程输出中你没有看到很大的不同，你仍然有选择查看其他东西。比如你可以在 <code>top</code> 输出中检查 wa 状态，因为大多数时间里服务器性能由于在硬盘上的高 I/O 读和写降低了性能。如果它很高或者波动，很可能就是它造成的。因此，我们需要检查硬盘上的 I/O 活动。</p>
+<p>我们可以在 Linux 中使用 <code>iotop</code> 和 <code>iostat</code> 命令监控所有的磁盘和文件系统的磁盘 I/O 统计。</p>
+<h1 id="二-iostat"><a class="markdownIt-Anchor" href="#二-iostat"></a> 二、iostat</h1>
+<h2 id="1-下载"><a class="markdownIt-Anchor" href="#1-下载"></a> 1、下载</h2>
+<p><code>iostat</code> 工具是 <code>sysstat</code> 包的一部分，所以我们可以轻松地在包管理器地帮助下安装，因为在所有的 Linux 发行版的仓库都是可以获得的。</p>
 <p>对于 <strong>Fedora</strong> 系统，使用 DNF Command 来安装 sysstat。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> dnf install sysstat<br></code></pre></td></tr></table></figure>
-
-<p>对于 <strong>Debian&#x2F;Ubuntu</strong> 系统，使用 APT-GET Command 或者 APT Command 来安装 sysstat。</p>
+<p>对于 <strong>Debian/Ubuntu</strong> 系统，使用 APT-GET Command 或者 APT Command 来安装 sysstat。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> apt install sysstat<br></code></pre></td></tr></table></figure>
-
 <p>对于基于 <strong>Arch Linux</strong> 的系统，使用 Pacman Command 来安装 sysstat。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> pacman -S sysstat<br></code></pre></td></tr></table></figure>
-
-<p>对于 <strong>RHEL&#x2F;CentOS</strong> 系统，使用 YUM Command 来安装 sysstat。</p>
+<p>对于 <strong>RHEL/CentOS</strong> 系统，使用 YUM Command 来安装 sysstat。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> yum install sysstat<br></code></pre></td></tr></table></figure>
-
 <p>对于 <strong>openSUSE Leap</strong> 系统，使用 Zypper Command 来安装 sysstat。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> zypper install sysstat<br></code></pre></td></tr></table></figure>
-
-<h2 id="2、常用选项"><a href="#2、常用选项" class="headerlink" title="2、常用选项"></a>2、常用选项</h2><p><code>iostat</code> 命令，是用来展示系统中的 IO 设备和 CPU 使用情况的。它的最大优势在于能汇报所有块设备活动的统计情况，同时也能汇报出 CPU 使用情况。但是 <code>iostat</code> 命令有一个缺陷，就是它不能对每个应用程序进程进行深入分析，只能分析系统的整体情况。</p>
+<h2 id="2-常用选项"><a class="markdownIt-Anchor" href="#2-常用选项"></a> 2、常用选项</h2>
+<p><code>iostat</code> 命令，是用来展示系统中的 IO 设备和 CPU 使用情况的。它的最大优势在于能汇报所有块设备活动的统计情况，同时也能汇报出 CPU 使用情况。但是 <code>iostat</code> 命令有一个缺陷，就是它不能对每个应用程序进程进行深入分析，只能分析系统的整体情况。</p>
 <p>我们先来看 iostat 如何使用，它的使用形式如下:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">iostat [选项] [ &lt;时间间隔&gt; [ &lt;次数&gt; ] ]<br></code></pre></td></tr></table></figure>
-
 <p>下面是一些常用选项：</p>
 <ul>
 <li><strong>-c</strong>：仅显示CPU使用情况</li>
-<li>**-d [设备名]**：查看具体设备和它的分区的 I&#x2F;O 统计信息，不加设备名则是查看所有设备的 I&#x2F;O 统计</li>
+<li><strong>-d [设备名]</strong>：查看具体设备和它的分区的 I/O 统计信息，不加设备名则是查看所有设备的 I/O 统计</li>
 <li><strong>-k</strong>：显示状态以千字节每秒为单位，而不使用块每秒</li>
 <li><strong>-m</strong>：显示状态以兆字节每秒为单位</li>
-<li><strong>-N</strong>：查看 LVM 磁盘 I&#x2F;O 统计报告</li>
+<li><strong>-N</strong>：查看 LVM 磁盘 I/O 统计报告</li>
 <li><strong>-p</strong>：仅显示块设备和所有被使用的其他分区的状态</li>
 <li><strong>-t</strong>：显示每个报告产生时的时间</li>
 <li><strong>-V</strong>：显示版号并退出</li>
-<li><strong>-x</strong>：显示所有设备的详细的 I&#x2F;O 统计信息</li>
+<li><strong>-x</strong>：显示所有设备的详细的 I/O 统计信息</li>
 </ul>
 <p>输出内容：</p>
 <ul>
 <li><strong>Device</strong>：设备名称，或者分区名称</li>
-<li><strong>r&#x2F;s</strong>：每秒实际读取请求的数量</li>
-<li><strong>w&#x2F;s</strong>：每秒实际写入请求的数量</li>
-<li><strong>rMB&#x2F;s</strong>：每秒实际读取的大小，单位为MB</li>
-<li><strong>wMB&#x2F;s</strong>：每秒实际写入的大小，单位为MB</li>
-<li><strong>rrqm&#x2F;s</strong>：每秒合并的读取请求数量</li>
-<li><strong>wrqm&#x2F;s</strong>：每秒合并的读取请求数量</li>
+<li><strong>r/s</strong>：每秒实际读取请求的数量</li>
+<li><strong>w/s</strong>：每秒实际写入请求的数量</li>
+<li><strong>rMB/s</strong>：每秒实际读取的大小，单位为MB</li>
+<li><strong>wMB/s</strong>：每秒实际写入的大小，单位为MB</li>
+<li><strong>rrqm/s</strong>：每秒合并的读取请求数量</li>
+<li><strong>wrqm/s</strong>：每秒合并的读取请求数量</li>
 <li><strong>%rrqm</strong>：合并读取请求的百分比</li>
 <li><strong>%wrqm</strong>：合并写入请求的百分比</li>
 <li><strong>r_await</strong>：读取请求处理完成等待时间(单位是毫秒)</li>
@@ -346,8 +353,9 @@
 <li><strong>%util</strong>磁盘处理IO请求的时间百分比</li>
 </ul>
 <p>有了这些量化数据，我们就能判断每个硬盘分区的 IO 使用情况，从而分析出哪个设备占用 IO 请求量高或者低、占用时间多少、读取或者写入的数据量有多少。这样，性能瓶颈出现在哪个设备上，我们心中就有数了。</p>
-<h2 id="3、-proc-diskstats-文件"><a href="#3、-proc-diskstats-文件" class="headerlink" title="3、&#x2F;proc&#x2F;diskstats 文件"></a>3、&#x2F;proc&#x2F;diskstats 文件</h2><p><code>iostat</code> 命令的数据来源，主要的数据来源是 <code>/proc/diskstats</code> 文件，它记录着块设备 IO 操作的全部统计信息。</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-procdiskstats-文件"><a class="markdownIt-Anchor" href="#3-procdiskstats-文件"></a> 3、/proc/diskstats 文件</h2>
+<p><code>iostat</code> 命令的数据来源，主要的数据来源是 <code>/proc/diskstats</code> 文件，它记录着块设备 IO 操作的全部统计信息。</p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面来看一下这个文件的数据结构，它的每一行代表一个块设备或者块设备的分区，总共 20 列数据，每一列的内容如下：</p>
 <table>
 <thead>
@@ -356,7 +364,8 @@
 <th>内容</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>主设备号</td>
 </tr>
@@ -436,44 +445,45 @@
 <td>20</td>
 <td>刷新IO请求的总等待时间(毫秒)</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>Linux 块设备层在处理每个 IO 请求的时候，都会更新这些数据。<code>iostat</code> 只使用了其中部分数据。由于这些数据是线性增加的，<code>iostat</code> 只需要经过多次采集，进行简单的运算就可以了。</p>
 <p><code>iostat</code> 只是负责的工作其实很简单，就是采集数据并计算显示。我们通过一段时间的 IO 请求数据、写入和读取的数据量、IO 请求等待时间等等这些数据，就可以评估一个设备的 IO 性能了。</p>
-<h2 id="3、一般使用"><a href="#3、一般使用" class="headerlink" title="3、一般使用"></a>3、一般使用</h2><ol>
+<h2 id="3-一般使用"><a class="markdownIt-Anchor" href="#3-一般使用"></a> 3、一般使用</h2>
+<ol>
 <li>不加参数会看到完整的信息</li>
 </ol>
-<p><img src="2.png" srcset="/img/loading.gif" lazyload><br>2. 查看所有设备的 I&#x2F;O 统计</p>
-<p><img src="3.png" srcset="/img/loading.gif" lazyload><br>加上设备名可以看到指定的设备 IO 信息：</p>
-<p><img src="4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt><br>
+2. 查看所有设备的 I/O 统计</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt><br>
+加上设备名可以看到指定的设备 IO 信息：</p>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <ol start="3">
-<li>查看所有的设备和分区的 I&#x2F;O 统计</li>
+<li>查看所有的设备和分区的 I/O 统计</li>
 </ol>
-<p><img src="5.png" srcset="/img/loading.gif" lazyload>4. 显示所有设备的详细的 I&#x2F;O 统计信息</p>
-<p><img src="6.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="三、iostop"><a href="#三、iostop" class="headerlink" title="三、iostop"></a>三、iostop</h1><blockquote>
+<p><img src="5.png" srcset="/img/loading.gif" lazyload alt>4. 显示所有设备的详细的 I/O 统计信息</p>
+<p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
+<h1 id="三-iostop"><a class="markdownIt-Anchor" href="#三-iostop"></a> 三、iostop</h1>
+<blockquote>
 <p>使用时需要 root 权限</p>
 </blockquote>
-<h2 id="1、下载-1"><a href="#1、下载-1" class="headerlink" title="1、下载"></a>1、下载</h2><p>对于 Fedora 系统，使用 DNF 命令 来安装 iotop。</p>
+<h2 id="1-下载-2"><a class="markdownIt-Anchor" href="#1-下载-2"></a> 1、下载</h2>
+<p>对于 Fedora 系统，使用 DNF 命令 来安装 iotop。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> dnf install iotop<br></code></pre></td></tr></table></figure>
-
-<p>对于 Debian&#x2F;Ubuntu 系统，使用 API-GET 命令 或者 APT 命令 来安装 iotop。</p>
+<p>对于 Debian/Ubuntu 系统，使用 API-GET 命令 或者 APT 命令 来安装 iotop。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> apt install iotop<br></code></pre></td></tr></table></figure>
-
 <p>对于基于 Arch Linux 的系统，使用 Pacman Command 来安装 iotop。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> pacman -S iotop<br></code></pre></td></tr></table></figure>
-
-<p>对于 RHEL&#x2F;CentOS 的系统，使用 YUM Command 来安装 iotop。</p>
+<p>对于 RHEL/CentOS 的系统，使用 YUM Command 来安装 iotop。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> yum install iotop<br></code></pre></td></tr></table></figure>
-
 <p>对于使用 openSUSE Leap 的系统，使用 Zypper Command 来安装 iotop。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> zypper install iotop<br></code></pre></td></tr></table></figure>
-
-<h2 id="2、常用选项-1"><a href="#2、常用选项-1" class="headerlink" title="2、常用选项"></a>2、常用选项</h2><p>上面的 <code>iostat</code> 工具，只能收集量化到每个块设备的读写情况，但如果我们想知道每个进程是如何使用 IO 的就做不到，这就要用到 <code>iotop</code> 命令了。</p>
-<p><code>iotop</code> 命令是一个 top 类工具，可以监视磁盘 I&#x2F;O 使用状况，还可以作为 <code>iostat</code> 的升级工具使用。<code>iotop</code> 命令具有与 Linux 系统自带的 <code>top</code> 相似的 Ul，只是 <code>top</code> 更关注进程，而 <code>iotop</code> 更关注 IO。</p>
+<h2 id="2-常用选项-2"><a class="markdownIt-Anchor" href="#2-常用选项-2"></a> 2、常用选项</h2>
+<p>上面的 <code>iostat</code> 工具，只能收集量化到每个块设备的读写情况，但如果我们想知道每个进程是如何使用 IO 的就做不到，这就要用到 <code>iotop</code> 命令了。</p>
+<p><code>iotop</code> 命令是一个 top 类工具，可以监视磁盘 I/O 使用状况，还可以作为 <code>iostat</code> 的升级工具使用。<code>iotop</code> 命令具有与 Linux 系统自带的 <code>top</code> 相似的 Ul，只是 <code>top</code> 更关注进程，而 <code>iotop</code> 更关注 IO。</p>
 <p><code>iotop</code> 命令它是使用 Python 语言编写而成，需要用 Python2.5 以上的版本和 Linux 内核 2.6以上的版本。<code>iotop</code> 提供了源代码和二进制软件包，可以自己选择安装。在前面已经说明了如何安装 ，<code>iotop</code>。</p>
 <p>像 <code>iostat</code> 一样，我们一起看看 <code>iotop</code> 如何使用，它的使用形式如下:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">iotop [选项]<br></code></pre></td></tr></table></figure>
-
 <p>下面是一些常用选项：</p>
 <ul>
 <li><strong>-a</strong>：以累计方式显示信息，数据从 iotop 命令启动开始做计算</li>
@@ -501,18 +511,20 @@
 </ul>
 <p>有了这些量化数据，我们就能判断哪些进程是 IO 型进程，哪些进程是计算型进程，每个进程的访问 IO 的数据一目了然。</p>
 <p>根据这些数据，我们还能进一步分析出哪个进程使用 IO 的量是高或者低、占用时间多少、进程优先级多少。IO 性能瓶颈出现在哪个进程上，需要优化哪个进程的 IO 模型，我们心中就有底了。</p>
-<h2 id="3、一般使用-1"><a href="#3、一般使用-1" class="headerlink" title="3、一般使用"></a>3、一般使用</h2><ol>
+<h2 id="3-一般使用-2"><a class="markdownIt-Anchor" href="#3-一般使用-2"></a> 3、一般使用</h2>
+<ol>
 <li><strong>iotop</strong></li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">root:~# iotop<br></code></pre></td></tr></table></figure>
-
-<p><img src="7.png" srcset="/img/loading.gif" lazyload><br>2. 以累计方式显示信息</p>
+<p><img src="7.png" srcset="/img/loading.gif" lazyload alt><br>
+2. 以累计方式显示信息</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">root:~# iotop -a<br></code></pre></td></tr></table></figure>
-<p><img src="8.png" srcset="/img/loading.gif" lazyload><br>3. 利用重定向连续记录一段时间的信息</p>
+<p><img src="8.png" srcset="/img/loading.gif" lazyload alt><br>
+3. 利用重定向连续记录一段时间的信息</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">root:~# iotop -b &gt; iotop.txt<br>^C<br>root@projectsauron:~# vim iotop.txt<br></code></pre></td></tr></table></figure>
-<p><img src="9.png" srcset="/img/loading.gif" lazyload><br>4. 2s 剧新 1 次，刷新三次信息后结束</p>
+<p><img src="9.png" srcset="/img/loading.gif" lazyload alt><br>
+4. 2s 剧新 1 次，刷新三次信息后结束</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">root:~# iotop -d 2 -n 3<br></code></pre></td></tr></table></figure>
-
 
                 
               </div>

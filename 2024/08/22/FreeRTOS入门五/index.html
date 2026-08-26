@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc  一、信号量的特性信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。 1、信号量跟队列的对比差异列表如下：    队列 信号量    可以容纳多个数据，创建队列时有两部分内存: 队列结构体、存储数据的空间 只有计数值，无法容纳其">
+    <meta name="description" content="1、信号量跟队列的对比 2、两种信号量的对比 1、二值信号量  1.1 二值信号量用于同步 1.2 二值信号量用于互斥   2、计数信号量 1、创建 2、删除 3、give&#x2F;take     一、信号量的特性 信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FreeRTOS 快速入门（五）之信号量">
 <meta property="og:url" content="http://example.com/2024/08/22/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%94/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc  一、信号量的特性信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。 1、信号量跟队列的对比差异列表如下：    队列 信号量    可以容纳多个数据，创建队列时有两部分内存: 队列结构体、存储数据的空间 只有计数值，无法容纳其">
+<meta property="og:description" content="1、信号量跟队列的对比 2、两种信号量的对比 1、二值信号量  1.1 二值信号量用于同步 1.2 二值信号量用于互斥   2、计数信号量 1、创建 2、删除 3、give&#x2F;take     一、信号量的特性 信号量（Semaphore）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-22T03:26:55.000Z">
 <meta property="article:modified_time" content="2024-11-14T00:32:28.397Z">
@@ -224,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          3k 字
         
       </span>
     
@@ -277,10 +277,26 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+                <p><ul class="markdownIt-TOC">
+<li><a href="#1-%E4%BF%A1%E5%8F%B7%E9%87%8F%E8%B7%9F%E9%98%9F%E5%88%97%E7%9A%84%E5%AF%B9%E6%AF%94">1、信号量跟队列的对比</a></li>
+<li><a href="#2-%E4%B8%A4%E7%A7%8D%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%9A%84%E5%AF%B9%E6%AF%94">2、两种信号量的对比</a></li>
+<li><a href="#1-%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F">1、二值信号量</a>
+<ul>
+<li><a href="#11-%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%94%A8%E4%BA%8E%E5%90%8C%E6%AD%A5">1.1 二值信号量用于同步</a></li>
+<li><a href="#12-%E4%BA%8C%E5%80%BC%E4%BF%A1%E5%8F%B7%E9%87%8F%E7%94%A8%E4%BA%8E%E4%BA%92%E6%96%A5">1.2 二值信号量用于互斥</a></li>
+</ul>
+</li>
+<li><a href="#2-%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F">2、计数信号量</a></li>
+<li><a href="#1-%E5%88%9B%E5%BB%BA">1、创建</a></li>
+<li><a href="#2-%E5%88%A0%E9%99%A4">2、删除</a></li>
+<li><a href="#3-givetake">3、give/take</a></li>
+</ul>
+</p>
 <hr>
-<h1 id="一、信号量的特性"><a href="#一、信号量的特性" class="headerlink" title="一、信号量的特性"></a>一、信号量的特性</h1><p>信号量（<em><strong>Semaphore</strong></em>）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。</p>
-<h2 id="1、信号量跟队列的对比"><a href="#1、信号量跟队列的对比" class="headerlink" title="1、信号量跟队列的对比"></a>1、信号量跟队列的对比</h2><p>差异列表如下：</p>
+<h1 id="一-信号量的特性"><a class="markdownIt-Anchor" href="#一-信号量的特性"></a> 一、信号量的特性</h1>
+<p>信号量（<em><strong>Semaphore</strong></em>）是一种实现任务间通信的机制，可以实现任务之间同步或临界资源的互斥访问，其实信号量主要的功能就是实现任务之间的同步与互斥，实现的方式主要就是依靠队列(信号量是特殊的队列)的任务阻塞机制。</p>
+<h2 id="1-信号量跟队列的对比"><a class="markdownIt-Anchor" href="#1-信号量跟队列的对比"></a> 1、信号量跟队列的对比</h2>
+<p>差异列表如下：</p>
 <table>
 <thead>
 <tr>
@@ -288,7 +304,8 @@
 <th>信号量</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>可以容纳多个数据，创建队列时有两部分内存: <br>队列结构体、存储数据的空间</td>
 <td>只有计数值，无法容纳其他数据。<br>创建信号量时，只需要分配信号量结构体</td>
 </tr>
@@ -300,12 +317,14 @@
 <td>消费者：没有数据时可以阻塞</td>
 <td>消费者：没有资源时可以阻塞</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>由上面的表格可以看出：信号量相比队列更节省空间，因为实现同步与互斥不需要传递数据，所以信号量没有队列后面的环形存储区，信号量主要就是依靠计数值 <code>uxMessagesWaiting</code>（在队列中表示队列现有消息个数，在信号量中表示有效信号量个数）。</p>
 <blockquote>
 <p>其实，创建信号量就对应创建特殊队列，获取信号量就对应队列出队，释放信号量就对应队列入队，学好了队列就基本学好了信号量。</p>
 </blockquote>
-<h2 id="2、两种信号量的对比"><a href="#2、两种信号量的对比" class="headerlink" title="2、两种信号量的对比"></a>2、两种信号量的对比</h2><p>信号量的计数值都有限制：限定了最大值。如果最大值被限定为 1，那么它就是二值信号量；如果最大值不是 1，它就是计数型信号量。</p>
+<h2 id="2-两种信号量的对比"><a class="markdownIt-Anchor" href="#2-两种信号量的对比"></a> 2、两种信号量的对比</h2>
+<p>信号量的计数值都有限制：限定了最大值。如果最大值被限定为 1，那么它就是二值信号量；如果最大值不是 1，它就是计数型信号量。</p>
 <table>
 <thead>
 <tr>
@@ -313,7 +332,8 @@
 <th>计算型信号量</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>被创建时初始值为 0</td>
 <td>被创建时初始值可以设定</td>
 </tr>
@@ -321,18 +341,21 @@
 <td>其他操作是一样的</td>
 <td>其他操作是一样的</td>
 </tr>
-</tbody></table>
-<h1 id="二、信号量"><a href="#二、信号量" class="headerlink" title="二、信号量"></a>二、信号量</h1><p>首先来看一下信号的种类，相关的信号量函数放在第三章。</p>
-<h2 id="1、二值信号量"><a href="#1、二值信号量" class="headerlink" title="1、二值信号量"></a>1、二值信号量</h2><p>所谓二值信号量其实就是一个队列长度为1，没有数据存储器的队列，而二值则表示计数值uxMessagesWaiting只有0和1两种状态(就是队列空与队列满两种情况)，uxMessagesWaiting在队列中表示队列中现有消息数量，而在信号量中则表示信号量的数量。</p>
+</tbody>
+</table>
+<h1 id="二-信号量"><a class="markdownIt-Anchor" href="#二-信号量"></a> 二、信号量</h1>
+<p>首先来看一下信号的种类，相关的信号量函数放在第三章。</p>
+<h2 id="1-二值信号量"><a class="markdownIt-Anchor" href="#1-二值信号量"></a> 1、二值信号量</h2>
+<p>所谓二值信号量其实就是一个队列长度为1，没有数据存储器的队列，而二值则表示计数值uxMessagesWaiting只有0和1两种状态(就是队列空与队列满两种情况)，uxMessagesWaiting在队列中表示队列中现有消息数量，而在信号量中则表示信号量的数量。</p>
 <ul>
 <li><code>uxMessagesWaiting</code> 为 0 表示：信号量资源被获取了.</li>
 <li><code>uxMessagesWaiting</code> 为 1 表示：信号量资源被释放了</li>
 </ul>
 <p>把这种只有 0 和 1 两种情况的信号量称之为二值信号量。</p>
 <p>由于二值信号量就是特殊的队列，其实它的运转机制就是利用了队列的阻塞机，从而达到实现任务之间的同步与互斥(有优先级反转的缺陷)。</p>
-<h3 id="1-1-二值信号量用于同步"><a href="#1-1-二值信号量用于同步" class="headerlink" title="1.1 二值信号量用于同步"></a>1.1 二值信号量用于同步</h3><p>在多任务系统中，经常会使用二值信号量来实现任务之间或者任务与中断之间的同步，比如，某个任务需要等待一个标记，那么任务可以在轮询中查询这个标记有没有被置位，则任务在等待的过程也会消耗 CPU 的资源，如下所示：</p>
+<h3 id="11-二值信号量用于同步"><a class="markdownIt-Anchor" href="#11-二值信号量用于同步"></a> 1.1 二值信号量用于同步</h3>
+<p>在多任务系统中，经常会使用二值信号量来实现任务之间或者任务与中断之间的同步，比如，某个任务需要等待一个标记，那么任务可以在轮询中查询这个标记有没有被置位，则任务在等待的过程也会消耗 CPU 的资源，如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 任务一</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task1Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)  &#123;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>			sumj++;<br>		&#125;<br>	<br>		flagCalcEnd = <span class="hljs-number">1</span>;<br>		vTaskDelete(<span class="hljs-literal">NULL</span>);<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 任务二</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task2Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>		<span class="hljs-keyword">if</span> (flagCalcEnd)<br>			<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;sum = %d\r\n&quot;</span>, sum);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>总体工作流程如下：任务二等待任务一（等待 <code>flagCalcEnd</code> 置一），计算完（sum 的值累加一百万次）。然后进行数据处理（这里简单打印 sum 的值）。</p>
 <p>上面的代码看似没问题，其实存在有两个问题：</p>
 <ol>
@@ -341,17 +364,22 @@
 </ol>
 <p>所以二值信号量就可以解决这个问题，在任务一计算 sum 的值的过程中，任务二应该进入阻塞态让出 CPU 的使用权，在任务二阻塞期间任务一就可以独占 CPU 全速计算 sum 的值，代码如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 任务一</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task1Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)  &#123;<br>		<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000</span>; ++i) &#123;<br>			sumj++;<br>		&#125;<br>	<br>		<span class="hljs-comment">// 等待 sum 计算完成释放信号量，信号量计数值 uxMessagesWaiting 加 1</span><br>		xSemaphoreGive(xSemcalc); <br>		vTaskDelete(<span class="hljs-literal">NULL</span>);<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">// 任务二</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">Task2Function</span><span class="hljs-params">(<span class="hljs-type">void</span> *param)</span><br>&#123;<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>		flagCalcEnd = <span class="hljs-number">0</span>;<br>		<br>		<span class="hljs-comment">// 若 sum 未计算完成，则获取信号量失败，任务会进入阻塞状态，其他任务得以调度</span><br>		<span class="hljs-comment">// 若 sum 计算完成（信号量为 1），则任务被唤醒 sum 得以打印</span><br>		xSemaphoreTake(xSemcalc, portMAX_DELAY);<br>		flagCalcEnd = <span class="hljs-number">1</span>;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;sum = %d\r\n&quot;</span>, sum);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<h3 id="1-2-二值信号量用于互斥"><a href="#1-2-二值信号量用于互斥" class="headerlink" title="1.2 二值信号量用于互斥"></a>1.2 二值信号量用于互斥</h3><p>我们在串口接收中，我们并不知道什么时候有数据发送过来（等数据过来标记一次），还有一个处理串口接收到的数据，在任务系统中不可能时时刻刻去判断是否有串口有数据过来（判断标志位），所以在这种情况下使用二值信号量是很好的办法，当没有数据到来的时候，任务就进入阻塞态，不参与任务的调度，等到数据到来了，释放一个二值信号量，任务就立即从阻塞态中解除，进入就绪态，然后运行的时候处理数据，这样子系统的资源就会很好的被利用起来。</p>
+<h3 id="12-二值信号量用于互斥"><a class="markdownIt-Anchor" href="#12-二值信号量用于互斥"></a> 1.2 二值信号量用于互斥</h3>
+<p>我们在串口接收中，我们并不知道什么时候有数据发送过来（等数据过来标记一次），还有一个处理串口接收到的数据，在任务系统中不可能时时刻刻去判断是否有串口有数据过来（判断标志位），所以在这种情况下使用二值信号量是很好的办法，当没有数据到来的时候，任务就进入阻塞态，不参与任务的调度，等到数据到来了，释放一个二值信号量，任务就立即从阻塞态中解除，进入就绪态，然后运行的时候处理数据，这样子系统的资源就会很好的被利用起来。</p>
 <p>二值信号量一般不用于任务之间的互斥（任务之间互斥的访问一个临界资源，同一时间只能一个任务可以使用），因为它有优先级反转的缺点，解决互斥的方式就是使用互斥信号量（具有优先级继承的机制能减少优先级反转的影响），关于优先级反转，优先级继承等下一讲讲互斥量的时候在讲。</p>
-<h2 id="2、计数信号量"><a href="#2、计数信号量" class="headerlink" title="2、计数信号量"></a>2、计数信号量</h2><p>计数值信号量也与二值信号量一样也是特殊的队列，二值信号量是长度为 1 的队列，而计数值信号量是长度大于 0 的队列，他们本质的区别就是应用场景不同：&#x3D;&#x3D;二值信号量常用于同步，计数值信号量常用于事件计数、资源管理&#x3D;&#x3D;，其实如果限定计数值信号量计数值最大值只能为 1 则就等同于二值信号量。</p>
+<h2 id="2-计数信号量"><a class="markdownIt-Anchor" href="#2-计数信号量"></a> 2、计数信号量</h2>
+<p>计数值信号量也与二值信号量一样也是特殊的队列，二值信号量是长度为 1 的队列，而计数值信号量是长度大于 0 的队列，他们本质的区别就是应用场景不同：<mark>二值信号量常用于同步，计数值信号量常用于事件计数、资源管理</mark>，其实如果限定计数值信号量计数值最大值只能为 1 则就等同于二值信号量。</p>
 <p>计数值信号量的应用场景：</p>
 <ol>
-<li>事件计数<br>在这种场合下，每次事件发生后，在事件处理函数中释放计数型信号量（计数型信号量的资源数加 1），其他等待事件发生的任务获取计数型信号量（计数型信号量的资源数减 1），这种场景下，计数型信号量的资源数一般在创建时设置为 0。</li>
-<li>资源管理<br>在这种场合下，计数型信号量的资源数代表着共享资源的可用数量，一个任务想要访问共享资源，就必须先获取这个共享资源的计数型信号量，之后在成功获取了计数型信号量之后，才可以对这个共享资源进行访问操作，当然，在使用完共享资源后也要释放这个共享资源的计数型信号量。在这种场合下，计数型信号量的资源数一般在创建时设置为受其管理的共享资源的最大可用数量。</li>
+<li>事件计数<br>
+在这种场合下，每次事件发生后，在事件处理函数中释放计数型信号量（计数型信号量的资源数加 1），其他等待事件发生的任务获取计数型信号量（计数型信号量的资源数减 1），这种场景下，计数型信号量的资源数一般在创建时设置为 0。</li>
+<li>资源管理<br>
+在这种场合下，计数型信号量的资源数代表着共享资源的可用数量，一个任务想要访问共享资源，就必须先获取这个共享资源的计数型信号量，之后在成功获取了计数型信号量之后，才可以对这个共享资源进行访问操作，当然，在使用完共享资源后也要释放这个共享资源的计数型信号量。在这种场合下，计数型信号量的资源数一般在创建时设置为受其管理的共享资源的最大可用数量。</li>
 </ol>
-<h1 id="三、信号量函数"><a href="#三、信号量函数" class="headerlink" title="三、信号量函数"></a>三、信号量函数</h1><p>使用信号量时，先创建、然后去添加资源、获得资源。使用句柄来表示一个信号量。</p>
-<h2 id="1、创建"><a href="#1、创建" class="headerlink" title="1、创建"></a>1、创建</h2><p>使用信号量之前，要先创建，得到一个句柄；使用信号量时，要使用句柄来表明使用哪个信号量。对于二值信号量、计数型信号量，它们的创建函数不一样：</p>
+<h1 id="三-信号量函数"><a class="markdownIt-Anchor" href="#三-信号量函数"></a> 三、信号量函数</h1>
+<p>使用信号量时，先创建、然后去添加资源、获得资源。使用句柄来表示一个信号量。</p>
+<h2 id="1-创建"><a class="markdownIt-Anchor" href="#1-创建"></a> 1、创建</h2>
+<p>使用信号量之前，要先创建，得到一个句柄；使用信号量时，要使用句柄来表明使用哪个信号量。对于二值信号量、计数型信号量，它们的创建函数不一样：</p>
 <table>
 <thead>
 <tr>
@@ -360,7 +388,8 @@
 <th>计数型信号量</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>动态创建</td>
 <td><code>xSemaphoreCreateBinary</code><br>计数值初始值为 0</td>
 <td><code>xSemaphoreCreateCounting</code></td>
@@ -375,17 +404,17 @@
 <td><code>xSemaphoreCreateBinaryStatic</code></td>
 <td><code>xSemaphoreCreateCountingStatic</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>创建二值信号量的函数原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 创建一个二值信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数内部会分配信号量结构体</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateBinary</span><span class="hljs-params">( <span class="hljs-type">void</span> )</span>;<br><br><span class="hljs-comment">/* 创建一个二值信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateBinaryStatic</span><span class="hljs-params">( StaticSemaphore_t</span><br><span class="hljs-params">									*pxSemaphoreBuffer )</span>;<br></code></pre></td></tr></table></figure>
-
 <p>创建计数型信号量的函数原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 创建一个计数型信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数内部会分配信号量结构体</span><br><span class="hljs-comment"> * uxMaxCount: 最大计数值</span><br><span class="hljs-comment"> * uxInitialCount: 初始计数值</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateCounting</span><span class="hljs-params">(UBaseType_t uxMaxCount, UBaseType_t</span><br><span class="hljs-params">									uxInitialCount)</span>;<br><br><span class="hljs-comment">/* 创建一个计数型信号量，返回它的句柄。</span><br><span class="hljs-comment"> * 此函数无需动态分配内存，所以需要先有一个StaticSemaphore_t结构体，并传入它的指针</span><br><span class="hljs-comment"> * uxMaxCount: 最大计数值</span><br><span class="hljs-comment"> * uxInitialCount: 初始计数值</span><br><span class="hljs-comment"> * pxSemaphoreBuffer: StaticSemaphore_t结构体指针</span><br><span class="hljs-comment"> * 返回值: 返回句柄，非NULL表示成功</span><br><span class="hljs-comment"> */</span><br>SemaphoreHandle_t <span class="hljs-title function_">xSemaphoreCreateCountingStatic</span><span class="hljs-params">( UBaseType_t uxMaxCount,</span><br><span class="hljs-params">											UBaseType_t uxInitialCount,</span><br><span class="hljs-params">											StaticSemaphore_t</span><br><span class="hljs-params">											*pxSemaphoreBuffer )</span>;<br></code></pre></td></tr></table></figure>
-
-<h2 id="2、删除"><a href="#2、删除" class="headerlink" title="2、删除"></a>2、删除</h2><p>对于动态创建的信号量，不再需要它们时，可以删除它们以回收内存。<code>vSemaphoreDelete</code> 可以用来删除二值信号量、计数型信号量，函数原型如下：</p>
+<h2 id="2-删除"><a class="markdownIt-Anchor" href="#2-删除"></a> 2、删除</h2>
+<p>对于动态创建的信号量，不再需要它们时，可以删除它们以回收内存。<code>vSemaphoreDelete</code> 可以用来删除二值信号量、计数型信号量，函数原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * xSemaphore: 信号量句柄，你要删除哪个信号量</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">vSemaphoreDelete</span><span class="hljs-params">( SemaphoreHandle_t xSemaphore )</span>;<br></code></pre></td></tr></table></figure>
-
-<h2 id="3、give-take"><a href="#3、give-take" class="headerlink" title="3、give&#x2F;take"></a>3、give&#x2F;take</h2><p>二值信号量、计数型信号量的 give、take 操作函数是一样的。这些函数也分为 2 个版本：给任务使用，给 ISR 使用。列表如下：</p>
+<h2 id="3-givetake"><a class="markdownIt-Anchor" href="#3-givetake"></a> 3、give/take</h2>
+<p>二值信号量、计数型信号量的 give、take 操作函数是一样的。这些函数也分为 2 个版本：给任务使用，给 ISR 使用。列表如下：</p>
 <table>
 <thead>
 <tr>
@@ -394,7 +423,8 @@
 <th>在 ISR 中使用</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>give</td>
 <td>xSemaphoreGive</td>
 <td>xSemaphoreGiveFromISR</td>
@@ -404,12 +434,12 @@
 <td>xSemaphoreTake</td>
 <td>xSemaphoreTakeFromISR</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ol>
 <li><code>xSemaphoreGive</code> 的函数原型如下：</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreGive</span><span class="hljs-params">( SemaphoreHandle_t xSemaphore )</span>;<br></code></pre></td></tr></table></figure>
-
 <table>
 <thead>
 <tr>
@@ -417,7 +447,8 @@
 <th>说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>xSemaphore</td>
 <td>信号量句柄，释放哪个信号量</td>
 </tr>
@@ -425,12 +456,12 @@
 <td>返回值</td>
 <td>pdTRUE 表示成功,<br>如果二值信号量的计数值已经是 1，再次调用此函数则返回失败；<br>如果计数型信号量的计数值已经是最大值，再次调用此函数则返回失败</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ol start="2">
 <li><code>xSemaphoreGiveFromISR</code> 的函数原型如下：</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreGiveFromISR</span><span class="hljs-params">(</span><br><span class="hljs-params">							SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">							BaseType_t *pxHigherPriorityTaskWoken</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
-
 <table>
 <thead>
 <tr>
@@ -438,7 +469,8 @@
 <th>说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>xSemaphore</td>
 <td>信号量句柄，释放哪个信号量</td>
 </tr>
@@ -450,12 +482,12 @@
 <td>返回值</td>
 <td>pdTRUE 表示成功,<br>如果二值信号量的计数值已经是 1，再次调用此函数则返回失<br>败；<br>如果计数型信号量的计数值已经是最大值，再次调用此函数则返<br>回失败</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ol start="3">
 <li><code>xSemaphoreTake</code> 的函数原型如下：</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreTake</span><span class="hljs-params">(</span><br><span class="hljs-params">					SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">					TickType_t xTicksToWait</span><br><span class="hljs-params">				)</span>;<br></code></pre></td></tr></table></figure>
-
 <table>
 <thead>
 <tr>
@@ -463,7 +495,8 @@
 <th>说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>xSemaphore</td>
 <td>信号量句柄，获取哪个信号量</td>
 </tr>
@@ -475,12 +508,12 @@
 <td>返回值</td>
 <td>pdTRUE 表示成功</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <ol start="4">
 <li><code>xSemaphoreTakeFromISR</code> 的函数原型如下：</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">BaseType_t <span class="hljs-title function_">xSemaphoreTakeFromISR</span><span class="hljs-params">(</span><br><span class="hljs-params">							SemaphoreHandle_t xSemaphore,</span><br><span class="hljs-params">							BaseType_t *pxHigherPriorityTaskWoken</span><br><span class="hljs-params">						)</span>;<br></code></pre></td></tr></table></figure>
-
 <table>
 <thead>
 <tr>
@@ -488,7 +521,8 @@
 <th>说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>xSemaphore</td>
 <td>信号量句柄，获取哪个信号量</td>
 </tr>
@@ -500,7 +534,8 @@
 <td>返回值</td>
 <td>pdTRUE 表示成功</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 
                 
               </div>

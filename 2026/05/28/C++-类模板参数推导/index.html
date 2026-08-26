@@ -280,32 +280,25 @@
                 
                 <p>在 C++17 之前，你必须在初始化变量时指定所有的模板参数，因为为了实例化类模板，所有的参数都必须是已知的，例如：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">char</span> <span class="hljs-type">const</span>*&gt; p&#123; <span class="hljs-number">42</span>, <span class="hljs-string">&quot;demo&quot;</span> &#125;;<br>std::vector&lt;<span class="hljs-type">int</span>&gt; v&#123; <span class="hljs-number">1</span>, <span class="hljs-number">2</span> &#125;;<br>foo&lt;<span class="hljs-type">int</span>&gt; f&#123; <span class="hljs-number">42</span> &#125;;<br></code></pre></td></tr></table></figure>
-
 <p>当然，使用函数模板（例如 <code>std::make_pair()</code>）可以避免显式指定模板参数的问题，这得益于函数模板参数的推导，允许我们编写如下代码：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> p = std::<span class="hljs-built_in">make_pair</span>(<span class="hljs-number">42</span>, <span class="hljs-string">&quot;demo&quot;</span>);<br></code></pre></td></tr></table></figure>
-
 <p>对于下面这个 foo 类模板，我们可以编写以下 make_foo() 函数模板来达到相同的效果：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-keyword">constexpr</span> foo&lt;T&gt; <span class="hljs-title">make_foo</span><span class="hljs-params">(T&amp;&amp; value)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> foo&#123; value &#125;;<br>&#125;<br><br><span class="hljs-keyword">auto</span> f = <span class="hljs-built_in">make_foo</span>(<span class="hljs-number">42</span>);<br></code></pre></td></tr></table></figure>
-
 <p>在 C++17 中，对于前面列举的示例，我们没有必要那样做。我们可以像下面这样编写代码：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::pair p&#123;<span class="hljs-number">42</span>, <span class="hljs-string">&quot;demo&quot;</span>&#125;;<br></code></pre></td></tr></table></figure>
-
-<p> C++17 中可以跳过指定模板参数，编译器在以下情况下可以推导出它们：</p>
+<p>C++17 中可以跳过指定模板参数，编译器在以下情况下可以推导出它们：</p>
 <ol>
 <li>当声明变量或变量模板并初始化它时：</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::pair p&#123; <span class="hljs-number">42</span>, <span class="hljs-string">&quot;demo&quot;</span> &#125;;  <span class="hljs-comment">// deduces std::pair&lt;int, char const*&gt;</span><br>std::vector v&#123; <span class="hljs-number">1</span>, <span class="hljs-number">2</span> &#125;;      <span class="hljs-comment">// deduces std::vector&lt;int&gt;</span><br>std::less&lt;&gt; l;              <span class="hljs-comment">// deduces std::less&lt;void&gt;</span><br></code></pre></td></tr></table></figure>
-
 <ol start="2">
 <li>当使用 new 表达式创建对象时：</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">foo</span><br>&#123;<br>    <span class="hljs-built_in">foo</span>(T v) :<span class="hljs-built_in">data</span>(v) &#123;&#125;<br><span class="hljs-keyword">private</span>:<br>    T data;<br>&#125;;<br><br><span class="hljs-keyword">auto</span> f = <span class="hljs-keyword">new</span> <span class="hljs-built_in">foo</span>(<span class="hljs-number">42</span>);<br></code></pre></td></tr></table></figure>
-
 <ol start="3">
 <li>当执行类似函数的强制转换表达式时：</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::mutex mx; <br><br><span class="hljs-comment">// deduces std::lock_guard&lt;std::mutex&gt;</span><br><span class="hljs-keyword">auto</span> lock = std::<span class="hljs-built_in">lock_guard</span>(mx);std::vector&lt;<span class="hljs-type">int</span>&gt; v;<br><br><span class="hljs-comment">// deduces std::back_insert_iterator&lt;std::vector&lt;int&gt;&gt;</span><br>std::<span class="hljs-built_in">fill_n</span>(std::<span class="hljs-built_in">back_inserter</span>(v), <span class="hljs-number">5</span>, <span class="hljs-number">42</span>);<br></code></pre></td></tr></table></figure>
-
 
                 
               </div>

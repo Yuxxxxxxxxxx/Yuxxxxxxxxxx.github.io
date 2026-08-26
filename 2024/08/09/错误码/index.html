@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有一部分定义在 include&#x2F;uapi&#x2F;asm-g">
+    <meta name="description" content="1、IS_ERR 2、strerr、perror     一、概述 在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 错误码">
 <meta property="og:url" content="http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="@toc  一、概述在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有一部分定义在 include&#x2F;uapi&#x2F;asm-g">
+<meta property="og:description" content="1、IS_ERR 2、strerr、perror     一、概述 在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。 为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 include&#x2F;uapi&#x2F;asm-generic&#x2F;errno-base.h，还有">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/09/%E9%94%99%E8%AF%AF%E7%A0%81/1.png">
 <meta property="article:published_time" content="2024-08-09T08:31:01.000Z">
@@ -279,15 +279,21 @@
             
               <div class="markdown-body">
                 
-                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
+                <p><ul class="markdownIt-TOC">
+<li><a href="#1-is_err">1、IS_ERR</a></li>
+<li><a href="#2-strerr-perror">2、strerr、perror</a></li>
+</ul>
+</p>
 <hr>
-<h1 id="一、概述"><a href="#一、概述" class="headerlink" title="一、概述"></a>一、概述</h1><p>在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。</p>
+<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<p>在 Linux 系统中，错误码是用来表示操作系统运行过程中发生的错误的数字代码。错误码通常由负数表示，0 表示成功，正数表示警告或其他非致命错误。</p>
 <p>为了开发者更好地处理系统错误，内核中预定义的错误几乎涵盖了我们可能遇到的所有问题。一些错误的宏定义在 <code>include/uapi/asm-generic/errno-base.h</code>，还有一部分定义在 <code>include/uapi/asm-generic/errno-base.h</code> 中。</p>
-<p>当函数执行发生错误的时候，操作系统会将这个错误所对应的编号赋值给 <code>errno</code> 变量，每一个进程都维护了自己的 errno 变量，它是程序中的全局变量，该变量用于存储&#x3D;&#x3D;就近&#x3D;&#x3D;发生的函数执行错误编号。</p>
+<p>当函数执行发生错误的时候，操作系统会将这个错误所对应的编号赋值给 <code>errno</code> 变量，每一个进程都维护了自己的 errno 变量，它是程序中的全局变量，该变量用于存储<mark>就近</mark>发生的函数执行错误编号。</p>
 <blockquote>
 <p>只有当系统调用或者调用 lib 函数时出错，才会置位<code>errno</code>！</p>
 </blockquote>
-<h1 id="二、含义"><a href="#二、含义" class="headerlink" title="二、含义"></a>二、含义</h1><table>
+<h1 id="二-含义"><a class="markdownIt-Anchor" href="#二-含义"></a> 二、含义</h1>
+<table>
 <thead>
 <tr>
 <th>宏名称</th>
@@ -296,7 +302,8 @@
 <th>含义</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>EPERM</td>
 <td>1</td>
 <td>Operation not permitted</td>
@@ -323,8 +330,8 @@
 <tr>
 <td>EIO</td>
 <td>5</td>
-<td>I&#x2F;O error</td>
-<td>I&#x2F;O 错误</td>
+<td>I/O error</td>
+<td>I/O 错误</td>
 </tr>
 <tr>
 <td>ENXIO</td>
@@ -1019,8 +1026,8 @@
 <tr>
 <td>EREMOTEIO</td>
 <td>121</td>
-<td>Remote I&#x2F;O error</td>
-<td>远程输入&#x2F;输出错误</td>
+<td>Remote I/O error</td>
+<td>远程输入/输出错误</td>
 </tr>
 <tr>
 <td>EDQUOT</td>
@@ -1094,33 +1101,34 @@
 <td>Memory page has hardware error</td>
 <td>内存页有硬件错误</td>
 </tr>
-</tbody></table>
-<h1 id="三、错误处理函数"><a href="#三、错误处理函数" class="headerlink" title="三、错误处理函数"></a>三、错误处理函数</h1><h2 id="1、IS-ERR"><a href="#1、IS-ERR" class="headerlink" title="1、IS_ERR"></a>1、IS_ERR</h2><p>对于一个指针，有三种类型：</p>
+</tbody>
+</table>
+<h1 id="三-错误处理函数"><a class="markdownIt-Anchor" href="#三-错误处理函数"></a> 三、错误处理函数</h1>
+<h2 id="1-is_err"><a class="markdownIt-Anchor" href="#1-is_err"></a> 1、IS_ERR</h2>
+<p>对于一个指针，有三种类型：</p>
 <ul>
 <li><strong>合法指针</strong>：合法指针是指指向有效内存地址的指针</li>
 <li><strong>NULL</strong>：NULL 指针是一个特殊的指针值，它不指向任何有效的内存地址</li>
 <li><strong>错误指针</strong>：错误指针是指指向无效、未定义或未分配内存的指针</li>
 </ul>
 <p>在 Linux 内核源码中实现了指针错误的处理机制，相关的函数接口有：<code>IS_ERR()</code>、<code>PTR_ERR()</code>、<code>ERR_PTR()</code> 等，其函数的源码在 <code>include/linux/err.h</code> 中，如下所示：</p>
-<p><img src="1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>如上所示，<code>IS_ERR()</code> 函数其实就是判断指针是否出错，如果指针指向了内核空间的最后一页，就说明指针是一个无效指针，如果指针并不是落在内核空间的最后一页，就说明这个指针是有效的。无效的指针会表示成一种负数的错误码，如果想知道这个指针是哪个错误码，就用 <code>PTR_ERR()</code> 函数进行转化。</p>
-<h2 id="2、strerr、perror"><a href="#2、strerr、perror" class="headerlink" title="2、strerr、perror"></a>2、strerr、perror</h2><p>许多不同的函数库都在失败时设置全局变量 <code>errno</code> 的值来指明失败原因。值得注意的是函数报告出错后必须立刻检查 <code>errno</code> 变量，因为&#x3D;&#x3D;它有可能被下一个函数调用所覆盖&#x3D;&#x3D;。</p>
+<h2 id="2-strerr-perror"><a class="markdownIt-Anchor" href="#2-strerr-perror"></a> 2、strerr、perror</h2>
+<p>许多不同的函数库都在失败时设置全局变量 <code>errno</code> 的值来指明失败原因。值得注意的是函数报告出错后必须立刻检查 <code>errno</code> 变量，因为<mark>它有可能被下一个函数调用所覆盖</mark>。</p>
 <p>有两个非常有用的函数可以用来报告出现的错误：</p>
 <ol>
 <li><strong>strerr</strong></li>
 </ol>
 <p>该函数可以将对应的 errno 转换成适合我们查看的字符串信息，其函数原型如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.&gt;</span></span><br><br><span class="hljs-type">char</span> *<span class="hljs-title function_">strerror</span><span class="hljs-params">(<span class="hljs-type">int</span> errnum)</span>;<br></code></pre></td></tr></table></figure>
-
 <p>使用实例：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> fd = open(<span class="hljs-string">&quot;test.txt&quot;</span>, O_RDONLY);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Error: %s\n&quot;</span>, strerror(errno));<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    close(fd);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">// 输出：Error: No such file or directory</span><br></code></pre></td></tr></table></figure>
-
 <ol start="2">
 <li><strong>perror</strong></li>
 </ol>
 <p>调用此函数不需要传入 <code>errno</code>，函数内部会自己去获取 <code>errno</code> 变量的值，调用此函数会直接将错误提示字符串打印出来，而不是返回字符串，除此之外还可以在输出的错误提示字符串之前加入自己的打印信息，函数原型如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">perror</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *s)</span>;<br></code></pre></td></tr></table></figure>
-
 <p>使用实例：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> fd = open(<span class="hljs-string">&quot;test.txt&quot;</span>, O_RDONLY);<br>    <span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>) &#123;<br>        perror(<span class="hljs-string">&quot;open error&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    close(fd);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">// 输出：open error: No such file or directory</span><br></code></pre></td></tr></table></figure>
                 

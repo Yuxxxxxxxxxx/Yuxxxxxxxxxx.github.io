@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="在 C++ 中，Lambda 模板 指的是能够像普通函数模板一样，接受泛型参数或显式模板参数的 Lambda 表达式。 Lambda 模板的发展经历了两个阶段：  C++14 的泛型 Lambda（Generic Lambdas）：使用 auto 关键字实现隐式模板化。 C++20 的显式模板 Lambda（Explicit Template Lambdas）：引入了 &#96;&#96; 语法，">
+    <meta name="description" content="在 C++ 中，Lambda 模板 指的是能够像普通函数模板一样，接受泛型参数或显式模板参数的 Lambda 表达式。 Lambda 模板的发展经历了两个阶段：  C++14 的泛型 Lambda（Generic Lambdas）：使用 auto 关键字实现隐式模板化。 C++20 的显式模板 Lambda（Explicit Template Lambdas）：引入了 &#96;&#96; 语法，提供了真正完整的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ lambda模板">
 <meta property="og:url" content="http://example.com/2026/06/09/C++-lambda%E6%A8%A1%E6%9D%BF/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="在 C++ 中，Lambda 模板 指的是能够像普通函数模板一样，接受泛型参数或显式模板参数的 Lambda 表达式。 Lambda 模板的发展经历了两个阶段：  C++14 的泛型 Lambda（Generic Lambdas）：使用 auto 关键字实现隐式模板化。 C++20 的显式模板 Lambda（Explicit Template Lambdas）：引入了 &#96;&#96; 语法，">
+<meta property="og:description" content="在 C++ 中，Lambda 模板 指的是能够像普通函数模板一样，接受泛型参数或显式模板参数的 Lambda 表达式。 Lambda 模板的发展经历了两个阶段：  C++14 的泛型 Lambda（Generic Lambdas）：使用 auto 关键字实现隐式模板化。 C++20 的显式模板 Lambda（Explicit Template Lambdas）：引入了 &#96;&#96; 语法，提供了真正完整的">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-09T08:52:25.000Z">
 <meta property="article:modified_time" content="2026-06-24T12:34:52.963Z">
@@ -225,7 +225,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          803 字
+          801 字
         
       </span>
     
@@ -282,39 +282,42 @@
 <p>Lambda 模板的发展经历了两个阶段：</p>
 <ol>
 <li><strong>C++14 的泛型 Lambda（Generic Lambdas）</strong>：使用 <code>auto</code> 关键字实现隐式模板化。</li>
-<li><strong>C++20 的显式模板 Lambda（Explicit Template Lambdas）</strong>：引入了 &#96;&#96; 语法，提供了真正完整的模板能力。</li>
+<li><strong>C++20 的显式模板 Lambda（Explicit Template Lambdas）</strong>：引入了 `` 语法，提供了真正完整的模板能力。</li>
 </ol>
-<h1 id="一、泛型-Lambda"><a href="#一、泛型-Lambda" class="headerlink" title="一、泛型 Lambda"></a>一、泛型 Lambda</h1><p>在 C++14 中，如果你在 Lambda 的参数列表中使用 <code>auto</code>，编译器会自动将其转换为一个<strong>成员模板函数</strong>。 </p>
+<h1 id="一-泛型-lambda"><a class="markdownIt-Anchor" href="#一-泛型-lambda"></a> 一、泛型 Lambda</h1>
+<p>在 C++14 中，如果你在 Lambda 的参数列表中使用 <code>auto</code>，编译器会自动将其转换为一个<strong>成员模板函数</strong>。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 这是一个泛型 Lambda</span><br>    <span class="hljs-keyword">auto</span> print = [](<span class="hljs-keyword">auto</span> x) &#123;<br>        std::cout &lt;&lt; x &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125;;<br><br>    <span class="hljs-built_in">print</span>(<span class="hljs-number">10</span>);      <span class="hljs-comment">// 实例化为 print(int)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-number">3.14</span>);    <span class="hljs-comment">// 实例化为 print(double)</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// 实例化为 print(const char*)</span><br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>虽然 auto 很方便，但是也有一些问题：</p>
 <ul>
 <li><strong>无法强制要求多个参数类型相同</strong>： 比如 <code>[](auto a, auto b)</code> 允许 <code>a</code> 是 <code>int</code>，<code>b</code> 是 <code>double</code></li>
 <li><strong>获取参数类型极其繁琐</strong>：  如果需要知道参数的类型来定义局部变量或进行类型别名（<code>using</code>），就必须使用难看的 <code>decltype</code>。<code>[](auto x) &#123; using T = decltype(x); ... &#125;</code></li>
 <li><strong>无法直接匹配容器模板</strong>： 如果想写一个只接受 <code>std::vector</code> 的 Lambda，用 <code>auto</code> 很难表达</li>
 </ul>
-<h1 id="二、Lambda-模板"><a href="#二、Lambda-模板" class="headerlink" title="二、Lambda 模板"></a>二、Lambda 模板</h1><p>为了解决上述局限性，C++20 引入了<strong>显式模板参数列表</strong>，语法是在 <code>[]</code> 和 <code>()</code> 之间加上 <code>&lt;typename T&gt;</code>。</p>
+<h1 id="二-lambda-模板"><a class="markdownIt-Anchor" href="#二-lambda-模板"></a> 二、Lambda 模板</h1>
+<p>为了解决上述局限性，C++20 引入了<strong>显式模板参数列表</strong>，语法是在 <code>[]</code> 和 <code>()</code> 之间加上 <code>&lt;typename T&gt;</code>。</p>
 <p>基本语法结构如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">[] &lt;<span class="hljs-keyword">typename</span> T&gt; (T a, T b) &#123; ... &#125;<br></code></pre></td></tr></table></figure>
-
 <p>下面以三个例子分别说明 Lambda 模板是如何解决上面提到的泛型 Lambda 所存在的问题。</p>
 <ol>
-<li><p>强制多个参数类型相同</p>
+<li>
+<p>强制多个参数类型相同</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> addSame = []&lt;<span class="hljs-keyword">typename</span> T&gt;(T a, T b) &#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;;<br><br><span class="hljs-type">int</span> x = <span class="hljs-built_in">addSame</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);       <span class="hljs-comment">// 正确，T 被推导为 int</span><br><span class="hljs-comment">// double y = addSame(1, 2.0); // 编译错误！T 无法同时推导为 int 和 double</span><br></code></pre></td></tr></table></figure>
 </li>
-<li><p>获取类型并进行完美转发</p>
+<li>
+<p>获取类型并进行完美转发</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// C++14 做法：必须使用 decltype 提取类型</span><br><span class="hljs-keyword">auto</span> forward_c14 = [](<span class="hljs-keyword">auto</span>&amp;&amp; arg) &#123;<br>    <span class="hljs-built_in">doSomething</span>(std::forward&lt;<span class="hljs-keyword">decltype</span>(arg)&gt;(arg));<br>&#125;;<br><br><span class="hljs-comment">// C++20 做法：直接使用模板参数 T，优雅且符合常规模板习惯</span><br><span class="hljs-keyword">auto</span> forward_c20 = []&lt;<span class="hljs-keyword">typename</span> T&gt;(T&amp;&amp; arg) &#123;<br>    <span class="hljs-built_in">doSomething</span>(std::forward&lt;T&gt;(arg));<br>&#125;;<br></code></pre></td></tr></table></figure>
 </li>
-<li><p>嵌套模板匹配</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 只有当传入的是 std::vector&lt;T&gt; 时才匹配，并且能直接拿到元素类型 T</span><br>    <span class="hljs-keyword">auto</span> printVector = []&lt;<span class="hljs-keyword">typename</span> T&gt;(<span class="hljs-type">const</span> std::vector&lt;T&gt;&amp; vec) &#123;<br>        <span class="hljs-comment">// 在这里 T 就是元素的实际类型（例如 int 或 std::string）</span><br>        T sum&#123;&#125;; <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; elem : vec) &#123;<br>            sum += elem;<br>        &#125;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Sum: &quot;</span> &lt;&lt; sum &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125;;<br><br>    std::vector&lt;<span class="hljs-type">int</span>&gt; v&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>    <span class="hljs-built_in">printVector</span>(v); <span class="hljs-comment">// OK</span><br>    <br>    <span class="hljs-comment">// printVector(10); // 编译错误：10 不是 std::vector 类型</span><br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li>
+<p>嵌套模板匹配</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 只有当传入的是 std::vector&lt;T&gt; 时才匹配，并且能直接拿到元素类型 T</span><br>    <span class="hljs-keyword">auto</span> printVector = []&lt;<span class="hljs-keyword">typename</span> T&gt;(<span class="hljs-type">const</span> std::vector&lt;T&gt;&amp; vec) &#123;<br>        <span class="hljs-comment">// 在这里 T 就是元素的实际类型（例如 int 或 std::string）</span><br>        T sum&#123;&#125;; <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">const</span> <span class="hljs-keyword">auto</span>&amp; elem : vec) &#123;<br>            sum += elem;<br>        &#125;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Sum: &quot;</span> &lt;&lt; sum &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>    &#125;;<br><br>    std::vector&lt;<span class="hljs-type">int</span>&gt; v&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br>    <span class="hljs-built_in">printVector</span>(v); <span class="hljs-comment">// OK</span><br>    <br>    <span class="hljs-comment">// printVector(10); // 编译错误：10 不是 std::vector 类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
 </ol>
-<h1 id="三、底层原理"><a href="#三、底层原理" class="headerlink" title="三、底层原理"></a>三、底层原理</h1><p>Lambda 本质上是一个<strong>匿名的仿函数（Functor）结构体</strong>。</p>
+<h1 id="三-底层原理"><a class="markdownIt-Anchor" href="#三-底层原理"></a> 三、底层原理</h1>
+<p>Lambda 本质上是一个<strong>匿名的仿函数（Functor）结构体</strong>。</p>
 <p>当你写下这个 C++20 Lambda 模板时：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">auto</span> myLambda = []&lt;<span class="hljs-keyword">typename</span> T&gt;(T a, T b) &#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>C++ 编译器会在后台将其展开为类似下面的结构体：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 编译器生成的匿名类</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">__UniqueLambdaName</span> &#123;<br>    <span class="hljs-comment">// 重点：operator() 被生成为了一个成员模板函数</span><br>    <span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function">    <span class="hljs-keyword">auto</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(T a, T b)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> a + b;<br>    &#125;<br>    <br>    <span class="hljs-comment">// 如果有捕获组，这里还会有成员变量</span><br>&#125;;<br>__UniqueLambdaName myLambda&#123;&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>因为 <code>operator()</code> 是一个成员模板函数，所以它只有在被调用时才会被实例化（Instantiated）。</p>
 
                 
