@@ -306,9 +306,9 @@
 <p>启动模式决定了中断向量表的位置，STM32 有三种启动模式：</p>
 <ol>
 <li><strong>主闪存存储器启动</strong>：从 STM32 内置的 Flash 启动（
-    <span id="mjx-85ec739">
+    <span id="mjx-2ef3ff4">
       <style>
-      #mjx-85ec739{
+      #mjx-2ef3ff4{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -468,9 +468,9 @@ g[data-mml-node="xypic"] path {
     </span>
   ），一般我们使用 JTAG 或者 SWD 模式下载程序时，就是下载到这个里面，重启后也直接从这启动程序。以 <code>0x08000000</code> 对应的内存为例，则该块内存既可以通过 <code>0x00000000</code> 操作也可以通过 <code>0x08000000</code> 操作，且都是操作的同一块内存。</li>
 <li><strong>系统存储器启动</strong>：从系统存储器启动（
-    <span id="mjx-5dbe019">
+    <span id="mjx-76512df">
       <style>
-      #mjx-5dbe019{
+      #mjx-76512df{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -630,9 +630,9 @@ g[data-mml-node="xypic"] path {
     </span>
   ），这种模式启动的程序功能是由厂家设置的。一般来说，我们选用这种启动模式时，是为了从串口下载程序，因为在厂家提供的 ISP 程序中，提供了串口下载程序的固件，可以通过这个 ISP 程序将用户程序下载到系统的 Flash 中。以 <code>0x1FFFFFF0</code> 对应的内存为例，则该块内存既可以通过 <code>0x00000000</code> 操作也可以通过 <code>0x1FFFFFF0</code> 操作，且都是操作的同一块内存。</li>
 <li><strong>片上 SRAM 启动</strong>：从内置 SRAM 启动（
-    <span id="mjx-958e9a7">
+    <span id="mjx-4bb6f71">
       <style>
-      #mjx-958e9a7{
+      #mjx-4bb6f71{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -835,9 +835,9 @@ g[data-mml-node="xypic"] path {
 <ul>
 <li><code>EQU</code>：宏定义的伪指令，相当于等于，类似于 C 中的 define。</li>
 <li><code>AREA</code>：告诉汇编器汇编一个新的代码段或者数据段。STACK 表示段名，这个可以任意命名；NOINIT 表示不初始化；READWRITE 表示可读可写，ALIGN=3，表示按照 
-    <span id="mjx-875ff3">
+    <span id="mjx-66d6235">
       <style>
-      #mjx-875ff3{
+      #mjx-66d6235{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -1042,9 +1042,9 @@ g[data-mml-node="xypic"] path {
 <p>下面以 <code>PendSV_Handler</code> 为例，说明一下：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>可以看到 <code>PendSV_Handler</code> 的中断号是 14，也就是 
-    <span id="mjx-7b24cae">
+    <span id="mjx-29cc443">
       <style>
-      #mjx-7b24cae{
+      #mjx-29cc443{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
