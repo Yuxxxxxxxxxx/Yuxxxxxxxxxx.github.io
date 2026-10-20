@@ -328,9 +328,9 @@
 主 PLL 时钟的时钟源要先经过一个分频系数为 M 的分频器，然后经过倍频系数为 N 的倍频器出来之后的时候还需要经过一个分频系数为 P（第一个输出 PLLP）或者 Q（第二个输出 PLLQ）的分频器分频之后，最后才生成最终的主 PLL 时钟。</p>
 <p>例如我们的外部晶振选择 8MHz。同时我们设置相应的分频器 M=8，倍频器倍频系数 N=336，分频器分频系数 P=2，那么主 PLL 生成的第一个输出高速时钟 PLLP 为：</p>
 
-    <span id="mjx-6f02174">
+    <span id="mjx-1f61ed9">
       <style>
-      #mjx-6f02174{
+      #mjx-1f61ed9{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -542,9 +542,9 @@ MCO 时钟输出的作用是为外部器件提供时钟。STM32 允许通过设�
 <p>而代码中的各个宏的值如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_M 8</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_N 336</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_P 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RCC_PLLCFGR_PLLSRC_HSE ((uint32_t)0x00400000)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PLL_Q 7</span><br></code></pre></td></tr></table></figure>
 <p>算出来这里的 <code>RCC-&gt;PLLCFGR</code> 的结果为：
-    <span id="mjx-7ee4b24">
+    <span id="mjx-f3e7e95">
       <style>
-      #mjx-7ee4b24{
+      #mjx-f3e7e95{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
