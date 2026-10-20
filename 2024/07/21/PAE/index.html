@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]  前言 在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示                    #mjx-fc9bea3{         display:contents;         mjx-assistive-mml {           user-select: text !important;           clip: auto !important">
+    <meta name="description" content="[TOC]  前言 在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示                    #mjx-a29ee7f{         display:contents;         mjx-assistive-mml {           user-select: text !important;           clip: auto !important">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内存管理（四）之物理地址扩展（PAE）">
 <meta property="og:url" content="http://example.com/2024/07/21/PAE/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]  前言 在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示                    #mjx-fc9bea3{         display:contents;         mjx-assistive-mml {           user-select: text !important;           clip: auto !important">
+<meta property="og:description" content="[TOC]  前言 在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示                    #mjx-a29ee7f{         display:contents;         mjx-assistive-mml {           user-select: text !important;           clip: auto !important">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/07/21/PAE/1.png">
 <meta property="og:image" content="http://example.com/2024/07/21/PAE/1.png">
@@ -285,9 +285,9 @@
 <hr>
 <h1>前言</h1>
 <p>在 32 位操作系统中，使用 32 位的寻址空间，最多只能表示 
-    <span id="mjx-fc9bea3">
+    <span id="mjx-a29ee7f">
       <style>
-      #mjx-fc9bea3{
+      #mjx-a29ee7f{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
@@ -458,9 +458,9 @@ g[data-mml-node="xypic"] path {
 <p>这也意味着每个进程仍然可以访问 4GB 的虚拟内存空间，但系统现在能够管理更大的物理内存空间。在原来的情况下，多个进程需要共享有限的 3GB 物理内存，这会导致内存压力增大。通过扩展物理内存空间，PAE 降低了多进程间竞争物理内存的概率，从而改善了系统的性能和稳定性。</p>
 <h2 id="1、PAE-下的页表结构">1、PAE 下的页表结构</h2>
 <p>64GB 的 RAM 被分为 
-    <span id="mjx-fb7b117">
+    <span id="mjx-af5c6ac">
       <style>
-      #mjx-fb7b117{
+      #mjx-af5c6ac{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;

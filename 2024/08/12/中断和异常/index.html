@@ -553,9 +553,9 @@ CPU 试图让一个上下文切换到有无效的 TSS 的进程。</li>
 <p>每个中断处理程序的地址都保存在一个特殊的位置，这个位置被称为<strong>中断描述符表</strong>（<em><strong>Interrupt Descriptor Table</strong></em>，<em><strong>IDT</strong></em>）。处理器使用一个唯一的数字来识别中断和异常的类型，这个数字被称为<strong>中断标识码</strong>（<em><strong>vector number</strong></em>）。一个中断标识码就是一个 IDT 的标识。中断标识码范围是有限的，从 0 到 255。你可以在 Linux 内核源码中找到下面的中断标识码范围检查代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">BUG_ON((<span class="hljs-type">unsigned</span>)n &gt; <span class="hljs-number">0xFF</span>);<br></code></pre></td></tr></table></figure>
 <p>在 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140520464">Linux 内存管理（二）之GDT与LDT</a> 一文中，我们讲到了 GDT 和 LDT，IDT 的格式与这两种表的格式非常相似，表中的每一项对应一个中断或异常向量，每个向量由 8 个字节组成。因此，最多需要 
-    <span id="mjx-f88ed69">
+    <span id="mjx-1c8b95e">
       <style>
-      #mjx-f88ed69{
+      #mjx-1c8b95e{
         display:contents;
         mjx-assistive-mml {
           user-select: text !important;
