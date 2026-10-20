@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。  一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具">
+    <meta name="description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 C&#x2F;C++ 程序编译的过程">
 <meta property="og:url" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。  一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具">
+<meta property="og:description" content="[toc]  本文将介绍如何将 C&#x2F;C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。 一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/1.jpeg">
 <meta property="og:image" content="http://example.com/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/2.png">
@@ -290,7 +290,7 @@
 <p>本文将介绍如何将 C/C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（<em><strong>Preprocessing</strong></em>）编译（<em><strong>Compilation</strong></em>）汇编（<em><strong>Assembly</strong></em>）链接（<em><strong>Linking</strong></em>）。</p>
 <p><img src="1.jpeg" srcset="/img/loading.gif" lazyload alt></p>
 <p>在此之前，首先来看一下 GCC 工具链。</p>
-<h1 id="一-gcc-工具链"><a class="markdownIt-Anchor" href="#一-gcc-工具链"></a> 一、GCC 工具链</h1>
+<h1>一、GCC 工具链</h1>
 <p><code>GCC</code> 是 <code>GUN Compiler Collection</code> 的简称，是 Linux 系统上常用的编译工具。GCC 工具链软件包括 <code>GCC</code>、<code>Binutils</code>、C 运行库等。</p>
 <ul>
 <li><font size="5px"><strong>GCC</strong></font>
@@ -333,10 +333,10 @@
 </ul>
 </li>
 </ul>
-<h1 id="二-编译过程"><a class="markdownIt-Anchor" href="#二-编译过程"></a> 二、编译过程</h1>
+<h1>二、编译过程</h1>
 <p>示例程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a,<span class="hljs-type">int</span>  b)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Number are added together\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> a,b;<br>    a = <span class="hljs-number">3</span>;<br>    b = <span class="hljs-number">4</span>;<br>    <span class="hljs-type">int</span> ret = add(a,b);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Result:%u\n&quot;</span>,ret);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="1-预处理"><a class="markdownIt-Anchor" href="#1-预处理"></a> 1、预处理</h2>
+<h2 id="1、预处理">1、预处理</h2>
 <p>预处理的过程主要包括以下过程：</p>
 <ul>
 <li>将所有的 <code>#define</code> 删除，并且展开所有的宏定义，并且处理所有的条件预编译指令，比如 <code>#if</code>、<code>#ifdef</code>、<code>#elif</code>、<code>#else</code>、<code>#endif</code> 等。</li>
@@ -351,7 +351,7 @@
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>正如前文所说，预处理过程删去了文件中的头文件，并将对应文件中的内容包含到当前文件中：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-编译"><a class="markdownIt-Anchor" href="#2-编译"></a> 2、编译</h2>
+<h2 id="2、编译">2、编译</h2>
 <blockquote>
 <p>编译过程就是对预处理完的文件进行一系列的词法分析，语法分析，语义分析及优化后生成相应的汇编代码。</p>
 </blockquote>
@@ -370,7 +370,7 @@
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-variable">$</span> gcc <span class="hljs-literal">-S</span> test.i <span class="hljs-literal">-o</span> test.s<br></code></pre></td></tr></table></figure>
 <p>上述命令生成的汇编程序 <code>test.s</code> 的代码片段如下所示，其全部为汇编代码。</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="3-汇编"><a class="markdownIt-Anchor" href="#3-汇编"></a> 3、汇编</h2>
+<h2 id="3、汇编">3、汇编</h2>
 <blockquote>
 <p>汇编过程调用对汇编代码进行处理，生成处理器能识别的指令，保存在后缀为 <code>.o</code> 的目标文件中。由于每一个汇编语句几乎都对应一条处理器指令，因此，汇编相对于编译过程比较简单，通过调用 <code>Binutils</code> 中的汇编器 <code>as</code> 根据汇编指令和处理器指令的对照表一一翻译即可。当程序由多个源代码文件构成时，每个文件都要先完成汇编工作，生成 <code>.o</code> 目标文件后，才能进入下一步的链接工作。注意：目标文件已经是最终程序的某一部分了，但是在链接之前还不能执行。</p>
 </blockquote>
@@ -388,7 +388,7 @@
 <p>ELF 文件可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141938589">ELF 文件格式</a></p>
 </blockquote>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="4-链接"><a class="markdownIt-Anchor" href="#4-链接"></a> 4、链接</h2>
+<h2 id="4、链接">4、链接</h2>
 <p>链接也分为静态链接和动态链接，其要点如下：</p>
 <ul>
 <li>静态链接是指在编译阶段直接把静态库加入到可执行文件中去，这样可执行文件会比较大。链接器将函数的代码从其所在地（不同的目标文件或静态链接库中）拷贝到最终的可执行程序中。为创建可执行文件，链接器必须要完成的主要任务是：

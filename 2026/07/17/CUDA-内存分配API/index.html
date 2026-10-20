@@ -1,0 +1,786 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、cudaMalloc 这是CUDA里最基础的内存分配方式，核心作用很简单，就是专门分配显存的。  访问权限：只能 GPU 使用，CPU 访问将会出现 SegmentFault，必须用 cudaMemcpy 手动搬数据（CPU和GPU之间来回传）。 适用场景：纯 GPU 计算、数据不用 CPU 频繁访问的场景，比如批量处理数据，全程靠 GPU 干活，数据只进不出。 核心优势：简洁直观  1234">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA 内存分配API">
+<meta property="og:url" content="http://example.com/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、cudaMalloc 这是CUDA里最基础的内存分配方式，核心作用很简单，就是专门分配显存的。  访问权限：只能 GPU 使用，CPU 访问将会出现 SegmentFault，必须用 cudaMemcpy 手动搬数据（CPU和GPU之间来回传）。 适用场景：纯 GPU 计算、数据不用 CPU 频繁访问的场景，比如批量处理数据，全程靠 GPU 干活，数据只进不出。 核心优势：简洁直观  1234">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/1.jpg">
+<meta property="article:published_time" content="2026-07-17T01:04:36.000Z">
+<meta property="article:modified_time" content="2026-09-17T03:23:04.646Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="CUDA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/1.jpg">
+  
+  
+  
+  <title>CUDA 内存分配API - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CUDA 内存分配API"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-17 09:04" pubdate>
+          星期五, 七月 17日 2026, 9:04 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          28 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CUDA 内存分配API</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、cudaMalloc</h1>
+<p>这是CUDA里最基础的内存分配方式，核心作用很简单，就是专门分配显存的。</p>
+<ul>
+<li>访问权限：只能 GPU 使用，CPU 访问将会出现 SegmentFault，必须用 <code>cudaMemcpy</code> 手动搬数据（CPU和GPU之间来回传）。</li>
+<li>适用场景：纯 GPU 计算、数据不用 CPU 频繁访问的场景，比如批量处理数据，全程靠 GPU 干活，数据只进不出。</li>
+<li>核心优势：简洁直观</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 1. 定义要分配的内存大小</span><br><span class="hljs-type">const</span> <span class="hljs-type">size_t</span> data_size = <span class="hljs-number">1024</span> * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>);<br><span class="hljs-type">float</span> *h_data, *d_data;<br><br><span class="hljs-comment">// 2. CPU端分配内存并初始化数据</span><br>h_data = (<span class="hljs-type">float</span>*)<span class="hljs-built_in">malloc</span>(data_size);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1024</span>; i++) &#123;<br>    h_data[i] = (<span class="hljs-type">float</span>)i; <span class="hljs-comment">// 初始化数据</span><br>&#125;<br><br><span class="hljs-comment">// 3. GPU端分配显存（cudaMalloc核心调用）</span><br><span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;d_data, data_size);<br><span class="hljs-comment">// 4. 必须手动将CPU数据搬运到GPU</span><br><span class="hljs-built_in">cudaMemcpy</span>(d_data, h_data, data_size, cudaMemcpyHostToDevice);<br><br><span class="hljs-comment">// 5. 执行GPU Kernel（用分配好的显存）</span><br>kernel&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">1024</span>&gt;&gt;&gt;(d_data);<br><span class="hljs-comment">// 6. 计算完成后，把GPU结果搬回CPU</span><br><span class="hljs-built_in">cudaMemcpy</span>(h_data, d_data, data_size, cudaMemcpyDeviceToHost);<br><span class="hljs-comment">// 7. 清理资源</span><br><span class="hljs-built_in">cudaFree</span>(d_data);<br><span class="hljs-built_in">free</span>(h_data);<br></code></pre></td></tr></table></figure>
+<h1>二、cudaMallocHost</h1>
+<p>host内存：分为 pageable memory 和 pinned memory</p>
+<ul>
+<li>pageable memory： 通过操作系统 API（malloc，new）分配的存储器空间</li>
+<li>pinned memory：始终存在于物理内存中，不会被分配到低速的虚拟内存中，能够通过 DMA 加速与设备端进行通信</li>
+</ul>
+<p>使用 Malloc 分配的内存都是 Pageable(交换页)的，而另一个模式就是 Pinned(Page-locked)，实质是强制让系统在物理内存中完成内存申请和释放的工作，不参与页交换，从而提高系统效率，需要使用 <code>cudaHostAlloc</code> 和<code>cudaFreeHost</code> (<code>cudaMallocHost</code> 的内存也这样释放) 来分配和释放。</p>
+<ul>
+<li>
+<p>pinned memory 优点：主机端-设备端的数据传输带宽高；某些设备上可以通过 zero-copy 功能映射到设备地址空间，从 GPU 直接访问，省掉主存与显存间进行数据拷贝的工作</p>
+</li>
+<li>
+<p>pinned memory 缺点：pinned memory 不可以分配过多：导致操作系统 用于分页的物理内存变少， 导致系统整体性能下降；通常由哪个 CPU 线程分配，就只有这个线程才有访问权限</p>
+</li>
+</ul>
+<p><code>cudaMallocHost</code> 分配的是&quot;锁页主机内存&quot;（pinned memory），CPU 和 GPU 都能高效访问。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span>* h_A;<br><span class="hljs-built_in">cudaMallocHost</span>(&amp;h_A, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>));  <span class="hljs-comment">// 锁页主机内存</span><br><span class="hljs-built_in">cudaMemcpy</span>(d_A, h_A, ..., cudaMemcpyHostToDevice);  <span class="hljs-comment">// 更快</span><br><span class="hljs-built_in">cudaFreeHost</span>(h_A);                        <span class="hljs-comment">// 释放（注意不是 cudaFree）</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><code>cudaMallocHost</code> 为什么比 <code>cudaMalloc</code> 快？</p>
+</blockquote>
+<p>主机(CPU)数据分配的内存默认是可分页的。GPU 不能直接访问可分页的主机内存，所以当从可分页内存到设备内存的进行数据传输时，CUDA驱动必须首先分配一个临时的不可分页的或者固定的主机数组，然后将主机数据拷贝到固定数组里，最后再将数据从固定数组转移到设备内存，如下图所示：</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown">pageable 传输：<br><span class="hljs-bullet">  1.</span> CUDA 先把数据从 pageable 内存拷到一块内部的锁页缓冲区<br><span class="hljs-bullet">  2.</span> 再从锁页缓冲区 DMA 到 GPU<br>  → 两次拷贝<br><br>pinned 传输：<br><span class="hljs-bullet">  1.</span> 直接从锁页内存 DMA 到 GPU<br>  → 一次拷贝<br></code></pre></td></tr></table></figure>
+<h1>三、cudaMallocManaged</h1>
+<p>能够分配统一内存（Managed Memory），CPU 和 GPU 能用同一个指针访问，不用手动写<code>cudaMemcpy</code>，省了很多代码。</p>
+<ul>
+<li>访问权限：CPU 和 GPU 共用一个虚拟地址指针，不用手动搬数据，驱动会自动处理。</li>
+<li>底层机制：靠“缺页中断”干活——你访问数据时，如果数据不在当前处理器（CPU或GPU）的物理内存里，驱动会自动把数据迁过去。</li>
+<li>核心痛点：默认用64KB小页，要是数据量大，会触发一大堆缺页中断，性能忽高忽低）。</li>
+</ul>
+<p><code>cudaMallocManaged</code> 的核心是“动态换页”，靠缺页中断让驱动自动搬运数据，实现 CPU/GPU 共用指针，但也因此带来了额外的开销。反过来对比 <code>cudaMalloc</code> 的“不换页”，就能更清晰理解两者的底层差异。</p>
+<p><code>cudaMallocManaged</code> 之所以需要换页，本质是它分配的统一内存，物理地址可能在 CPU 内存，也可能在 GPU 显存，驱动需要根据访问场景动态切换映射；而 <code>cudaMalloc</code> 分配的是纯 GPU 显存，从分配那一刻起，GPU页表里的虚拟地址就和物理显存地址绑死了，不会再发生变化。这也是为什么 <code>cudaMalloc</code> 没有隐式搬运开销、性能更稳定，它不用处理缺页中断，不用动态更新页表，地址转换全靠 GPU 硬件完成，速度更快。</p>
+<p>可以发现 <code>cudaMallocManaged</code> 的性能瓶颈，核心就出在页表和缺页中断上，具体有两个关键问题：</p>
+<ul>
+<li>TLB 容量有限，无法存储过多页表映射条目。尤其是默认使用 64KB 小页时，页表条目会急剧增多，很容易导致 TLB Miss 频繁发生，MMU 只能反复遍历页表查找地址，额外增加大量性能开销；</li>
+<li>大数据量场景下，64KB 小页会触发数万次甚至几十万次缺页中断，GPU 大部分时间都在等待驱动处理中断、搬运数据，原本的编程便捷性，反而被严重的性能损耗抵消。</li>
+</ul>
+<p>针对这些问题，最直接有效的解决方案就是<strong>大页优化</strong>（2MB Huge Pages）——既然 64KB 小页无法满足高性能需求，<strong>增大页大小、减少页表条目和缺页次数</strong>，就能从根源上缓解性能瓶颈。</p>
+<p>核心原理就是减少缺页中断次数，采用2MB大页后，单次缺页中断可搬运2MB数据，同样是1GB数据，缺页中断次数会从16384次大幅降至512次，极大减少驱动介入频率，降低MMU的地址转换开销，进而提升cudaMallocManaged的性能稳定性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 1. 定义要分配的内存大小（示例：2MB大页，必须对齐）</span><br><span class="hljs-type">const</span> <span class="hljs-type">size_t</span> ALIGN_2MB = <span class="hljs-number">2</span> * <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;<br><span class="hljs-type">float</span> *managed_data;<br><br><span class="hljs-comment">// 2. 分配统一内存</span><br><span class="hljs-built_in">cudaMallocManaged</span>((<span class="hljs-type">void</span>**)&amp;managed_data, ALIGN_2MB);<br><span class="hljs-comment">// 3. （可选）设置大页优化和内存偏好（进一步提升性能）</span><br><span class="hljs-built_in">cudaMemAdvise</span>(managed_data, ALIGN_2MB, cudaMemAdviseSetPreferredLocation, cudaCpuDeviceId);<br><span class="hljs-built_in">cudaMemAdvise</span>(managed_data, ALIGN_2MB, cudaMemAdviseSetReadMostly, cudaCpuDeviceId);<br><br><span class="hljs-comment">// 4. CPU端直接访问统一内存</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; ALIGN_2MB / <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>); i++) &#123;<br>    managed_data[i] = (<span class="hljs-type">float</span>)i; <span class="hljs-comment">// CPU直接初始化数据</span><br>&#125;<br><br><span class="hljs-comment">// 5. GPU端直接访问同一个指针（不用cudaMemcpy，太省心）</span><br>kernel&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">1024</span>&gt;&gt;&gt;(managed_data);<br><span class="hljs-built_in">cudaDeviceSynchronize</span>(); <span class="hljs-comment">// 等待GPU执行完成，避免数据读取异常</span><br><span class="hljs-comment">// 6. CPU端直接读取GPU修改后的数据</span><br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;GPU处理后的数据：%f\n&quot;</span>, managed_data[<span class="hljs-number">0</span>]);<br><span class="hljs-comment">// 7. 清理资源（只需要释放统一内存，不用分别释放CPU和GPU内存）</span><br><span class="hljs-built_in">cudaFree</span>(managed_data);<br></code></pre></td></tr></table></figure>
+<h1>四、cudaMallocAsync</h1>
+<p><code>cudaMallocAsync</code> 是一个异步内存分配函数，专门解决“高频分配/释放内存”的痛点, 比如AI训练、推理时，要频繁给每一批数据分配内存，用它能省不少开销，还能减少显存碎片化。</p>
+<p><strong>异步的核心含义</strong>：很多人看到异步，就误以为是CPU和GPU完全独立、各干各的，其实这是错误的。<code>cudaMallocAsync</code> 的“异步”，核心是 CPU 侧无阻塞，但GPU侧会受到流上下文的严格约束，具体可以拆成两点理解：</p>
+<ul>
+<li>CPU 侧无阻塞：调用 <code>cudaMallocAsync</code> 后，CPU 不需要等待 GPU 完成内存池的内存切分操作，就能直接执行后续的 CPU 代码，不会被内存分配操作“卡住”，大幅提升整体执行效率；</li>
+<li>流上下文约束：分配的内存会和调用时绑定的 CUDA 流绑定，必须等该流中“前面的操作（比如 Kernel 执行、内存拷贝）”全部完成后，这块内存才能被使用；同时，内存的释放、回收也必须和分配时的流保持一致，不能随意更换流，否则会触发 segmentFault。</li>
+</ul>
+<p><strong>内存池的核心规则</strong>：从提前创建的内存池里拿内存，而非直接向 GPU 系统申请，这也是它高效、低开销的关键，但内存池的使用有明确要求，尤其要注意 32MB 对齐：</p>
+<ul>
+<li>32MB 对齐强制要求：内存池的大小、起始地址，必须是 32MB 的整数倍；从池里切分的内存块，建议也按 32MB 对齐。未对齐的后果很明确：要么触发 <code>cudaErrorInvalidValue</code> 错误，要么驱动自动补全对齐，白白增加不必要的开销。</li>
+<li>主动回收方式：测试、调试时，可通过 <code>cudaMemPoolTrimTo(pool, 0)</code> 函数，强制回收内存池中的所有闲置内存，方便排查内存相关问题。</li>
+<li>回收时机（不固定）：当 GPU 内存不足时，驱动会立即回收闲置内存；当 GPU 长时间处于闲置状态时，驱动也会主动回收；当内存池解绑、进程退出时，会必然回收所有闲置内存；</li>
+</ul>
+<p>特性总结：</p>
+<ul>
+<li>开销极低：分配、释放内存的速度比 <code>cudaMalloc</code> 快一个数量级，尤其适合高频内存操作场景，能大幅降低内存管理的时间成本。</li>
+<li>减少显存碎片化：采用内存池复用机制，无需频繁向 GPU 系统申请、释放内存，从根源上避免显存碎片化，提升 GPU 内存利用率。</li>
+<li>CPU 侧无阻塞：调用 <code>cudaMallocAsync</code> 后，CPU 无需等待 GPU 完成内存池切分操作，可直接执行后续 CPU 代码，提升整体程序的执行效率。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 1. 定义32MB对齐常量</span><br><span class="hljs-type">const</span> <span class="hljs-type">size_t</span> ALIGN_32MB = <span class="hljs-number">32</span> * <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;<br><br><span class="hljs-comment">// 2. 创建内存池并设置释放阈值</span><br>cudaMemPool_t pool;<br><span class="hljs-built_in">cudaMemPoolCreate</span>(&amp;pool, <span class="hljs-literal">nullptr</span>);<br><span class="hljs-type">size_t</span> releaseThresh = ALIGN_32MB;<br><br><span class="hljs-built_in">cudaMemPoolSetAttribute</span>(pool, cudaMemPoolAttrReleaseThreshold, &amp;releaseThresh);<br><span class="hljs-built_in">cudaDeviceSetMemPool</span>(<span class="hljs-number">0</span>, pool);<br><br><span class="hljs-comment">// 3. 创建CUDA流（和内存池绑定，避免冲突）</span><br>cudaStream_t stream;<br><span class="hljs-built_in">cudaStreamCreate</span>(&amp;stream);<br><br><span class="hljs-comment">// 4. 异步分配内存（绑定流，CPU不用等）</span><br><span class="hljs-type">float</span>* d_data;<br><span class="hljs-built_in">cudaMallocAsync</span>(&amp;d_data, ALIGN_32MB, stream);<br><br><span class="hljs-comment">// 5. 执行Kernel（使用分配的内存，和流绑定）</span><br>kernel&lt;&lt;&lt;grid, block, <span class="hljs-number">0</span>, stream&gt;&gt;&gt;(d_data);<br><br><span class="hljs-comment">// 6. 异步释放内存（绑定流，和分配对应）</span><br><span class="hljs-built_in">cudaFreeAsync</span>(d_data, stream);<br><span class="hljs-comment">// 7. 主动回收闲置内存</span><br><span class="hljs-built_in">cudaMemPoolTrimTo</span>(pool, <span class="hljs-number">0</span>);<br><span class="hljs-comment">// 8. 清理资源（按顺序销毁流和内存池）</span><br><span class="hljs-built_in">cudaStreamDestroy</span>(stream);<br><span class="hljs-built_in">cudaMemPoolDestroy</span>(pool);<br></code></pre></td></tr></table></figure>
+<h1>五、cudaHostAlloc</h1>
+<p>在 GPU 上分配的内存默认都是锁页内存，这只是因为 GPU 不支持将内存交换到磁盘上。在主机上分配的内存默认都是可分页，如果需要分配锁页内存，则需要使用 <code>cudaMallocHost()</code> 或者 <code>cudaHostAlloc()</code>。释放时需要使用 <code>cudaFreeHost()</code> 释放这一块内存。调用常规的 C 函数释放，可能会崩溃或者出现一些不常见的错误。也可以通过函数 <code>cudaHostRegister()</code> 把可分页内存标记为锁页内存。</p>
+<ul>
+<li>更高的数据传输速度：当数据需要从主机内存传输到 GPU 设备内存时，页锁定内存通常能够提供更高的带宽，因为 GPU 可以直接访问物理内存页。</li>
+<li>异步数据传输：页锁定内存允许主机和设备之间的数据传输与主机上的其他操作并行进行。</li>
+<li>映射到设备地址空间：在某些 GPU 架构中，页锁定内存可以映射到 GPU 的地址空间中，允许 GPU 直接访问主机内存，而无需显式的数据复制。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">__host__ ​<span class="hljs-function">cudaError_t <span class="hljs-title">cudaMallocHost</span> <span class="hljs-params">( <span class="hljs-type">void</span>** ptr, <span class="hljs-type">size_t</span> size )</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function">__host__ ​cudaError_t <span class="hljs-title">cudaHostAlloc</span> <span class="hljs-params">( <span class="hljs-type">void</span>** pHost, <span class="hljs-type">size_t</span> size, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>  flags )</span></span><br></code></pre></td></tr></table></figure>
+<p><code>cudaHostAlloc()</code> 多了一个可选形参 flags ，功能更强大。flags 的值可以取如下值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> cudaHostAllocDefault 0x00</span><br>Default page-locked allocation flag<br>    <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> cudaHostAllocPortable 0x01</span><br>Pinned memory accessible by all CUDA contexts<br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> cudaHostAllocMapped 0x02</span><br>Map allocation into device space<br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> cudaHostAllocWriteCombined 0x04</span><br>Write-combined memory<br></code></pre></td></tr></table></figure>
+<ul>
+<li>portable memory： 一块锁页内存可被系统中的所有设备使用（一个系统中有多个 CUDA 设备时）</li>
+<li>write-combined memory： 默认情况下，锁页主机存储是可缓存的。使用 <code>cudaHostAllocWriteCombined</code> 标签使其被分配为写结合的。写结合存储不使用 L1 和 L2 cache，所以程序的其它部分就有更多的缓存可用。此外，写结合内存通过 PCIE 传输数据时不会被监视（snoop），这能够获得高达 40% 的传输加速。 从主机读取写结合存储非常慢（因为没有使用 L1、L2 cache），所以写结合存储应当只用于那些主机只写的存储</li>
+<li>mapped memory： 把锁页内存地址映射到设备地址空间。这样这块存储会有两个地址：一个是从<code>cudaHostAlloc()</code> 或 <code>malloc()</code> 返回的在主机内存地址空间上；另一个在设备存储器上，可以通过<code>cudaHostGetDevicePointer()</code> 取得。内核函数可以使用这个指针访问这块存储。 <code>cudaHostAlloc()</code> 返回的地址指针一个的例外情况是，主机和设备使用统一地址空间</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 1. 定义要分配的内存大小</span><br><span class="hljs-type">const</span> <span class="hljs-type">size_t</span> data_size = <span class="hljs-number">1024</span> * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>);<br><span class="hljs-type">void</span> *hostPtr = <span class="hljs-literal">nullptr</span>;<br><br><span class="hljs-comment">// 2. GPU端分配显存</span><br><span class="hljs-built_in">cudaHostAlloc</span>(&amp;hostPtr, data_size, cudaHostAllocDefault);<br><br>...<br><br><span class="hljs-comment">// 3. 在此处，hostPtr 指向的内存块可用于存储数据，并可以高效地传输到 GP</span><br><br><span class="hljs-comment">// 4. 清理资源</span><br><span class="hljs-built_in">cudaHostFree</span>(hostPtr);<br></code></pre></td></tr></table></figure>
+<h1>六、总结</h1>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">分配 API</th>
+<th style="text-align:left">位置</th>
+<th style="text-align:left">典型用法</th>
+<th style="text-align:left">陷阱</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>cudaMalloc</code></td>
+<td style="text-align:left">设备显存</td>
+<td style="text-align:left">常驻数据：权重、KV cache</td>
+<td style="text-align:left">必须显式 memcpy</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cudaMallocHost</code></td>
+<td style="text-align:left">主机 pinned</td>
+<td style="text-align:left">异步 DMA 源/目的</td>
+<td style="text-align:left">占用宝贵的物理内存</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cudaMallocManaged</code></td>
+<td style="text-align:left">统一虚拟地址</td>
+<td style="text-align:left">原型、教学</td>
+<td style="text-align:left">page fault 慢；不好控制位置</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cudaMallocAsync</code></td>
+<td style="text-align:left">设备显存（来自内存池）</td>
+<td style="text-align:left">训练循环里每层临时激活/workspace，高频内存分配释放</td>
+<td style="text-align:left">分配绑在 stream 上，必须同流 free；池不配好会反复向驱动还内存，退化成同步分配</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cudaHostAlloc(...Mapped)</code></td>
+<td style="text-align:left">主机 zero-copy</td>
+<td style="text-align:left">小数据、kernel 偶尔直接读主机（zero-copy），省一次显式拷贝</td>
+<td style="text-align:left">kernel 每次访问走 PCIe，奇慢</td>
+</tr>
+</tbody>
+</table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/CUDA/" class="print-no-link">#CUDA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CUDA 内存分配API</div>
+      <div>http://example.com/2026/07/17/CUDA-内存分配API/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/18/CUDA-tile/" title="CUDA tile">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CUDA tile</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/15/C-std-clamp/" title="C++ std::clamp">
+                        <span class="hidden-mobile">C++ std::clamp</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

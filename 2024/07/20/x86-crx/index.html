@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]   前言 x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。  一、CR0 寄存器 CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处">
+    <meta name="description" content="[TOC]  前言 x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。 一、CR0 寄存器 CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处理器">
 <meta property="og:type" content="article">
 <meta property="og:title" content="x86&#x2F;x86_64 下的 CPU 控制寄存器">
 <meta property="og:url" content="http://example.com/2024/07/20/x86-crx/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]   前言 x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。  一、CR0 寄存器 CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处">
+<meta property="og:description" content="[TOC]  前言 x86&#x2F;x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。 一、CR0 寄存器 CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处理器">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/07/20/x86-crx/1.png">
 <meta property="og:image" content="http://example.com/2024/07/20/x86-crx/1.png">
@@ -284,10 +284,10 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h1>
+<h1>前言</h1>
 <p>x86/x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。</p>
 <p>CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。</p>
-<h1 id="一-cr0-寄存器"><a class="markdownIt-Anchor" href="#一-cr0-寄存器"></a> 一、CR0 寄存器</h1>
+<h1>一、CR0 寄存器</h1>
 <p>CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处理器的操作模式和特性。CR0 寄存器中的位字段包含了各种系统和处理器状态的控制位，具体功能如下：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="CR0 寄存器结构"></p>
 <ul>
@@ -359,12 +359,12 @@
 </li>
 </ul>
 <p>注意，这些字段的设置和读取需要在特权级别为 0（内核态）的情况下进行。</p>
-<h1 id="二-cr1-寄存器"><a class="markdownIt-Anchor" href="#二-cr1-寄存器"></a> 二、CR1 寄存器</h1>
+<h1>二、CR1 寄存器</h1>
 <p>CR1是未定义的控制寄存器，供将来的处理器使用。</p>
-<h1 id="三-cr2-寄存器"><a class="markdownIt-Anchor" href="#三-cr2-寄存器"></a> 三、CR2 寄存器</h1>
+<h1>三、CR2 寄存器</h1>
 <p>CR2是页故障线性地址寄存器，保存最后一次出现页故障（<em>Page Fault</em>）的全 32（或 64） 位线性地址。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="CR2 寄存器结构"></p>
-<h1 id="四-cr3-寄存器"><a class="markdownIt-Anchor" href="#四-cr3-寄存器"></a> 四、CR3 寄存器</h1>
+<h1>四、CR3 寄存器</h1>
 <p>CR3 是页目录基址寄存器，也叫做：PDBR（<em>Page Table Base Register</em>），用于保存页目录表的物理地址，页目录表总是放在以 4K 字节为单位的存储器边界上，因此，它的地址的低 12 位总为 0，不起作用，即使写上内容，也不会被理会。</p>
 <p>每个任务(程序)都有自己的页目录和页表，页目录表的地址被记录在任务的 TSS 段中。</p>
 <p>当操作系统调度任务的时候，处理器就会找到即将执行的新任务的 TSS 段信息，然后把新任务的页目录开始地址更新到 CR3 寄存器中。</p>
@@ -379,7 +379,7 @@
 </ul>
 </li>
 </ul>
-<h1 id="五-cr4-寄存器"><a class="markdownIt-Anchor" href="#五-cr4-寄存器"></a> 五、CR4 寄存器</h1>
+<h1>五、CR4 寄存器</h1>
 <p>CR4 包含了一些扩展控制位，用于控制和配置处理器的高级功能。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="CR4 寄存器结构"><br>
 各个字段如下：</p>
@@ -409,7 +409,7 @@
 <li><strong>SMEP</strong>：启用用户模式执行保护。</li>
 <li><strong>SMAP</strong>：启用内核空间和用户空间地址映射的严格分离。</li>
 </ul>
-<h1 id="六-cr8-寄存器"><a class="markdownIt-Anchor" href="#六-cr8-寄存器"></a> 六、CR8 寄存器</h1>
+<h1>六、CR8 寄存器</h1>
 <p>CR8-提供对任务优先级寄存器（<em>Task Priority Register</em>, <em>TPR</em>）的读写访问。它指定优先级值，操作系统用于控制允许中断处理器的外部中断的优先级类别。此寄存器仅在 64 位模式下可用。但是，中断过滤在兼容模式下继续应用。</p>
 <blockquote>
 <p>任务优先级寄存器存储了当前任务的优先级级别。优先级级别是一个 0 到 15 的值，其中 0 表示最高优先级，15 表示最低优先级。处理器使用该寄存器中的值来确定任务的调度顺序和优先级。</p>

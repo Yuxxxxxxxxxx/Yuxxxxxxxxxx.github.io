@@ -1,0 +1,980 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="视频编解码（Video Codec）是数字视频处理的核心技术，通过压缩算法将原始视频数据转换为更小的文件大小，同时在解码时恢复视频内容。本文将深入探讨 H.264 和 H.265 两种主流视频编码标准的原理、特点及其在嵌入式系统中的应用。  原始视频数据量巨大。以1080p@30fps视频为例： - 分辨率：1920×1080像素 - 帧率：30帧&#x2F;秒 - 色深：24位（RGB各8位） - 数据率">
+<meta property="og:type" content="article">
+<meta property="og:title" content="视频编解码技术详解">
+<meta property="og:url" content="http://example.com/2032/08/20/%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="视频编解码（Video Codec）是数字视频处理的核心技术，通过压缩算法将原始视频数据转换为更小的文件大小，同时在解码时恢复视频内容。本文将深入探讨 H.264 和 H.265 两种主流视频编码标准的原理、特点及其在嵌入式系统中的应用。  原始视频数据量巨大。以1080p@30fps视频为例： - 分辨率：1920×1080像素 - 帧率：30帧&#x2F;秒 - 色深：24位（RGB各8位） - 数据率">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2032-08-20T07:14:26.000Z">
+<meta property="article:modified_time" content="2026-10-19T14:55:59.864Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta property="article:tag" content="摄像头">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>视频编解码技术详解 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="视频编解码技术详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2032-08-20 15:14" pubdate>
+          星期五, 八月 20日 2032, 3:14 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          15 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">视频编解码技术详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>视频编解码（Video Codec）是数字视频处理的核心技术，通过压缩算法将原始视频数据转换为更小的文件大小，同时在解码时恢复视频内容。本文将深入探讨 H.264 和 H.265 两种主流视频编码标准的原理、特点及其在嵌入式系统中的应用。</p>
+<blockquote>
+<p>原始视频数据量巨大。以1080p@30fps视频为例： - 分辨率：1920×1080像素 - 帧率：30帧/秒 - 色深：24位（RGB各8位） - 数据率：1920 × 1080 × 30 × 24 = 1.49 Gbps ≈ 186 MB/s</p>
+</blockquote>
+<h1>一、基本概念</h1>
+<h2 id="1-1-视频压缩原理">1.1 视频压缩原理</h2>
+<p>视频压缩利用了三种冗余：</p>
+<ol>
+<li>
+<p>空间冗余（Spatial Redundancy） - 同一帧内相邻像素往往相似 - 通过帧内预测和变换编码消除 - 例如：蓝天区域的像素值变化很小</p>
+</li>
+<li>
+<p>时间冗余（Temporal Redundancy） - 连续帧之间内容高度相似 - 通过运动估计和运动补偿消除 - 例如：静止背景在多帧中保持不变</p>
+</li>
+<li>
+<p>视觉冗余（Perceptual Redundancy） - 人眼对某些信息不敏感 - 通过量化过程去除 - 例如：高频细节、色度信息</p>
+</li>
+</ol>
+<h2 id="1-2-基本术语">1.2 基本术语</h2>
+<ul>
+<li>
+<p>帧类型：</p>
+<ul>
+<li><strong>I 帧（Intra Frame）</strong>：关键帧，独立编码，不依赖其他帧</li>
+<li><strong>P 帧（Predicted Frame）</strong>：预测帧，参考前面的 I 帧或 P 帧</li>
+<li><strong>B 帧（Bidirectional Frame）</strong>：双向预测帧，参考前后帧</li>
+</ul>
+</li>
+<li>
+<p>GOP（Group of Pictures）：</p>
+<ul>
+<li>一组连续的视频帧，以 I 帧开始</li>
+<li>典型结构：IBBPBBPBBPBBI…</li>
+<li>GOP 越长，压缩率越高，但随机访问性能越差</li>
+</ul>
+</li>
+<li>
+<p>码率控制：</p>
+<ul>
+<li><strong>CBR（Constant Bit Rate）</strong>：恒定码率，适合流媒体传输</li>
+<li><strong>VBR（Variable Bit Rate）</strong>：可变码率，适合本地存储</li>
+<li><strong>ABR（Average Bit Rate）</strong>：平均码率，兼顾质量和大小</li>
+</ul>
+</li>
+<li>
+<p>分辨率与帧率：</p>
+<ul>
+<li>常见分辨率：720p (1280×720)、1080p (1920×1080)、4K (3840×2160)</li>
+<li>常见帧率：24fps（电影）、30fps（标清）、60fps（高清）</li>
+</ul>
+</li>
+</ul>
+<h1>二、H.264/AVC 编码标准</h1>
+<h2 id="2-1-简介">2.1 简介</h2>
+<p>H.264（也称为 AVC - Advanced Video Coding）是目前应用最广泛的视频编码标准，由 ITU-T 和 ISO/IEC 联合制定。</p>
+<p><strong>主要特点</strong>：</p>
+<ul>
+<li>相比 MPEG-2，压缩效率提高 50% 以上 - 支持多种应用场景（广播、流媒体、存储）</li>
+<li>良好的网络适应性</li>
+<li>广泛的硬件支持</li>
+</ul>
+<p><strong>应用场景</strong>：</p>
+<ul>
+<li>蓝光光盘</li>
+<li>数字电视广播</li>
+<li>视频会议</li>
+<li>网络视频（YouTube、Netflix 等）</li>
+<li>监控摄像头</li>
+<li>移动设备视频</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Profile</th>
+<th style="text-align:left">特点</th>
+<th style="text-align:left">应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Baseline</td>
+<td style="text-align:left">基本工具，低复杂度</td>
+<td style="text-align:left">视频会议、移动设备</td>
+</tr>
+<tr>
+<td style="text-align:left">Main</td>
+<td style="text-align:left">支持B帧和CABAC</td>
+<td style="text-align:left">数字电视广播</td>
+</tr>
+<tr>
+<td style="text-align:left">High</td>
+<td style="text-align:left">支持8×8变换</td>
+<td style="text-align:left">蓝光、HDTV</td>
+</tr>
+<tr>
+<td style="text-align:left">High 10</td>
+<td style="text-align:left">支持10位色深</td>
+<td style="text-align:left">专业视频</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Level</th>
+<th style="text-align:left">最大分辨率</th>
+<th style="text-align:left">最大帧率</th>
+<th style="text-align:left">应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">3.0</td>
+<td style="text-align:left">720×576</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">SD 视频</td>
+</tr>
+<tr>
+<td style="text-align:left">3.1</td>
+<td style="text-align:left">1280×720</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">720p HD</td>
+</tr>
+<tr>
+<td style="text-align:left">4.0</td>
+<td style="text-align:left">1920×1080</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">1080p HD</td>
+</tr>
+<tr>
+<td style="text-align:left">5.1</td>
+<td style="text-align:left">1920×1080</td>
+<td style="text-align:left">60fps</td>
+<td style="text-align:left">1080p 60fps</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-2-编码流程">2.2 编码流程</h2>
+<p>H.264 编码器的基本处理流程：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">原始视频<br>    ↓<br><span class="hljs-string">[帧内/帧间预测]</span> → 预测块<br>    ↓<br><span class="hljs-string">[残差计算]</span> → 残差数据<br>    ↓<br><span class="hljs-string">[变换编码]</span> → DCT系数<br>    ↓<br><span class="hljs-string">[量化]</span> → 量化系数<br>    ↓<br><span class="hljs-string">[熵编码]</span> → 压缩码流<br>    ↓<br>编码视频<br></code></pre></td></tr></table></figure>
+<p><strong>详细步骤说明</strong>：</p>
+<ol>
+<li><strong>预测（Prediction）</strong></li>
+<li>帧内预测：利用当前帧已编码的相邻块预测当前块</li>
+<li>帧间预测：利用参考帧通过运动估计预测当前块</li>
+<li>生成预测块，计算残差（原始块 - 预测块）</li>
+<li><strong>变换（Transform）</strong></li>
+<li>对残差数据进行整数 DCT 变换</li>
+<li>将空间域信号转换到频率域</li>
+<li>H.264 使用 4×4 或 8×8 整数变换</li>
+<li><strong>量化（Quantization）</strong></li>
+<li>将变换系数除以量化步长</li>
+<li>这是有损压缩的主要来源</li>
+<li>量化参数（QP）控制压缩质量和码率</li>
+<li><strong>熵编码（Entropy Coding）</strong></li>
+<li>使用 CAVLC 或 CABAC 算法</li>
+<li>无损压缩，进一步减小数据量</li>
+<li>CABAC 效率更高但计算复杂度更大</li>
+<li><strong>环路滤波（Loop Filter）</strong></li>
+<li>去块滤波，消除块效应</li>
+<li>提高主观视觉质量</li>
+<li>改善参考帧质量</li>
+</ol>
+<h2 id="2-3-解码流程">2.3 解码流程</h2>
+<p>解码过程是编码的逆过程：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">编码码流<br>    ↓<br><span class="hljs-string">[熵解码]</span> → 量化系数<br>    ↓<br><span class="hljs-string">[反量化]</span> → DCT系数<br>    ↓<br><span class="hljs-string">[反变换]</span> → 残差数据<br>    ↓<br><span class="hljs-string">[预测重建]</span> → 预测块<br>    ↓<br><span class="hljs-string">[相加]</span> → 重建块<br>    ↓<br><span class="hljs-string">[去块滤波]</span> → 输出帧<br>    ↓<br>解码视频<br></code></pre></td></tr></table></figure>
+<h1>三、H.265/HEVC编码标准</h1>
+<h2 id="3-1-简介">3.1 简介</h2>
+<p>H.265（也称为 HEVC - High Efficiency Video Coding）是 H.264 的继任者，于 2013 年发布。</p>
+<p><strong>主要改进</strong>：</p>
+<ul>
+<li>相比 H.264，压缩效率提高约 50%</li>
+<li>更好地支持 4K/8K 超高清视频</li>
+<li>改进的并行处理能力</li>
+<li>更灵活的编码结构</li>
+</ul>
+<p><strong>应用场景</strong>：</p>
+<ul>
+<li>4K/8K 超高清视频</li>
+<li>流媒体服务（Netflix 4K）</li>
+<li>新一代广播标准</li>
+<li>VR/AR 视频</li>
+<li>监控系统（节省存储空间）</li>
+</ul>
+<h2 id="3-2-H-264-vs-H-265-对比">3.2 H.264 vs H.265 对比</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left">H.264</th>
+<th style="text-align:left">H.265</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">压缩效率</td>
+<td style="text-align:left">基准</td>
+<td style="text-align:left">提高50%</td>
+</tr>
+<tr>
+<td style="text-align:left">最大块大小</td>
+<td style="text-align:left">16×16</td>
+<td style="text-align:left">64×64</td>
+</tr>
+<tr>
+<td style="text-align:left">帧内预测模式</td>
+<td style="text-align:left">9种</td>
+<td style="text-align:left">35种</td>
+</tr>
+<tr>
+<td style="text-align:left">变换大小</td>
+<td style="text-align:left">4×4, 8×8</td>
+<td style="text-align:left">4×4到32×32</td>
+</tr>
+<tr>
+<td style="text-align:left">并行处理</td>
+<td style="text-align:left">有限</td>
+<td style="text-align:left">良好支持</td>
+</tr>
+<tr>
+<td style="text-align:left">编码复杂度</td>
+<td style="text-align:left">中等</td>
+<td style="text-align:left">高</td>
+</tr>
+<tr>
+<td style="text-align:left">解码复杂度</td>
+<td style="text-align:left">低</td>
+<td style="text-align:left">中等</td>
+</tr>
+<tr>
+<td style="text-align:left">硬件支持</td>
+<td style="text-align:left">广泛</td>
+<td style="text-align:left">逐渐普及</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实际效果对比</strong>：</p>
+<ul>
+<li>相同质量下，H.265 文件大小约为 H.264 的 50%</li>
+<li>相同码率下，H.265 视觉质量明显优于 H.264</li>
+<li>H.265 编码时间约为 H.264 的 2-3 倍</li>
+<li>H.265 解码复杂度约为 H.264 的 1.5 倍</li>
+</ul>
+<h1>四、编解码性能参数</h1>
+<h2 id="4-1-码率与质量关系">4.1 码率与质量关系</h2>
+<p>不同分辨率的推荐码率（H.264）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">分辨率</th>
+<th style="text-align:left">帧率</th>
+<th style="text-align:left">低质量</th>
+<th style="text-align:left">中等质量</th>
+<th style="text-align:left">高质量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">480p</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">1 Mbps</td>
+<td style="text-align:left">2.5 Mbps</td>
+<td style="text-align:left">4 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">720p</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">2.5 Mbps</td>
+<td style="text-align:left">5 Mbps</td>
+<td style="text-align:left">8 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">1080p</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">5 Mbps</td>
+<td style="text-align:left">8 Mbps</td>
+<td style="text-align:left">12 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">1080p</td>
+<td style="text-align:left">60fps</td>
+<td style="text-align:left">8 Mbps</td>
+<td style="text-align:left">12 Mbps</td>
+<td style="text-align:left">20 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">4K</td>
+<td style="text-align:left">30fps</td>
+<td style="text-align:left">15 Mbps</td>
+<td style="text-align:left">25 Mbps</td>
+<td style="text-align:left">45 Mbps</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>H.265 可以在相同质量下使用约 50% 的码率。</p>
+</blockquote>
+<h2 id="4-2-编解码性能指标">4.2 编解码性能指标</h2>
+<p><strong>编码性能</strong>：</p>
+<ul>
+<li><strong>编码速度</strong>：帧/秒（fps），实时编码需要 ≥ 视频帧率</li>
+<li><strong>压缩比</strong>：原始大小/压缩后大小，通常 50:1 到 200:1</li>
+<li><strong>编码延迟</strong>：从输入到输出的时间，实时应用要求 &lt; 100ms</li>
+</ul>
+<p><strong>解码性能</strong>：</p>
+<ul>
+<li><strong>解码速度</strong>：必须 ≥ 视频帧率才能流畅播放</li>
+<li><strong>解码延迟</strong>：通常比编码延迟小得多</li>
+<li><strong>内存占用</strong>：参考帧缓存、解码缓冲区</li>
+</ul>
+<p><strong>质量评估</strong>：</p>
+<ul>
+<li><strong>PSNR（峰值信噪比）</strong>：客观质量指标，单位 dB，越高越好</li>
+<li><strong>SSIM（结构相似性）</strong>：更符合人眼感知的质量指标</li>
+<li><strong>主观质量</strong>：人眼观看评分，最终标准</li>
+</ul>
+<h1>五、示例：使用 FFmpeg 进行编解码</h1>
+<p>将 YUV 转换为 H.264：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;libavcodec/avcodec.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;libavutil/opt.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;libavutil/imgutils.h&gt;</span></span><br><br><span class="hljs-comment">// 初始化编码器</span><br>AVCodec *codec = <span class="hljs-built_in">avcodec_find_encoder</span>(AV_CODEC_ID_H264);<br>AVCodecContext *ctx = <span class="hljs-built_in">avcodec_alloc_context3</span>(codec);<br><br><span class="hljs-comment">// 设置编码参数</span><br>ctx-&gt;width = <span class="hljs-number">1920</span>;<br>ctx-&gt;height = <span class="hljs-number">1080</span>;<br>ctx-&gt;time_base = (AVRational)&#123;<span class="hljs-number">1</span>, <span class="hljs-number">30</span>&#125;;  <span class="hljs-comment">// 30fps</span><br>ctx-&gt;framerate = (AVRational)&#123;<span class="hljs-number">30</span>, <span class="hljs-number">1</span>&#125;;<br>ctx-&gt;pix_fmt = AV_PIX_FMT_YUV420P;<br>ctx-&gt;bit_rate = <span class="hljs-number">4000000</span>;  <span class="hljs-comment">// 4Mbps</span><br>ctx-&gt;gop_size = <span class="hljs-number">30</span>;  <span class="hljs-comment">// GOP大小</span><br>ctx-&gt;max_b_frames = <span class="hljs-number">2</span>;  <span class="hljs-comment">// B帧数量</span><br><br><span class="hljs-comment">// 设置H.264特定参数</span><br><span class="hljs-built_in">av_opt_set</span>(ctx-&gt;priv_data, <span class="hljs-string">&quot;preset&quot;</span>, <span class="hljs-string">&quot;medium&quot;</span>, <span class="hljs-number">0</span>);<br><span class="hljs-built_in">av_opt_set</span>(ctx-&gt;priv_data, <span class="hljs-string">&quot;profile&quot;</span>, <span class="hljs-string">&quot;high&quot;</span>, <span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// 打开编码器</span><br><span class="hljs-built_in">avcodec_open2</span>(ctx, codec, <span class="hljs-literal">NULL</span>);<br><br><span class="hljs-comment">// 编码一帧</span><br>AVFrame *frame = <span class="hljs-built_in">av_frame_alloc</span>();<br>frame-&gt;format = ctx-&gt;pix_fmt;<br>frame-&gt;width = ctx-&gt;width;<br>frame-&gt;height = ctx-&gt;height;<br><span class="hljs-built_in">av_frame_get_buffer</span>(frame, <span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// 填充YUV数据到frame...</span><br><br>AVPacket *pkt = <span class="hljs-built_in">av_packet_alloc</span>();<br><span class="hljs-type">int</span> ret = <span class="hljs-built_in">avcodec_send_frame</span>(ctx, frame);<br><span class="hljs-keyword">if</span> (ret &gt;= <span class="hljs-number">0</span>) &#123;<br>    ret = <span class="hljs-built_in">avcodec_receive_packet</span>(ctx, pkt);<br>    <span class="hljs-keyword">if</span> (ret &gt;= <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// pkt包含编码后的H.264数据</span><br>        <span class="hljs-comment">// 可以写入文件或发送到网络</span><br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 清理资源</span><br><span class="hljs-built_in">av_packet_free</span>(&amp;pkt);<br><span class="hljs-built_in">av_frame_free</span>(&amp;frame);<br><span class="hljs-built_in">avcodec_free_context</span>(&amp;ctx);<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E6%91%84%E5%83%8F%E5%A4%B4/" class="category-chain-item">摄像头</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+        <a href="/tags/%E6%91%84%E5%83%8F%E5%A4%B4/" class="print-no-link">#摄像头</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>视频编解码技术详解</div>
+      <div>http://example.com/2032/08/20/视频编解码技术详解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2032年8月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/" title="基于MPP库进行视频编解码">
+                        <span class="hidden-mobile">基于MPP库进行视频编解码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

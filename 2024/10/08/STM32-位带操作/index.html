@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对单一的比特进行读写。 而我们也知道，在 STM32 中并不能直接">
+    <meta name="description" content="[toc]  一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 位带操作">
 <meta property="og:url" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对单一的比特进行读写。 而我们也知道，在 STM32 中并不能直接">
+<meta property="og:description" content="[toc]  一、简介 如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下： 12sbit LED1 &#x3D; P2^0; &#x2F;&#x2F; 控制到 P2.0 脚LED1 &#x3D; 0; &#x2F;&#x2F; 输出一个低电平 通过简单的两句话就可以点亮一个 led 了。这就是位带（Bit-banding）操作，支持位带操作后，可以使用普通的加载&#x2F;存储指令来对&#x3D;&#x3D;单一的比特&#x3D;&#x3D;进行读写。 而我们也知道，在 STM32 中并不">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/1.png">
 <meta property="og:image" content="http://example.com/2024/10/08/STM32-%E4%BD%8D%E5%B8%A6%E6%93%8D%E4%BD%9C/2.png">
@@ -232,7 +232,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.8k 字
+          2.5k 字
         
       </span>
     
@@ -243,7 +243,7 @@
         
         
         
-          15 分钟
+          22 分钟
         
       </span>
     
@@ -287,17 +287,17 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-简介"><a class="markdownIt-Anchor" href="#一-简介"></a> 一、简介</h1>
+<h1>一、简介</h1>
 <p>如果你学过 51，是否还记得你是如何点亮的 led？很简单，见下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">sbit LED1 = P2^<span class="hljs-number">0</span>; <span class="hljs-comment">// 控制到 P2.0 脚</span><br>LED1 = <span class="hljs-number">0</span>; <span class="hljs-comment">// 输出一个低电平</span><br></code></pre></td></tr></table></figure>
-<p>通过简单的两句话就可以点亮一个 led 了。这就是位带（<code>Bit-banding</code>）操作，支持位带操作后，可以使用普通的加载/存储指令来对<mark>单一的比特</mark>进行读写。</p>
+<p>通过简单的两句话就可以点亮一个 led 了。这就是位带（<code>Bit-banding</code>）操作，支持位带操作后，可以使用普通的加载/存储指令来对==单一的比特==进行读写。</p>
 <p>而我们也知道，在 STM32 中并不能直接操作寄存器的某一个 Bit 位，而只能通过字来读写寄存器，例如：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>那能否实现 51 类似的 GPIO 控制功能，能够直接操作位？我们知道，STM32 是 32 位的处理器，其 32 位地址总线提供了 4G 的地址空间。于是 Cortex-M 就利用额外的地址在内核中开辟了一块地址区域（位带别名）：可以将 IDR1 这类 Bit（位带区）映射到位带别名区域对应的地址，只需要操作映射后的地址，就可以实现操作这个 IDR1 位了。在主位带区域，每个地址对应一个字节的数据，在“位带别名”区域中，每个地址对应同一个数据的一个位。简单来说就是映射操作。</p>
 <blockquote>
 <p>参考 &lt;&lt;CM3权威指南&gt;&gt; 第五章(P87~P92)</p>
 </blockquote>
-<h1 id="二-映射关系"><a class="markdownIt-Anchor" href="#二-映射关系"></a> 二、映射关系</h1>
+<h1>二、映射关系</h1>
 <p>不过，在 STM32F407 中，有两个地方实现了位带：</p>
 <ol>
 <li>
@@ -318,9 +318,170 @@ SRAM 的位带区的地址为：<strong><code>0X2000 0000~X200F 0000</code></str
 </blockquote>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>位带区里每个地址的每 1 位膨胀为别名区里一个 32 位的字（32 位处理器中，1字=4字节），例如：<code>0x20000000</code> 的第 0 位对应 <code>0x22000000</code>，第 1 位对应 <code>0x22000004</code> 等。</p>
-<h1 id="三-地址转换"><a class="markdownIt-Anchor" href="#三-地址转换"></a> 三、地址转换</h1>
-<h2 id="1-外设位带别名区地址"><a class="markdownIt-Anchor" href="#1-外设位带别名区地址"></a> 1、外设位带别名区地址</h2>
-<p>对于片上外设位带区的某个比特，记它所在字节的地址为 A，位序号为 n (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mo>=</mo><mi>n</mi><mo>&lt;</mo><mo>=</mo><mn>31</mn></mrow><annotation encoding="application/x-tex">0&lt;=n&lt;=31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68354em;vertical-align:-0.0391em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">1</span></span></span></span>)(n的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
+<h1>三、地址转换</h1>
+<h2 id="1、外设位带别名区地址">1、外设位带别名区地址</h2>
+<p>对于片上外设位带区的某个比特，记它所在字节的地址为 A，位序号为 n (
+    <span id="mjx-f58927">
+      <style>
+      #mjx-f58927{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="14.306ex" height="1.692ex" role="img" focusable="false" viewbox="0 -666 6323.1 748" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/></g><g data-mml-node="mo" transform="translate(777.8,0)"><g data-mml-node="text"><path data-c="3C" d="M694 -11T694 -19T688 -33T678 -40Q671 -40 524 29T234 166L90 235Q83 240 83 250Q83 261 91 266Q664 540 678 540Q681 540 687 534T694 519T687 505Q686 504 417 376L151 250L417 124Q686 -4 687 -5Q694 -11 694 -19Z"/></g><g data-mml-node="text" transform="translate(778,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g></g><g data-mml-node="mi" transform="translate(2611.6,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mo" transform="translate(3489.3,0)"><g data-mml-node="text"><path data-c="3C" d="M694 -11T694 -19T688 -33T678 -40Q671 -40 524 29T234 166L90 235Q83 240 83 250Q83 261 91 266Q664 540 678 540Q681 540 687 534T694 519T687 505Q686 504 417 376L151 250L417 124Q686 -4 687 -5Q694 -11 694 -19Z"/></g><g data-mml-node="text" transform="translate(778,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g></g><g data-mml-node="mn" transform="translate(5323.1,0)"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z" transform="translate(500,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>0</mn><mo>&lt;=</mo><mi>n</mi><mo>&lt;=</mo><mn>31</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+  )(n的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">AliasAddr= =<span class="hljs-number">0x42000000</span> + (A<span class="hljs-number">-0x40000000</span>)*<span class="hljs-number">8</span>*<span class="hljs-number">4</span> +n*<span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>0X42000000</code> 是外设位带别名区的起始地址</li>
@@ -328,11 +489,172 @@ SRAM 的位带区的地址为：<strong><code>0X2000 0000~X200F 0000</code></str
 <li>一个字节有 8 位，所以 <code>*8</code>；而一个位膨胀后是 4 个字节，所以 <code>*4</code></li>
 <li>n 表示该比特在 A 地址的序号，因为一个位经过膨胀后是四个字节，所以也 <code>*4</code>。</li>
 </ul>
-<h2 id="2-sram-位带别名区地址"><a class="markdownIt-Anchor" href="#2-sram-位带别名区地址"></a> 2、SRAM 位带别名区地址</h2>
-<p>对于 SRAM 位带区的某个比特，记它所在字节的地址为 A，位序号为 n (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mo>=</mo><mi>n</mi><mo>&lt;</mo><mo>=</mo><mn>31</mn></mrow><annotation encoding="application/x-tex">0&lt;=n&lt;=31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68354em;vertical-align:-0.0391em;"></span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span></span><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">1</span></span></span></span>)(n 的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
+<h2 id="2、SRAM-位带别名区地址">2、SRAM 位带别名区地址</h2>
+<p>对于 SRAM 位带区的某个比特，记它所在字节的地址为 A，位序号为 n (
+    <span id="mjx-866c362">
+      <style>
+      #mjx-866c362{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="14.306ex" height="1.692ex" role="img" focusable="false" viewbox="0 -666 6323.1 748" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/></g><g data-mml-node="mo" transform="translate(777.8,0)"><g data-mml-node="text"><path data-c="3C" d="M694 -11T694 -19T688 -33T678 -40Q671 -40 524 29T234 166L90 235Q83 240 83 250Q83 261 91 266Q664 540 678 540Q681 540 687 534T694 519T687 505Q686 504 417 376L151 250L417 124Q686 -4 687 -5Q694 -11 694 -19Z"/></g><g data-mml-node="text" transform="translate(778,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g></g><g data-mml-node="mi" transform="translate(2611.6,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mo" transform="translate(3489.3,0)"><g data-mml-node="text"><path data-c="3C" d="M694 -11T694 -19T688 -33T678 -40Q671 -40 524 29T234 166L90 235Q83 240 83 250Q83 261 91 266Q664 540 678 540Q681 540 687 534T694 519T687 505Q686 504 417 376L151 250L417 124Q686 -4 687 -5Q694 -11 694 -19Z"/></g><g data-mml-node="text" transform="translate(778,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g></g><g data-mml-node="mn" transform="translate(5323.1,0)"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z" transform="translate(500,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>0</mn><mo>&lt;=</mo><mi>n</mi><mo>&lt;=</mo><mn>31</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+  )(n 的范围根据具体寄存器能控制的位决定)，则该比特在别名区的地址为：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">AliasAddr= =<span class="hljs-number">0x22000000</span>+ (A<span class="hljs-number">-0x20000000</span>)*<span class="hljs-number">8</span>*<span class="hljs-number">4</span> +n*<span class="hljs-number">4</span><br></code></pre></td></tr></table></figure>
 <p>公式分析同上。</p>
-<h2 id="3-统一公式"><a class="markdownIt-Anchor" href="#3-统一公式"></a> 3、统一公式</h2>
+<h2 id="3、统一公式">3、统一公式</h2>
 <p>为了方便操作，我们可以把这两个公式合并成一个公式，把“位带地址+位序号”转换成别名区地址统一成一个宏。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BITBAND(addr, bitnum) ((addr &amp; 0xF0000000)+0x02000000+((addr &amp; 0x000FFFFF)&lt;&lt;5)+(bitnum&lt;&lt;2))</span><br></code></pre></td></tr></table></figure>
 <ul>
@@ -351,10 +673,10 @@ SRAM 的位带区的地址为：<strong><code>0X2000 0000~X200F 0000</code></str
 </ul>
 <p>最后我们就可以通过指针的形式操作这些位带别名区地址，最终实现位带区的比特位操作。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 把一个地址转换成一个指针</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MEM_ADDR(addr)  *((volatile unsigned long  *)(addr))</span><br><br><span class="hljs-comment">// 把位带别名区地址转换成指针</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT_ADDR(addr, bitnum)   MEM_ADDR(BITBAND(addr, bitnum))</span><br></code></pre></td></tr></table></figure>
-<h1 id="四-gpio-位带操作"><a class="markdownIt-Anchor" href="#四-gpio-位带操作"></a> 四、GPIO 位带操作</h1>
+<h1>四、GPIO 位带操作</h1>
 <p>经过上面的铺垫，就可以轻松实现 STM32 上 GPIO 位带操作了：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> BITBAND(addr, bitnum) ((addr &amp; 0xF0000000) + 0x2000000 + ((addr &amp; 0x000FFFFF) &lt;&lt; 5) + (bitnum &lt;&lt; 2))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MEM_ADDR(addr) *((volatile unsigned long *)(addr))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BIT_ADDR(addr, bitnum) MEM_ADDR(BITBAND(addr, bitnum))</span><br><br><span class="hljs-comment">// IO口地址映射</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOA_ODR_Addr (GPIOA_BASE + 20) <span class="hljs-comment">// 0x40020014</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOB_ODR_Addr (GPIOB_BASE + 20) <span class="hljs-comment">// 0x40020414</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOC_ODR_Addr (GPIOC_BASE + 20) <span class="hljs-comment">// 0x40020814</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOD_ODR_Addr (GPIOD_BASE + 20) <span class="hljs-comment">// 0x40020C14</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOE_ODR_Addr (GPIOE_BASE + 20) <span class="hljs-comment">// 0x40021014</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOF_ODR_Addr (GPIOF_BASE + 20) <span class="hljs-comment">// 0x40021414</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOG_ODR_Addr (GPIOG_BASE + 20) <span class="hljs-comment">// 0x40021814</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOH_ODR_Addr (GPIOH_BASE + 20) <span class="hljs-comment">// 0x40021C14</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOI_ODR_Addr (GPIOI_BASE + 20) <span class="hljs-comment">// 0x40022014</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOA_IDR_Addr (GPIOA_BASE + 16) <span class="hljs-comment">// 0x40020010</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOB_IDR_Addr (GPIOB_BASE + 16) <span class="hljs-comment">// 0x40020410</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOC_IDR_Addr (GPIOC_BASE + 16) <span class="hljs-comment">// 0x40020810</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOD_IDR_Addr (GPIOD_BASE + 16) <span class="hljs-comment">// 0x40020C10</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOE_IDR_Addr (GPIOE_BASE + 16) <span class="hljs-comment">// 0x40021010</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOF_IDR_Addr (GPIOF_BASE + 16) <span class="hljs-comment">// 0x40021410</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOG_IDR_Addr (GPIOG_BASE + 16) <span class="hljs-comment">// 0x40021810</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOH_IDR_Addr (GPIOH_BASE + 16) <span class="hljs-comment">// 0x40021C10</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIOI_IDR_Addr (GPIOI_BASE + 16) <span class="hljs-comment">// 0x40022010</span></span><br><br><span class="hljs-comment">// IO口操作,只对单一的IO口!</span><br><span class="hljs-comment">// 确保n的值小于16!</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAout(n) BIT_ADDR(GPIOA_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PAin(n) BIT_ADDR(GPIOA_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PBout(n) BIT_ADDR(GPIOB_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PBin(n) BIT_ADDR(GPIOB_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PCout(n) BIT_ADDR(GPIOC_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PCin(n) BIT_ADDR(GPIOC_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PDout(n) BIT_ADDR(GPIOD_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PDin(n) BIT_ADDR(GPIOD_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PEout(n) BIT_ADDR(GPIOE_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PEin(n) BIT_ADDR(GPIOE_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PFout(n) BIT_ADDR(GPIOF_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PFin(n) BIT_ADDR(GPIOF_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PGout(n) BIT_ADDR(GPIOG_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PGin(n) BIT_ADDR(GPIOG_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHout(n) BIT_ADDR(GPIOH_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHin(n) BIT_ADDR(GPIOH_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PIout(n) BIT_ADDR(GPIOI_ODR_Addr, n) <span class="hljs-comment">// 输出</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PIin(n) BIT_ADDR(GPIOI_IDR_Addr, n)  <span class="hljs-comment">// 输入</span></span><br></code></pre></td></tr></table></figure>
-<p>使用位带操作，不仅更加方便，而且步骤少，更重要的是<mark>位带操作属于原子操作</mark>。</p>
+<p>使用位带操作，不仅更加方便，而且步骤少，更重要的是==位带操作属于原子操作==。</p>
 <p>比如，欲设置地址 <code>0x2000 0000</code> 中的比特 2，则使用位带操作的设置过程如下图所示：</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>对应的汇编代码如下：</p>

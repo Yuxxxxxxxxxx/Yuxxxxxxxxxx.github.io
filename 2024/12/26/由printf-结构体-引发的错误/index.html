@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、问题引入 首先，测试环境如下：  下面是测试代码： 12345678910111213141516171819#include &lt;unistd.h&gt;#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;typedef struct&#123;    int age;    char name[8];&#125; student;int">
+    <meta name="description" content="一、问题引入 首先，测试环境如下：  下面是测试代码： 12345678910111213141516171819#include &lt;unistd.h&gt;#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;typedef struct&#123;    int age;    char name[8];&#125; student;int m">
 <meta property="og:type" content="article">
 <meta property="og:title" content="由 printf(结构体) 引发的错误">
 <meta property="og:url" content="http://example.com/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、问题引入 首先，测试环境如下：  下面是测试代码： 12345678910111213141516171819#include &lt;unistd.h&gt;#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;typedef struct&#123;    int age;    char name[8];&#125; student;int">
+<meta property="og:description" content="一、问题引入 首先，测试环境如下：  下面是测试代码： 12345678910111213141516171819#include &lt;unistd.h&gt;#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;typedef struct&#123;    int age;    char name[8];&#125; student;int m">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/1.png">
 <meta property="og:image" content="http://example.com/2024/12/26/%E7%94%B1printf-%E7%BB%93%E6%9E%84%E4%BD%93-%E5%BC%95%E5%8F%91%E7%9A%84%E9%94%99%E8%AF%AF/2.png">
@@ -232,7 +232,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          821 字
+          819 字
         
       </span>
     
@@ -285,7 +285,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-问题引入"><a class="markdownIt-Anchor" href="#一-问题引入"></a> 一、问题引入</h1>
+                <h1>一、问题引入</h1>
 <p>首先，测试环境如下：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面是测试代码：</p>
@@ -295,32 +295,32 @@
 <p>原本，期望结果应该是 <code>1 1</code>，因为 <code>s</code> 和 <code>p</code> 都指向这个数组的首地址，也就是数组中第一个元素的地址。下面来看打印结果：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>结果竟然是 <code>1 0</code>！</p>
-<h1 id="二-问题分析"><a class="markdownIt-Anchor" href="#二-问题分析"></a> 二、问题分析</h1>
-<h2 id="1-打印内存模型"><a class="markdownIt-Anchor" href="#1-打印内存模型"></a> 1、打印内存模型</h2>
+<h1>二、问题分析</h1>
+<h2 id="1、打印内存模型">1、打印内存模型</h2>
 <p>下面先看一下结构体 <code>s</code> 的内存模型是否和我们所设想的一致，修改代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">int</span> age;<br>    <span class="hljs-type">char</span> name[<span class="hljs-number">8</span>];<br>&#125; student;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    student s[<span class="hljs-number">3</span>] = &#123; &#123;<span class="hljs-number">1</span>, <span class="hljs-string">&quot;a&quot;</span>&#125;, &#123;<span class="hljs-number">2</span>, <span class="hljs-string">&quot;b&quot;</span>&#125;, &#123;<span class="hljs-number">3</span>, <span class="hljs-string">&quot;c&quot;</span>&#125; &#125;;<br>    student *p = &amp;(s[<span class="hljs-number">0</span>]);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;sizeof student = %d \n\n&quot;</span>, <span class="hljs-keyword">sizeof</span>(student));<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;print each byte in s: &quot;</span>);<br>    <span class="hljs-type">char</span> *pTmp = p;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span> * <span class="hljs-keyword">sizeof</span>(student); ++i)<br>    &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> == i % <span class="hljs-keyword">sizeof</span>(student))<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%x  &quot;</span>, *(pTmp + i));<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n\n&quot;</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;print value of s and p \n\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;s = 0x%x, p = 0x%x \n\n&quot;</span>, s, p);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>结果如下：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>从打印结果来看是没有任何问题的。</p>
 <p>既然 <code>s</code> 和 <code>p</code>  指向同一个地址，那为什么打印出来的结果会不对呢？</p>
-<h2 id="2-分开打印"><a class="markdownIt-Anchor" href="#2-分开打印"></a> 2、分开打印</h2>
+<h2 id="2、分开打印">2、分开打印</h2>
 <p>既然第一个 <code>*s</code> 打印结果是正确的，那么就把这个两个数据分开来打印，测试代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span></span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-type">int</span> age;<br>    <span class="hljs-type">char</span> name[<span class="hljs-number">8</span>];<br>&#125; student;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    student s[<span class="hljs-number">3</span>] = &#123; &#123;<span class="hljs-number">1</span>, <span class="hljs-string">&quot;a&quot;</span>&#125;, &#123;<span class="hljs-number">2</span>, <span class="hljs-string">&quot;b&quot;</span>&#125;, &#123;<span class="hljs-number">3</span>, <span class="hljs-string">&quot;c&quot;</span>&#125; &#125;;<br>    student *p = &amp;(s[<span class="hljs-number">0</span>]);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;*s = %d \n&quot;</span>, *s);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;*p = %d \n&quot;</span>, *p);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>结果如下：</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>分开打印后 <code>*p</code> 的打印结果竟然就正确了。</p>
 <p>但从这里看，大致可以判定为 <code>printf</code> 打印出第一个值后影响到了第二值的打印，为什么会出现这种情况呢？</p>
-<h1 id="三-进一步排查"><a class="markdownIt-Anchor" href="#三-进一步排查"></a> 三、进一步排查</h1>
+<h1>三、进一步排查</h1>
 <p>既然知道了是 <code>printf</code> 打印时出现的问题，那么下面就继续来对这个问题进行分析。</p>
-<h2 id="1-打印两个字符串"><a class="markdownIt-Anchor" href="#1-打印两个字符串"></a> 1、打印两个字符串</h2>
+<h2 id="1、打印两个字符串">1、打印两个字符串</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">char</span> aa[] = <span class="hljs-string">&quot;hello world&quot;</span>;<br><span class="hljs-type">char</span> *p = aa;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d %d \n&quot;</span>, *aa, *p);<br></code></pre></td></tr></table></figure>
 <p>编译运行，结果是 104，没有问题。</p>
-<h2 id="2-打印结构体"><a class="markdownIt-Anchor" href="#2-打印结构体"></a> 2、打印结构体</h2>
+<h2 id="2、打印结构体">2、打印结构体</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">student s = &#123; <span class="hljs-number">1</span>, <span class="hljs-string">&quot;a&quot;</span>&#125;;<br><br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d \n&quot;</span>, s);<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d, %d \n&quot;</span>, s, s);<br></code></pre></td></tr></table></figure>
 <p>结果又打印出了 0：</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="四-解决问题"><a class="markdownIt-Anchor" href="#四-解决问题"></a> 四、解决问题</h1>
-<p>最终再 <code>StackOverflow</code>  上找到了答案：[<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char">use printf(&quot;%s&quot;,..) to print a struct, the struct's first variable type is 'char *', why can get a right string stored in 'char *'?</a>](<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char">https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char</a>)。</p>
+<h1>四、解决问题</h1>
+<p>最终再 <code>StackOverflow</code>  上找到了答案：[<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char">use printf(“%s”,…) to print a struct, the struct’s first variable type is ‘char *’, why can get a right string stored in ‘char *’?</a>](<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char">https://stackoverflow.com/questions/26525394/use-printfs-to-print-a-struct-the-structs-first-variable-type-is-char</a>)。</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>总的来说，用 <code>printf</code> 来打印结构体类型的变量是 <code>undefined behavior</code>，也就是未定义行为。这个时候，会发生什么就取决于编译器了</p>
 <p>为了避免发生 <code>undefined behaviour</code>，可以在编译时加上 <code> -Wall -Wextra -Werror</code>，这样前面的代码编译时就会报错：</p>

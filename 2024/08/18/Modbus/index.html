@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述 Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前">
+    <meta name="description" content="[toc]  一、概述 Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Modbus 通信协议详解">
 <meta property="og:url" content="http://example.com/2024/08/18/Modbus/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述 Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前">
+<meta property="og:description" content="[toc]  一、概述 Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/18/Modbus/1.png">
 <meta property="og:image" content="http://example.com/2024/08/18/Modbus/2.png">
@@ -242,7 +242,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.9k 字
+          8.3k 字
         
       </span>
     
@@ -253,7 +253,7 @@
         
         
         
-          66 分钟
+          70 分钟
         
       </span>
     
@@ -297,7 +297,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p><code>Modbus</code> 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。<code>ModBus</code> 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 <code>Modbus</code> 在基于以太网上的分布式应用，目前施耐德公司已将 <code>Modbus</code> 协议的所有权移交给 IDA（<em><strong>Interface for Distributed Automation</strong></em>，分布式自动化接口）组织，并成立了 Modbus-IDA 组织，为 <code>Modbus</code> 今后的发展奠定了基础。</p>
 <p>在中国，<code>Modbus</code> 已经成为国家标准，并有专业的规范文档，感兴趣的可以去查阅相关的文件，详情如下：标准编号为:GB/T19582-2008文件名称:《基于 Modbus 协议的工业自动化网络规范》，主要包含三个部分：</p>
 <ul>
@@ -305,11 +305,11 @@
 <li>GB-T19582.1-2008 第 2 部分：Modbus 协议在串行链路上的实现指南</li>
 <li>GB-T19582.1-2008 第 3 部分：Modbus 协议在 TCP/IP 上的实现指南</li>
 </ul>
-<h1 id="二-modbus-的作用"><a class="markdownIt-Anchor" href="#二-modbus-的作用"></a> 二、Modbus 的作用</h1>
-<p><code>Modbus</code> 协议是一种通信协议，而且是一种开放协议，因此广泛地用于在工业自动化系统中实现设备之间的数据交换。它是最常用的串行通信协议之一，广泛应用于监控和控制设备之间的通信。简而言之，它是用于在电子设备之间的串行线路上传输信息的方法。请求信息的设备被称为 <code>Modbus</code> 客户端，提供信息的设备是 <code>Modbus</code> 服务器。<code>Modbus</code> 支持<mark>单主机，多个从机</mark>，在标准 <code>Modbus</code> 网络中，有一个客户端和多达 247个服务器，每个服务器都有从 1 到 247 的唯一服务器地址。客户端还可以向服务器写入信息。</p>
+<h1>二、Modbus 的作用</h1>
+<p><code>Modbus</code> 协议是一种通信协议，而且是一种开放协议，因此广泛地用于在工业自动化系统中实现设备之间的数据交换。它是最常用的串行通信协议之一，广泛应用于监控和控制设备之间的通信。简而言之，它是用于在电子设备之间的串行线路上传输信息的方法。请求信息的设备被称为 <code>Modbus</code> 客户端，提供信息的设备是 <code>Modbus</code> 服务器。<code>Modbus</code> 支持==单主机，多个从机==，在标准 <code>Modbus</code> 网络中，有一个客户端和多达 247个服务器，每个服务器都有从 1 到 247 的唯一服务器地址。客户端还可以向服务器写入信息。</p>
 <p><code>Modbus</code> 通常用于从仪器和控制设备传输信号到主控制器或数据采集系统，例如用于测量温度和湿度并将结果传输到计算机的系统。<code>Modbus</code> 通常用于将监控计算机与远程终端单元（RTU）连接在一起，这在监控和数据采集（SCADA）系统中使用。</p>
 <p><code>Modbus</code> 协议简单易于实现，传输效率高，因此在工业自动化领域得到广泛应用。它支持多个设备之间的并行通信，可以实现分布式控制系统的互联互通。同时，<code>Modbus</code> 协议还具有跨平台、跨厂商的特点，使得不同厂商的设备可以进行互操作。</p>
-<h1 id="三-modbus-的工作原理"><a class="markdownIt-Anchor" href="#三-modbus-的工作原理"></a> 三、Modbus 的工作原理</h1>
+<h1>三、Modbus 的工作原理</h1>
 <p><code>Modbus</code> 是一主多从的协议，如下图所示：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>主控发出的数据里，必定含有如下信息：</p>
@@ -319,7 +319,7 @@
 <li>起始寄存器地址、寄存器数量：这在数据里定义。</li>
 <li>为了保证数据传输的可靠，还附带有 CRC 检验码。</li>
 </ol>
-<h2 id="1-四种数据类型"><a class="markdownIt-Anchor" href="#1-四种数据类型"></a> 1、四种数据类型</h2>
+<h2 id="1、四种数据类型">1、四种数据类型</h2>
 <p>Modbus协议规定，进行读写操作的数据类型，按照读写属性和类型可分为以下4种：</p>
 <ul>
 <li><strong>离散量输入</strong>（<em><strong>Discretes Input</strong></em>）：1位，只读</li>
@@ -404,7 +404,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-三种工作模式"><a class="markdownIt-Anchor" href="#2-三种工作模式"></a> 2、三种工作模式</h2>
+<h2 id="2、三种工作模式">2、三种工作模式</h2>
 <p><code>Modbus</code> 协议主要有三种形式：<code>Modbus ASCII</code>、<code>Modbus RTU</code> 和 <code>Modbus TCP/IP</code>。<code>Modbus ASCII</code> 和 <code>Modbus RTU</code> 是基于串行通信的协议，而 <code>Modbus TCP/IP</code> 则是基于以太网的协议。</p>
 <ul>
 <li><code>Modbus ASCII</code> 是一种文本协议，使用 ASCII 码表示数据。它使用起始字符（“<strong>:</strong>”）、从站地址、功能码、数据、结尾字符（换行符 CR/LF）等字段来定义通信内容，并采用的是  LRC 校验算法。数据以 ASCII 码的形式传输，通常是通过 RS-232 或 RS-485 等串行通信接口进行传输。</li>
@@ -419,11 +419,11 @@
 <li><strong>RS-232</strong>：全双工收发接口，这个基本用在点对点通信场景下，不适合多点拓扑连接，采用共模电平编码，一般需要 Rxd/Txd/Gnd 三根线连接。</li>
 </ul>
 </blockquote>
-<h2 id="3-三类功能码"><a class="markdownIt-Anchor" href="#3-三类功能码"></a> 3、三类功能码</h2>
+<h2 id="3、三类功能码">3、三类功能码</h2>
 <p><code>Modbus</code> 协议定义了一系列功能码，用于读取和写入设备的寄存器。常用的功能码包括读取保持寄存器、读取输入寄存器、写单个保持寄存器等。通过组合使用功能码和寄存器地址，可以实现对设备的读取和控制操作。</p>
 <p><code>Modbus</code> 主要包括 3 类功能码：公共功能码、用户定义功能码和保留功能码。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="31-标志功能码"><a class="markdownIt-Anchor" href="#31-标志功能码"></a> 3.1 标志功能码</h3>
+<h3 id="3-1-标志功能码">3.1 标志功能码</h3>
 <ol>
 <li><strong>0 类代码</strong><br>
 0 类代码通常被认为是有效 <code>Modbus</code> 设备的最低配置，因为此类代码可使主设备能够读取或写入数据模型。</li>
@@ -522,11 +522,11 @@
 </tr>
 </tbody>
 </table>
-<h3 id="32-modbus-封装接口"><a class="markdownIt-Anchor" href="#32-modbus-封装接口"></a> 3.2 Modbus 封装接口</h3>
+<h3 id="3-2-Modbus-封装接口">3.2 Modbus 封装接口</h3>
 <p><code>Modbus</code> 封装接口（MEI）代码（即功能 43）用于封装 <code>Modbus</code> 数据包内的其他数据。目前，提供了两个 MEI 编号，即 13 (CANopen) 和 14（设备识别）。</p>
 <p>功能 43/14（设备识别）非常有用，因为它允许传输多达 256 个唯一的对象。其中一些对象已预定义并预留，例如供应商名称和产品代码，但应用程序可以将其他对象定义为作为通用数据集传输。</p>
 <p>此类代码并不常用。</p>
-<h3 id="33-异常"><a class="markdownIt-Anchor" href="#33-异常"></a> 3.3 异常</h3>
+<h3 id="3-3-异常">3.3 异常</h3>
 <p>从设备使用异常来指示各种不良状况，比如错误请求或不正确输入。但是，异常也可以作为对无效请求的应用程序级响应。从设备不会响应发出异常的请求，而是忽略不完整或损坏的请求，并开始等待新的消息传入。</p>
 <p>异常以定义好的数据包格式报告给用户。首先，将功能码返回给等同于原始功能码的请求主设备，设置最高有效位的情况除外。这等同于为原始功能码的值加上 0x80。异常响应包括一个异常码，用于代替与给定功能响应相关的正常数据。</p>
 <p>根据标准，四个最常见的异常码是 01、02、03 和 04。下表中显示了这些代码，并附有每个功能的标准含义。</p>
@@ -557,9 +557,9 @@
 </tbody>
 </table>
 <p>每个功能码的状态图至少应包含异常码 01，通常包含异常码 02、03、04，并且任何其他定义的异常码都是可选的。</p>
-<h2 id="4-modbus-协议层"><a class="markdownIt-Anchor" href="#4-modbus-协议层"></a> 4、Modbus 协议层</h2>
+<h2 id="4、Modbus-协议层">4、Modbus 协议层</h2>
 <p>在最初的做法中，<code>Modbus</code> 是建立在串行端口之上的单一协议，因此它不能被分成多个层。随着时间的推移，该协议引入了不同的应用数据单元，来更改串行通信所用的数据包格式，或允许使用 TCP/IP 和 UDP 网络。这样便实现了核心协议和网络层的分离，前者用于定义协议数据单元（<em><strong>PDU</strong></em>），后者用于定义应用数据单元（<em><strong>ADU</strong></em>）。</p>
-<h3 id="41-协议数据单元"><a class="markdownIt-Anchor" href="#41-协议数据单元"></a> 4.1 协议数据单元</h3>
+<h3 id="4-1-协议数据单元">4.1 协议数据单元</h3>
 <p>PDU及其处理代码构成了 <a target="_blank" rel="noopener" href="https://modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf">Modbus应用协议规范</a> 的核心。该规范定义了PDU的格式、协议使用的各种数据概念、如何使用功能码访问数据，以及每个功能码的具体实现和限制。</p>
 <p><code>Modbus PDU</code> 格式可定义为功能码，后跟一组关联数据。该数据的大小和内容由功能码定义，整个 PDU（功能码和数据）的大小不能超过 253 个字节。每个功能码都有一个特定的行为，从设备可以根据所需的应用程序行为灵活地实现这些行为。PDU 规范定义了数据访问和操作的核心概念；但是，从设备可能会以规范中未明确定义的方式处理数据。</p>
 <p>PDU 由一个单字节的功能码组成，后跟多达 252 字节的功能特定数据。</p>
@@ -568,14 +568,175 @@
 <blockquote>
 <p>由于数据包大小限制为 253 字节，因此设备可传输的数据量有限。最常见的功能码可以在从数据模型中传输 240 到 250 字节的实际数据，具体取决于代码。</p>
 </blockquote>
-<h3 id="42-访问数据"><a class="markdownIt-Anchor" href="#42-访问数据"></a> 4.2 访问数据</h3>
+<h3 id="4-2-访问数据">4.2 访问数据</h3>
 <p>一般来说，<code>Modbus</code> 可访问的数据存储在前面所提到的四个数据库或地址范围中的其中一个：<strong>线圈</strong>、<strong>离散量输入</strong>、<strong>保持寄存器</strong> 和 <strong>输入寄存器</strong>。与许多规范一样，这些名称可能因行业或应用而异。例如，保持寄存器可能称为输出寄存器，线圈可能称为数字或离散量输出。这些数据库定义了所包含数据的类型和访问权限。从设备可以直接访问这些数据，因为这些数据由设备本地托管。<code>Modbus</code> 可访问的数据通常是设备主存的一个子集。相反，<code>Modbus</code> 主设备必须通过各种功能码请求访问这些数据。</p>
 <p>通过这些区块，我们可以限制或允许访问不同的数据元素，还可以在应用层提供简化的机制来访问不同的数据类型。</p>
 <p>这些区块是完全概念性的。它们可能作为独立的内存地址存在于给定的系统中，但也可能重叠。例如，线圈1可能存在于与保持寄存器1所代表的字的第一位相同的内存中。寻址方案完全由从设备定义，其对每个内存区块的解释是设备数据模型的重要组成部分。</p>
-<h3 id="43-数据模型寻址"><a class="markdownIt-Anchor" href="#43-数据模型寻址"></a> 4.3 数据模型寻址</h3>
-<p>该规范将每个区块定义为包含多达 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>65536</mn><mo stretchy="false">(</mo><msup><mn>2</mn><mn>16</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">65536 (2^{16})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mord">6</span><span class="mord">5</span><span class="mord">5</span><span class="mord">3</span><span class="mord">6</span><span class="mopen">(</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">6</span></span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 个元素的地址空间。在 PDU 的定义中，<code>Modbus</code> 定义了每个数据元素的地址，范围是从 0 到 65535。然而，每个数据元素的编号从 1 到 n，其中 n 的最大值为 65536。也就是说，<mark>线圈 1 位于地址 0 的线圈区块中，而保持寄存器 54 位于从设备定义为保持寄存器的内存部分中的地址 53</mark>。</p>
+<h3 id="4-3-数据模型寻址">4.3 数据模型寻址</h3>
+<p>该规范将每个区块定义为包含多达 
+    <span id="mjx-f85b201">
+      <style>
+      #mjx-f85b201{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="10.335ex" height="2.452ex" role="img" focusable="false" viewbox="0 -833.9 4568.1 1083.9" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"/><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z" transform="translate(500,0)"/><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z" transform="translate(1000,0)"/><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z" transform="translate(1500,0)"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(2000,0)"/></g><g data-mml-node="mo" transform="translate(2500,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="msup" transform="translate(2889,0)"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(500,0)"/></g></g></g><g data-mml-node="mo" transform="translate(4179.1,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>65536</mn><mo stretchy="false">(</mo><msup><mn>2</mn><mrow data-mjx-texclass="ORD"><mn>16</mn></mrow></msup><mo stretchy="false">)</mo></math></mjx-assistive-mml></mjx-container>
+    </span>
+   个元素的地址空间。在 PDU 的定义中，<code>Modbus</code> 定义了每个数据元素的地址，范围是从 0 到 65535。然而，每个数据元素的编号从 1 到 n，其中 n 的最大值为 65536。也就是说，==线圈 1 位于地址 0 的线圈区块中，而保持寄存器 54 位于从设备定义为保持寄存器的内存部分中的地址 53==。</p>
 <p>规范允许的全部范围不需要给定设备实现。例如，设备可能会选择不执行线圈、离散量输入或输入寄存器，而只使用保持寄存器 150 至 175 和 200 至 225。这是完全可以接受的，而且可以通过例外来处理无效的访问尝试。</p>
-<h4 id="431-数据寻址范围"><a class="markdownIt-Anchor" href="#431-数据寻址范围"></a> 4.3.1 数据寻址范围</h4>
+<h4 id="4-3-1-数据寻址范围">4.3.1 数据寻址范围</h4>
 <p>虽然规范将不同的数据类型定义为存在于不同的区块中，并为每种类型分配一个本地地址范围，但这并不一定能转化为用于记录或了解给定设备的 <code>Modbus</code> 可访问内存的直观寻址方案。为了简化对内存区块位置的理解，我们引入了一种编号方案，即向所讨论数据的地址中添加前缀。</p>
 <p>例如，在设备手册中，数据项不会表示为位于地址 13 的保持寄存器 14，而是表示为位于地址 4014、40014或 400014 的数据项。在这几种情况中，第一个数字都是4，表示保持寄存器，其余数字则用于指定地址。4XXX、4XXXX 和 4XXXXX 的区别取决于设备所用的地址空间。如果 65,536 个寄存器全部都在使用，应该使用 4XXXXX 符号，因为它支持 400,001 到 465,536 的范围。如果只有几个寄存器在使用，通常的做法是使用 4,001 到 4,999 的范围。</p>
 <p>在这种寻址方案中，每种数据类型都被分配了一个前缀，如下表所示。</p>
@@ -605,8 +766,8 @@
 </tr>
 </tbody>
 </table>
-<p>线圈的前缀为 0，这意味着 4001 的引用可能是指保持寄存器 1 或线圈 4001。出于这个原因，建议所有的新实现都使用<mark>带前导零的 6 位数</mark>寻址，并在记录时注明这一点。因此，保持寄存器 1 的地址为 400001，而线圈 4001 的地址则为 004001。</p>
-<h4 id="432-数据地址起始值"><a class="markdownIt-Anchor" href="#432-数据地址起始值"></a> 4.3.2 数据地址起始值</h4>
+<p>线圈的前缀为 0，这意味着 4001 的引用可能是指保持寄存器 1 或线圈 4001。出于这个原因，建议所有的新实现都使用==带前导零的 6 位数==寻址，并在记录时注明这一点。因此，保持寄存器 1 的地址为 400001，而线圈 4001 的地址则为 004001。</p>
+<h4 id="4-3-2-数据地址起始值">4.3.2 数据地址起始值</h4>
 <p>内存地址和引用编号之间的差异会因给定应用程序选择的索引而进一步复杂化。如前所述，保持寄存器 1 位于地址 0。通常，引用编号索引从 1 开始，这意味着给定范围的起始值为 1。因此，400001 即表示位于地址 0 的保持寄存器 00001。一些实现选择以 0 作为范围起始值，即 400000 表示位于地址 0 的保持寄存器。下表展示了这个概念。</p>
 <table>
 <thead>
@@ -639,28 +800,28 @@
 </tbody>
 </table>
 <p>从 1 开始的索引范围应用较为广泛，强烈建议采用这种方案。无论哪种情况，每个范围的起始值都应在记录时注明。</p>
-<h3 id="44-大数据类型"><a class="markdownIt-Anchor" href="#44-大数据类型"></a> 4.4 大数据类型</h3>
-<p><code>Modbus</code> 标准提供了一个相对简单的数据模型，该模型不包含除<mark>无符号双字节整型</mark>和<mark>位值</mark>之外的其他数据类型。如果系统的位值对应于螺线管和继电器，并且双字节整型值对应于未缩放的 ADC 值，上述模型便已足够；但对于更高级的系统，则无法满足需求。</p>
+<h3 id="4-4-大数据类型">4.4 大数据类型</h3>
+<p><code>Modbus</code> 标准提供了一个相对简单的数据模型，该模型不包含除==无符号双字节整型==和==位值==之外的其他数据类型。如果系统的位值对应于螺线管和继电器，并且双字节整型值对应于未缩放的 ADC 值，上述模型便已足够；但对于更高级的系统，则无法满足需求。</p>
 <p>因此，许多 <code>Modbus</code> 实现都包含跨寄存器边界的数据类型。NI LabVIEW 数据记录和监控（DSC）模块以及 KEPServerEX 都定义了许多引用类型。例如，存储在保持寄存器中的字符串应遵循标准格式（400,001），但后跟一个十进制数、长度和字符串的字节序（<code>400001.2H</code> 是指保持寄存器 1 中包含两个字符的字符串，其中高位字节对应到字符串的第一个字符）。这是必需的，因为每个请求的大小都是有限的，所以 <code>Modbus</code> 主设备必须知道字符串的确切范围，而不是搜索长度或分隔符（如 NULL）。</p>
-<h4 id="441-位访问"><a class="markdownIt-Anchor" href="#441-位访问"></a> 4.4.1 位访问</h4>
+<h4 id="4-4-1-位访问">4.4.1 位访问</h4>
 <p>除了允许访问跨寄存器边界的数据之外，一些 <code>Modbus</code> 主设备还支持对寄存器中各个位的引用。由于允许设备将相同内存范围内的每种类型的数据组合在一起，而不必将二进制数据分成线圈和离散量输入范围，因此该功能非常有益。通常使用小数点和位索引或编号进行索引，具体取决于如何实现。也就是说，第一个寄存器的第一位可能是 400,001.00 或 400,001.01。建议所有文档均说明所使用的索引方案。</p>
-<h4 id="442-数据字节序"><a class="markdownIt-Anchor" href="#442-数据字节序"></a> 4.4.2 数据字节序</h4>
+<h4 id="4-4-2-数据字节序">4.4.2 数据字节序</h4>
 <p>通过将数据拆分到两个寄存器，多寄存器数据（如单精度浮点值）可以轻松地通过 <code>Modbus</code> 进行传输。由于这不是由标准定义的，因此此类拆分的字节序未作规定。尽管每个无符号双字节整型必须以网络（大端）字节序发送才能满足标准，但许多设备会颠倒多字节数据的字节序。下图所示的范例虽然不太常见，但有效地展示了这一观点。</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h4 id="443-字符串"><a class="markdownIt-Anchor" href="#443-字符串"></a> 4.4.3 字符串</h4>
-<p>字符串可以轻松地存储在 <code>Modbus</code> 寄存器中。为了简单起见，某些实现方法要求字符串长度为 <mark>2 的倍数</mark>，并使用<mark>空值</mark>来填充额外的空间。字节序也是字符串交互中的一个变量。字符串格式可能包含也可能不包含 NULL（作为最终值）。举个例子，一些设备的数据存储方法可能如下图所示。</p>
+<h4 id="4-4-3-字符串">4.4.3 字符串</h4>
+<p>字符串可以轻松地存储在 <code>Modbus</code> 寄存器中。为了简单起见，某些实现方法要求字符串长度为 ==2 的倍数==，并使用==空值==来填充额外的空间。字节序也是字符串交互中的一个变量。字符串格式可能包含也可能不包含 NULL（作为最终值）。举个例子，一些设备的数据存储方法可能如下图所示。</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="45-从设备功能执行"><a class="markdownIt-Anchor" href="#45-从设备功能执行"></a> 4.5 从设备功能执行</h3>
+<h3 id="4-5-从设备功能执行">4.5 从设备功能执行</h3>
 <p>正如由数据模型所定义，不同的功能会访问不同的概念数据块。一种常见的做法是让代码访问静态内存位置，但其他行为仍然可用。例如，功能码 1（读取线圈）和 3（读取保持寄存器）可以访问内存中相同的物理位置。而功能码 3（读取保持寄存器）和 16（写入保持寄存器）可以访问内存中完全不同的位置。因此，建议在定义从数据模型时考虑每个功能码的执行情况。</p>
 <p>无论执行的是何种实际行为，所有从设备都应遵循每个请求的简单状态图。下图是功能码 1（读取线圈）的状态图范例。</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>每个从设备必须验证功能码、输入数量、起始地址、总范围以及实际进行读取行为的从属定义功能的执行。</p>
 <p>尽管上面的状态图包含了静态地址范围，但真实系统的需求可能会导致静态地址范围与所定义编号有所不同。在某些情况下，从设备无法传输协议所定义的最大字节数。也就是说，如果主设备请求 0x07D0 输入，从设备只能用 0x0400 进行响应。同样，从数据模型能够将可接受线圈值的范围定义为地址 0 到 500。如果主设备从地址 0 开始请求 125，则没有问题，但如果主设备从地址 400 开始发出相同的请求，最后一个线圈将位于地址 525，这无疑超出了该设备的范围，因而会出现状态图所定义的异常 02。</p>
-<h3 id="46-应用数据单元"><a class="markdownIt-Anchor" href="#46-应用数据单元"></a> 4.6 应用数据单元</h3>
+<h3 id="4-6-应用数据单元">4.6 应用数据单元</h3>
 <p>除了 <code>Modbus</code> 协议的 PDU 核心所定义的功能外，我们还可以使用多种网络协议。最常见的协议是串行和 TCP/IP，但也可以使用 UDP 等其他协议。为了在这些层之间传输 <code>Modbus</code> 所需的数据，<code>Modbus</code> 包含一组专为每种网络协议量身定制的 ADU。</p>
-<h4 id="461-通用特征"><a class="markdownIt-Anchor" href="#461-通用特征"></a> 4.6.1 通用特征</h4>
+<h4 id="4-6-1-通用特征">4.6.1 通用特征</h4>
 <p><code>Modbus</code> 需要特定的功能来提供可靠的通信。每种 ADU 格式都需要使用单元 ID 或地址，以便为应用层提供路由信息。每个 ADU 都带有一个完整的 PDU，其中包含给定请求的功能码和相关数据。为了保证可靠性，每条消息都包含错误检查信息。最后，所有的 ADU 都提供了一种机制来确定请求帧的开始和结束，但实现方式各不相同。</p>
-<h4 id="462-标准格式"><a class="markdownIt-Anchor" href="#462-标准格式"></a> 4.6.2 标准格式</h4>
+<h4 id="4-6-2-标准格式">4.6.2 标准格式</h4>
 <p>ADU 的三种标准格式分别是 TCP、远程终端单元（RTU）和ASCII。RTU 和 ASCII ADU 通常用于串行线路，而 TCP 则用于现代 TCP/IP 或 UDP/IP 网络。</p>
 <p>无论是三种传输模式中的哪一种，<code>Modbus</code> 帧格式都是一样的：</p>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -671,7 +832,7 @@
 <li><strong>数据</strong>：N 字节，包含寄存器地址和寄存器数据等。</li>
 <li><strong>差错校验</strong>：对数据进行冗余校验的结果，CRC 或 LRC。</li>
 </ul>
-<h5 id="4621-modbus-ascii"><a class="markdownIt-Anchor" href="#4621-modbus-ascii"></a> 4.6.2.1 Modbus-ASCII</h5>
+<h5 id="4-6-2-1-Modbus-ASCII">4.6.2.1 Modbus-ASCII</h5>
 <p><code>Modbus-ASCII</code> 传输模式中，每个字节均以 ASCII 编码，实际报文中 1 个字节会以两个 ASCII 字符发送，因此这种模式比 <code>Modbus-RTU</code> 模式效率要低。</p>
 <p>例如报文数据 <code>0x5B = &quot;5&quot; + &quot;B&quot; = 0X35 + 0X42</code>。数据帧格式如下：</p>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -689,7 +850,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">0x56</span> = <span class="hljs-number">0101</span> <span class="hljs-number">0110</span><br>  取反：<span class="hljs-number">1010</span> <span class="hljs-number">1001</span><br>  加<span class="hljs-number">1</span>： <span class="hljs-number">1010</span> <span class="hljs-number">1010</span> = <span class="hljs-number">0xAA</span><br>或者：<span class="hljs-number">0x100</span><span class="hljs-number">-0x56</span> = <span class="hljs-number">0xAA</span><br></code></pre></td></tr></table></figure>
 <p>或者可以利用在线工具计算：<a target="_blank" rel="noopener" href="https://www.23bei.com/tool/539.html">LRC校验码在线计算器</a>。</p>
 <p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
-<h5 id="4622-modbus-rtu"><a class="markdownIt-Anchor" href="#4622-modbus-rtu"></a> 4.6.2.2 Modbus-RTU</h5>
+<h5 id="4-6-2-2-Modbus-RTU">4.6.2.2 Modbus-RTU</h5>
 <p><code>Modbus-RTU</code> 数据帧，帧长度最大为 256 字节，由以下四部分构成：</p>
 <ul>
 <li>子节点地址：1 字节，范围 0-247。</li>
@@ -721,7 +882,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">主机发送：<span class="hljs-number">01</span> <span class="hljs-number">03</span> <span class="hljs-number">01</span> <span class="hljs-number">05</span> <span class="hljs-number">00</span> <span class="hljs-number">03</span> <span class="hljs-number">14</span> <span class="hljs-number">36</span><br>从机回复：<span class="hljs-number">01</span> <span class="hljs-number">03</span> <span class="hljs-number">06</span> <span class="hljs-number">11</span> <span class="hljs-number">22</span> <span class="hljs-number">33</span> <span class="hljs-number">44</span> <span class="hljs-number">55</span> <span class="hljs-number">66</span> <span class="hljs-number">2</span>a <span class="hljs-number">18</span><br></code></pre></td></tr></table></figure>
 <p>03 表示读多个寄存器，0105 表示起始地址，0003 表示读 3 个寄存器。</p>
 <p>06 表示 6 个字节，11 22 33 44 55 66 表示寄存器的数据。</p>
-<h5 id="4623-modbus-tcp"><a class="markdownIt-Anchor" href="#4623-modbus-tcp"></a> 4.6.2.3 Modbus-TCP</h5>
+<h5 id="4-6-2-3-Modbus-TCP">4.6.2.3 Modbus-TCP</h5>
 <p><code>Modbus-TCP</code> 基于以下种报文类型：</p>
 <ul>
 <li><strong>MODBUS 请求</strong>：客户机在网络上发送用来启动事务处理的报文</li>
@@ -736,10 +897,10 @@
 <p>TCP/IP 设备通常不使用单元 ID。但是，<code>Modbus</code> 是一种常见的协议，因此通常会开发许多网关来将 <code>Modbus</code> 协议转换为其他协议。在最初的预期应用中，<code>Modbus TCP/IP</code> 转串行网关用于连接新的TCP/IP网络与旧的串行网络。在这种环境中，单元 ID用于确定 PDU  实际对应的从设备的地址。</p>
 <p>最后，ADU 还包含一个 PDU。对于标准协议，PDU 的长度仍限制为 253 字节。</p>
 <p><code>Modbus</code> 协议中主机可以以两种模式对从机设备发出请求：单播和广播。</p>
-<h6 id="46231-单播模式"><a class="markdownIt-Anchor" href="#46231-单播模式"></a> 4.6.2.3.1 单播模式</h6>
+<h6 id="4-6-2-3-1-单播模式">4.6.2.3.1 单播模式</h6>
 <p>在单播模式下，从机地址必须唯一，地址范围 1-247。主机以特定地址访问指定的某个从机，发出一个请求数据帧，这个数据帧功能可以是读取或写入数据，从机接收到并处理完成后，会回报一个应答数据帧，以表示读取或写入成功。</p>
 <p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
-<h6 id="46232-广播模式"><a class="markdownIt-Anchor" href="#46232-广播模式"></a> 4.6.2.3.2 广播模式</h6>
+<h6 id="4-6-2-3-2-广播模式">4.6.2.3.2 广播模式</h6>
 <p>在广播模式下，主机向所有的从机发出请求数据帧，所有的从机都会处理这条命令，对于广播请求，所有的从机无需做出应答操作。一般地址 0 表示广播地址。</p>
 <p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 

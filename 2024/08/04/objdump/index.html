@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]   一、概述 objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编 反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码">
+    <meta name="description" content="[TOC]  一、概述 objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编 反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 objdump 命令的使用">
 <meta property="og:url" content="http://example.com/2024/08/04/objdump/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]   一、概述 objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编 反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码">
+<meta property="og:description" content="[TOC]  一、概述 objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。  什么是反汇编 反汇编（disassembly）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-04T13:17:52.000Z">
 <meta property="article:modified_time" content="2024-11-13T16:48:40.227Z">
@@ -280,13 +280,13 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p>objdump 工具是用来显示二进制文件的信息，就是以一种可阅读的格式让你更多地了解二进制文件可能带有的附加信息。该命令常用于 Linux下反汇编目标文件或者可执行文件。</p>
 <blockquote>
 <p>什么是反汇编<br><br>
 反汇编（<em><strong>disassembly</strong></em>）是指将已编译的机器码转换回可读的汇编代码的过程。在计算机系统中，程序的源代码经过编译器转换成机器码（二进制代码）后才能被计算机执行。反汇编就是将这些机器码再次转换成可读的汇编代码。</p>
 </blockquote>
-<h1 id="二-常用参数说明"><a class="markdownIt-Anchor" href="#二-常用参数说明"></a> 二、常用参数说明</h1>
+<h1>二、常用参数说明</h1>
 <ul>
 <li><strong>-C</strong> 将底层的符号名解码成用户级名字，除了去掉所开头的下划线之外，还使得 C++ 函数名以可理解的方式显示出来。</li>
 <li><strong>-d</strong> 反汇编特定 section。</li>
@@ -304,7 +304,7 @@
 <li><strong>-x</strong> 显示所有可用的头信息，包括符号表、重定位入口。<code>-x</code> 等价于 <code>-a -f -h -r -t</code> 同时指定。</li>
 </ul>
 <p>要查询更多参数可以用命令：<code>man objdump</code> 或 <code>objdump -H</code>。</p>
-<h1 id="三-实例"><a class="markdownIt-Anchor" href="#三-实例"></a> 三、实例</h1>
+<h1>三、实例</h1>
 <ol>
 <li>查看本机目标结构(使用大端还是小端存储)</li>
 </ol>
@@ -333,7 +333,7 @@
 <li>查看动态符号表</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">objdump -t xxx.so<br><span class="hljs-comment">## -T 和 -t 选项在于 -T 只能查看动态符号，如库导出的函数和引用其他库的函数，</span><br><span class="hljs-comment">## 而 -t 可以查看所有的符号，包括数据段的符号。</span><br></code></pre></td></tr></table></figure>
-<h1 id="四-实例分析"><a class="markdownIt-Anchor" href="#四-实例分析"></a> 四、实例分析</h1>
+<h1>四、实例分析</h1>
 <ol>
 <li>下面首先写一个简单的 C 程序，并编译成可执行文件：</li>
 </ol>

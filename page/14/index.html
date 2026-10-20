@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/07/20/x86-crx/" target="_self">
-          x86/x86_64 下的 CPU 控制寄存器
+        <a href="/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/" target="_self">
+          FreeRTOS 快速入门（三）之任务管理
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/20/x86-crx/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/20/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%89/" target="_self">
         <div>
-          [TOC]   前言 x86/x86_64 CPU 中提供了控制寄存器，来决定 CPU 的操作模式和当前执行任务的属性。这些寄存器在 32 位模式下是 32 bit，在 64 位模式中，控制寄存器扩展为 64 bit。 CPU 架构中共有 CR0、CR1、CR2、CR3、CR4、CR8 共 6 个控制寄存器。  一、CR0 寄存器 CR0 寄存器是 x86 架构中的一种控制寄存器，用于控制和配置处
+          @toc  一、任务创建与删除 1、什么是任务 在 FreeRTOS 中，任务就是一个函数，原型如下： 1void ATaskFunction(void *pvParameters); 要注意的是，函数内部，尽量使用局部变量。因为每个任务都有自己的栈，每个任务运行这个函数时，任务 A 的局部变量放在任务 A 的栈里、任务 B 的局部变量放在任务 B 的栈里。不同任务的局部变量，有自己的副本。函数使
         </div>
       </a>
 
@@ -245,8 +245,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-20 23:14" pubdate>
-              2024-07-20
+            <time datetime="2024-08-20 10:20" pubdate>
+              2024-08-20
             </time>
           </div>
         
@@ -261,7 +261,217 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" target="_self">
+          FreeRTOS 快速入门（二）之内存管理
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/19/FreeRTOS%E5%85%A5%E9%97%A8%E4%BA%8C/" target="_self">
+        <div>
+          [toc]  一、概述 在计算系统中，变量、中间数据一般存放在系统存储空间中，只有在实际使用时才将 它们从存储空间调入到中央处理器内部进行运算。通常存储空间可以分为两种：内部存储 空间和外部存储空间。内部存储空间访问速度比较快，能够按照变量地址随机地访问，也 就是我们通常所说的 RAM（随机存储器），或电脑的内存；而外部存储空间内所保存的内 容相对来说比较固定，即使掉电后数据也不会丢失，可以把它理
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-19 17:24" pubdate>
+              2024-08-19
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" target="_self">
+          FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/" target="_self">
+        <div>
+          [toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型 在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-18 22:17" pubdate>
+              2024-08-18
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/18/Modbus/" target="_self">
+          Modbus 通信协议详解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/18/Modbus/" target="_self">
+        <div>
+          [toc]  一、概述 Modbus 是由 Modicon（现为施耐德电气公司的一个品牌）在 1979 年发明的，是全球第一个真正用于工业现场的总线协议。ModBus 网络是一个工业通信系统，由带智能终端的可编程序控制器和计算机通过公用线路或局部专用线路连接而成。其系统结构既包括硬件、亦包括软件。它可应用于各种数据采集和过程监控。为更好地普及和推动 Modbus 在基于以太网上的分布式应用，目前施
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-18 12:41" pubdate>
+              2024-08-18
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
   
   
 
@@ -276,9 +486,11 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux/">#Linux</a>
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
             
-              <a href="/tags/x86/">#x86</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/Modbus/">#Modbus</a>
             
           </div>
         
@@ -292,15 +504,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/07/20/GDTLDT/" target="_self">
-          Linux 内存管理（二）之GDT与LDT
+        <a href="/2024/08/17/SPI/" target="_self">
+          SPI 通信协议详解
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/20/GDTLDT/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/17/SPI/" target="_self">
         <div>
-          [TOC]   前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。  一、GDT  1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）
+          [toc]  一、概述 SPI（Serial Peripheral interface，串行外围设备接口） 通信协议是 Motorola 公司首先在其MC68HCXX 系列处理器上定义的。SPI 接口是一种高速的全双工同步的通信总线，已经广泛应用在众多 MCU、存储芯片、AD 转换器和 LCD 之间。 由 SPI 连成的串行总线是一种三线同步总线，总线上可以连接多个可作为主机的 MCU，装有 SP
         </div>
       </a>
 
@@ -308,8 +520,203 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-20 08:18" pubdate>
-              2024-07-20
+            <time datetime="2024-08-17 14:27" pubdate>
+              2024-08-17
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/SPI/">#SPI</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/16/UART/" target="_self">
+          UART 通信协议详解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/16/UART/" target="_self">
+        <div>
+          [toc]  一、概述 UART (Universal Asynchronous Receiver/Transmitter，通用异步收发器) 是一种常用的串行通信协议，用于在计算机和外部设备之间传输数据。它是一种异步通信协议，也就是说数据的传输不需要事先建立好同步时钟信号。 UART 协议定义了数据传输的格式和通信规则。它包括一系列的控制信号和数据线来实现双向的串行通信。常见的 UART 协议有
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-16 11:19" pubdate>
+              2024-08-16
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/UART/">#UART</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/15/I2C/" target="_self">
+          IIC 通信协议详解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/15/I2C/" target="_self">
+        <div>
+          [toc]  一、概述 IIC 协议（Inter-Integrated Circuit，可简写为 I2C），是一种用于各种电子设备之间进行通信和数据交换的串行通信协议。它是由飞利浦（Philips）公司于 1982 年首次提出并推广的一种简单、高效、低成本的通信协议。 I2C 协议采用双线结构传输数据，包括一个数据线和一个时钟线（即 SDA 和 SCL 线），其中 SDA（Serial Data）
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-15 20:12" pubdate>
+              2024-08-15
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/I2C/">#I2C</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/" target="_self">
+          Linux 中断机制（二）之中断子系统框架
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/" target="_self">
+        <div>
+          [toc]  一、概述 一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的代
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-14 21:59" pubdate>
+              2024-08-14
             </time>
           </div>
         
@@ -329,7 +736,7 @@
   
     <span>></span>
     
-  <a href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  <a href="/categories/Linux/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/" class="category-chain-item">中断机制</a>
   
   
 
@@ -346,9 +753,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
-            
               <a href="/tags/Linux/">#Linux</a>
+            
+              <a href="/tags/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/">#中断机制</a>
             
           </div>
         
@@ -362,15 +769,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/07/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
-          Linux 内存管理（一）之分段机制
+        <a href="/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/" target="_self">
+          Linux 中断机制（一）之中断和异常
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/19/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/12/%E4%B8%AD%E6%96%AD%E5%92%8C%E5%BC%82%E5%B8%B8/" target="_self">
         <div>
-          1、逻辑地址（logical address） 2、线性地址（linear address） 3、 物理地址（physical address） 4、三者间的关系 1、段选择符和段寄存器  1.1 段选择符 1.2 段寄存器   2、段描述符  2.1 快速访问段描述符       前言 Linux操作系统采用了分段机制来实现进程的内存管理。分段允许进程以逻辑上连续的方式访问内存，而无需将整个进
+          @toc  一、什么是中断 1、概述 中断（interrupt）是指在 CPU 正常运行期间， 由外部或内部事件引起的一种机制。 当中断发生时，CPU 会停止当前正在执行的程序，并转而执行触发该中断的中断处理程序。处理完中断处理程序后，CPU 会返回到中断发生的地方， 继续执行被中断的程序。中断机制允许 CPU 在实时响应外部或内部事件的同时，保持对其他任务的处理能力。 中断的流程图如下：  2、
         </div>
       </a>
 
@@ -378,8 +785,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-07-19 14:58" pubdate>
-              2024-07-19
+            <time datetime="2024-08-12 17:01" pubdate>
+              2024-08-12
             </time>
           </div>
         
@@ -399,7 +806,7 @@
   
     <span>></span>
     
-  <a href="/categories/Linux/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
+  <a href="/categories/Linux/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/" class="category-chain-item">中断机制</a>
   
   
 
@@ -416,11 +823,79 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+              <a href="/tags/Linux/">#Linux</a>
+            
+              <a href="/tags/%E4%B8%AD%E6%96%AD%E6%9C%BA%E5%88%B6/">#中断机制</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/08/11/valgrind/" target="_self">
+          Linux 下利用 Valgrind 进行内存调试
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/08/11/valgrind/" target="_self">
+        <div>
+          [toc]  一、概述 Valgrind 是一个开源的内存调试和性能分析工具，用于帮助开发者找出程序中的内存错误，如内存泄漏、使用未初始化的内存、非法内存访问等问题。它在 Linux 平台上广泛使用，并且支持下多种处理器架构。 二、Valgrind 的使用 1、基本格式 1valgrind --tool=memcheck -–gen-suppressions=all -–show-leak-kin
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-08-11 15:55" pubdate>
+              2024-08-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/" class="category-chain-item">性能优化/调试</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Linux/">#Linux</a>
             
-              <a href="/tags/%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">#分段机制</a>
+              <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-%E8%B0%83%E8%AF%95/">#性能优化/调试</a>
             
           </div>
         
@@ -432,7 +907,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/13/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><span class="page-number current">14</span>
+      <a class="extend prev" rel="prev" href="/page/13/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/#board">15</a><a class="page-number" href="/page/16/#board">16</a><a class="page-number" href="/page/17/#board">17</a><a class="extend next" rel="next" href="/page/15/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

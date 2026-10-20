@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1、组成部分 2、客户端 3、服务器 1、连接服务器 2、订阅主题 3、发布消息 4、取消订阅 5、断开连接 1、MQTT 固定头 2、MQTT 可变头 3. Payload消息体     一、概述 MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构">
+    <meta name="description" content="@toc  一、概述 MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构建于 TCP&#x2F;IP 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。MQTT 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据包。 M">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MQTT 协议概述">
 <meta property="og:url" content="http://example.com/2024/09/12/MQTT/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="1、组成部分 2、客户端 3、服务器 1、连接服务器 2、订阅主题 3、发布消息 4、取消订阅 5、断开连接 1、MQTT 固定头 2、MQTT 可变头 3. Payload消息体     一、概述 MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构">
+<meta property="og:description" content="@toc  一、概述 MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布&#x2F;订阅（publish&#x2F;subscribe）模式的“轻量级”通讯协议，该协议构建于 TCP&#x2F;IP 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。MQTT 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据包。 M">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/12/MQTT/1.png">
 <meta property="og:image" content="http://example.com/2024/09/12/MQTT/2.png">
@@ -254,7 +254,7 @@
         
         
         
-          30 分钟
+          29 分钟
         
       </span>
     
@@ -296,22 +296,9 @@
             
               <div class="markdown-body">
                 
-                <p><ul class="markdownIt-TOC">
-<li><a href="#1-%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86">1、组成部分</a></li>
-<li><a href="#2-%E5%AE%A2%E6%88%B7%E7%AB%AF">2、客户端</a></li>
-<li><a href="#3-%E6%9C%8D%E5%8A%A1%E5%99%A8">3、服务器</a></li>
-<li><a href="#1-%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8">1、连接服务器</a></li>
-<li><a href="#2-%E8%AE%A2%E9%98%85%E4%B8%BB%E9%A2%98">2、订阅主题</a></li>
-<li><a href="#3-%E5%8F%91%E5%B8%83%E6%B6%88%E6%81%AF">3、发布消息</a></li>
-<li><a href="#4-%E5%8F%96%E6%B6%88%E8%AE%A2%E9%98%85">4、取消订阅</a></li>
-<li><a href="#5-%E6%96%AD%E5%BC%80%E8%BF%9E%E6%8E%A5">5、断开连接</a></li>
-<li><a href="#1-mqtt-%E5%9B%BA%E5%AE%9A%E5%A4%B4">1、MQTT 固定头</a></li>
-<li><a href="#2-mqtt-%E5%8F%AF%E5%8F%98%E5%A4%B4">2、MQTT 可变头</a></li>
-<li><a href="#3-payload%E6%B6%88%E6%81%AF%E4%BD%93">3. Payload消息体</a></li>
-</ul>
-</p>
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p><code>MQTT</code>（<em><strong>Message Queuing Telemetry Transport</strong></em>，消息队列遥测传输协议），是一种基于发布/订阅（<code>publish/subscribe</code>）模式的“轻量级”通讯协议，该协议构建于 <code>TCP/IP</code> 协议上，由 IBM 在 1999 年发布，并于 2013 年发布为开放标准。<code>MQTT</code> 协议专注于在低带宽、不稳定或高延迟的网络环境中，可靠地传输小型数据包。</p>
 <p>MQTT协议具有以下特点：</p>
 <ul>
@@ -320,8 +307,8 @@
 <li>异步通信：<code>MQTT</code> 使用发布/订阅模型，发布者和订阅者之间不需要直接通信，使得系统的解耦更容易。</li>
 <li>处理低带宽和高延迟网络：<code>MQTT</code> 协议可以在网络连接不稳定或带宽有限的环境中可靠地传输数据。</li>
 </ul>
-<h1 id="二-协议模型"><a class="markdownIt-Anchor" href="#二-协议模型"></a> 二、协议模型</h1>
-<h2 id="1-组成部分"><a class="markdownIt-Anchor" href="#1-组成部分"></a> 1、组成部分</h2>
+<h1>二、协议模型</h1>
+<h2 id="1、组成部分">1、组成部分</h2>
 <p><code>MQTT</code> 协议基于 <code>TCP/IP</code> 协议，通常在应用层上使用，通过客户端和服务端之间的发布/订阅模型进行通信。它有以下几个主要组成部分：</p>
 <ul>
 <li><code>Broker</code>（代理服务器）：是 <code>MQTT</code> 网络中的中间件，负责接收来自客户端的消息，并将消息路由到符合订阅条件的客户端。<code>Broker</code> 还负责维护客户端的连接状态。</li>
@@ -330,7 +317,7 @@
 <li><code>Topic</code>（主题）：是消息的类别或标签，用于将发布者的消息与订阅者的接收行为关联起来。主题由一个或多个层级组成，可以使用通配符进行匹配。</li>
 </ul>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-客户端"><a class="markdownIt-Anchor" href="#2-客户端"></a> 2、客户端</h2>
+<h2 id="2、客户端">2、客户端</h2>
 <p><code>MQTT</code> 客户端可以是发布者或订阅者，用于发送或接收消息。<code>MQTT</code> 客户端可以运行在各种设备上，如传感器、嵌入式设备、服务器等。它们通过与 <code>MQTT</code> 服务端建立连接进行通信。</p>
 <p><code>MQTT</code> 客户端具有如下功能：</p>
 <ul>
@@ -339,7 +326,7 @@
 <li>取消订阅主题请求移除接收应用消息。</li>
 <li>从服务端终止连接。</li>
 </ul>
-<h2 id="3-服务器"><a class="markdownIt-Anchor" href="#3-服务器"></a> 3、服务器</h2>
+<h2 id="3、服务器">3、服务器</h2>
 <p><code>MQTT</code> 服务器负责接收来自客户端的消息，并将消息路由到符合订阅条件的客户端。它还负责维护客户端的连接状态。<code>MQTT</code> 服务器通常运行在一个可靠的服务器上，并提供消息的持久化存储、安全认证、订阅管理等功能。</p>
 <p><code>MQTT</code> 服务器具有如下功能：</p>
 <ul>
@@ -348,16 +335,16 @@
 <li>处理客户端的订阅和取消订阅请求。</li>
 <li>转发应用消息给符合条件的已订阅客户端（包括发布者自身）。</li>
 </ul>
-<h1 id="三-matt-通信过程"><a class="markdownIt-Anchor" href="#三-matt-通信过程"></a> 三、MATT 通信过程</h1>
+<h1>三、MATT 通信过程</h1>
 <blockquote>
 <p><code>MQTT</code> 使用的发布/订阅消息模式，它提供了一对多的消息分发机制，从而实现与应用程序的解耦。这是一种消息传递模式，消息不是直接从发送器发送到接收器（即点对点），而是由 MQTT Broker 分发的。</p>
 </blockquote>
-<h2 id="1-连接服务器"><a class="markdownIt-Anchor" href="#1-连接服务器"></a> 1、连接服务器</h2>
+<h2 id="1、连接服务器">1、连接服务器</h2>
 <p>客户端到服务器的网络连接建立后，客户端发送给服务器的第一个报文必须是 <code>CONNECT</code> 报文</p>
 <p>在一个网络连接上，客户端只能发送一次 <code>CONNECT</code> 报文，如果出现第二个 <code>CONNECT</code> 报文，按照协议标准，服务器会将第二个<code>CONNECT</code> 报文当作协议违规处理并断开客户端的连接。</p>
 <p>对于正常的连接请求，服务器必须产生应答报文，如果无法建立会话，服务器应该在应答报文中报告对应的错误代码。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-订阅主题"><a class="markdownIt-Anchor" href="#2-订阅主题"></a> 2、订阅主题</h2>
+<h2 id="2、订阅主题">2、订阅主题</h2>
 <p><code>MQTT</code> 客户端可以订阅一个或多个主题，以接收与这些主题相关的消息。订阅的客户端被称为订阅者。</p>
 <p>订阅消息的过程如下：</p>
 <ul>
@@ -367,13 +354,13 @@
 <li>当有新的消息发布到与订阅主题匹配的主题上时，<code>MQTT</code> 服务端将消息路由给订阅者。</li>
 <li>订阅者接收到消息，并进行相应的处理。</li>
 </ul>
-<p>在 <code>MQTT</code> 中，主题（<strong>Topic</strong>）扮演着重要的角色。主题是一个用于标识消息类型或内容的字符串，如&quot;weather/temperature&quot;、&quot;home/lights&quot;等。订阅者可以通过使用通配符进行模糊匹配来订阅多个相关主题，如&quot;weather/+&quot;表示订阅以&quot;weather/&quot;开头的所有主题，&quot;+&quot;代表一个层级的通配符。</p>
+<p>在 <code>MQTT</code> 中，主题（<strong>Topic</strong>）扮演着重要的角色。主题是一个用于标识消息类型或内容的字符串，如&quot;weather/temperature&quot;、&quot;home/lights&quot;等。订阅者可以通过使用通配符进行模糊匹配来订阅多个相关主题，如&quot;weather/+&quot;表示订阅以&quot;weather/“开头的所有主题，”+&quot;代表一个层级的通配符。</p>
 <p><code>SUBSCRIBE</code> 为每个订阅指定了最大的 <code>QoS</code> 等级，服务器根据这些信息分发应用消息给客户端。</p>
 <p><code>SUBSCRIBE</code> 报文拥有固定报头、可变报头、有效载荷。</p>
 <p>当服务器收到客户端发送的一个 <code>SUBSCRIBE</code> 报文时，必须向客户端发送一个 <code>SUBACK</code> 报文响应，同时 <code>SUBACK</code> 报文必须和等待确认的<code>SUBSCRIBE</code> 报文有相同的报文标识符。</p>
 <p>如果服务器收到一个 <code>SUBSCRIBE</code> 报文，报文的主题过滤器与一个现存订阅的主题过滤器相同，那么必须使用新的订阅彻底替换现存的订阅。新订阅的主题过滤器和之前订阅的相同，但是它的最大 <code>QoS</code> 值可以不同。与这个主题过滤器匹配的任何现存的保留消息必须被重发，但是发布流程不能中断。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="3-发布消息"><a class="markdownIt-Anchor" href="#3-发布消息"></a> 3、发布消息</h2>
+<h2 id="3、发布消息">3、发布消息</h2>
 <p><code>MQTT</code> 客户端可以发布消息到 <code>MQTT</code> 服务端（当然，从服务器分发的报文给订阅者，也是属于 <code>PUBLISH</code> 控制报文。），通过指定一个或多个主题来标识消息的类型或内容。发布的消息可以是任意格式的数据，如文本、二进制数据等。发布消息的客户端被称为发布者（<em><strong>Publisher</strong></em>）。</p>
 <p>发布消息的过程如下：</p>
 <ul>
@@ -401,7 +388,7 @@
 <li><code>QoS  2</code>：使用 QoS 2，我们保证消息仅传送到目的地一次。为此，带有唯一消息 ID 的消息会存储两次，首先来自发送者，然后是接收者。QoS 级别 2 在网络中具有最高的开销，因为在发送方和接收方之间需要两个流。</li>
 </ol>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="4-取消订阅"><a class="markdownIt-Anchor" href="#4-取消订阅"></a> 4、取消订阅</h2>
+<h2 id="4、取消订阅">4、取消订阅</h2>
 <p>客户端发送 <code>UNSUBSCRIBE</code> 报文给服务器，用于取消订阅主题。</p>
 <p><code>UNSUBSCRIBE</code> 报文固定报头的第 3,2,1,0 位是保留位且必须分别设置为 0,0,1,0。否则服务器必须认为任何其它的值都是不合法的并关闭网络连。具体的描述可以看协议文档。</p>
 <p><code>UNSUBSCRIBE</code> 报文的有效载荷包含客户端想要取消订阅的主题过滤器列表。<code>UNSUBSCRIBE</code> 报文中的主题过滤器必须是连续打包的 UTF-8 编码字符串。</p>
@@ -409,13 +396,13 @@
 <p>而对于服务器删除了一个订阅，那么它将不会再分发该主题的消息到这个客户端中。而且它必须完成分发任何已经开始往客户端发送的<code>QoS1</code> 和 <code>QoS2</code> 的消息，以保证消息的服务质量。</p>
 <p>然后服务器必须发送 <code>UNSUBACK</code> 报文来响应客户端的 <code>UNSUBSCRIBE</code> 请求。<code>UNSUBACK</code> 报文必须包含和 <code>UNSUBSCRIBE</code> 报文相同的报文标识符。即使没有删除任何主题订阅（客户端取消订阅的主题未被订阅），服务器也必须发送一个 <code>UNSUBACK</code> 响应。</p>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="5-断开连接"><a class="markdownIt-Anchor" href="#5-断开连接"></a> 5、断开连接</h2>
+<h2 id="5、断开连接">5、断开连接</h2>
 <p><code>DISCONNECT</code> 报文是客户端发给服务端的最后一个控制报文。表示客户端正常断开连接。</p>
 <p><code>DISCONNECT</code> 报文的固定报头保留位必须全为 0。</p>
 <p>客户端发送 <code>DISCONNECT</code> 报文之后必须关闭网络连接，不能通过那个网络连接再发送任何控制报文。</p>
 <p>服务端在收到 <code>DISCONNECT</code> 报文时必须丢弃任何与当前连接关联的未发布的遗嘱消息。而且当客户端没有关闭网络连接的时候服务器应该主动去关闭网络连接。</p>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="四-mqtt-数据包结构"><a class="markdownIt-Anchor" href="#四-mqtt-数据包结构"></a> 四、MQTT 数据包结构</h1>
+<h1>四、MQTT 数据包结构</h1>
 <ul>
 <li>固定头（<em><strong>Fixed header</strong></em>），存在于所有 <code>MQTT</code> 数据包中，表示数据包类型及数据包的分组类标识；</li>
 <li>可变头（<em><strong>Variable header</strong></em>），存在于部分 <code>MQTT</code> 数据包中，数据包类型决定了可变头是否存在及其具体内容；</li>
@@ -423,7 +410,7 @@
 </ul>
 <p>整体 <code>MQTT</code> 的消息格式如下图所示；</p>
 <p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="1-mqtt-固定头"><a class="markdownIt-Anchor" href="#1-mqtt-固定头"></a> 1、MQTT 固定头</h2>
+<h2 id="1、MQTT-固定头">1、MQTT 固定头</h2>
 <p>固定头存在于所有 <code>MQTT</code> 数据包中，其结构如下：</p>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>其中，<code>MQTT</code> 消息类型是一个 4 位的无符号值，类型如下：</p>
@@ -668,7 +655,7 @@
 - 10：一次，即：=1<br>
 - 11：预留</p>
 <p><code>RETAIN</code>：发布保留标识，表示服务器要保留这次推送的信息，如果有新的订阅者出现，就把这消息推送给它，如果设有那么推送至当前订阅者后释放。</p>
-<h2 id="2-mqtt-可变头"><a class="markdownIt-Anchor" href="#2-mqtt-可变头"></a> 2、MQTT 可变头</h2>
+<h2 id="2、MQTT-可变头">2、MQTT 可变头</h2>
 <p><code>MQTT</code> 数据包中包含一个可变头，它驻位于固定的头和负载之间。可变头的内容因数据包类型而不同，较常的应用是做为包的标识：</p>
 <table>
 <thead>
@@ -689,7 +676,7 @@
 </tbody>
 </table>
 <p>很多类型数据包中都包括一个 2 字节的数据包标识字段，这些类型的包有：PUBLISH (QoS &gt; 0)、PUBACK、PUBREC、PUBREL、PUBCOMP、SUBSCRIBE、SUBACK、UNSUBSCRIBE、UNSUBACK2.3。</p>
-<h2 id="3-payload消息体"><a class="markdownIt-Anchor" href="#3-payload消息体"></a> 3. Payload消息体</h2>
+<h2 id="3-Payload消息体">3. Payload消息体</h2>
 <p>Payload 消息体是 <code>MQTT</code> 数据包的第三部分，有 <code>CONNECT</code>、<code>SUBSCRIBE</code>、<code>SUBACK</code>、<code>UNSUBSCRIBE</code> 四种类型的消息：</p>
 <ul>
 <li><code>CONNECT</code>，消息体内容主要是：客户端的 ClientID、订阅的 Topic、Message 以及用户名和密码</li>
@@ -697,7 +684,7 @@
 <li><code>SUBACK</code>，消息体内容是服务器对于 <code>SUBSCRIBE</code> 所申请的主题及 QoS 进行确认和回复。</li>
 <li><code>UNSUBSCRIBE</code>，消息体内容是要订阅的主题。</li>
 </ul>
-<h1 id="五-示例演示"><a class="markdownIt-Anchor" href="#五-示例演示"></a> 五、示例演示</h1>
+<h1>五、示例演示</h1>
 <p>上文简单讲了一下 <code>MQTT</code> 协议，下面借助 <code>MQTTX</code> 和 <code>MQTT.FX</code> 工具来演示一下 MQTT 的工作。</p>
 <p>首先在 <code>MQTTX</code>  上新建一个服务器，这里的地址就使用工具免费的测试地址就可以。为了简便，这里就不设置用户密码了。</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>

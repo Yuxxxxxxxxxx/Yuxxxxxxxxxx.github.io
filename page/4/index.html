@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/16/C++-std-exception/" target="_self">
-          C++ std::exception
+        <a href="/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/" target="_self">
+          CUDA开发环境配置（Win11 + CUDA 12.4 + VS2019）
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/16/C++-std-exception/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/" target="_self">
         <div>
-          C++ 语言本身或者标准库抛出的异常都是 exception 的子类，称为标准异常（Standard Exception）。可以通过下面的语句来捕获所有的标准异常： 12345try&#123; //可能抛出异常的语句&#125;catch(exception &amp;e)&#123; //处理异常的语句&#125;  一、简介 std::exception：标准异常类的基类，其类的声明在头文件
+          一、CUDA Toolkit 安装 这里选择自定义：  这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：   这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。  下载好后可以在 cmd 中进行验证： 1nvcc -V  同时也可以看见它自动为我们
         </div>
       </a>
 
@@ -245,52 +245,19 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-16 11:58" pubdate>
-              2026-05-16
+            <time datetime="2026-06-14 15:40" pubdate>
+              2026-06-14
             </time>
           </div>
         
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
         
         
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/CUDA/">#CUDA</a>
             
           </div>
         
@@ -304,15 +271,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/15/VS-Code%E9%85%8D%E7%BD%AEClaude-Code%EF%BC%88%E9%80%9A%E8%BF%87API%E6%96%B9%E5%BC%8F%EF%BC%89/" target="_self">
-          VS Code配置Claude Code（通过API方式）
+        <a href="/2026/06/13/Pythonh%E4%B8%AD-%E5%92%8C%E6%99%AE%E9%80%9A-%E7%9A%84%E5%8C%BA%E5%88%AB/" target="_self">
+          Python中+=和普通+的区别
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/15/VS-Code%E9%85%8D%E7%BD%AEClaude-Code%EF%BC%88%E9%80%9A%E8%BF%87API%E6%96%B9%E5%BC%8F%EF%BC%89/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/13/Pythonh%E4%B8%AD-%E5%92%8C%E6%99%AE%E9%80%9A-%E7%9A%84%E5%8C%BA%E5%88%AB/" target="_self">
         <div>
-          一、前置下载 首先在VS Code中下载扩展 Claude Code for VS Code：  Claude Code 在 Windows 上依赖 Git Bash，必须先安装 Git。 下载地址： https://git-scm.com/install/windows  二、通过API平台获取API 由于没有海外信用卡，无法直接使用 Anthropic 官方 API，可以使用国内中转平台。
+          在 Python 开发（特别是使用 PyTorch 进行深度学习训练）时，许多人认为 a = a + b 和 a += b 是完全等价的。但在底层内存管理和性能表现上，它们有着本质的区别。理解这一点，对于优化数据处理管道和避免显存碎片化至关重要。 先看结论：  a + b：创建新对象，不会修改原变量 a，只是返回相加结果 a += b：原地修改（增量赋值），优先修改变量本身；分可变数据类型、不可变
         </div>
       </a>
 
@@ -320,8 +287,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-15 09:13" pubdate>
-              2026-05-15
+            <time datetime="2026-06-13 15:42" pubdate>
+              2026-06-13
             </time>
           </div>
         
@@ -341,13 +308,15 @@
   
     <span>></span>
     
-  <a href="/categories/%E5%B7%A5%E5%85%B7/AI/" class="category-chain-item">AI</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/PyTorch/" class="category-chain-item">PyTorch</a>
   
   
 
   
 
       </span>
+    
+  
     
   
 </span>
@@ -358,7 +327,9 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/AI/">#AI</a>
+              <a href="/tags/Python/">#Python</a>
+            
+              <a href="/tags/PyTorch/">#PyTorch</a>
             
           </div>
         
@@ -372,15 +343,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/14/%E5%90%AF%E7%94%A8%E6%88%96%E5%85%B3%E9%97%ADWindows%E5%8A%9F%E8%83%BD%E9%87%8C%E6%B2%A1%E6%9C%89Hyper-V%E9%80%89%E9%A1%B9/" target="_self">
-          启用或关闭Windows功能里没有Hyper-V选项
+        <a href="/2026/06/12/Pytorch%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" target="_self">
+          PyTorch安装过程记录
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/14/%E5%90%AF%E7%94%A8%E6%88%96%E5%85%B3%E9%97%ADWindows%E5%8A%9F%E8%83%BD%E9%87%8C%E6%B2%A1%E6%9C%89Hyper-V%E9%80%89%E9%A1%B9/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/12/Pytorch%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E8%AE%B0%E5%BD%95/" target="_self">
         <div>
-          今天在弄 WSL2 的时候有如下报错： 123456PS C:\Users\1&gt; wsl --set-default-version 2当前计算机配置不支持 WSL2。请启用“虚拟机平台”可选组件，并确保在 BIOS 中启用虚拟化。通过运行以下命令启用“虚拟机平台”: wsl.exe --install --no-distribution有关信息，请访问 https://aka.ms/ena
+          一、安装 Anaconda 下载地址：Anaconda | Individual Edition。  参考安装教程：【Anaconda】史上最全最详细的Anaconda下载安装及使用教程[通俗易懂]  二、下载 CUDA 首先查看自己电脑 GPU 版本，方便下载对应版本的 pytorch，有下面两种方式：   打开 NVIDIA 控制面板：     cmd 输入 nvidia-smi：    根据
         </div>
       </a>
 
@@ -388,8 +359,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-14 14:42" pubdate>
-              2026-05-14
+            <time datetime="2026-06-12 17:56" pubdate>
+              2026-06-12
             </time>
           </div>
         
@@ -404,147 +375,20 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" class="category-chain-item">查错记录</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/">#查错记录</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/13/C++%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" target="_self">
-          C++智能指针
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/13/C++%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88/" target="_self">
-        <div>
-          一、什么是智能指针 智能指针就是帮我们 C++ 程序员管理动态分配的内存的，它会帮助我们自动释放 new 出来的内存，从而避免内存泄漏。 下面就是一个内存泄露的例子： 1234567891011121314151617181920212223242526272829303132333435363738394041#include &lt;iostream&gt;#include &lt;stri
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-13 12:58" pubdate>
-              2026-05-13
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/11/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%BA%8C)/" target="_self">
-          C++11新特性(二)
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/11/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%BA%8C)/" target="_self">
-        <div>
-          一、nullptr 在引入 nullptr 之前，C 和 C++ 使用的都是 NULL，但对于它的定义是不同的： 1234567#ifndef NULL#ifdef __cplusplus#define NULL 0#else#define NULL ((void *)0)#endif#endif 根本原因和 C++ 的重载函数有关。C++ 通过搜索匹配参数的机制，试图找到最佳匹配的函数，而如果
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-11 20:52" pubdate>
-              2026-05-11
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
   
   
     <span>></span>
     
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  <a href="/categories/%E5%B7%A5%E5%85%B7/PyTorch/" class="category-chain-item">PyTorch</a>
   
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
   
 
   
 
       </span>
+    
+  
     
   
 </span>
@@ -555,11 +399,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-              <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/">#语言特性</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
             
           </div>
         
@@ -573,15 +413,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/10/C++RAII%E5%8E%9F%E7%90%86/" target="_self">
-          C++ RAII原理
+        <a href="/2026/06/10/C++-%E5%90%8D%E7%A7%B0%E7%BB%91%E5%AE%9A%E4%B8%8E%E4%BE%9D%E8%B5%96%E5%90%8D%E7%A7%B0/" target="_self">
+          C++ 名称绑定与依赖名称
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/10/C++RAII%E5%8E%9F%E7%90%86/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/10/C++-%E5%90%8D%E7%A7%B0%E7%BB%91%E5%AE%9A%E4%B8%8E%E4%BE%9D%E8%B5%96%E5%90%8D%E7%A7%B0/" target="_self">
         <div>
-          在 C++ 中，RAII (Resource Acquisition Is Initialization，资源获取即初始化) 是最核心的编程范式之一。它利用 C++ 的对象生命周期管理机制（构造函数与析构函数），实现对资源的自动化管理，从而避免内存泄漏、死锁等问题。  RAII 不是一种特殊的语法，而是 C++ 生命周期机制的一种应用习惯。只要遵循“将资源封装在对象内，并在析构函数中释放资源”这一
+          在 C++（尤其是模板编程）中，名称绑定 和 依赖名称 是编译器如何解析、查找和验证标识符（如变量名、函数名、类型名）的核心机制。 理解这两个概念，是掌握 C++ 模板编程、解释各种奇怪的模板编译错误（如“缺少 typename”或“未找到符号”）的关键。 一、依赖名称与非依赖名称 模板中使用两种名称：依赖名称和非依赖名称。前者是依赖模板参数的类型或值的名称，可以是类型参数、非类型形参或模板参数。
         </div>
       </a>
 
@@ -589,214 +429,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-10 14:03" pubdate>
-              2026-05-10
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="category-chain-item">内存管理</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E7%89%B9%E6%80%A7-type-traits/" target="_self">
-          C++ type_traits
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/09/C++%E7%B1%BB%E5%9E%8B%E7%89%B9%E6%80%A7-type-traits/" target="_self">
-        <div>
-          一、什么是 type_traits type_traits(类型特性) 是一组模板类或函数，用于在编译时期获取或修改类型的信息。例如，你可以定义一个is_same 来检查两个类型是否相同，或者定义一个 remove_const 来去除类型的 const 限定符。 &lt;type_traits&gt; 头文件中包含了一组编译期工具，用于：  查询（Query）：检查类型的属性（例如：是整数吗？是
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-09 10:47" pubdate>
-              2026-05-09
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" target="_self">
-          C++右值引用
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" target="_self">
-        <div>
-          一、左值、右值  1.1 什么是左值、右值 1int a = 5; 简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-08 22:50" pubdate>
-              2026-05-08
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/" target="_self">
-          C++模板参数推导
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/" target="_self">
-        <div>
-          一、基本概念 模板参数推导（Template Argument Deduction） 是编译器自动分析函数模板调用时的实参类型，从而确定模板参数的过程。 其核心工作就是当调用一个函数模板时，编译器会尝试将**调用时传入的实参类型（A）与模板定义中的参数类型（P）**进行匹配。 123template &lt;typename T&gt;void func(T param);func(10); /
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-06 22:19" pubdate>
-              2026-05-06
+            <time datetime="2026-06-10 15:41" pubdate>
+              2026-06-10
             </time>
           </div>
         
@@ -849,15 +483,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/04/16/C++-%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9A%84typename/" target="_self">
-          C++模板中的typename
+        <a href="/2026/06/09/C++-lambda%E6%A8%A1%E6%9D%BF/" target="_self">
+          C++ lambda模板
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/04/16/C++-%E6%A8%A1%E6%9D%BF%E4%B8%AD%E7%9A%84typename/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/09/C++-lambda%E6%A8%A1%E6%9D%BF/" target="_self">
         <div>
-          一、class 和 typename 如下例所示： 123456// 以下两种写法完全等价template &lt;typename T&gt;void func(T t) &#123;&#125;template &lt;class T&gt;void func(T t) &#123;&#125; 历史原因：class 是 C++98 引入模板时的关键字，typename 是后来加入的。现在更
+          在 C++ 中，Lambda 模板 指的是能够像普通函数模板一样，接受泛型参数或显式模板参数的 Lambda 表达式。 Lambda 模板的发展经历了两个阶段：  C++14 的泛型 Lambda（Generic Lambdas）：使用 auto 关键字实现隐式模板化。 C++20 的显式模板 Lambda（Explicit Template Lambdas）：引入了 `` 语法，提供了真正完整的
         </div>
       </a>
 
@@ -865,8 +499,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-04-16 19:43" pubdate>
-              2026-04-16
+            <time datetime="2026-06-09 16:52" pubdate>
+              2026-06-09
             </time>
           </div>
         
@@ -906,6 +540,388 @@
               <a href="/tags/C/">#C++</a>
             
               <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+            
+              <a href="/tags/C-20/">#C++20</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/07/C++-%E5%8F%98%E9%87%8F%E6%A8%A1%E6%9D%BF/" target="_self">
+          C++ 变量模板
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/07/C++-%E5%8F%98%E9%87%8F%E6%A8%A1%E6%9D%BF/" target="_self">
+        <div>
+          一、引入 变量模板是在 C++14 中引入，允许在命名空间范围内定义模板变量(可以表示一组全局变量)，或者在类范围内定义模板变量（表示静态数据成员）。 例如： 12template &lt;class T&gt;    constexpr T PI = T(3,1415926535897932385L); 其语法类似于声明变量（或数据成员），但与声明模板的语法相结合。 对于任何模板，该声明不能出现
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-07 16:31" pubdate>
+              2026-06-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+            
+              <a href="/tags/C-14/">#C++14</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/06/C++-std-nullopt/" target="_self">
+          C++ std::nullopt
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/06/C++-std-nullopt/" target="_self">
+        <div>
+          一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-06 16:43" pubdate>
+              2026-06-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/C-17/">#C++17</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/05/C++-std-any/" target="_self">
+          C++ std::any
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/05/C++-std-any/" target="_self">
+        <div>
+          一、基本概念 std::any 也是 C++17 引入的一个核心容器类。如果说 std::variant 是“类型安全的共用体（Union）”，那么 std::any 就是**“类型安全的 void\* 指针”**。 它能够存储任意类型的单个值，并且在运行时保留该值的类型信息，确保在取出数据时进行强类型检查。 在 C++17 之前，如果你需要一个可以接收“任何类型”的容器，通常只能用 void*。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-05 20:37" pubdate>
+              2026-06-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/C-17/">#C++17</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/03/C++-std-variant/" target="_self">
+          C++ std::variant
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/03/C++-std-variant/" target="_self">
+        <div>
+          一、基本概念 std::variant 是C++17引入的一个新的标准库类型，它提供了一种类型安全的联合体（Type-safe Union）。这个类可以在同一时间持有几种可能类型中的一个值。 相较于传统的 C 风格 union，std::variant 最大的优势是类型安全：它知道自己当前存的是什么类型，并在析构时正确调用对应类型的析构函数，不会发生内存泄漏或未定义行为。 std::variant
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-03 19:58" pubdate>
+              2026-06-03
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/C-17/">#C++17</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/01/C++-std-optional/" target="_self">
+          C++ std::optional
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/01/C++-std-optional/" target="_self">
+        <div>
+          一、基本概念 C++17 引入了 std::optional，表示一个可能有值的对象（没有值时就是默认的 std::nullopt）。它提供了一种类型安全的方式来表示可能存在也可能不存在的值。 在 std::optional 出现之前，我们通常使用魔术值（如 -1、nullptr、空字符串）或通过指针/引用参数来表达“无值”的概念。这些方法要么不安全，要么语义模糊。std::optional 完美
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-01 09:07" pubdate>
+              2026-06-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/C-17/">#C++17</a>
             
           </div>
         
@@ -917,7 +933,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/#board">14</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="page-number" href="/page/6/#board">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/#board">17</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

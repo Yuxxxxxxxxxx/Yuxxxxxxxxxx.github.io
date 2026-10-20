@@ -1,0 +1,884 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、V4L2 架构 V4L2 子系统是 Linux 内核中关于 Video（视频）设备的API接口，是 V4L（Video for Linux）子系统的升级版本。 V4L（Video for Linux）是 Linux 内核中关于视频设备的 API 接口,出现于 Linux 内核 2.1 版本，经过修改 bug 和添加功能，Linux 内核 2.5 版本推出了 V4L2（Video for Lin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux驱动——V4L2框架">
+<meta property="og:url" content="http://example.com/2026/08/10/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94V4L2%E6%A1%86%E6%9E%B6/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、V4L2 架构 V4L2 子系统是 Linux 内核中关于 Video（视频）设备的API接口，是 V4L（Video for Linux）子系统的升级版本。 V4L（Video for Linux）是 Linux 内核中关于视频设备的 API 接口,出现于 Linux 内核 2.1 版本，经过修改 bug 和添加功能，Linux 内核 2.5 版本推出了 V4L2（Video for Lin">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/08/10/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94V4L2%E6%A1%86%E6%9E%B6/1.jpg">
+<meta property="og:image" content="http://example.com/2026/08/10/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94V4L2%E6%A1%86%E6%9E%B6/2.jpg">
+<meta property="article:published_time" content="2026-08-10T02:50:36.000Z">
+<meta property="article:modified_time" content="2026-10-11T08:19:26.764Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta property="article:tag" content="摄像头">
+<meta property="article:tag" content="V4L2">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/08/10/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94V4L2%E6%A1%86%E6%9E%B6/1.jpg">
+  
+  
+  
+  <title>Linux驱动——V4L2框架 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux驱动——V4L2框架"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-10 10:50" pubdate>
+          星期一, 八月 10日 2026, 10:50 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          50 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux驱动——V4L2框架</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、V4L2 架构</h1>
+<p>V4L2 子系统是 Linux 内核中关于 Video（视频）设备的API接口，是 V4L（Video for Linux）子系统的升级版本。</p>
+<p>V4L（Video for Linux）是 Linux 内核中关于视频设备的 API 接口,出现于 Linux 内核 2.1 版本，经过修改 bug 和添加功能，Linux 内核 2.5 版本推出了 V4L2（Video for Linux Two）子系统，功能更多且更稳定。</p>
+<p>V4L2 子系统向上为虚拟文件系统提供了统一的接口，应用程序可通过虚拟文件系统访问 Video 设备。</p>
+<p>V4L2 子系统向下给 Video 设备提供接口，同时管理所有 Video 设备。</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<ul>
+<li><strong>user space：</strong><br>
+应用程序主要通过 <code>libv4l</code> 库来操作摄像头<br>
+也可以基于字符设备 <code>/dev/videoX</code> 自己编写应用程序<br>
+guvcview：用于调试 usb 摄像头（还有个软件 cheese 也可以）<br>
+v4l2 utilities：v4l2 的工具集</li>
+<li><strong>kernel space：</strong><br>
+sensor、ISP、VIPP、CSI、CCI 都为从设备<br>
+从 dphy 物理层获取视频数据册通过 vb2 子模块<br>
+CCI ：主要是通过 GPIO（供电、片选）、I2C（下发配置命令给 sensor）实现配置 sensor<br>
+EHCI/OHCI：USB 类型摄像头</li>
+<li><strong>hardware</strong><br>
+CSIC Controller：从 dphy 获取 mipi 协议帧<br>
+I2C Controller：与 sensor 的 i2c block 通信<br>
+GPIO Controller：sensor 通常需要供电或者片选</li>
+<li><strong>external device</strong><br>
+sensror：摄像头的接口主要有：USB、DVP、MIPI(CSI)</li>
+</ul>
+<h1>二、V4L2 下的设备</h1>
+<p>Video设备又分为主设备和从设备对于Camera来说，</p>
+<ul>
+<li>**主设备：**Camera Host 控制器为主设备，负责图像数据的接收和传输，</li>
+<li>**从设备：**从设备为 Camera Sensor，一般为 I2C 接口，可通过从设备控制 Camera 采集图像的行为，如图像的大小、图像的 FPS 等。</li>
+</ul>
+<p>V4L2的主设备号是 81，次设备号范围 0~255，这些次设备号又分为多类设备：</p>
+<ul>
+<li>Video 设备（次设备号范围 0-63）</li>
+<li>Radio（收音机）设备（次设备号范围 64-127）</li>
+<li>Teletext 设备（次设备号范围 192-223）</li>
+<li>VBI 设备（次设备号范围 224-255）。</li>
+</ul>
+<p>V4L2 设备对应的设备节点有 <strong>/dev/videoX、/dev/vbiX、/dev/radioX</strong>。</p>
+<p>下面就以 video 设备为例来看一下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">ls</span> /dev/video*</span><br>/dev/video0   /dev/video11  /dev/video14  /dev/video17  /dev/video2   /dev/video3  /dev/video6  /dev/video9         /dev/video-enc0<br>/dev/video1   /dev/video12  /dev/video15  /dev/video18  /dev/video20  /dev/video4  /dev/video7  /dev/video-camera0<br>/dev/video10  /dev/video13  /dev/video16  /dev/video19  /dev/video21  /dev/video5  /dev/video8  /dev/video-dec0<br></code></pre></td></tr></table></figure>
+<p>再看下有系统哪些 v4l2 设备节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">v4l2-ctl --list-devices</span><br>rkisp-statistics (platform: rkisp):<br>        /dev/video18<br>        /dev/video19<br><br>rkcif-mipi-lvds2 (platform:rkcif-mipi-lvds2):<br>        /dev/media0<br><br>rkisp_mainpath (platform:rkisp0-vir1):<br>        /dev/video11<br>        /dev/video12<br>        /dev/video13<br>        /dev/video14<br>        /dev/video15<br>        /dev/video16<br>        /dev/video17<br>        /dev/media1<br><br>2K USB Camera: 2K USB Camera (usb-fc800000.usb-1.1):<br>        /dev/video20<br>        /dev/video21<br>        /dev/media2<br></code></pre></td></tr></table></figure>
+<ul>
+<li>物理标识：<code>usb-fc800000.usb-1.1</code>，说明它挂在 <code>fc800000.usb</code> 这个 USB 控制器的 <code>1.1</code> 端口上。这是它在 USB 总线上的物理位置</li>
+<li>节点归属：UVC 摄像头一般有两个节点，一个用于视频流，一个用于数据流。这里使用的是 <code>video20</code> 和 <code>video21</code></li>
+<li>额外信息：还多了一个 <code>/dev/media2</code>。这说明该 UVC 驱动注册了 Media Controller 设备，<code>video20</code>、<code>video21</code> 和 <code>media2</code> 共同构成一个 media graph</li>
+</ul>
+<p>下面再看下哪个是视频流节点，哪个是数据流节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sudo</span> v4l2-ctl -d /dev/video20 --all | grep <span class="hljs-string">&quot;Device Caps&quot;</span> -A 5</span><br>        Device Caps      : 0x04200001<br>                Video Capture<br>                Streaming<br>                Extended Pix Format<br>Media Driver Info:<br>        Driver name      : uvcvideo<br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sudo</span> v4l2-ctl -d /dev/video21 --all | grep <span class="hljs-string">&quot;Device Caps&quot;</span> -A 5</span><br>        Device Caps      : 0x04a00000<br>                Metadata Capture<br>                Streaming<br>                Extended Pix Format<br>Media Driver Info:<br>        Driver name      : uvcvideo<br></code></pre></td></tr></table></figure>
+<p>可以看出 video20 就是采集画面用的视频流节点，而 video21 就是采集数据用的元数据节点。</p>
+<p>另外，通过如下命令还可以查看摄像头支持的格式与分辨率：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sudo</span> v4l2-ctl -d /dev/video20 --list-formats-ext</span><br>ioctl: VIDIOC_ENUM_FMT<br>        Type: Video Capture<br><br>        [0]: &#x27;YUYV&#x27; (YUYV 4:2:2)<br>                Size: Discrete 640x480<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                Size: Discrete 1920x1080<br>                        Interval: Discrete 0.200s (5.000 fps)<br>                Size: Discrete 1280x960<br>                        Interval: Discrete 0.200s (5.000 fps)<br>                Size: Discrete 1280x720<br>                        Interval: Discrete 0.100s (10.000 fps)<br>                Size: Discrete 640x360<br>                        Interval: Discrete 0.033s (30.000 fps)<br>        [1]: &#x27;MJPG&#x27; (Motion-JPEG, compressed)<br>                Size: Discrete 640x480<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>                Size: Discrete 2560x1440<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>                Size: Discrete 1920x1080<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>                Size: Discrete 1280x960<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>                Size: Discrete 1280x720<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>                Size: Discrete 640x360<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                        Interval: Discrete 0.040s (25.000 fps)<br>        [2]: &#x27;NV12&#x27; (Y/UV 4:2:0)<br>                Size: Discrete 640x480<br>                        Interval: Discrete 0.033s (30.000 fps)<br>                Size: Discrete 1920x1080<br>                        Interval: Discrete 0.200s (5.000 fps)<br>                Size: Discrete 1280x960<br>                        Interval: Discrete 0.100s (10.000 fps)<br>                Size: Discrete 1280x720<br>                        Interval: Discrete 0.067s (15.000 fps)<br>                Size: Discrete 640x360<br>                        Interval: Discrete 0.033s (30.000 fps)<br></code></pre></td></tr></table></figure>
+<p>像素格式用 4 个字符表示，叫 fourcc：</p>
+<table>
+<thead>
+<tr>
+<th>fourcc</th>
+<th>含义</th>
+<th>每像素字节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>YUYV</code></td>
+<td>YUV 4:2:2 打包</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>MJPG</code></td>
+<td>Motion-JPEG 压缩</td>
+<td>不固定</td>
+</tr>
+<tr>
+<td><code>NV12</code></td>
+<td>YUV 4:2:0 半平面</td>
+<td>1.5</td>
+</tr>
+</tbody>
+</table>
+<h1>三、V4L2 驱动程序代码</h1>
+<p>Linux 系统中视频输入设备主要包括以下四个部分：</p>
+<ul>
+<li>字符设备驱动：<br>
+V4L2 本身就是一个字符设备，具有字符设备所有的特性，暴露接口给用户空间；</li>
+<li>V4L2 驱动核心：<br>
+主要是构建一个内核中标准视频设备驱动的框架，为视频操作提供统一的接口函数；</li>
+<li>平台 V4L2 设备驱动：<br>
+在 V4L2 框架下，根据平台自身的特性实现与平台相关的 V4L2 驱动部分，包括注册 <code>video_device</code> 和<code>v4l2_device</code>；</li>
+<li>具体的 sensor 驱动：<br>
+主要上电、提供工作时钟、视频图像裁剪、流 IO 开启等，实现各种设备控制方法供上层调用并注册<code>v4l2_subdev</code>。</li>
+</ul>
+<p>V4L2 核心源码位于 <code>drivers/media/v4l2-core</code>，根据功能可以划分为四类：</p>
+<ul>
+<li>字符设备模块：<br>
+由 <code>v4l2-dev.c</code> 实现，主要作用申请字符主设备号、注册 class 和提供 video device 注册注销等相关函数。</li>
+<li>V4L2 基础框架：<br>
+由 <code>v4l2-device.c</code>、<code>v4l2-subdev.c</code>、<code>v4l2-fh.c</code>、<code>v4l2-ctrls.c</code> 等文件构建 V4L2 基础框架。</li>
+<li>videobuf 管理<br>
+由 <code>videobuf2-core.c</code>、<code>videobuf2-dma-contig.c</code>、<code>videobuf2-dma-sg.c</code>、<code>videobuf2-memops.c</code>、<code>videobuf2-vmalloc.c</code>、<code>v4l2-mem2mem.c</code> 等文件实现，完成 <code>videobuffer</code> 的分配、管理和注销。</li>
+<li>ioctl 框架：<br>
+由 <code>v4l2-ioctl.c</code> 文件实现，构建 V4L2 ioctl 的框架。</li>
+</ul>
+<p>应用层通过 <code>ioctl</code> 发送控制命令（如“开启视频流”“设置对比度”），其调用流程是V4L2框架的核心逻辑，具体分为4步：</p>
+<ol>
+<li>
+<p><strong>用户空间发起请求</strong><br>
+应用程序通过 <code>/dev/videoX</code> 节点调用 <code>ioctl</code>，传入命令码（如 <code>VIDIOC_STREAMON</code> 表示开启流）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 示例：用户空间开启视频流</span><br><span class="hljs-type">int</span> fd = open(<span class="hljs-string">&quot;/dev/video20&quot;</span>, O_RDWR);<br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">v4l2_buf_type</span> <span class="hljs-title">type</span> =</span> V4L2_BUF_TYPE_VIDEO_CAPTURE;<br>ioctl(fd, VIDIOC_STREAMON, &amp;type);  <span class="hljs-comment">// 发送开启流命令</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>内核层接收请求</strong><br>
+内核通过 <code>video_device</code> 的 <code>fops</code> 成员（<code>v4l2_file_operations</code>）找到 <code>unlocked_ioctl</code> 函数（通常为V4L2核心层的 <code>video_ioctl2</code>），将请求转发给该函数。</p>
+</li>
+<li>
+<p><strong>核心层解析命令并匹配子设备</strong><br>
+<code>video_ioctl2</code> 函数根据命令码，从 <code>video_device</code> 的 <code>ioctl_ops</code> 中找到对应的处理函数，同时遍历 <code>v4l2_device</code> 的 <code>subdevs</code> 链表，找到需要控制的 <code>v4l2_subdev</code>（如控制 Sensor 则找 Sensor 子设备）。</p>
+</li>
+<li>
+<p><strong>驱动层执行硬件控制</strong><br>
+调用目标 <code>v4l2_subdev</code> 的 <code>v4l2_subdev_ops</code> 中的对应函数（如 <code>s_stream</code> 开启视频流），最终通过硬件接口（如 I2C）控制硬件完成操作。</p>
+</li>
+</ol>
+<h1>四、结构体</h1>
+<p><img src="2.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="4-1-v4l2-device-主设备">4.1 v4l2_device 主设备</h2>
+<p>V4L2 主设备实例使用 <code>struct v4l2_device</code> 结构体表示，<code>v4l2_device</code> 是 V4L2 子系统的入口，管理着 V4L2 子系统的主设备和从设备；</p>
+<p><code>v4l2_device</code> 用来描述一个 v4l2 设备实例，可以包含多个子设备，对应的是例如 <strong>I2C、CSI、MIPI</strong> 等设备，它们是从属于一个 V4L2 device 之下的；</p>
+<p>简单设备可以仅分配这个结构体，但在大多数情况下，都会将这个结构体嵌入到一个更大的结构体中以提供v4l2框架的功能，比如 <strong>struct isp_device</strong>；</p>
+<p>需要与媒体框架整合的驱动必须手动设置 <code>dev-&gt;driver_data</code>，指向包含 <code>v4l2_device</code> 结构体实例的驱动特定设备结构体。这可以在注册 V4L2 设备实例前通过 <code>dev_set_drvdata()</code> 函数完成。</p>
+<p>同时必须设置 <code>v4l2_device</code> 结构体的 mdev 域，指向适当的初始化并注册过的 media_device 实例。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"> <span class="hljs-comment">// include/media/v4l2-device.h</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_device</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span>;</span>  <span class="hljs-comment">// 父设备指针</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_MEDIA_CONTROLLER)  <span class="hljs-comment">// 多媒体设备配置选项</span></span><br>    <span class="hljs-comment">// 用于运行时数据流的管理，</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">media_device</span> *<span class="hljs-title">mdev</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-comment">// 注册的子设备的v4l2_subdev结构体都挂载此链表中</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">subdevs</span>;</span><br>    <span class="hljs-comment">// 同步用的自旋锁</span><br>    <span class="hljs-type">spinlock_t</span> lock;<br>    <span class="hljs-comment">// 独一无二的设备名称，默认使用driver name + bus ID</span><br>    <span class="hljs-type">char</span> name[V4L2_DEVICE_NAME_SIZE];<br>    <span class="hljs-comment">// 被一些子设备回调的通知函数，但这个设置与子设备相关。子设备支持的任何通知必须在</span><br>    <span class="hljs-comment">// include/media/&lt;subdevice&gt;.h 中定义一个消息头。</span><br>    <span class="hljs-type">void</span> (*notify)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> notification, <span class="hljs-type">void</span> *arg);<br>    <span class="hljs-comment">// 提供子设备（主要是video和ISP设备）在用户空间的特效操作接口，</span><br>    <span class="hljs-comment">// 比如改变输出图像的亮度、对比度、饱和度等等</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_ctrl_handler</span> *<span class="hljs-title">ctrl_handler</span>;</span><br>    <span class="hljs-comment">// 设备优先级状态</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_prio_state</span> <span class="hljs-title">prio</span>;</span><br>    <span class="hljs-comment">/* BKL replacement mutex. Temporary solution only. */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span> <span class="hljs-title">ioctl_lock</span>;</span><br>    <span class="hljs-comment">// struct v4l2_device结构体的引用计数，等于0时才释放</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kref</span> <span class="hljs-title">ref</span>;</span><br>    <span class="hljs-comment">// 引用计数ref为0时，调用release函数进行释放资源和清理工作</span><br>    <span class="hljs-type">void</span> (*release)(<span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev);<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>注册函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">v4l2_device_register<br></code></pre></td></tr></table></figure>
+<p>使用 <code>v4l2_device_register</code> 注册 <code>v4l2_device</code> 结构体。如果 <code>v4l2_dev-&gt;name</code> 为空，则它将被设置为从 dev 中衍生出的值（为了更加精确，形式为驱动名后跟 bus_id）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (!v4l2_dev-&gt;name[<span class="hljs-number">0</span>])<br>		<span class="hljs-built_in">snprintf</span>(v4l2_dev-&gt;name, <span class="hljs-keyword">sizeof</span>(v4l2_dev-&gt;name), <span class="hljs-string">&quot;%s %s&quot;</span>,<br>			dev-&gt;driver-&gt;name, dev_name(dev));<br></code></pre></td></tr></table></figure>
+<p>如果在调用 <code>v4l2_device_register</code> 前已经设置好了，则不会被修改。如果  dev 为 NULL，则必须在调用<code>v4l2_device_register</code> 前设置 <code>v4l2_dev-&gt;name</code>。可以基于驱动名和驱动的全局 <code>atomic_t</code> 类型的实例编号，通过 <code>v4l2_device_set_name()</code> 设置 name。</p>
+<p>这样会生成类似 ivtv0、ivtv1 等名字。若驱动名以数字结尾，则会在编号和驱动名间插入一个破折号，如：cx18-0、cx18-1等。</p>
+<p>dev 参数通常是一个指向 <code>pci_dev</code>、<code>usb_interface</code> 或 <code>platform_device</code> 的指针，很少使其为 NULL，除非是一个 ISA 设备或者当一个设备创建了多个 PCI 设备，使得 <code>v4l2_dev</code> 无法与一个特定的父设备关联。</p>
+<p>使用 <code>v4l2_device_unregister</code> 卸载 <code>v4l2_device</code> 结构体。如果 <code>dev-&gt;driver_data</code> 域指向 <code>v4l2_dev</code>，将会被重置为 NULL。主设备注销的同时也会自动注销所有子设备。如果你有一个热插拔设备（如 USB 设备），则当断开发生时，父设备将无效。</p>
+<p>由于 <code>v4l2_device</code> 有一个指向父设备的指针必须被清除，同时标志父设备已消失，所以必须调用<code>v4l2_device_disconnect</code> 函数清理 <code>v4l2_device</code> 中指向父设备的 dev 指针。<code>v4l2_device_disconnect</code> 并不注销主设备，因此依然要调用 <code>v4l2_device_unregister</code> 函数注销主设备。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c">[include/media/v4l2-device.h]<br><span class="hljs-comment">// 注册v4l2_device结构体，并初始化v4l2_device结构体</span><br><span class="hljs-comment">// dev-父设备结构体指针，若为NULL，在注册之前设备名称name必须被设置，</span><br><span class="hljs-comment">// v4l2_dev-v4l2_device结构体指针</span><br><span class="hljs-comment">// 返回值-0成功，小于0-失败</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">v4l2_device_register</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev)</span><br><br>    <span class="hljs-comment">// 卸载注册的v4l2_device结构体</span><br>    <span class="hljs-comment">// v4l2_dev-v4l2_device结构体指针</span><br>    <span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_device_unregister</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev)</span><br><br>    <span class="hljs-comment">// 设置设备名称，填充v4l2_device结构体中的name成员</span><br>    <span class="hljs-comment">// v4l2_dev-v4l2_device结构体指针</span><br>    <span class="hljs-comment">// basename-设备名称基本字符串</span><br>    <span class="hljs-comment">// instance-设备计数，调用v4l2_device_set_name后会自加1</span><br>    <span class="hljs-comment">// 返回值-返回设备计数自加1的值</span><br>    <span class="hljs-type">int</span> <span class="hljs-title function_">v4l2_device_set_name</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev, </span><br><span class="hljs-params">                             <span class="hljs-type">const</span> <span class="hljs-type">char</span> *basename, <span class="hljs-type">atomic_t</span> *instance)</span><br><br>    <span class="hljs-comment">// 热插拔设备断开时调用此函数</span><br>    <span class="hljs-comment">// v4l2_dev-v4l2_device结构体指针</span><br>    <span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_device_disconnect</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev)</span>;<br><br><span class="hljs-comment">// 同一个硬件的情况下。如ivtvfb驱动是一个使用ivtv硬件的帧缓冲驱动，同时alsa驱动也使用此硬件。可以使用如下例程遍历所有注册的设备：</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">callback</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-type">void</span> *p)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_device</span> *<span class="hljs-title">v4l2_dev</span> =</span> dev_get_drvdata(dev);<br><br>    <span class="hljs-comment">/* 测试这个设备是否已经初始化 */</span><br>    <span class="hljs-keyword">if</span> (v4l2_dev == <span class="hljs-literal">NULL</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    ...<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">iterate</span><span class="hljs-params">(<span class="hljs-type">void</span> *p)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device_driver</span> *<span class="hljs-title">drv</span>;</span><br>    <span class="hljs-type">int</span> err;<br><br>    <span class="hljs-comment">/* 在PCI 总线上查找ivtv驱动。</span><br><span class="hljs-comment">        pci_bus_type是全局的. 对于USB总线使用usb_bus_type。 */</span><br>    drv = driver_find(<span class="hljs-string">&quot;ivtv&quot;</span>, &amp;pci_bus_type);<br>    <span class="hljs-comment">/* 遍历所有的ivtv设备实例 */</span><br>    err = driver_for_each_device(drv, <span class="hljs-literal">NULL</span>, p, callback);<br>    put_driver(drv);<br>    <span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="4-2-video-device">4.2 video_device</h2>
+<p>V4L2 子系统使用 <code>v4l2_device</code> 结构体管理设备，设备的具体操作方法根据设备类型决定，</p>
+<p>前面说过管理的设备分为很多种，<strong>若是视频设备，则需要注册 video_device 结构体</strong>，并提供相应的操作方法。</p>
+<p>对于视频设备 Camera 而言，<strong>Camera 控制器可以视为主设备</strong>，接在 Camera 控制器上的<strong>摄像头可以视为从设备</strong>。</p>
+<p>用户态看到的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">/dev/video20<br></code></pre></td></tr></table></figure>
+<p>对应内核里的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">video_device</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_file_operations</span> *<span class="hljs-title">fops</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cdev</span> *<span class="hljs-title">cdev</span>;</span>     <span class="hljs-comment">//vdev-&gt;cdev-&gt;ops = &amp;v4l2_fops;  字符设备描述符</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_device</span> *<span class="hljs-title">v4l2_dev</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_ctrl_handler</span> *<span class="hljs-title">ctrl_handler</span>;</span><br><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vb2_queue</span> *<span class="hljs-title">queue</span>;</span>  <span class="hljs-comment">//q-&gt;ops = &amp;dmarx_vb2_ops; buf操作真正驱动回调函数</span><br>  …………<br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_ioctl_ops</span> *<span class="hljs-title">ioctl_ops</span>;</span><span class="hljs-comment">//vdev-&gt;ioctl_ops = &amp;rkisp_dmarx_ioctl; </span><br>  …………<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>注册函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs c">[kernel\drivers\media\v4l2-core\v4l2-dev.c]<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> __must_check <span class="hljs-title function_">video_register_device</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> video_device *vdev,</span><br><span class="hljs-params">        <span class="hljs-type">int</span> type, <span class="hljs-type">int</span> nr)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> __video_register_device(vdev, type, nr, <span class="hljs-number">1</span>, vdev-&gt;fops-&gt;owner);<br>&#125;<br><br><span class="hljs-type">int</span> __video_register_device(<span class="hljs-keyword">struct</span> video_device *vdev, <span class="hljs-type">int</span> type, <span class="hljs-type">int</span> nr,<br>        <span class="hljs-type">int</span> warn_if_nr_in_use, <span class="hljs-keyword">struct</span> module *owner)<br>&#123;<br>    ····<br>    <span class="hljs-type">int</span> minor_cnt = VIDEO_NUM_DEVICES;<span class="hljs-comment">//次设备个数默认为256</span><br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name_base;<br><br>    <span class="hljs-comment">/* A minor value of -1 marks this video device as never</span><br><span class="hljs-comment">       having been registered */</span><br>    vdev-&gt;minor = <span class="hljs-number">-1</span>;<br><br>    <span class="hljs-comment">/* the release callback MUST be present 如果之前没有声明销毁函数，则报错*/</span><br>    <span class="hljs-keyword">if</span> (WARN_ON(!vdev-&gt;release))<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    <span class="hljs-comment">/* the v4l2_dev pointer MUST be present 如果之前未注册v4l2_device则报错*/</span><br>    <span class="hljs-keyword">if</span> (WARN_ON(!vdev-&gt;v4l2_dev))<br>        <span class="hljs-keyword">return</span> -EINVAL;<br><br>    <span class="hljs-comment">/* Part 1: check device type */</span><br>    <span class="hljs-keyword">switch</span> (type) &#123;<br>    <span class="hljs-comment">//根据设备类型类注册设备，摄像头设备为VFL_TYPE_GRABBER类型</span><br>    <span class="hljs-keyword">case</span> VFL_TYPE_GRABBER:<br>        name_base = <span class="hljs-string">&quot;video&quot;</span>;<br>    ·····<br>    ·····<br>    vdev-&gt;vfl_type = type;<br>    vdev-&gt;cdev = <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-keyword">if</span> (vdev-&gt;dev_parent == <span class="hljs-literal">NULL</span>)<br>        vdev-&gt;dev_parent = vdev-&gt;v4l2_dev-&gt;dev;<br>    <span class="hljs-keyword">if</span> (vdev-&gt;ctrl_handler == <span class="hljs-literal">NULL</span>)<br>        <span class="hljs-comment">//设置video_device的ctrl_handler，存在v4l2_device结构体中</span><br>        vdev-&gt;ctrl_handler = vdev-&gt;v4l2_dev-&gt;ctrl_handler;<br>    <span class="hljs-comment">/* Part 2: find a free minor, device node number and device index. */</span><br>    <span class="hljs-comment">/*2.寻找空闲次设备号，设备个数和设备下标*/</span><br><br>    <span class="hljs-comment">/* Pick a device node number 寻找一个空项位置*/</span><br>    mutex_lock(&amp;videodev_lock);<br>    nr = devnode_find(vdev, nr == <span class="hljs-number">-1</span> ? <span class="hljs-number">0</span> : nr, minor_cnt);<br>    <span class="hljs-comment">//</span><br>    <span class="hljs-keyword">if</span> (nr == minor_cnt)<br>        nr = devnode_find(vdev, <span class="hljs-number">0</span>, minor_cnt);<br>    <span class="hljs-keyword">if</span> (nr == minor_cnt) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;could not get a free device node number\n&quot;</span>);<br>        mutex_unlock(&amp;videodev_lock);<br>        <span class="hljs-keyword">return</span> -ENFILE;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_VIDEO_FIXED_MINOR_RANGES</span><br>    <span class="hljs-comment">/* 1-on-1 mapping of device node number to minor number */</span><br>    i = nr;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-comment">/* The device node number and minor numbers are independent, so</span><br><span class="hljs-comment">       we just find the first free minor number. */</span><br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; VIDEO_NUM_DEVICES; i++)<br>        <span class="hljs-keyword">if</span> (video_device[i] == <span class="hljs-literal">NULL</span>)<br>            <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">if</span> (i == VIDEO_NUM_DEVICES) &#123;<br>        mutex_unlock(&amp;videodev_lock);<br>        printk(KERN_ERR <span class="hljs-string">&quot;could not get a free minor\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -ENFILE;<br>    &#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    vdev-&gt;minor = i + minor_offset;<br>    vdev-&gt;num = nr;<br>    devnode_set(vdev);<br><br>    <span class="hljs-comment">/* Should not happen since we thought this minor was free */</span><br><br>    vdev-&gt;index = get_index(vdev);<br>    video_device[vdev-&gt;minor] = vdev;<br><br>    <span class="hljs-keyword">if</span> (vdev-&gt;ioctl_ops)<br>        determine_valid_ioctls(vdev);<br><br>    <span class="hljs-comment">/* Part 3: Initialize the character device */</span><br>    vdev-&gt;cdev = cdev_alloc();<br>    <span class="hljs-keyword">if</span> (vdev-&gt;cdev == <span class="hljs-literal">NULL</span>) &#123;<br>        ret = -ENOMEM;<br>        <span class="hljs-keyword">goto</span> cleanup;<br>    &#125;<br>    vdev-&gt;cdev-&gt;ops = &amp;v4l2_fops;<span class="hljs-comment">//设置字符设备的系统调用函数</span><br>    vdev-&gt;cdev-&gt;owner = owner;<br><br>    <span class="hljs-comment">//注册字符设备</span><br>    ret = cdev_add(vdev-&gt;cdev, MKDEV(VIDEO_MAJOR, vdev-&gt;minor), <span class="hljs-number">1</span>);<br><br>    <span class="hljs-comment">/* Part 4: register the device with sysfs */</span><br>    vdev-&gt;dev.class = &amp;video_class;<br>    vdev-&gt;dev.devt = MKDEV(VIDEO_MAJOR, vdev-&gt;minor);<br>    vdev-&gt;dev.parent = vdev-&gt;dev_parent;<br>    <span class="hljs-comment">//设置video结点名称，如果设备类型为VFL_TYPE_GRABBER，名称为videoX</span><br>    dev_set_name(&amp;vdev-&gt;dev, <span class="hljs-string">&quot;%s%d&quot;</span>, name_base, vdev-&gt;num);<br><br>    <span class="hljs-comment">//注册device文件，生成设备文件/dev/videoX</span><br>    ret = device_register(&amp;vdev-&gt;dev);<br>    <span class="hljs-comment">/* Register the release callback that will be called when the last</span><br><span class="hljs-comment">       reference to the device goes away. */</span><br>    <span class="hljs-comment">//设置销毁video设备的回调函数</span><br>    vdev-&gt;dev.release = v4l2_device_release;<br><br>    <span class="hljs-comment">/* Increase v4l2_device refcount */</span><br>    v4l2_device_get(vdev-&gt;v4l2_dev);<br></code></pre></td></tr></table></figure>
+<p>这个函数主要做四件事：</p>
+<ol>
+<li>检查设备类型，赋予设备名称</li>
+<li>寻找一个空闲的设备位置，寻找合适的主设备号和次设号</li>
+<li>初始化字符设备，使用 <code>v4l2_device</code> 的 <code>v4l2_fops</code> 初始化 <code>video_device</code> 的 fops、release 函数等</li>
+<li>注册字符设备，并生成 <code>/dev/videoX</code> 结点，注册 subdev 时也会调用这个接口</li>
+</ol>
+<p>分配和注册：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">video_device</span> *<span class="hljs-title">vdev</span>;</span><br><br>vdev = video_device_alloc();<br><span class="hljs-keyword">if</span> (!vdev)<br>    <span class="hljs-keyword">return</span> -ENOMEM;<br><br>vdev-&gt;v4l2_dev = &amp;dev-&gt;v4l2_dev;<br>vdev-&gt;fops = &amp;my_fops;<br>vdev-&gt;ioctl_ops = &amp;my_ioctl_ops;<br>vdev-&gt;release = video_device_release;<br>vdev-&gt;device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;<br>vdev-&gt;lock = &amp;dev-&gt;lock;<br>vdev-&gt;<span class="hljs-built_in">queue</span> = &amp;dev-&gt;<span class="hljs-built_in">queue</span>;<br><br>ret = video_register_device(vdev, VFL_TYPE_VIDEO, <span class="hljs-number">-1</span>);<br></code></pre></td></tr></table></figure>
+<p>注销：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">video_unregister_device(vdev);<br></code></pre></td></tr></table></figure>
+<p>这就是 <code>/dev/videoN</code> 的来源。</p>
+<h2 id="4-3-v4l2-subdev-从设备">4.3 v4l2_subdev 从设备</h2>
+<p>V4L2 从设备使用 <code>struct v4l2_subdev</code> 结构体表示，该结构体用于对子设备进行抽象。</p>
+<p>几乎所有的设备都有多个 IC 模块</p>
+<ul>
+<li>它们可能是实体的（例如 USB 摄像头里面包含 ISP、sensor 等）</li>
+<li>也可能是抽象的（如 USB 设备里面的抽象拓扑结构）</li>
+<li>它们在 <code>/dev</code> 目录下面生成了多个设备节点，并且这些 IC 模块还创建了一些非 v4l2 设备：DVB、ALSA、FB、I2C 和输入设备。</li>
+</ul>
+<p>通常情况下，这些 IC 模块通过一个或者多个 I2C 总线连接到主桥驱动上面，同时其它的总线仍然可用，这些 IC 就称为 <strong>sub-devices</strong>。</p>
+<p>一个 V4L2 主设备可能对应多个 V4L2 从设备，所有主设备对应的从设备都挂到 <code>v4l2_device</code> 结构体的 subdevs 链表中。</p>
+<p>对于视频设备，从设备就是摄像头，通常情况下是 I2C 设备，主设备可通过 I2C 总线控制从设备</p>
+<p>例如控制摄像头的焦距、闪光灯等，同时使用 MIPI 或者 LVDS 等接口进行图像数据传输。</p>
+<p><code>struct v4l2_subdev</code> 中包含的 <code>struct v4l2_subdev_ops</code> 是一个完备的操作函数集，用于对接各种不同的子设备，比如 video、audio、sensor 等；</p>
+<p>同时还有一个核心的函数集 <code>struct v4l2_subdev_core_ops</code>，提供更通用的功能。子设备驱动根据设备特点实现该函数集中的某些函数即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c">[include/media/v4l2-subdev.h]<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V4L2_SUBDEV_FL_IS_I2C        (1U &lt;&lt; 0)  <span class="hljs-comment">// 从设备是I2C设备</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V4L2_SUBDEV_FL_IS_SPI        (1U &lt;&lt; 1)  <span class="hljs-comment">// 从设备是SPI设备</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V4L2_SUBDEV_FL_HAS_DEVNODE    (1U &lt;&lt; 2)  <span class="hljs-comment">// 从设备需要设备节点</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V4L2_SUBDEV_FL_HAS_EVENTS    (1U &lt;&lt; 3)  <span class="hljs-comment">// 从设备会产生事件</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev</span> &#123;</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_MEDIA_CONTROLLER)  <span class="hljs-comment">// 多媒体配置选项</span></span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">media_entity</span> <span class="hljs-title">entity</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span>  <span class="hljs-comment">// 子设备串联链表</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span>  <span class="hljs-comment">// 属于那个模块，一般指向i2c_lient驱动模块</span><br>    <span class="hljs-type">bool</span> owner_v4l2_dev;<br>    <span class="hljs-comment">// 标志位，确定该设备属于那种设备，由V4L2_SUBDEV_FL_IS_XX宏确定</span><br>    u32 flags;<br>    <span class="hljs-comment">// 指向主设备的v4l2_device结构体</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_device</span> *<span class="hljs-title">v4l2_dev</span>;</span><br>    <span class="hljs-comment">// v4l2子设备的操作函数集合</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_ops</span> *<span class="hljs-title">ops</span>;</span><br>    <span class="hljs-comment">// 提供给v4l2框架的操作函数，只有v4l2框架会调用，驱动不使用</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_internal_ops</span> *<span class="hljs-title">internal_ops</span>;</span><br>    <span class="hljs-comment">// 从设备的控制接口</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_ctrl_handler</span> *<span class="hljs-title">ctrl_handler</span>;</span><br>    <span class="hljs-comment">// 从设备的名称，必须独一无二</span><br>    <span class="hljs-type">char</span> name[V4L2_SUBDEV_NAME_SIZE];<br>    <span class="hljs-comment">// 从设备组的ID，由驱动定义，相似的从设备可以编为一组，</span><br>    u32 grp_id;<br>    <span class="hljs-comment">// 从设备私有数据指针，一般指向i2c_client的设备结构体dev</span><br>    <span class="hljs-type">void</span> *dev_priv;<br>    <span class="hljs-comment">// 主设备私有数据指针，一般指向v4l2_device嵌入的结构体</span><br>    <span class="hljs-type">void</span> *host_priv;<br>    <span class="hljs-comment">// 指向video设备结构体</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">video_device</span> *<span class="hljs-title">devnode</span>;</span><br>    <span class="hljs-comment">// 指向物理设备</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">dev</span>;</span><br>    <span class="hljs-comment">// 将所有从设备连接到全局subdev_list链表或notifier-&gt;done链表</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">async_list</span>;</span><br>    <span class="hljs-comment">// 指向struct v4l2_async_subdev，用于异步事件</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_async_subdev</span> *<span class="hljs-title">asd</span>;</span><br>    <span class="hljs-comment">// 指向管理的notifier，用于主设备和从设备的异步关联</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_async_notifier</span> *<span class="hljs-title">notifier</span>;</span><br>    <span class="hljs-comment">/* common part of subdevice platform data */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_platform_data</span> *<span class="hljs-title">pdata</span>;</span><br>&#125;;<br><br><span class="hljs-comment">// 提供给v4l2框架的操作函数，只有v4l2框架会调用，驱动不使用</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_internal_ops</span> &#123;</span><br>    <span class="hljs-comment">// v4l2_subdev注册时回调此函数，使v4l2_dev指向主设备的v4l2_device结构体</span><br>    <span class="hljs-type">int</span> (*registered)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd);<br>    <span class="hljs-comment">// v4l2_subdev卸载时回调此函数</span><br>    <span class="hljs-type">void</span> (*unregistered)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd);<br>    <span class="hljs-comment">// 应用调用open打开从设备节点时调用此函数</span><br>    <span class="hljs-type">int</span> (*open)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-keyword">struct</span> v4l2_subdev_fh *fh);<br>    <span class="hljs-comment">// 应用调用close时调用此函数</span><br>    <span class="hljs-type">int</span> (*close)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-keyword">struct</span> v4l2_subdev_fh *fh);<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用 <code>v4l2_subdev_init</code> 初始化 <code>v4l2_subdev</code> 结构体。然后必须用一个唯一的名字初始化 <code>subdev-&gt;name</code>，同时初始化模块的 owner 域。</p>
+<p>若从设备是 I2C 设备，则可使用 <code>v4l2_i2c_subdev_init</code> 函数进行初始化，该函数内部会调用 <code>v4l2_subdev_init</code>，同时设置 flags、owner、dev、name 等成员。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"> [include/media/v4l2-subdev.h]<br><span class="hljs-comment">// 初始化v4l2_subdev结构体</span><br><span class="hljs-comment">// ops-v4l2子设备的操作函数集合指针，保存到v4l2_subdev结构体的ops成员中</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_subdev_init</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd,</span><br><span class="hljs-params">                      <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> v4l2_subdev_ops *ops)</span>;<br><br>[include/media/v4l2-common.h]<br><span class="hljs-comment">// 初始化V4L2从设备为I2C设备的v4l2_subdev结构体</span><br><span class="hljs-comment">// sd-v4l2_subdev结构体指针</span><br><span class="hljs-comment">// client-i2c_client结构体指针</span><br><span class="hljs-comment">// ops-v4l2子设备的操作函数集合指针，保存到v4l2_subdev结构体的ops成员中</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_i2c_subdev_init</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, </span><br><span class="hljs-params">                          <span class="hljs-keyword">struct</span> i2c_client *client,</span><br><span class="hljs-params">                          <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> v4l2_subdev_ops *ops)</span>;<br></code></pre></td></tr></table></figure>
+<p>从设备必须向 V4L2 子系统注册 <code>v4l2_subdev</code> 结构体，使用 <code>v4l2_device_register_subdev</code> 注册，使用 <code>v4l2_device_unregister_subdev</code> 注销。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">[include/media/v4l2-device.h]<br><span class="hljs-comment">// 向V4L2子系统注册v4l2_subdev结构体</span><br><span class="hljs-comment">// v4l2_dev-主设备v4l2_device结构体指针</span><br><span class="hljs-comment">// sd-从设备v4l2_subdev结构体指针</span><br><span class="hljs-comment">// 返回值 0-成功，小于0-失败</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">v4l2_device_register_subdev</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_device *v4l2_dev,</span><br><span class="hljs-params">                                <span class="hljs-keyword">struct</span> v4l2_subdev *sd)</span><br><br><span class="hljs-comment">// 从V4L2子系统注销v4l2_subdev结构体</span><br><span class="hljs-comment">// sd-从设备v4l2_subdev结构体指针    </span><br><span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_device_unregister_subdev</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd)</span>;<br></code></pre></td></tr></table></figure>
+<p>V4L2 从设备驱动都必须有一个 <code>v4l2_subdev</code> 结构体。</p>
+<p>这个结构体可以单独代表一个简单的从设备，也可以嵌入到一个更大的结构体中，与更多设备状态信息保存在一起。通常有一个下级设备结构体（比如：<code>i2c_client</code>）包含了内核创建的设备数据。</p>
+<p>建议使用 <code>v4l2_set_subdevdata()</code> 将这个结构体的指针保存在 <code>v4l2_subdev</code> 的私有数据域(<code>dev_priv</code>)中。可以更方便的通过 <code>v4l2_subdev</code> 找到实际的低层总线特定设备数据。</p>
+<p>对于常用的 <code>i2c_client</code> 结构体，<code>i2c_set_clientdata</code> 函数可用于保存一个 <code>v4l2_subdev</code> 指针，<code>i2c_get_clientdata</code> 可以获取一个 <code>v4l2_subdev</code> 指针；对于其他总线可能需要使用其他相关函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c">[include/media/v4l2-subdev.h]<br><span class="hljs-comment">// 将i2c_client的指针保存到v4l2_subdev结构体的dev_priv成员中</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_set_subdevdata</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-type">void</span> *p)</span><br>&#123;<br>    sd-&gt;dev_priv = p;<br>&#125;<br><br>[include/linux/i2c.h]<br><span class="hljs-comment">// 可以将v4l2_subdev结构体指针保存到i2c_client中dev成员的driver_data中</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">i2c_set_clientdata</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> i2c_client *dev, <span class="hljs-type">void</span> *data)</span><br>&#123;<br>    dev_set_drvdata(&amp;dev-&gt;dev, data);<br>&#125;<br><br><span class="hljs-comment">// 获取i2c_client结构体中dev成员的driver_data，一般指向v4l2_subdev</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">i2c_get_clientdata</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> i2c_client *dev)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> dev_get_drvdata(&amp;dev-&gt;dev);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>主设备驱动中也应保存每个子设备的私有数据，比如一个指向特定主设备的各设备私有数据的指针。为此 <code>v4l2_subdev</code> 结构体提供主设备私有数据域(<code>host_priv</code>)，并可通过 <code>v4l2_get_subdev_hostdata</code> 和  <code>v4l2_set_subdev_hostdata</code> 访问。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"> [include/media/v4l2-subdev.h]<br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">v4l2_get_subdev_hostdata</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> v4l2_subdev *sd)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> sd-&gt;host_priv;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_set_subdev_hostdata</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-type">void</span> *p)</span><br>&#123;<br>    sd-&gt;host_priv = p;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>每个 <code>v4l2_subdev</code> 都包含子设备驱动需要实现的函数指针（如果对此设备不适用，可为 NULL），具体在 <code>v4l2_subdev_ops</code> 结构体当中。</p>
+<p>由于子设备可完成许多不同的工作，而在一个庞大的函数指针结构体中通常仅有少数有用的函数实现其功能肯定不合适。</p>
+<p>所以，函数指针根据其实现的功能被分类，每一类都有自己的函数指针结构体，如 <code>v4l2_subdev_core_ops</code>、<code>v4l2_subdev_audio_ops</code>、<code>v4l2_subdev_video_ops</code> 等等。</p>
+<p>顶层函数指针结构体包含了指向各类函数指针结构体的指针，如果子设备驱动不支持该类函数中的任何一个功能，则指向该类结构体的指针为 NULL。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"> [include/media/v4l2-subdev.h]<br><span class="hljs-comment">/* v4l2从设备的操作函数集合，从设备根据自身设备类型选择实现，</span><br><span class="hljs-comment">       其中core函数集通常可用于所有子设备，其他类别的实现依赖于</span><br><span class="hljs-comment">       子设备。如视频设备可能不支持音频操作函数，反之亦然。这样的</span><br><span class="hljs-comment">       设置在限制了函数指针数量的同时，还使增加新的操作函数和分类</span><br><span class="hljs-comment">       变得较为容易。 */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_ops</span> &#123;</span><br>    <span class="hljs-comment">// 从设备的通用操作函数集合，进行初始化、reset、控制等操作</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_core_ops</span>    *<span class="hljs-title">core</span>;</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_tuner_ops</span>    *<span class="hljs-title">tuner</span>;</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_audio_ops</span>    *<span class="hljs-title">audio</span>;</span>  <span class="hljs-comment">// 音频设备</span><br>    <span class="hljs-comment">// 视频设备</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_video_ops</span>    *<span class="hljs-title">video</span>;</span>  <br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_vbi_ops</span>    *<span class="hljs-title">vbi</span>;</span>    <span class="hljs-comment">// VBI设备</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_ir_ops</span>        *<span class="hljs-title">ir</span>;</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_sensor_ops</span>    *<span class="hljs-title">sensor</span>;</span><br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_pad_ops</span>    *<span class="hljs-title">pad</span>;</span><br>&#125;;<br><br><span class="hljs-comment">// 适用于所有v4l2从设备的操作函数集合</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">v4l2_subdev_core_ops</span> &#123;</span><br>    <span class="hljs-comment">// IO引脚复用配置</span><br>    <span class="hljs-type">int</span> (*s_io_pin_config)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-type">size_t</span> n,<br>                           <span class="hljs-keyword">struct</span> v4l2_subdev_io_pin_config *pincfg);<br>    <span class="hljs-comment">// 初始化从设备的某些寄存器，使其恢复默认</span><br>    <span class="hljs-type">int</span> (*init)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, u32 val);<br>    <span class="hljs-comment">// 加载固件</span><br>    <span class="hljs-type">int</span> (*load_fw)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd);<br>    <span class="hljs-comment">// 复位</span><br>    <span class="hljs-type">int</span> (*reset)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, u32 val);<br>    <span class="hljs-comment">// 设置GPIO引脚输出值</span><br>    <span class="hljs-type">int</span> (*s_gpio)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, u32 val);<br>    <span class="hljs-comment">// 设置从设备的电源状态，0-省电模式，1-正常操作模式</span><br>    <span class="hljs-type">int</span> (*s_power)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd, <span class="hljs-type">int</span> on);<br>    <span class="hljs-comment">// 中断函数，被主设备的中断函数调用</span><br>    <span class="hljs-type">int</span> (*interrupt_service_routine)(<span class="hljs-keyword">struct</span> v4l2_subdev *sd,<br>                                     u32 status, <span class="hljs-type">bool</span> *handled);<br>    ......<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用 <code>v4l2_device_register_subdev</code> 注册从设备后，就可以调用 <code>v4l2_subdev_ops</code> 中的方法了。</p>
+<p>可以通过 <code>v4l2_subdev</code> 直接调用，也可以使用内核提供的宏定义 <code>v4l2_subdev_call</code> 间接调用某一个方法。</p>
+<p>若要调用多个从设备的同一个方法，则可使用 <code>v4l2_device_call_all</code> 宏定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 直接调用</span><br>err = sd-&gt;ops-&gt;video-&gt;g_std(sd, &amp;norm);<br><br><span class="hljs-comment">// 使用宏定义调用，这个宏将会做NULL指针检查，如果su为NULL，则返回-ENODEV；</span><br><span class="hljs-comment">// 如果sd-&gt;ops-&gt;video或sd-&gt;ops-&gt;video-&gt;g_std为NULL，则返回-ENOIOCTLCMD；</span><br><span class="hljs-comment">// 否则将返回sd-&gt;ops-&gt;video-&gt;g_std的调用的实际结果</span><br>err = v4l2_subdev_call(sd, video, g_std, &amp;norm);<br><br>[include/media/v4l2-subdev.h]<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> v4l2_subdev_call(sd, o, f, args...)                \</span><br><span class="hljs-meta">    (!(sd) ? -ENODEV : (((sd)-&gt;ops-&gt;o &amp;&amp; (sd)-&gt;ops-&gt;o-&gt;f) ?    \</span><br><span class="hljs-meta">        (sd)-&gt;ops-&gt;o-&gt;f((sd) , ##args) : -ENOIOCTLCMD))</span><br><br><br>v4l2_device_call_all(v4l2_dev, <span class="hljs-number">0</span>, video, g_std, &amp;norm);<br>  <br>[include/media/v4l2-device.h]<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> v4l2_device_call_all(v4l2_dev, grpid, o, f, args...)        \</span><br><span class="hljs-meta">do &#123;                                \</span><br><span class="hljs-meta">	struct v4l2_subdev *__sd;                \</span><br><span class="hljs-meta">    __v4l2_device_call_subdevs_p(v4l2_dev, __sd,        \</span><br><span class="hljs-meta">    	 !(grpid) || __sd-&gt;grp_id == (grpid), o, f ,    \</span><br><span class="hljs-meta">    	 ##args);                    \</span><br><span class="hljs-meta">&#125; while (0)</span><br></code></pre></td></tr></table></figure>
+<p>如果子设备需要通知它的 <code>v4l2_device</code> 主设备一个事件，可以调用 `v4l2_subdev_notify(sd,notification, arg)``。</p>
+<p>这个宏检查是否有一个 notify 回调被注册，如果没有，返回 <code>-ENODEV</code>。否则返回 notify 调用结果。notify 回调函数由主设备提供。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">[include/media/v4l2-device.h]<br><span class="hljs-comment">// 从设备通知主设备，最终回调到v4l2_device的notify函数</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">v4l2_subdev_notify</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> v4l2_subdev *sd,</span><br><span class="hljs-params">                                      <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> notification, <span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (sd &amp;&amp; sd-&gt;v4l2_dev &amp;&amp; sd-&gt;v4l2_dev-&gt;notify)<br>        sd-&gt;v4l2_dev-&gt;notify(sd, notification, arg);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>使用 <code>v4l2_subdev</code> 的好处在于它是一个通用结构体，且不包含任何底层硬件信息。</p>
+<p>所有驱动可以包含多个 I2C 总线的从设备，但也有从设备是通过 GPIO 控制。这个区别仅在配置设备时有关系，一旦子设备注册完成，对于 v4l2 子系统来说就完全透明了。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E6%91%84%E5%83%8F%E5%A4%B4/" class="category-chain-item">摄像头</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E6%91%84%E5%83%8F%E5%A4%B4/V4L2/" class="category-chain-item">V4L2</a>
+  
+  
+
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+        <a href="/tags/%E6%91%84%E5%83%8F%E5%A4%B4/" class="print-no-link">#摄像头</a>
+      
+        <a href="/tags/V4L2/" class="print-no-link">#V4L2</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux驱动——V4L2框架</div>
+      <div>http://example.com/2026/08/10/Linux驱动——V4L2框架/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/12/V4L2%E6%A1%86%E6%9E%B6%E2%80%94%E2%80%94%E8%A7%86%E9%A2%91%E9%87%87%E9%9B%86%E5%AE%8C%E6%95%B4%E9%93%BE%E8%B7%AF/" title="V4L2框架——视频采集完整链路">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">V4L2框架——视频采集完整链路</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/09/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E4%BD%BF%E7%94%A8workqueue%E5%A4%84%E7%90%86%E4%B8%AD%E6%96%AD/" title="Linux驱动——使用workqueue处理中断">
+                        <span class="hidden-mobile">Linux驱动——使用workqueue处理中断</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

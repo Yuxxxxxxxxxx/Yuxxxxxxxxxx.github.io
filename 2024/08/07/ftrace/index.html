@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述 在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来">
+    <meta name="description" content="[toc]  一、概述 在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 利用 ftrace 分析内核调用">
 <meta property="og:url" content="http://example.com/2024/08/07/ftrace/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述 在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来">
+<meta property="og:description" content="[toc]  一、概述 在 Linux 中，ftrace 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。 ftrace 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。 ftrace 使用了内核中的一些机制来实">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/07/ftrace/1.png">
 <meta property="og:image" content="http://example.com/2024/08/07/ftrace/2.png">
@@ -292,14 +292,14 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p>在 Linux 中，<code>ftrace</code> 是一种用于跟踪内核函数调用和事件的工具。它是一个功能强大的跟踪框架，可用于分析和调试内核性能问题。</p>
 <p><code>ftrace</code> 提供了多种功能，包括函数跟踪、事件记录和性能分析等。它能够记录函数的调用和返回信息，以及函数执行的路径和时间。通过跟踪这些信息，我们可以了解到内核函数的执行情况，从而定位和解决性能问题。</p>
 <p><code>ftrace</code> 使用了内核中的一些机制来实现跟踪功能。其中一个关键的机制是函数预编译器，它会在每个内核函数的入口和出口处插入一些特殊的指令，用于记录函数的调用和返回信息。这些指令可以通过内核配置选项来启用或禁用。</p>
 <p>此外，<code>ftrace</code> 还支持事件跟踪，可以记录系统中发生的各种事件，比如中断、系统调用、定时器事件等。通过分析这些事件的发生频率和顺序，可以帮助我们找出系统中的瓶颈和性能问题。</p>
 <p>除了记录和分析跟踪信息外，<code>ftrace</code> 还提供了一些工具和接口，用于配置和控制跟踪功能。其中最常用的工具是 <code>trace-cmd</code> 和 <code>trace-cmd-report</code>，它们可以用来收集和分析跟踪数据。</p>
-<h1 id="二-ftrace-的使用"><a class="markdownIt-Anchor" href="#二-ftrace-的使用"></a> 二、ftrace 的使用</h1>
-<h2 id="1-常用信息"><a class="markdownIt-Anchor" href="#1-常用信息"></a> 1、常用信息</h2>
+<h1>二、ftrace 的使用</h1>
+<h2 id="1、常用信息">1、常用信息</h2>
 <p><code>ftrace</code> 是一个自 Linux 2.6 版本起就支持的内核调试工具。最初，<code>ftrace</code> 主要用于函数级别的跟踪（<em><strong>function trace</strong></em>），但经过不断发展，<code>ftrace</code>现已成为一个通用的调试框架，能够实现多种跟踪目的。</p>
 <p><code>ftrace</code>通过 <strong>debugfs</strong> 虚拟文件系统向用户空间提供访问接口。通常，<strong>debugfs</strong> 会挂载在 <code>/sys/kernel/debug</code> 目录下，而 <code>ftrace</code>的控制和输出文件位于该目录下的 tracing子目录中，完整路径为 <code>/sys/kernel/debug/tracing</code>。所以要使用 <code>ftrace</code>，就要先进入到 <code>sys/kernel/debug/tracing</code> 目录中（仅对 root 用户可用）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cd</span> /sys/kernel/debug/tracing<br></code></pre></td></tr></table></figure>
@@ -377,7 +377,7 @@
 </tbody>
 </table>
 <p>更详细的信息查阅 <a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/trace/ftrace.txt">ftrace 官方文档</a>。</p>
-<h2 id="2-指定-ftrace-跟踪器"><a class="markdownIt-Anchor" href="#2-指定-ftrace-跟踪器"></a> 2、指定 ftrace 跟踪器</h2>
+<h2 id="2、指定-ftrace-跟踪器">2、指定 ftrace 跟踪器</h2>
 <p><code>ftrace</code> 支持多种追踪类型，包括函数调用、函数图、硬件延迟、中断关闭、抢占关闭等，我们可以用上一小节提到的 <code>available_tracers</code> 来查看可用的跟踪器：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">cat</span>  /sys/kernel/debug/tracing/available_tracers<br>timerlat osnoise hwlat blk mmiotrace function_graph wakeup_dl wakeup_rt wakeup <span class="hljs-keyword">function</span> nop<br></code></pre></td></tr></table></figure>
 <p>如下是其中一些特性的介绍：</p>
@@ -390,14 +390,14 @@
 </ul>
 <p>其中比较常用的是 <strong>function</strong> 和 <strong>function_graph</strong>。如要要设置跟踪器类型，需要把类型写入到 <code>current_tracer</code> 文件。比如设置类型为 <strong>function_graph</strong> 可以这样操作</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> sh -c <span class="hljs-string">&quot;echo function_graph &gt; /sys/kernel/debug/tracing/current_tracer&quot;</span><br></code></pre></td></tr></table></figure>
-<h2 id="3-设置要跟踪的函数"><a class="markdownIt-Anchor" href="#3-设置要跟踪的函数"></a> 3、设置要跟踪的函数</h2>
+<h2 id="3、设置要跟踪的函数">3、设置要跟踪的函数</h2>
 <p><code>set_ftrace_filter</code> 表示要跟踪的函数，比如追踪 <em>epoll_wait</em> 可以这样操作：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> sh -c <span class="hljs-string">&quot;echo SyS_epoll_wait &gt; /sys/kernel/debug/tracing/set_ftrace_filter&quot;</span><br></code></pre></td></tr></table></figure>
 <p><code>set_graph_function</code> 用于设置 <strong>function_graph</strong> 跟踪器的触发函数。它不仅跟踪指定的函数，还跟踪该函数调用的所有子函数。</p>
-<h2 id="4-ftrace-的开关"><a class="markdownIt-Anchor" href="#4-ftrace-的开关"></a> 4、ftrace 的开关</h2>
+<h2 id="4、ftrace-的开关">4、ftrace 的开关</h2>
 <p>ftrace 的开关是通过 tracing_on 文件来控制的。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 关闭 trace</span><br>$ <span class="hljs-built_in">sudo</span> sh -c <span class="hljs-string">&quot;echo 0 &gt; /sys/kernel/debug/tracing/tracing_on&quot;</span><br><br><span class="hljs-comment"># 开启 trace</span><br>$ <span class="hljs-built_in">sudo</span> sh -c <span class="hljs-string">&quot;echo 1 &gt; /sys/kernel/debug/tracing/tracing_on&quot;</span><br></code></pre></td></tr></table></figure>
-<h2 id="5-function-跟踪程序"><a class="markdownIt-Anchor" href="#5-function-跟踪程序"></a> 5、function 跟踪程序</h2>
+<h2 id="5、function-跟踪程序">5、function 跟踪程序</h2>
 <p>先写一个脚本文件 <a target="_blank" rel="noopener" href="http://trace.sh">trace.sh</a>，再执行：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> trace.sh</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br><br>dir=/sys/kernel/debug/tracing<br><br>sysctl kernel.ftrace_enabled=1<br>echo function &gt; $&#123;dir&#125;/current_tracer<br>echo 1 &gt; $&#123;dir&#125;/tracing_on<br>sleep 1<br>echo 0 &gt; $&#123;dir&#125;/tracing_on<br>less $&#123;dir&#125;/trace<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sudo</span> sh trace.sh</span><br></code></pre></td></tr></table></figure>
 <p>脚本运行完成后，我们将看到下列的输出：</p>
@@ -410,7 +410,7 @@
 <li>进程的时间戳（TIMESTAMP）</li>
 <li>被跟踪函数的名字以及调用它的父级函数；例如，在我们输出的第一行，<em>rb_simple_write</em> 调用了 <em>mutex-unlock</em> 函数。</li>
 </ul>
-<h2 id="6-function_graph-跟踪程序"><a class="markdownIt-Anchor" href="#6-function_graph-跟踪程序"></a> 6、function_graph 跟踪程序</h2>
+<h2 id="6、function-graph-跟踪程序">6、function_graph 跟踪程序</h2>
 <p><code>function_graph</code> 跟踪程序的工作和函数跟踪程序一样，但是它更详细：它显示了每个函数的进入和退出点。使用这个跟踪程序，我们可以跟踪函数的子调用并且测量每个函数的运行时间。</p>
 <p>还是一样，先写一个脚本文件 <a target="_blank" rel="noopener" href="http://trace.sh">trace.sh</a>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> trace.sh<br><span class="hljs-comment">#!/bin/sh</span><br><br><span class="hljs-built_in">dir</span>=/sys/kernel/debug/tracing<br><br>sysctl kernel.ftrace_enabled=1<br><span class="hljs-built_in">echo</span> function_graph &gt; <span class="hljs-variable">$&#123;dir&#125;</span>/current_tracer<br><span class="hljs-built_in">echo</span> 1 &gt; <span class="hljs-variable">$&#123;dir&#125;</span>/tracing_on<br><span class="hljs-built_in">sleep</span> 1<br><span class="hljs-built_in">echo</span> 0 &gt; <span class="hljs-variable">$&#123;dir&#125;</span>/tracing_on<br>less <span class="hljs-variable">$&#123;dir&#125;</span>/trace<br><br>$ <span class="hljs-built_in">sudo</span> sh trace.sh<br></code></pre></td></tr></table></figure>
@@ -418,8 +418,8 @@
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>DURATION</code> 展示了花费在每个运行的函数上的时间。注意使用 + 符号标记的地方。加号（+）意思是这个函数花费的时间超过 10 毫秒；而如果用感叹号（!）则表示是这个函数花费的时间超过了 100 毫秒。</p>
 <p>在 <code>FUNCTION_CALLS</code> 下面，我们可以看到每个函数调用的信息。</p>
-<p>和 C 语言一样使用了花括号 <mark>{ }</mark> 标记每个函数的边界，它展示了每个函数的开始和结束，一个用于开始，一个用于结束；不能调用其它任何函数的叶子函数用一个分号 <mark>;</mark> 标记。</p>
-<h2 id="7-函数过滤器"><a class="markdownIt-Anchor" href="#7-函数过滤器"></a> 7、函数过滤器</h2>
+<p>和 C 语言一样使用了花括号 =={ }== 标记每个函数的边界，它展示了每个函数的开始和结束，一个用于开始，一个用于结束；不能调用其它任何函数的叶子函数用一个分号 ==;== 标记。</p>
+<h2 id="7、函数过滤器">7、函数过滤器</h2>
 <p><code>ftrace</code> 输出可能会很庞大，精确找出我们所需要的内容可能会非常困难。我们可以使用过滤器去简化我们的搜索：输出中将只显示与我们感兴趣的函数相关的信息。为实现过滤，我们只需要在 <em>set_ftrace_filter</em> 文件中写入我们需要过滤的函数的名字即可。例如：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">echo</span> kfree &gt; set_ftrace_filter<br></code></pre></td></tr></table></figure>
 <p>如果禁用过滤器，我们只需要在这个文件中添加一个空白行即可：</p>
@@ -428,7 +428,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">echo</span> kfree &gt; set_ftrace_notrace <br></code></pre></td></tr></table></figure>
 <p>输出将包含除了 <em>kfree()</em> 以外的任何函数的信息。</p>
 <p>另外还有 <code>set_ftrace_pid</code>。它是为在一个特定的进程运行期间调用跟踪函数准备的。</p>
-<h2 id="8-跟踪事件"><a class="markdownIt-Anchor" href="#8-跟踪事件"></a> 8、跟踪事件</h2>
+<h2 id="8、跟踪事件">8、跟踪事件</h2>
 <p>在Linux中，跟踪点（<em><strong>tracepoints</strong></em>）是一种用于动态跟踪程序执行的机制。它是一种轻量级的调试技术，可以在不修改程序源代码的情况下监视系统和应用程序的执行过程。</p>
 <p>跟踪点可以被视为在程序的不同位置放置的断点，当程序执行到这些位置时会触发相应的跟踪记录。这些跟踪记录可以提供有关程序行为的有用信息，如函数调用、系统调用、中断事件等。</p>
 <p>Linux中的跟踪点分为两类：</p>
@@ -470,9 +470,9 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;mode != 0&#x27;</span> &gt;  events/syscalls/sys_enter_openat/filter<br></code></pre></td></tr></table></figure>
 <p>如果需要清除 filter，直接设置为 0 即可：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">echo</span> 0 &gt; events/syscalls/sys_enter_openat/filter<br></code></pre></td></tr></table></figure>
-<h1 id="三-trace-cmd-的使用"><a class="markdownIt-Anchor" href="#三-trace-cmd-的使用"></a> 三、trace-cmd 的使用</h1>
+<h1>三、trace-cmd 的使用</h1>
 <p>从上面的例子看出使用 <code>ftrace</code> 还是挺麻烦的，真正使用时实际上使用 <code>trace-cmd</code> 更多一点。<code>trace-cmd</code> 是一个用户空间的命令行工具，用于与 <code>ftrace</code> 进行交互。它提供了一个更方便的接口来配置和使用 <code>ftrace</code>，避免了直接操作 <strong>debugfs</strong> 文件系统的麻烦。</p>
-<h2 id="1-常见命令"><a class="markdownIt-Anchor" href="#1-常见命令"></a> 1、常见命令</h2>
+<h2 id="1、常见命令">1、常见命令</h2>
 <p><code>trace-cmd</code> 的常见命令如下：</p>
 <ul>
 <li><code>trace-cmdrecord</code>：记录实时跟踪数据并将其写入trace.dat 文件</li>
@@ -488,17 +488,17 @@
 <p>使用 ctrl-c 退出这个 trace-cmd 时，会在当前目录生成 trace.dat文件。接下来使用 report 读取 trace.dat 生成可读的文本：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd report trace.dat<br></code></pre></td></tr></table></figure>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-常用选项"><a class="markdownIt-Anchor" href="#2-常用选项"></a> 2、常用选项</h2>
-<h3 id="21-列出可用的追踪器"><a class="markdownIt-Anchor" href="#21-列出可用的追踪器"></a> 2.1 列出可用的追踪器</h3>
+<h2 id="2、常用选项">2、常用选项</h2>
+<h3 id="2-1-列出可用的追踪器">2.1 列出可用的追踪器</h3>
 <p>当使用 <code>ftrace</code> 时，你必须查看文件的内容以了解有哪些追踪器可用。但使用 <code>trace-cmd</code>，你可以通过以下方式获得这些信息：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd list -e<br>trace-cmd: Permission denied<br>  reading /sys/kernel/tracing/available_tracers<br></code></pre></td></tr></table></figure>
 <p>它还可以带一个可选的参数，使用正则表达式进行过滤：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd list -e <span class="hljs-string">&#x27;^sched.*&#x27;</span> <span class="hljs-comment"># 列出所有以 sched 开头的事件</span><br></code></pre></td></tr></table></figure>
-<h3 id="22-跟踪特定进程的函数调用"><a class="markdownIt-Anchor" href="#22-跟踪特定进程的函数调用"></a> 2.2 跟踪特定进程的函数调用</h3>
+<h3 id="2-2-跟踪特定进程的函数调用">2.2 跟踪特定进程的函数调用</h3>
 <p>如果只想跟踪特定进程的函数调用，可以使用 -P 选项指定进程的 PID。例如，要跟踪用户进程 PID 为 1656 的进程，可以使用以下命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd record -p function_graph -P 1656<br></code></pre></td></tr></table></figure>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="23-函数过滤"><a class="markdownIt-Anchor" href="#23-函数过滤"></a> 2.3 函数过滤</h3>
+<h3 id="2-3-函数过滤">2.3 函数过滤</h3>
 <p>-g 选项用于 <code>function_graph</code> 插件，<code>-g do_sys_open</code> 表示只跟踪 <code>do_sys_open</code> 函数及其调用的所有子函数。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd record -p function_graph -g do_sys_open<br></code></pre></td></tr></table></figure>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -510,15 +510,15 @@
 <li>-l 不会跟踪其内部的调用子函数;</li>
 <li>-g 会跟踪函数内部调用的子函数。</li>
 </ul>
-<h3 id="24-限制跟踪深度"><a class="markdownIt-Anchor" href="#24-限制跟踪深度"></a> 2.4 限制跟踪深度</h3>
+<h3 id="2-4-限制跟踪深度">2.4 限制跟踪深度</h3>
 <p>默认情况下，<code>trace-cmd</code> 的 <code>function_graph</code> 会记录所有嵌套的函数调用。可以通过设置 <code>--max-graph-depth</code> 来限制跟踪深度。例如要将深度设置为 2，可以使用以下命令:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd record -p function_graph --max-graph-depth 2 -P 1656<br></code></pre></td></tr></table></figure>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="25-追踪特定事件"><a class="markdownIt-Anchor" href="#25-追踪特定事件"></a> 2.5 追踪特定事件</h3>
+<h3 id="2-5-追踪特定事件">2.5 追踪特定事件</h3>
 <p>可以结合事件追踪 -e 来获取更详细的信息，比如 <code>-es ched:sched_switch</code> 将指定追踪调度切换事件。还可以使用正则表达式过滤，比如追踪 tcp 相关的事件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd record -e <span class="hljs-string">&quot;tcp:*&quot;</span><br></code></pre></td></tr></table></figure>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="26-了解可被追踪的函数"><a class="markdownIt-Anchor" href="#26-了解可被追踪的函数"></a> 2.6 了解可被追踪的函数</h3>
+<h3 id="2-6-了解可被追踪的函数">2.6 了解可被追踪的函数</h3>
 <p>如果你想只追踪某些函数而忽略其他的，你需要知道确切的函数名称。你可以用 <code>list -f</code> 参数来得到它们。例如搜索常见的内核函数 kmalloc，它被用来在内核中分配内存：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ trace-cmd list -f | grep kmalloc<br>bpf_map_kmalloc_node<br>mempool_kmalloc<br>__traceiter_kmalloc<br>__traceiter_kmalloc_node<br>kmalloc_slab<br>kmalloc_order<br>kmalloc_order_trace<br>kmalloc_large_node<br>__kmalloc_track_caller<br>__kmalloc_node_track_caller<br>__kmalloc<br>__kmalloc_node<br>bio_kmalloc<br>devm_kmalloc_match<br>devm_kmalloc_release<br>devm_kmalloc<br>sock_kmalloc<br>kmalloc_reserve<br>kmalloc_fix_flags<br>drmm_kmalloc [drm]<br></code></pre></td></tr></table></figure>
                 

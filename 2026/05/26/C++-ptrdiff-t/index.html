@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、定义 ptrdiff_t 是 C&#x2F;C++ 标准库中定义的一个与机器相关的数据类型。ptrdiff_t 类型变量通常用来保存两个指针减法操作的结果。ptrdiff_t 定义在 stddef.h（cstddef）这个文件内。ptrdiff_t 通常被定义为 long int 类型。 123#include &lt;cstddef&gt;ptrdiff_t diff &#x3D; pointer1 - po">
+    <meta name="description" content="一、定义 ptrdiff_t 是 C&#x2F;C++ 标准库中定义的一个与机器相关的数据类型。ptrdiff_t 类型变量通常用来保存两个指针减法操作的结果。ptrdiff_t 定义在 stddef.h（cstddef）这个文件内。ptrdiff_t 通常被定义为 long int 类型。 123#include &lt;cstddef&gt;ptrdiff_t diff &#x3D; pointer1 - poi">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ ptrdiff_t">
 <meta property="og:url" content="http://example.com/2026/05/26/C++-ptrdiff-t/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、定义 ptrdiff_t 是 C&#x2F;C++ 标准库中定义的一个与机器相关的数据类型。ptrdiff_t 类型变量通常用来保存两个指针减法操作的结果。ptrdiff_t 定义在 stddef.h（cstddef）这个文件内。ptrdiff_t 通常被定义为 long int 类型。 123#include &lt;cstddef&gt;ptrdiff_t diff &#x3D; pointer1 - po">
+<meta property="og:description" content="一、定义 ptrdiff_t 是 C&#x2F;C++ 标准库中定义的一个与机器相关的数据类型。ptrdiff_t 类型变量通常用来保存两个指针减法操作的结果。ptrdiff_t 定义在 stddef.h（cstddef）这个文件内。ptrdiff_t 通常被定义为 long int 类型。 123#include &lt;cstddef&gt;ptrdiff_t diff &#x3D; pointer1 - poi">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-26T07:51:10.000Z">
 <meta property="article:modified_time" content="2026-05-29T08:53:32.343Z">
@@ -276,11 +276,11 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-定义"><a class="markdownIt-Anchor" href="#一-定义"></a> 一、定义</h1>
+                <h1>一、定义</h1>
 <p><code>ptrdiff_t</code> 是 C/C++ 标准库中定义的一个与机器相关的数据类型。<code>ptrdiff_t</code> 类型变量通常用来保存两个指针减法操作的结果。<code>ptrdiff_t</code> 定义在 <code>stddef.h</code>（<code>cstddef</code>）这个文件内。<code>ptrdiff_t</code> 通常被定义为 <code>long int</code> 类型。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstddef&gt;</span></span><br><br><span class="hljs-type">ptrdiff_t</span> diff = pointer1 - pointer2;<br></code></pre></td></tr></table></figure>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr[<span class="hljs-number">10</span>];<br><span class="hljs-type">int</span>* p1 = &amp;arr[<span class="hljs-number">2</span>];<br><span class="hljs-type">int</span>* p2 = &amp;arr[<span class="hljs-number">5</span>];<br><br><span class="hljs-keyword">auto</span> diff = p2 - p1;  <span class="hljs-comment">// diff是ptrdiff_t类型</span><br></code></pre></td></tr></table></figure>
-<h1 id="二-ptrdiff_t-与-size_t"><a class="markdownIt-Anchor" href="#二-ptrdiff_t-与-size_t"></a> 二、<code>ptrdiff_t</code> 与 <code>size_t</code></h1>
+<h1>二、<code>ptrdiff_t</code> 与 <code>size_t</code></h1>
 <p>与 <code>size_t</code> 的区别：</p>
 <table>
 <thead>
@@ -306,17 +306,17 @@
 </tr>
 </tbody>
 </table>
-<h1 id="三-应用"><a class="markdownIt-Anchor" href="#三-应用"></a> 三、应用</h1>
+<h1>三、应用</h1>
 <p>在 STL 中，迭代器的差值类型就是 <code>ptrdiff_t</code>：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">iterator</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">typedef</span> T value_type;<br>    <span class="hljs-keyword">typedef</span> T* pointer;<br>    <span class="hljs-keyword">typedef</span> T&amp; reference;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-type">ptrdiff_t</span> difference_type;<br>    <span class="hljs-keyword">typedef</span> std::random_access_iterator_tag iterator_category;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>迭代器特征类：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span> &#123;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">typename</span> Iterator::difference_type difference_type;<br>    <span class="hljs-comment">// ...</span><br>&#125;;<br><br><span class="hljs-comment">// 指针的特化版本</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span>&lt;T*&gt; &#123;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-type">ptrdiff_t</span> difference_type;  <span class="hljs-comment">// 指针的差值类型</span><br>    <span class="hljs-comment">// ...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-<h1 id="四-注意事项"><a class="markdownIt-Anchor" href="#四-注意事项"></a> 四、注意事项</h1>
-<h2 id="41-指针相减的限制"><a class="markdownIt-Anchor" href="#41-指针相减的限制"></a> 4.1 指针相减的限制</h2>
+<h1>四、注意事项</h1>
+<h2 id="4-1-指针相减的限制">4.1 指针相减的限制</h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr1[<span class="hljs-number">10</span>];<br><span class="hljs-type">int</span> arr2[<span class="hljs-number">10</span>];<br><span class="hljs-type">int</span>* p1 = arr1 + <span class="hljs-number">5</span>;<br><span class="hljs-type">int</span>* p2 = arr2 + <span class="hljs-number">3</span>;<br><br><span class="hljs-type">ptrdiff_t</span> diff = p1 - p2;  <span class="hljs-comment">// 未定义行为！</span><br><span class="hljs-comment">// 两个指针必须指向同一个数组（或数组末尾之后）</span><br></code></pre></td></tr></table></figure>
-<h2 id="42-与-size_t-的转换"><a class="markdownIt-Anchor" href="#42-与-size_t-的转换"></a> 4.2 与 size_t 的转换</h2>
+<h2 id="4-2-与-size-t-的转换">4.2 与 size_t 的转换</h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">vec</span><span class="hljs-params">(<span class="hljs-number">100</span>)</span></span>;<br><span class="hljs-type">size_t</span> size = vec.<span class="hljs-built_in">size</span>();      <span class="hljs-comment">// 100</span><br><span class="hljs-type">ptrdiff_t</span> diff = vec.<span class="hljs-built_in">end</span>() - vec.<span class="hljs-built_in">begin</span>();  <span class="hljs-comment">// 100</span><br><br><span class="hljs-comment">// 有符号到无符号转换</span><br><span class="hljs-type">size_t</span> s = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">size_t</span>&gt;(diff);  <span class="hljs-comment">// 安全，因为diff &gt;= 0</span><br><br><span class="hljs-comment">// 无符号到有符号转换（危险！）</span><br><span class="hljs-type">ptrdiff_t</span> d = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">ptrdiff_t</span>&gt;(size);  <span class="hljs-comment">// 可能溢出</span><br></code></pre></td></tr></table></figure>
-<h2 id="43-负数的情况"><a class="markdownIt-Anchor" href="#43-负数的情况"></a> 4.3 负数的情况</h2>
+<h2 id="4-3-负数的情况">4.3 负数的情况</h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr[<span class="hljs-number">10</span>];<br><span class="hljs-type">int</span>* p1 = arr + <span class="hljs-number">5</span>;<br><span class="hljs-type">int</span>* p2 = arr + <span class="hljs-number">2</span>;<br><br><span class="hljs-type">ptrdiff_t</span> diff1 = p1 - p2;  <span class="hljs-comment">// 3</span><br><span class="hljs-type">ptrdiff_t</span> diff2 = p2 - p1;  <span class="hljs-comment">// -3</span><br><br><span class="hljs-comment">// 负数的ptrdiff_t是有效的</span><br><span class="hljs-keyword">if</span> (diff2 &lt; <span class="hljs-number">0</span>) &#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;p2在p1之前&quot;</span> &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
 
                 

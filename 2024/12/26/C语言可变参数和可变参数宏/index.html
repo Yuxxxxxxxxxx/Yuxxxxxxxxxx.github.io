@@ -278,7 +278,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-可变参数"><a class="markdownIt-Anchor" href="#一-可变参数"></a> 一、可变参数</h1>
+                <h1>一、可变参数</h1>
 <p>在 C 语言中实现可变参数需要用到这下面这几个数据类型和函数（其实是宏定义）：</p>
 <ul>
 <li><code>va_list</code></li>
@@ -293,18 +293,18 @@
 <li>使用 <code>va_arg</code> 函数提取可变参数：循环从 <code>arg</code> 中提取每一个变量，最后一个参数用来指定提取的数据类型。比如：如果格式化字符串是 <code>%d</code>，那么就从可变参数中提取一个 <code>int</code> 型的数据，如果格式化字符串是 <code>%c</code>，就从可变参数中提取一个 <code>char</code> 型数据；</li>
 <li>数据处理结束后，使用 <code>va_end</code> 来释放 <code>arg</code> 变量。</li>
 </ol>
-<h2 id="1-使用示例"><a class="markdownIt-Anchor" href="#1-使用示例"></a> 1、使用示例</h2>
+<h2 id="1、使用示例">1、使用示例</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdarg.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">my_printf_int</span><span class="hljs-params">(<span class="hljs-type">int</span> num,...)</span><br>&#123;<br>    <span class="hljs-type">int</span> i, val;<br>    va_list arg;<br>    va_start(arg, num);<br>    <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; num; i++)<br>    &#123;<br>        val = va_arg(arg, <span class="hljs-type">int</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d &quot;</span>, val);<br>    &#125;<br>    va_end(arg);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">1</span>, b = <span class="hljs-number">2</span>, c = <span class="hljs-number">3</span>;<br>    my_printf_int(<span class="hljs-number">3</span>, a, b, c);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>执行这段代码会依次输出 <code>1 2 3</code>。</p>
 <p>这里要注意一点，虽然传入的参数个数是不固定的，但是参数的类型都必须是一样的。另外，处理函数中必须要知道传入的参数有多少个，上面的例程中处理函数是通过第一个参数来判断的，如果是处理 <code>char *</code> 的话，则是通过最后一个可变参数 <code>NULL</code> 来判断的。</p>
-<h2 id="2-可变参数原理"><a class="markdownIt-Anchor" href="#2-可变参数原理"></a> 2、可变参数原理</h2>
-<h3 id="21-可变参数的几个宏定义"><a class="markdownIt-Anchor" href="#21-可变参数的几个宏定义"></a> 2.1 可变参数的几个宏定义</h3>
+<h2 id="2、可变参数原理">2、可变参数原理</h2>
+<h3 id="2-1-可变参数的几个宏定义">2.1 可变参数的几个宏定义</h3>
 <p>前面说到了，可变参数实际上就是宏定义，下面来看一下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">char</span> *    va_list;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_start  _crt_va_start</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_arg    _crt_va_arg  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> va_end    _crt_va_end  </span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _crt_va_end(ap)      ( ap = (va_list)0 )</span><br></code></pre></td></tr></table></figure>
 <blockquote>
 <p>注意，<code>va_list</code> 就是一个 <code>char *</code> 类型的指针</p>
 </blockquote>
-<h3 id="22-可变参数的处理过程"><a class="markdownIt-Anchor" href="#22-可变参数的处理过程"></a> 2.2 可变参数的处理过程</h3>
+<h3 id="2-2-可变参数的处理过程">2.2 可变参数的处理过程</h3>
 <p>下面结合这些宏定义和前面的示例来看一下柯柏年参数的处理过程。</p>
 <p>在 C 语言中，参数是从右到左，逐个压入栈中，因此在进入 <code>my_printf_int</code> 的函数体中，栈中的布局如下：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -328,11 +328,11 @@
 <p>宏扩展之后得到：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">arg = (<span class="hljs-type">char</span> *)<span class="hljs-number">0</span>;<br></code></pre></td></tr></table></figure>
 <p>这里直接把指针 <code>arg</code> 设置为空。因为栈中的所有动态参数被提取后，<code>arg</code> 的值为最后一个参数的上一个地址，如果不设置为 NULL 的话，下面使用的话就得到未知的结果，为了防止误操作，需要设置为 NULL。</p>
-<h2 id="3-printf"><a class="markdownIt-Anchor" href="#3-printf"></a> 3、printf</h2>
+<h2 id="3、printf">3、printf</h2>
 <p>通过前面的了解，再来看 <code>printf</code> 的实现就很好理解了，下面是 GNU 中的 <code>printf</code> 源码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">__printf (<span class="hljs-type">const</span> <span class="hljs-type">char</span> *format, ...)<br>&#123;<br>   va_list arg;<br>   <span class="hljs-type">int</span> done;<br><br>   va_start (arg, format);<br>   done = <span class="hljs-built_in">vfprintf</span> (<span class="hljs-built_in">stdout</span>, format, arg);<br>   va_end (arg);<br><br>   <span class="hljs-keyword">return</span> done;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h1 id="二-可变参数宏"><a class="markdownIt-Anchor" href="#二-可变参数宏"></a> 二、可变参数宏</h1>
-<h2 id="1-引入"><a class="markdownIt-Anchor" href="#1-引入"></a> 1、引入</h2>
+<h1>二、可变参数宏</h1>
+<h2 id="1、引入">1、引入</h2>
 <p>前面讲了可变参数，下面来看一下可变参数宏，先看一段代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt, ...) printf(fmt, __VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DEBUG(...) printf(__VA_ARGS__)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;Hello! I&#x27;m %s\n&quot;</span>,<span class="hljs-string">&quot;Wanglitao&quot;</span>);<br>    DEBUG(<span class="hljs-string">&quot;Hello! I&#x27;m %s\n&quot;</span>,<span class="hljs-string">&quot;Wanglitao&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>变参宏的实现形式其实跟变参函数差不多：用 <code>...</code> 表示变参列表，变参列表由不确定的参数组成，各个参数之间用逗号隔开。可变参数宏使用 C99 标准新增加的一个 <code>__VA_ARGS__</code> 预定义标识符来表示前面的变参列表，而不是像变参函数一样，使用 <code>va_list</code>、<code>va_start</code>、<code>va_end</code> 这些宏去解析变参列表。预处理器在将宏展开时，会用变参列表替换掉宏定义中的所有 <code>__VA_ARGS__</code> 标识符。</p>
@@ -346,7 +346,7 @@
 <p>因为当宏展开后，就变成了下面这个样子。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello\n&quot;</span>, );<br></code></pre></td></tr></table></figure>
 <p>宏展开后，在第一个字符串参数的后面还有一个逗号，所以就产生了一个语法错误。我们需要继续对这个宏进行改进，使用宏连接符 <code>##</code>，来避免这个语法错误。</p>
-<h2 id="2-继续改进"><a class="markdownIt-Anchor" href="#2-继续改进"></a> 2、继续改进</h2>
+<h2 id="2、继续改进">2、继续改进</h2>
 <p>接下来，使用宏连接符 <code>##</code> 来改进上面的宏。</p>
 <p>宏连接符 <code>##</code> 的主要作用就是连接两个字符串，我们在宏定义中可以使用 <code>##</code> 来连接两个字符。预处理器在预处理阶段对宏展开时，会将 <code>##</code> 两边的字符合并，并删除 <code>##</code> 这两个字符。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> A(x) a##x</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-title function_">A</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span> = <span class="hljs-number">2</span>; <span class="hljs-comment">//int a1 = 2;</span><br>    <span class="hljs-type">int</span> <span class="hljs-title function_">A</span><span class="hljs-params">()</span> = <span class="hljs-number">3</span>;  <span class="hljs-comment">//int a=3;</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d %d\n&quot;</span>,a1,a);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;   <br>&#125;<br></code></pre></td></tr></table></figure>
@@ -361,14 +361,14 @@
 <li>当变参列表非空时，<code>##</code> 的作用是连接 <code>fmt</code>，和变参列表，各个参数之间用逗号隔开，宏可以正常使用</li>
 <li>当变参列表为空时，<code>##</code> 还有一个特殊的用处，它会将固定参数 fmt 后面的逗号删除掉，这样宏也就可以正常使用了</li>
 </ul>
-<h2 id="3-可变参数宏的另一种写法"><a class="markdownIt-Anchor" href="#3-可变参数宏的另一种写法"></a> 3、可变参数宏的另一种写法</h2>
+<h2 id="3、可变参数宏的另一种写法">3、可变参数宏的另一种写法</h2>
 <p>当我们定义一个变参宏时，除了使用预定义标识符 <code>__VA_ARGS__</code> 表示变参列表外，还可以使用下面这种写法。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,args...) printf(fmt, args)</span><br></code></pre></td></tr></table></figure>
 <p>使用预定义标识符 <code>__VA_ARGS__</code> 来定义一个变参宏，是 C99 标准规定的写法。而上面这种格式是 GNU C 扩展的一个新写法。我们不再使用 <code>__VA_ARGS__</code>，而是直接使用 <code>args...</code> 来表示一个变参列表，然后在后面的宏定义中，直接使用 <code>args</code> 代表变参列表就可以了。</p>
 <p>跟上面一样，为了避免变参列表为空时的语法错误，我们也需要添加一个连接符 <code>##</code>。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LOG(fmt,args...) printf(fmt, ##args)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    LOG(<span class="hljs-string">&quot;hello\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>使用这种方式，你会发现这种写法比使用 <code>__VA_ARGS__</code> 看起来更加直观和方便。</p>
-<h2 id="4-内核中的可变参数宏"><a class="markdownIt-Anchor" href="#4-内核中的可变参数宏"></a> 4、内核中的可变参数宏</h2>
+<h2 id="4、内核中的可变参数宏">4、内核中的可变参数宏</h2>
 <p>可变参数宏在内核中主要用于日志打印。一些驱动模块或子系统有时候会定义自己的打印宏，可以支持打印开关、打印格式、优先级控制等。如在 <code>printk.h</code> 头文件中，我们可以看到 <code>pr_debug</code> 宏的定义。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_DYNAMIC_DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    dynamic_pr_debug(fmt, ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">elif</span> defined(DEBUG)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> pr_debug(fmt, ...) \</span><br><span class="hljs-meta">    no_printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> dynamic_pr_debug(fmt, ...)                \</span><br><span class="hljs-meta">do &#123;                                \</span><br><span class="hljs-meta">    DEFINE_DYNAMIC_DEBUG_METADATA(descriptor, fmt); \</span><br><span class="hljs-meta">    <span class="hljs-keyword">if</span> (unlikely(descriptor.flags       \</span><br><span class="hljs-meta">            &amp; _DPRINTK_FLAGS_PRINT))    \</span><br><span class="hljs-meta">        __dynamic_pr_debug(&amp;descriptor, pr_fmt(fmt),    \</span><br><span class="hljs-meta">                   ##__VA_ARGS__);      \</span><br><span class="hljs-meta">&#125; while (0)</span><br><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> __printf(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br><span class="hljs-type">int</span> <span class="hljs-title function_">no_printk</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *fmt, ...)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __printf(a, b)    \   </span><br>__attribute__((format(<span class="hljs-built_in">printf</span>, a, b)))<br></code></pre></td></tr></table></figure>
 
@@ -461,9 +461,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/02/13/Git%E6%9C%AC%E5%9C%B0%E4%B8%8EGithub%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E5%90%8C%E6%AD%A5/" title="Git本地与Github远程仓库同步">
+                      <a href="/2025/09/17/Markdown-%E5%B8%B8%E7%94%A8%E6%95%B0%E5%AD%A6%E7%AC%A6%E5%8F%B7%E6%95%B4%E7%90%86/" title="Markdown 常用数学符号整理">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Git本地与Github远程仓库同步</span>
+                        <span class="hidden-mobile">Markdown 常用数学符号整理</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     

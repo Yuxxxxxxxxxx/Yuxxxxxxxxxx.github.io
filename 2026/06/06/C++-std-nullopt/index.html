@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr">
+    <meta name="description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ std::nullopt">
 <meta property="og:url" content="http://example.com/2026/06/06/C++-std-nullopt/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr">
+<meta property="og:description" content="一、基本概念 简单来说，std::nullopt 是一个哨兵值（Sentinel Value），专门用来表示 std::optional 处于**“无值”（空）的状态**。 在底层，std::nullopt 的定义非常简单：  它的类型是 std::nullopt_t（一个空的强类型结构体）。 std::nullopt 是 std::nullopt_t 的一个 inline constexpr 常">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-06-06T08:43:57.000Z">
 <meta property="article:modified_time" content="2026-06-23T08:31:24.129Z">
@@ -277,7 +277,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-基本概念"><a class="markdownIt-Anchor" href="#一-基本概念"></a> 一、基本概念</h1>
+                <h1>一、基本概念</h1>
 <p>简单来说，<code>std::nullopt</code> 是一个<strong>哨兵值（Sentinel Value）</strong>，专门用来表示 <code>std::optional</code> 处于**“无值”（空）的状态**。</p>
 <p>在底层，<code>std::nullopt</code> 的定义非常简单：</p>
 <ul>
@@ -286,7 +286,7 @@
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 标准库中的简化定义</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">nullopt_t</span> &#123;<br>    <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-title">nullopt_t</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span> </span>&#123;&#125; <span class="hljs-comment">// 防止隐式转换</span><br>&#125;;<br><br><span class="hljs-keyword">inline</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">nullopt_t</span> <span class="hljs-literal">nullopt</span>&#123;<span class="hljs-number">0</span>&#125;;<br></code></pre></td></tr></table></figure>
 <p><code>std::optional</code> 重载了接受 <code>std::nullopt_t</code> 的构造函数和赋值运算符。因此，当你把 <code>std::nullopt</code> 赋给 <code>std::optional</code> 时，它知道应该将内部状态标记为“空”。</p>
-<h1 id="二-使用场景"><a class="markdownIt-Anchor" href="#二-使用场景"></a> 二、使用场景</h1>
+<h1>二、使用场景</h1>
 <ol>
 <li>
 <p>作为函数返回值（表示失败或无结果）</p>
@@ -305,7 +305,7 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::optional&lt;<span class="hljs-type">int</span>&gt; opt = <span class="hljs-built_in">getSomeValue</span>();<br><br><span class="hljs-keyword">if</span> (opt == std::<span class="hljs-literal">nullopt</span>) &#123;<br>    <span class="hljs-comment">// 处理空值情况</span><br>&#125;<br><br><span class="hljs-comment">// 虽然这与下面的写法等价，但在某些语境下，与 nullopt 显式对比可读性更好：</span><br><span class="hljs-keyword">if</span> (!opt.<span class="hljs-built_in">has_value</span>()) &#123; ... &#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ol>
-<h1 id="三-stdnullopt-vs-nullptr-vs-null"><a class="markdownIt-Anchor" href="#三-stdnullopt-vs-nullptr-vs-null"></a> 三、<code>std::nullopt</code> vs <code>nullptr</code> vs <code>NULL</code></h1>
+<h1>三、<code>std::nullopt</code> vs <code>nullptr</code> vs <code>NULL</code></h1>
 <table>
 <thead>
 <tr>

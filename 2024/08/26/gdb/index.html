@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述 GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。">
+    <meta name="description" content="[toc]  一、概述 GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。 单">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 gdb 的使用">
 <meta property="og:url" content="http://example.com/2024/08/26/gdb/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述 GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。">
+<meta property="og:description" content="[toc]  一、概述 GDB（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。 GDB 的主要功能包括以下几个方面：  设置断点：GDB 允许你在程序的某一行代码上设置断点，当程序执行到这一行时会暂停并等待调试命令。 单">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/26/gdb/1.png">
 <meta property="og:image" content="http://example.com/2024/08/26/gdb/2.png">
@@ -307,7 +307,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p><code>GDB</code>（GNU调试器）是一个功能强大的开源调试工具，可用于调试多种编程语言，包括 C、C ++、Fortran 等。它可以在运行过程中检查程序状态，设置断点以停止程序执行并观察变量值、内存状态等，并提供一系列命令和功能来辅助调试过程。</p>
 <p><code>GDB</code> 的主要功能包括以下几个方面：</p>
 <ul>
@@ -320,7 +320,7 @@
 <blockquote>
 <p>更多信息可以查看 <a target="_blank" rel="noopener" href="https://www.gnu.org/software/gdb/">GDB 官网</a>。</p>
 </blockquote>
-<h2 id="1-安装和启动-gdb"><a class="markdownIt-Anchor" href="#1-安装和启动-gdb"></a> 1、安装和启动 GDB</h2>
+<h2 id="1、安装和启动-GDB">1、安装和启动 GDB</h2>
 <p>首先输入命令：<code>gdb -v</code> 查看是否安装过 GDB：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p>如果没有安装则输入(Ubuntu 下)：</p>
@@ -341,7 +341,7 @@
 <li>在进入 gdb 调试以后，<code>run param_1</code> 或者 <code>start param_1</code></li>
 </ol>
 <p>其中的 <code>param_1</code> 是你自己要输入的参数。</p>
-<h1 id="二-gdb-常用命令"><a class="markdownIt-Anchor" href="#二-gdb-常用命令"></a> 二、 GDB 常用命令</h1>
+<h1>二、 GDB 常用命令</h1>
 <p>以下以 <code>test_file.c</code> 作为源程序例子的名字，<code>test_file</code> 作为可执行文件例子的名字, 以 <code>param_1</code> 作为参数的例子的名字。</p>
 <blockquote>
 <p>格式说明：</p>
@@ -350,7 +350,7 @@
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// test_file.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br>  <br><span class="hljs-type">void</span> <span class="hljs-title function_">swap</span><span class="hljs-params">(<span class="hljs-type">int</span> *x, <span class="hljs-type">int</span> *y)</span><br>&#123;<br>    <span class="hljs-type">int</span> t = *x;<br>    *x = *y;<br>    *y = t;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br>    <span class="hljs-type">int</span> b = <span class="hljs-number">20</span>;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;a = %d, b = %d\r\n&quot;</span>, a, b);<br><br>    swap(&amp;a, &amp;b);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;a = %d, b = %d\r\n&quot;</span>, a, b);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>然后再用上一节提到过的方法生成可执行文件。</p>
-<h2 id="1-查看源码"><a class="markdownIt-Anchor" href="#1-查看源码"></a> 1、查看源码</h2>
+<h2 id="1、查看源码">1、查看源码</h2>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) l(list) [函数名][行数]<br></code></pre></td></tr></table></figure>
 <blockquote>
 <p>输入 <code>l</code> 或 <code>list</code> 即可</p>
@@ -362,13 +362,13 @@
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p>同理，如果想看指定函数的代码，则在 <code>l</code> 的后面加上指定的函数名即可：</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h2 id="2-断点"><a class="markdownIt-Anchor" href="#2-断点"></a> 2、断点</h2>
-<h3 id="21-设置断点"><a class="markdownIt-Anchor" href="#21-设置断点"></a> 2.1 设置断点</h3>
+<h2 id="2、断点">2、断点</h2>
+<h3 id="2-1-设置断点">2.1 设置断点</h3>
 <ul>
 <li>break + [源代码行号][源代码函数名][内存地址]</li>
-<li>break ... if condition
+<li>break … if condition
 <ul>
-<li>...可以是上述任一参数；condition 是条件。例如在循环体中可以设置 <code>break ... if i = 100</code> 来设置循环次数</li>
+<li>…可以是上述任一参数；condition 是条件。例如在循环体中可以设置 <code>break ... if i = 100</code> 来设置循环次数</li>
 </ul>
 </li>
 </ul>
@@ -377,7 +377,7 @@
 <li><strong>tbreak</strong>：tbreak 命令可以看到是 break 命令的另一个版本，tbreak 和 break 命令的用法和功能都非常相似，唯一的不同在于，使用 tbreak 命令打的断点仅会作用 1 次，即使程序暂停之后，该断点就会自动消失。</li>
 <li><strong>rbreak</strong>：和 break 和 tbreak 命令不同，rbreak 命令的作用对象是 C、C++ 程序中的函数，它会在指定函数的开头位置打断点。</li>
 </ul>
-<h3 id="22-查看断点信息"><a class="markdownIt-Anchor" href="#22-查看断点信息"></a> 2.2 查看断点信息</h3>
+<h3 id="2-2-查看断点信息">2.2 查看断点信息</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) info b<br></code></pre></td></tr></table></figure>
 <p>若是直接执行 <code>info</code> 的话，出来的就是所有的调试信息：</p>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt=" "></p>
@@ -392,7 +392,7 @@
 <li><strong>Address</strong> ： 地址</li>
 <li><strong>What</strong>      ： 在此文件的哪个函数的第几行</li>
 </ul>
-<h3 id="23-删除断点"><a class="markdownIt-Anchor" href="#23-删除断点"></a> 2.3 删除断点</h3>
+<h3 id="2-3-删除断点">2.3 删除断点</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) clear location<br></code></pre></td></tr></table></figure>
 <p>参数 location 通常为某一行代码的行号或者某个具体的函数名。当 location 参数为某个函数的函数名时，表示删除位于该函数入口处的所有断点。</p>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt=" "></p>
@@ -400,11 +400,11 @@
 <p>输入 breakpoints 参数表示删除所有断点；num 参数为指定断点的编号，表示删除指定编号的断点。</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p><img src="12.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h3 id="24-激活禁用断点"><a class="markdownIt-Anchor" href="#24-激活禁用断点"></a> 2.4 激活/禁用断点</h3>
+<h3 id="2-4-激活-禁用断点">2.4 激活/禁用断点</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) disable b(breakpoints) 	  	   # 使所有断点无效【默认缺省】<br>(gdb) enable b(breakpoints)  	  	   # 使所有断点有效【默认缺省】<br>(gdb) disable b(breakpoint) + [编号...] # 使一个或多个断点无效【禁用断点】<br>(gdb) enable b(breakpoint) + [编号...]  # 使一个或多个断点有效【开启断点】<br></code></pre></td></tr></table></figure>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) enable b(breakpoints) once [num...]   # 临时激活以 num... 为编号的多个断点，但断点只能使用 1 次，之后会自动回到禁用状态<br>(gdb) enable b(breakpoints) count [num...]  # 临时激活以 num... 为编号的多个断点，断点可以使用 count 次，之后进入禁用状态<br>(gdb) enable b(breakpoints) delete [num...] # 激活 num... 为编号的多个断点，但断点只能使用 1 次，之后会被永久删除。<br></code></pre></td></tr></table></figure>
-<h3 id="25-观察断点"><a class="markdownIt-Anchor" href="#25-观察断点"></a> 2.5 观察断点</h3>
+<h3 id="2-5-观察断点">2.5 观察断点</h3>
 <p><strong>watch</strong>：此命令打的是观察断点，可以监控某个变量或者表达式的值。只有当被监控变量（表达式）的值发生改变，程序才会停止运行。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) watch cond<br></code></pre></td></tr></table></figure>
 <p>cond 代表的就是要监控的变量或者表达式。</p>
@@ -450,7 +450,7 @@
 <li><strong>vfork</strong>：调用系统调用 vfork 时。（vfork 为关键字，目前此功能只在 HP-UX 下有用）</li>
 </ul>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h3 id="26-捕获信号"><a class="markdownIt-Anchor" href="#26-捕获信号"></a> 2.6 捕获信号</h3>
+<h3 id="2-6-捕获信号">2.6 捕获信号</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) handle + [argu] + signals<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong>signals</strong>：是 Linux/Unix 定义的信号，<code>SIGINT</code> 表示中断字符信号，也就是 <code>Ctrl+C</code> 的信号，<code>SIGBUS</code> 表示硬件故障的信号；<code>SIGCHLD</code> 表示子进程状态改变信号； <code>SIGKILL</code> 表示终止程序运行的信号......</li>
@@ -465,15 +465,15 @@
 </ul>
 </li>
 </ul>
-<h3 id="27-线程中断"><a class="markdownIt-Anchor" href="#27-线程中断"></a> 2.7 线程中断</h3>
+<h3 id="2-7-线程中断">2.7 线程中断</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) break [linespec] thread [threadno] [if ...]<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong>linespec</strong>：断点设置所在的源代码的行号。如: <code>test.c:12</code> 表示文件为 test.c 中的第 12 行设置一个断点。</li>
 <li><strong>threadno</strong>：线程的 ID。是 GDB 分配的，通过输入 <code>info threads</code> 来查看正在运行中程序的线程信息。</li>
-<li><strong>if ...</strong>：设置中断条件。</li>
+<li><strong>if …</strong>：设置中断条件。</li>
 </ul>
-<h2 id="3-查看信息"><a class="markdownIt-Anchor" href="#3-查看信息"></a> 3、查看信息</h2>
-<h3 id="31-查看数据"><a class="markdownIt-Anchor" href="#31-查看数据"></a> 3.1 查看数据</h3>
+<h2 id="3、查看信息">3、查看信息</h2>
+<h3 id="3-1-查看数据">3.1 查看数据</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) p(print) variable 查看变量<br>(gdb) p(print) *array@len 查看数组（array 是数组指针，len 是需要数据长度）<br></code></pre></td></tr></table></figure>
 <p>可以通过添加参数来设置输出格式：</p>
 <ul>
@@ -494,7 +494,7 @@
 <p><img src="17.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p>如果不想追踪某个变量了，就可以用 undisplay 指令取消对该变量的追踪：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) undisplay + 变量名编号<br></code></pre></td></tr></table></figure>
-<h3 id="32-查看内存"><a class="markdownIt-Anchor" href="#32-查看内存"></a> 3.2 查看内存</h3>
+<h3 id="3-2-查看内存">3.2 查看内存</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) x(examine) /n f u + 内存地址（指针变量）<br></code></pre></td></tr></table></figure>
 <ul>
 <li>n 表示显示内存长度</li>
@@ -502,7 +502,7 @@
 <li>u 表示字节数制定（b 单字节；h 双字节；w 四字节；g 八字节；默认为四字节）</li>
 </ul>
 <p><img src="18.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h3 id="33-查看栈信息"><a class="markdownIt-Anchor" href="#33-查看栈信息"></a> 3.3 查看栈信息</h3>
+<h3 id="3-3-查看栈信息">3.3 查看栈信息</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) bt(backtrace) [-full][-n][n]<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong>-full</strong> 打印栈帧信息的同时，打印出局部变量的值。</li>
@@ -511,7 +511,7 @@
 <li><strong>不加参数</strong>，表示打印所有栈信息。</li>
 </ul>
 <p><img src="19.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h3 id="34-查看栈帧信息"><a class="markdownIt-Anchor" href="#34-查看栈帧信息"></a> 3.4 查看栈帧信息</h3>
+<h3 id="3-4-查看栈帧信息">3.4 查看栈帧信息</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) info frame<br></code></pre></td></tr></table></figure>
 <p>该命令会依次打印出当前栈帧的如下信息：</p>
 <ul>
@@ -527,15 +527,15 @@
 <p>除此之外，还可以使用 <code>info args</code> 命令查看当前函数各个参数的值；使用 <code>info locals</code> 命令查看当前函数中各局部变量的值。</p>
 </blockquote>
 <p><img src="20.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h2 id="4-运行-调试"><a class="markdownIt-Anchor" href="#4-运行-调试"></a> 4、运行、调试</h2>
+<h2 id="4、运行、调试">4、运行、调试</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(gdb) r(run)<br></code></pre></td></tr></table></figure>
 <p>运行代码。如果有断点，会在断点处停下；否则会直接运行到程序结束。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(gdb) c(<span class="hljs-keyword">continue</span>) <br></code></pre></td></tr></table></figure>
 <p>程序在断点处停下来，通过 continue 指令让程序继续执行到下一个断点，没有断点的话则直接运行到程序结束。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(gdb) n(next) n<br></code></pre></td></tr></table></figure>
-<p>参数 n 表示单步执行多少行代码，默认为 1 行。其最大的特点是当遇到包含调用函数的语句时，无论函数内部包含多少行代码，next 指令都会一步执行完。也就是说，<mark>对于调用的函数来说，next 命令只会将其视作一行代码</mark>。</p>
+<p>参数 n 表示单步执行多少行代码，默认为 1 行。其最大的特点是当遇到包含调用函数的语句时，无论函数内部包含多少行代码，next 指令都会一步执行完。也就是说，==对于调用的函数来说，next 命令只会将其视作一行代码==。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(gdb) s(step) n<br></code></pre></td></tr></table></figure>
-<p>参数 n 表示一次执行的行数，默认为 1 行。通常情况下，step 命令和 next 命令的功能相同，都是单步执行程序。不同之处在于，当 step 命令所执行的代码行中包含函数时，<mark>会进入该函数内部</mark>。</p>
+<p>参数 n 表示一次执行的行数，默认为 1 行。通常情况下，step 命令和 next 命令的功能相同，都是单步执行程序。不同之处在于，当 step 命令所执行的代码行中包含函数时，==会进入该函数内部==。</p>
 <p><img src="21.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <p><img src="22.png" srcset="/img/loading.gif" lazyload alt=" "></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">(gdb) until [location]<br></code></pre></td></tr></table></figure>
@@ -549,7 +549,7 @@
 <p>通过 finish 函数，可以直接让一个函数执行完毕，直接回到了调用函数的位置。</p>
 <p>该例和 until 类似：</p>
 <p><img src="24.png" srcset="/img/loading.gif" lazyload alt=" "></p>
-<h3 id="5-编辑和搜索"><a class="markdownIt-Anchor" href="#5-编辑和搜索"></a> 5、编辑和搜索</h3>
+<h3 id="5、编辑和搜索">5、编辑和搜索</h3>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(gdb) edit [location]<br>(gdb) edit [filename]:[location]<br></code></pre></td></tr></table></figure>
 <p>location 表示程序中的位置。这个命令表示激活文件的指定位置，然后进行编辑。</p>
 <p>输入以下两种格式都可以：</p>

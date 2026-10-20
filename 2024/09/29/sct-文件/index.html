@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、程序的存储与运行  1、存储 程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  Code：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 RO-data：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不">
+    <meta name="description" content="[toc]  一、程序的存储与运行 1、存储 程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  Code：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 RO-data：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅析 Keil 中的 sct 文件">
 <meta property="og:url" content="http://example.com/2024/09/29/sct-%E6%96%87%E4%BB%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、程序的存储与运行  1、存储 程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  Code：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 RO-data：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不">
+<meta property="og:description" content="[toc]  一、程序的存储与运行 1、存储 程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：  Code：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。 RO-data：Read Only data，即只读数据域，它指程序中用到的只读数据，这些数据被存储在 ROM 区，因而程序不能修">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/29/sct-%E6%96%87%E4%BB%B6/1.png">
 <meta property="og:image" content="http://example.com/2024/09/29/sct-%E6%96%87%E4%BB%B6/2.png">
@@ -293,8 +293,8 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-程序的存储与运行"><a class="markdownIt-Anchor" href="#一-程序的存储与运行"></a> 一、程序的存储与运行</h1>
-<h2 id="1-存储"><a class="markdownIt-Anchor" href="#1-存储"></a> 1、存储</h2>
+<h1>一、程序的存储与运行</h1>
+<h2 id="1、存储">1、存储</h2>
 <p>程序编译后，应用程序中所有具有同一性质的数据(包括代码)被归到一个域，程序在存储或运行的时候，不同的域会呈现不同的状态，这些域的意义如下：</p>
 <ul>
 <li><strong><code>Code</code></strong>：即代码域，它指的是编译器生成的机器指令，这些内容被存储到 ROM 区。</li>
@@ -361,14 +361,14 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-加载-运行"><a class="markdownIt-Anchor" href="#2-加载-运行"></a> 2、加载、运行</h2>
+<h2 id="2、加载、运行">2、加载、运行</h2>
 <p><code>RW-data</code>  和 <code>ZI-data</code> 它们仅仅是初始值不一样而已，为什么编译器非要把它们区分开？原因如下：</p>
 <p>应用程序具有静止状态和运行状态。静止态的程序被存储在非易失存储器中，如 STM32 的内部 FLASH，因而系统掉电后也能正常保存。但是当程序在运行状态的时候，程序常常需要修改一些暂存数据，由于运行速度的要求，这些数据往往存放在内存中(RAM)，掉电后这些数据会丢失。因此，程序在静止与运行的时候它在存储器中的表现是不一样的，见下图。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>程序在存储状态时，<code>RO section</code> 及 <code>RW Section</code> 都被保存在 ROM 区。当程序开始运行时，内核直接从 ROM 中读取代码，并且在执行主体代码前，会先执行一段加载代码，它把 <code>RW Section</code> 数据从 ROM 复制到 RAM，并且在 RAM 加入 <code>ZI Section</code>，<code>ZI Section</code> 的数据都被初始化为 0。加载完后 RAM 区准备完毕，正式开始执行主体程序。</p>
 <p>编译生成的 <code>RW-data</code> 的数据属于图中的 <code>RW Section</code>，<code>ZI-data</code> 的数据属于图中的 <code>ZI Section</code>。是否需要掉电保存，这就是把 <code>RW-data</code> 与 <code>ZI-data</code> 区别开来的原因：<br>
 - 因为在 RAM 创建数据的时候，默认值为 0，<br>
-- 但如果有的数据要求初值非 0，那就需要<mark>使用 ROM 记录该初始值，运行时再复制到 RAM</mark>。</p>
+- 但如果有的数据要求初值非 0，那就需要==使用 ROM 记录该初始值，运行时再复制到 RAM==。</p>
 <p>STM32 的 RO 区域不需要加载到 SRAM，内核直接从 FLASH 读取指令运行。计算机系统的应用程序运行过程很类似，不过计算机系统的程序在存储状态时位于硬盘，执行的时候甚至会把上述的 RO 区域(代码、只读数据)加载到内存，加快运行速度，还有虚拟内存管理单元(MMU)辅助加载数据，使得可以运行比物理内存还大的应用程序。而 STM32 没有 MMU，所以无法支持 Linux 系统。</p>
 <p>当程序存储到 STM32 芯片的内部 FLASH 时(即 ROM 区)，它占用的空间是 <code>Code</code>、<code>RO-data</code> 及 <code>RW-data</code> 的总和，所以如果这些内容比STM32 芯片的 FLASH 空间大，程序就无法被正常保存了。当程序在执行的时候，需要占用内部 SRAM 空间(即 RAM 区)，占用的空间包括<code>RW-data</code> 和 <code>ZI-data</code>。应用程序在各个状态时各区域的组成见下表。</p>
 <table>
@@ -394,23 +394,23 @@
 </tbody>
 </table>
 <p>而这些区域的起始地址和大小，以及各个函数变量应该放在哪个存储器区域中就是由本文要讲的 sct 文件定义的。</p>
-<h1 id="二-sct-分散加载文件"><a class="markdownIt-Anchor" href="#二-sct-分散加载文件"></a> 二、sct 分散加载文件</h1>
-<h2 id="1-简介"><a class="markdownIt-Anchor" href="#1-简介"></a> 1、简介</h2>
+<h1>二、sct 分散加载文件</h1>
+<h2 id="1、简介">1、简介</h2>
 <p>当工程按默认配置构建时，MDK 会根据我们选择的芯片型号，获知芯片的内部 FLASH 及内部 SRAM 存储器概况，生成一个以工程名命名的后缀为 <code>*.sct</code> 的分散加载文件(<em><strong>Linker Control File</strong></em>，<em><strong>scatter loading</strong></em>)，链接器根据该文件的配置分配各个节区地址，生成分散加载代码，因此我们通过修改该文件可以定制具体节区的存储位置。</p>
 <ul>
 <li>可以设置源文件中定义的所有变量自动按地址分配到外部 SDRAM，这样就不需要再使用关键字 <code>__attribute__</code> 按具体地址来指定了；</li>
 <li>利用它还可以控制代码的加载区与执行区的位置，例如可以把程序代码存储到单位容量价格便宜的 NAND-FLASH 中，但在 NAND-FLASH 中的代码是不能像内部 FLASH 的代码那样直接提供给内核运行的，这时可通过修改分散加载文件，把代码加载区设定为 NAND-FLASH 的程序位置，而程序的执行区设定为 SDRAM 中的位置，这样链接器就会生成一个配套的分散加载代码，该代码会把 NAND-FLASH 中的代码加载到 SDRAM 中，内核再从 SDRAM 中运行主体代码，大部分运行 Linux 系统的代码都是这样加载的。</li>
 </ul>
-<h2 id="2-文件格式"><a class="markdownIt-Anchor" href="#2-文件格式"></a> 2、文件格式</h2>
+<h2 id="2、文件格式">2、文件格式</h2>
 <p>下面是一个由 MDK 默认生成的 sct 文件：</p>
 <blockquote>
 <p>我使用的是 STM32F407，不同的芯片型号内存不一样</p>
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">LR_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00080000</span>  &#123;    ; load region size_region（加载域，基地址空间大小）<br>  ER_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00040000</span>  &#123;  ; load address = execution address（加载地址 = 执行地址）<br>   *.o (RESET, +First)<br>   *(InRoot$$Sections)<br>   .ANY (+RO)<br>   .ANY (+XO)<br>  &#125;<br>  RW_IRAM1 <span class="hljs-number">0x20000000</span> <span class="hljs-number">0x00020000</span>  &#123;  ; RW data（可读写数据）<br>   .ANY (+RW +ZI)<br>  &#125;                             <br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在默认的 sct 文件配置中仅分配了 <code>Code</code>、<code>RO-data</code>、<code>RW-data</code> 及 <code>ZI-data</code> 这些大区域的地址，链接时各个节区(函数、变量等)直接根据属性排列到具体的地址空间。</p>
-<p>sct 文件中主要包含描述加载域及执行域的部分，一个文件中可包含有多个加载域，而一个加载域可由多个部分的执行域组成。同等级的域之间使用花括号&quot;{}&quot;分隔开，最外层的是加载域，第二层&quot;{}&quot;内的是执行域，其整体结构见下图。</p>
+<p>sct 文件中主要包含描述加载域及执行域的部分，一个文件中可包含有多个加载域，而一个加载域可由多个部分的执行域组成。同等级的域之间使用花括号&quot;{}“分隔开，最外层的是加载域，第二层”{}&quot;内的是执行域，其整体结构见下图。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="21-加载域"><a class="markdownIt-Anchor" href="#21-加载域"></a> 2.1 加载域</h3>
+<h3 id="2-1-加载域">2.1 加载域</h3>
 <p>sct 文件的加载域格式如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">加载域名 (基地址 | (<span class="hljs-string">&quot;+&quot;</span>地址偏移)) [属性列表] [最大容量]<br><span class="hljs-string">&quot;&#123;&quot;</span><br>	执行区域描述+<br><span class="hljs-string">&quot;&#125;&quot;</span><br><br>本例中为：<br>LR_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00080000</span>  &#123;<br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
 <ul>
@@ -437,13 +437,13 @@
 </ul>
 <p>有关属性的继承，参考：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">LR1 <span class="hljs-number">0x8000</span> PI    ; 默认为 ABSOLUTE<br>&#123;<br>    …<br>&#125;<br>LR2 +<span class="hljs-number">0</span>             ; LR2 从 LR1 继承 PI 属性<br>&#123;<br>    …<br>&#125;<br>LR3 <span class="hljs-number">0x1000</span>         ; LR3 不继承 LR2 的任何属性，因为它没有相对基地址，恢复默认为 ABSOLUTE<br>&#123;<br>    …<br>&#125;<br>LR4 +<span class="hljs-number">0</span>             ; LR4 继承 LR3 的  ABSOLUTE 属性<br>&#123;<br>    …<br>&#125;<br>LR5 +<span class="hljs-number">0</span> RELOC       ; LR5 不继承 LR4 的任何属性，因为它显式设置了 RELOC<br>&#123;<br>    …<br>&#125;<br>LR6 +<span class="hljs-number">0</span> OVERLAY     ; LR6 不继承 LR5 的任何属性，因为它显式设置了 OVERLAY<br>&#123;<br>    …<br>&#125;<br>LR7 +<span class="hljs-number">0</span>             ; LR7 无法继承 OVERLAY，恢复默认为 ABSOLUTE<br>&#123;<br>    …<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="22-执行域"><a class="markdownIt-Anchor" href="#22-执行域"></a> 2.2 执行域</h3>
+<h3 id="2-2-执行域">2.2 执行域</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">执行域名 (基地址 | <span class="hljs-string">&quot;+&quot;</span>地址偏移) [属性列表] [最大容量 ]<br><span class="hljs-string">&quot;&#123;&quot;</span><br>	输入节区描述<br><span class="hljs-string">&quot;&#125;&quot;</span><br><br>本例中为：<br>ER_IROM1 <span class="hljs-number">0x08000000</span> <span class="hljs-number">0x00040000</span>  &#123;  ; load address = execution address（加载地址 = 执行地址）<br>   ...<br>&#125;<br>RW_IRAM1 <span class="hljs-number">0x20000000</span> <span class="hljs-number">0x00020000</span>  &#123;  ; RW data（可读写数据）<br>	...<br>&#125;    <br></code></pre></td></tr></table></figure>
 <p>执行域的格式与加载域是类似的，区别只是输入节区的描述有所不同。</p>
 <p>属性列表：</p>
 <ul>
 <li><code>ABSOLUTE</code> ：指定将内容放置在链接后不会更改的 <code>base_address</code> 所表示的固定地址上。</li>
-<li><code>ALIGN alignment</code> ：指定对齐约束。<code>alignment</code> 为阿拉伯数字，最小为 4，必须是 2 的整数次幂。例如， <code>ALIGN 4</code> 。 <code>base_address</code> 的值必须符合该对齐约束。如果使用了 +offset ，连接器将计算并使用对齐后的地址。（<mark>执行域上的 ALIGN 属性将导致加载地址和执行地址都对齐</mark>）</li>
+<li><code>ALIGN alignment</code> ：指定对齐约束。<code>alignment</code> 为阿拉伯数字，最小为 4，必须是 2 的整数次幂。例如， <code>ALIGN 4</code> 。 <code>base_address</code> 的值必须符合该对齐约束。如果使用了 +offset ，连接器将计算并使用对齐后的地址。（==执行域上的 ALIGN 属性将导致加载地址和执行地址都对齐==）</li>
 <li><code>ALIGNALL value</code> ：增加执行域中各节的对齐方式。value 的值必须是 2 的正幂，并且必须大于或等于 4。</li>
 <li><code>ANY_SIZE max_size</code> ：指定 armlink 可以用未分配的节填充的执行域内的最大大小。max_size 必须小于或等于域的大小。</li>
 <li><code>EMPTY [–]length</code> ：在执行域中保留给定大小的空内存块，通常由堆或堆栈使用。 带有 EMPTY 属性的域中不能放置任何节。</li>
@@ -458,7 +458,7 @@
 <li><code>ZEROPAD</code> ：零初始化的段作为零填充块写入 ELF 文件。只有根执行域可以使用 <code>ZEROPAD</code> 属性进行零初始化。在非根执行域中使用 ZEROPAD 属性会生成警告，并忽略该属性。</li>
 </ul>
 <p>本例中包含了 <code>ER_IROM1</code> 及 <code>RW_IRAM1</code> 两个执行域，它们分别对应描述了 STM32 的内部 FLASH 及内部 SRAM 的基地址及空间大小。而它们内部的“输入节区描述”说明了哪些节区要存储到这些空间，链接器会根据它来处理编排这些节区。</p>
-<h3 id="23-输入节区描述"><a class="markdownIt-Anchor" href="#23-输入节区描述"></a> 2.3 输入节区描述</h3>
+<h3 id="2-3-输入节区描述">2.3 输入节区描述</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">模块选择样式 “(“输入节区样式”,” “+“输入节区属性”)”<br>模块选择样式 “(“输入节区样式”,” “+“节区特性”)”<br><br>模块选择样式 “(“输入符号样式”,” “+“输入节区属性”)”<br>模块选择样式 “(“输入符号样式”,” “+“节区特性”)”<br><br>本例中有：<br>*.o (RESET, +First)<br>*(InRoot$$Sections)<br>.ANY (+RO)<br>.ANY (+XO)<br>.ANY (+RW +ZI)<br></code></pre></td></tr></table></figure>
 <ul>
 <li><strong>模块选择样式</strong>： 模块选择样式可用于选择 o 及 lib 目标文件作为输入节区，它可以直接使用目标文件名或“<strong><code>*</code></strong>”通配符，也可以使用“<strong><code>.ANY</code></strong>”。
@@ -519,7 +519,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>例如，示例文件中使用&quot;<code>.ANY(+RO)</code>&quot;选择剩余所有节区 RO 属性的内容都分配到执行域 ER_IROM1 中，使用&quot;<code>.ANY(+RW +ZI)</code>&quot;选择剩余所有节区 RW 及 ZI 属性的内容都分配到执行域 RW_IRAM1中。</p>
+<p>例如，示例文件中使用&quot;<code>.ANY(+RO)</code>“选择剩余所有节区 RO 属性的内容都分配到执行域 ER_IROM1 中，使用”<code>.ANY(+RW +ZI)</code>&quot;选择剩余所有节区 RW 及 ZI 属性的内容都分配到执行域 RW_IRAM1中。</p>
 </blockquote>
 <blockquote>
 <p><font size="5px" color="yellowgreen"><code>*</code> 和 <code>.ANY</code> 的区别</font><br>
@@ -542,7 +542,7 @@
 <li>程序执行时 RW 及 ZI 区域都存储在以 0x20000000 为基地址，大小为 0x00020000 的空间。</li>
 </ul>
 <p>链接器根据 sct 文件链接，链接后各个节区、符号的具体地址信息可以在 map 文件中查看。</p>
-<h3 id="24-设置堆栈"><a class="markdownIt-Anchor" href="#24-设置堆栈"></a> 2.4 设置堆栈</h3>
+<h3 id="2-4-设置堆栈">2.4 设置堆栈</h3>
 <p>如果使用了分散加载文件，那么有些连接器定义的符号就变成了未定义。这些符号就包含堆栈的定义函数所使用的符号，因此，使用的是分散加载文件时，就必须要手动设置栈和堆。方法主要有以下两种：</p>
 <ul>
 <li>在分散文件中使用下列方法之一
@@ -567,7 +567,7 @@
 </blockquote>
 <p>在 Keil 中，一般都是用的 <code>Two-Region Model</code>。无论哪一种方式，都需要我们自己来定义。在 Keil 项目中，通常会在启动文件(.s) 中指定内存模型。</p>
 <p>下面就来看一下这两种方法的实现。</p>
-<h4 id="241-在分散加载文件中实现"><a class="markdownIt-Anchor" href="#241-在分散加载文件中实现"></a> 2.4.1 在分散加载文件中实现</h4>
+<h4 id="2-4-1-在分散加载文件中实现">2.4.1 在分散加载文件中实现</h4>
 <p>ARM C 库提供了 __user_setup_stackheap() 函数的多种实现，该函数会使用在分散加载文件中定义的与堆和栈相关的符号来生成堆栈。</p>
 <p>如果要选择 Two-Region Model，则需要在分散文件中定义两个特殊的执行域，分别为 ARM_LIB_HEAP 和 ARM_LIB_STACK 。两个域都有 EMPTY 属性。这样，ARM C 库将不再使用默认的 __user_setup_stackheap() ，而是使用如下符号定义栈：</p>
 <ul>
@@ -580,13 +580,13 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">LOAD_FLASH<br>&#123;<br>    ...<br>    ARM_LIB_STACK <span class="hljs-number">0x40000</span> EMPTY <span class="hljs-number">-0x20000</span>  ; Stack region growing down<br>    &#123; &#125;<br>    ARM_LIB_HEAP <span class="hljs-number">0x28000000</span> EMPTY <span class="hljs-number">0x80000</span> ; Heap region growing up<br>    &#123; &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>如果要选择 <code>One-Region Model</code>，则必须在分散加载文件中定义一个名为 <code>ARM_LIB_STACKHEAP</code> 的执行域，当前域也同样是 <code>EMPTY</code> 属性。这样， <code>__user_setup_stackheap()</code> 将使用以下符号：<code>Image$$ARM_LIB_STACKHEAP$$Base</code> 、 <code>Image$$ARM_LIB_STACKHEAP$$ZI$$Limit</code> 。例如，在自己的分散加载文件中如下来定义栈和堆：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">LOAD_FLASH ...<br>&#123;<br>    ...<br>    ARM_LIB_STACKHEAP <span class="hljs-number">0x20000</span> EMPTY <span class="hljs-number">0x20000</span>  ; Heap and <span class="hljs-built_in">stack</span> growing towards<br>    &#123; &#125;                                      ; each other in the same region<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
-<h4 id="242-实现函数-__user_setup_stackheap"><a class="markdownIt-Anchor" href="#242-实现函数-__user_setup_stackheap"></a> 2.4.2 实现函数 <code>__user_setup_stackheap()</code></h4>
+<h4 id="2-4-2-实现函数-user-setup-stackheap">2.4.2 实现函数 <code>__user_setup_stackheap()</code></h4>
 <p>如果我们在自己的代码中重新实现 <code>__user_setup_stackheap()</code> ，则此方法将覆盖所有库中相同的实现。在我们的项目中，一般会在启动文件（例如 STM32 中的 <code>startup_stm32fXXX.s</code> ）实现 <code>__user_setup_stackheap()</code> 函数，如下图：</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>注意，如果要选择 <code>Two-Region Model</code>，则必须要引入函数 <code>__use_two_region_memory</code></p>
 </blockquote>
-<h2 id="3-配置-sct-文件"><a class="markdownIt-Anchor" href="#3-配置-sct-文件"></a> 3、配置 sct 文件</h2>
+<h2 id="3、配置-sct-文件">3、配置 sct 文件</h2>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>通过 <code>Use Memory Layout from Target Dialog</code> 选项可以选择是使用 MDK 生成还是使用用户自定义的 sct 文件。</p>
 <p>取消选择后，即可自己设置 sct 文件，点击下面的 Edit 即可编辑 sct 文件：</p>

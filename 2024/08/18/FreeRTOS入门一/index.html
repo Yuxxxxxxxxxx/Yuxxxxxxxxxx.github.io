@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。  一、数据类型 在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 por">
+    <meta name="description" content="[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型 在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port">
 <meta property="og:type" content="article">
 <meta property="og:title" content="FreeRTOS 快速入门（一）之 FreeRTOS 的命名规则">
 <meta property="og:url" content="http://example.com/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。  一、数据类型 在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 por">
+<meta property="og:description" content="[toc]  FreeRTOS 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。 一、数据类型 在 FreeRTOS 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 portCHAR，这里面的 port">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/18/FreeRTOS%E5%85%A5%E9%97%A8%E4%B8%80/1.png">
 <meta property="article:published_time" content="2024-08-18T14:17:10.000Z">
@@ -282,9 +282,9 @@
                 <p>[toc]</p>
 <hr>
 <p><code>FreeRTOS</code> 的命名规约非常独特，假若缺乏事先的了解，研读其源代码将使人感到困惑不解。然而，一旦熟悉了其命名规约，阅读就变得十分轻松了。</p>
-<h1 id="一-数据类型"><a class="markdownIt-Anchor" href="#一-数据类型"></a> 一、数据类型</h1>
+<h1>一、数据类型</h1>
 <p>在 <code>FreeRTOS</code> 中，使用的数据类型虽然都是标准 C 里面的数据类型，但是针对不同的处理器，对标准 C 的数据类型又进行了重定义，给它们取了一个新的名字，比如 char 重新定义了一个名字 <code>portCHAR</code>，这里面的 port 表示接口的意思，就是 <code>FreeRTOS</code> 要移植到这些处理器上需要这些接口文件来把它们连接在一起。</p>
-<p>在 <code>FreeRTOS</code> 中，<mark>int 型从不使用，只使用 short 和 long 型</mark>。在 Cortex-M 内核的 MCU 中，short 为 16 位，long 为 32 位。</p>
+<p>在 <code>FreeRTOS</code> 中，==int 型从不使用，只使用 short 和 long 型==。在 Cortex-M 内核的 MCU 中，short 为 16 位，long 为 32 位。</p>
 <p>在 <code>portmacro.h</code> 文件中，有如下定义：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Type definitions. */</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portCHAR          char</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portFLOAT         float</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portDOUBLE        double</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portLONG          long</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portSHORT         short</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portSTACK_TYPE    uint32_t</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> portBASE_TYPE     long</span><br><br>    <span class="hljs-keyword">typedef</span> portSTACK_TYPE   StackType_t;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-type">long</span>             BaseType_t;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>    UBaseType_t;<br><br>    <span class="hljs-meta">#<span class="hljs-keyword">if</span> ( configUSE_16_BIT_TICKS == 1 )</span><br>        <span class="hljs-keyword">typedef</span> <span class="hljs-type">uint16_t</span>     TickType_t;<br>        <span class="hljs-meta">#<span class="hljs-keyword">define</span> portMAX_DELAY              ( TickType_t ) 0xffff</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>        <span class="hljs-keyword">typedef</span> <span class="hljs-type">uint32_t</span>     TickType_t;<br>        <span class="hljs-meta">#<span class="hljs-keyword">define</span> portMAX_DELAY              ( TickType_t ) 0xffffffffUL</span><br><br></code></pre></td></tr></table></figure>
 <p>其中：</p>
@@ -313,7 +313,7 @@
 <p>在编程的时候，如果用户没有明确指定 char 的符号类型，那么编译器会默认的指定 char 型的变量为无符号或者有符号。正是因为这个原因，在 <code>FreeRTOS</code> 中，我们都需要明确的指定变量 char 是有符号的还是无符号的。在Keil 中，默认 char 是无符号的，但是也可以配置为有符号的，具体配套过程如下：</p>
 </blockquote>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="二-变量名"><a class="markdownIt-Anchor" href="#二-变量名"></a> 二、变量名</h1>
+<h1>二、变量名</h1>
 <p>每个变量名都有前缀来表示它是什么类型的数据，前缀见下表：</p>
 <table>
 <thead>
@@ -357,7 +357,7 @@
 </tr>
 </tbody>
 </table>
-<h1 id="三-函数名"><a class="markdownIt-Anchor" href="#三-函数名"></a> 三、函数名</h1>
+<h1>三、函数名</h1>
 <p>函数名包含了函数返回值的类型、函数所在的文件名和函数的功能，如果是私有的函数则会加一个 prv（private）的前缀。</p>
 <p>特别的，在函数名中加入了函数所在的文件名，这大大的帮助了用户提高寻找函数定义的效率和了解函数作用的目的，具体的举例如下：</p>
 <p>例如：</p>
@@ -383,7 +383,7 @@
 </tr>
 </tbody>
 </table>
-<h1 id="四-宏"><a class="markdownIt-Anchor" href="#四-宏"></a> 四、宏</h1>
+<h1>四、宏</h1>
 <p>宏均是由大写字母表示，并配有小写字母的前缀，前缀用于表示该宏在哪个头文件定义，如下例：</p>
 <table>
 <thead>
@@ -416,7 +416,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>这里有个地方要注意的是信号量的函数都是一个宏定义，但是它的函数的命名方法是<mark>遵循函数的命名方法</mark>而不是宏定义的方法。</p>
+<p>这里有个地方要注意的是信号量的函数都是一个宏定义，但是它的函数的命名方法是==遵循函数的命名方法==而不是宏定义的方法。</p>
 </blockquote>
 
                 

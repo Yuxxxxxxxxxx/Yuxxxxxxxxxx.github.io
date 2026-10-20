@@ -1,0 +1,819 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、MISC驱动简介 misc——miscellaneous，译为杂项。众所周知，Linux 中的驱动是分层设计的，每个设备都有自己的归属类型，比如键盘为输入设备，属于 input 子系统。但是会存在一些设备无法简单被划分到某一类中，此时可以基于 misc 驱动框架实现该设备的驱动。misc 驱动为不知类型的设备提供一个框架，方便对应设备驱动的开发。 MISC 驱动框架特点：  misc 驱动为字">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux驱动——MISC驱动">
+<meta property="og:url" content="http://example.com/2026/08/04/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94MISC%E9%A9%B1%E5%8A%A8/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、MISC驱动简介 misc——miscellaneous，译为杂项。众所周知，Linux 中的驱动是分层设计的，每个设备都有自己的归属类型，比如键盘为输入设备，属于 input 子系统。但是会存在一些设备无法简单被划分到某一类中，此时可以基于 misc 驱动框架实现该设备的驱动。misc 驱动为不知类型的设备提供一个框架，方便对应设备驱动的开发。 MISC 驱动框架特点：  misc 驱动为字">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-04T11:01:12.000Z">
+<meta property="article:modified_time" content="2026-10-01T14:50:02.611Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux驱动——MISC驱动 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux驱动——MISC驱动"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-04 19:01" pubdate>
+          星期二, 八月 4日 2026, 7:01 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux驱动——MISC驱动</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、MISC驱动简介</h1>
+<p>misc——miscellaneous，译为<strong>杂项</strong>。众所周知，Linux 中的驱动是分层设计的，每个设备都有自己的归属类型，比如键盘为输入设备，属于 input 子系统。但是会存在一些设备无法简单被划分到某一类中，此时可以基于 misc 驱动框架实现该设备的驱动。<strong>misc 驱动为不知类型的设备提供一个框架，方便对应设备驱动的开发。</strong></p>
+<p>MISC 驱动框架特点：</p>
+<ol>
+<li>misc 驱动为<strong>字符设备</strong>驱动；</li>
+<li>主设备号为 <strong>10</strong>；</li>
+<li>简单易用。无需主动调用 <code>register_chrdev_region()</code>、<code>cdev_add()</code> 等函数，只需调用 <code>misc_register()</code> 即可完成次设备号的分配和设备文件的创建工作；</li>
+<li>使用 platform 总线实现 misc 驱动和设备的绑定。</li>
+</ol>
+<p>上一篇讲了字符设备驱动，MISC驱动可以看成字符设备驱动的一个“轻量封装”：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">普通字符设备：<br>  分配设备号<br>  注册 cdev / register_chrdev<br>  创建 class<br>  创建 device<br>  创建 /dev 节点<br><br>MISC 设备：<br>  填一个 struct miscdevice<br>  调用 misc_register()<br>  内核帮你创建 /dev 节点<br></code></pre></td></tr></table></figure>
+<p>MISC 不是要和字符设备并列的新机制，它本质上仍然是字符设备。只是很多简单字符设备共享同一个主设备号 <code>10</code>，内核帮你管理次设备号和 <code>/dev</code> 节点。</p>
+<p>用户态不关心驱动内部用的是 <code>miscdevice</code> 还是 <code>register_chrdev</code>。它只看到设备文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -l /dev/misc_lab<br></code></pre></td></tr></table></figure>
+<p>正常情况下会看到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">crw-rw-rw- 1 root root 10, 119 ... /dev/misc_lab<br></code></pre></td></tr></table></figure>
+<p>含义：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>字符设备</td>
+</tr>
+<tr>
+<td><code>10</code></td>
+<td>misc 设备常用主设备号</td>
+</tr>
+<tr>
+<td><code>119</code></td>
+<td>动态分配的 misc 次设备号</td>
+</tr>
+<tr>
+<td><code>/dev/misc_lab</code></td>
+<td>用户态访问入口</td>
+</tr>
+</tbody>
+</table>
+<p>用户态程序只需要：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> fd = open(<span class="hljs-string">&quot;/dev/misc_lab&quot;</span>, O_RDWR);<br>write(fd, <span class="hljs-string">&quot;1&quot;</span>, <span class="hljs-number">1</span>);<br>close(fd);<br></code></pre></td></tr></table></figure>
+<p>驱动内部再把这几个系统调用映射到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">open()  -&gt; misc_lab_open()<br>read()  -&gt; misc_lab_read()<br>write() -&gt; misc_lab_write()<br>close() -&gt; misc_lab_release()<br></code></pre></td></tr></table></figure>
+<p>查看系统里的 misc 设备：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat /proc/misc<br></code></pre></td></tr></table></figure>
+<p>会看到类似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text"> 56 fuse<br> 57 loop-control<br> 60 cpu_dma_latency<br>119 misc_lab<br></code></pre></td></tr></table></figure>
+<p>这里：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">119 是次设备号<br>misc_lab 是设备名<br></code></pre></td></tr></table></figure>
+<p>对应的设备节点就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">/dev/misc_lab<br></code></pre></td></tr></table></figure>
+<h1>二、<code>struct miscdevice</code></h1>
+<p>MISC 驱动的入口是一个结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">miscdevice</span> <span class="hljs-title">my_misc</span> =</span> &#123;<br>    .minor = MISC_DYNAMIC_MINOR,<br>    .name = <span class="hljs-string">&quot;misc_lab&quot;</span>,<br>    .fops = &amp;misc_lab_fops,<br>    .mode = <span class="hljs-number">0666</span>,<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>字段含义：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.minor</code></td>
+<td>次设备号。<code>MISC_DYNAMIC_MINOR</code> 表示让内核动态分配</td>
+</tr>
+<tr>
+<td><code>.name</code></td>
+<td>设备名，决定 <code>/dev/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>.fops</code></td>
+<td><code>file_operations</code>，用户态系统调用的函数表</td>
+</tr>
+<tr>
+<td><code>.mode</code></td>
+<td>设备节点权限，例如 <code>0666</code></td>
+</tr>
+</tbody>
+</table>
+<p>注册：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = misc_register(&amp;my_misc);<br><span class="hljs-keyword">if</span> (ret) &#123;<br>    pr_err(<span class="hljs-string">&quot;failed to register misc device: %d\n&quot;</span>, ret);<br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>注销：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">misc_deregister(&amp;my_misc);<br></code></pre></td></tr></table></figure>
+<p><code>misc_register()</code> 成功后，内核会帮你：</p>
+<ul>
+<li>分配一个 misc minor。</li>
+<li>把设备注册到字符设备层。</li>
+<li>使用主设备号 <code>10</code>。</li>
+<li>让 udev/devtmpfs 创建 <code>/dev/misc_lab</code>。</li>
+</ul>
+<h1>三、MISC 和 <code>register_chrdev</code> 的关系</h1>
+<p>上一篇 <code>char_lab</code> 使用传统字符设备写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = register_chrdev(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;char_lab&quot;</span>, &amp;char_lab_fops);<br>char_lab_major = ret;<br>char_lab_devno = MKDEV(char_lab_major, <span class="hljs-number">0</span>);<br><br>char_lab_class = class_create(THIS_MODULE, <span class="hljs-string">&quot;char_lab&quot;</span>);<br>device_create(char_lab_class, <span class="hljs-literal">NULL</span>, char_lab_devno, <span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot;char_lab&quot;</span>);<br></code></pre></td></tr></table></figure>
+<p>这一篇 <code>misc_lab</code> 使用 MISC 写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">misc_lab_device.misc.minor = MISC_DYNAMIC_MINOR;<br>misc_lab_device.misc.name = <span class="hljs-string">&quot;misc_lab&quot;</span>;<br>misc_lab_device.misc.fops = &amp;misc_lab_fops;<br>misc_lab_device.misc.mode = <span class="hljs-number">0666</span>;<br><br>misc_register(&amp;misc_lab_device.misc);<br></code></pre></td></tr></table></figure>
+<p>对比：</p>
+<table>
+<thead>
+<tr>
+<th>写法</th>
+<th>主设备号</th>
+<th>/dev 节点</th>
+<th style="text-align:right">代码量</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>register_chrdev</code></td>
+<td>动态分配</td>
+<td>需要 class/device 或手动 mknod</td>
+<td style="text-align:right">中</td>
+<td>学习字符设备传统流程</td>
+</tr>
+<tr>
+<td><code>miscdevice</code></td>
+<td>固定主设备号 10</td>
+<td>内核自动创建</td>
+<td style="text-align:right">少</td>
+<td>简单单节点字符设备</td>
+</tr>
+<tr>
+<td>手写 <code>cdev</code></td>
+<td>灵活</td>
+<td>需要 class/device</td>
+<td style="text-align:right">多</td>
+<td>正式复杂驱动</td>
+</tr>
+</tbody>
+</table>
+<p>可以把 MISC 理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">miscdevice<br>    = 字符设备注册<br>    + 固定 major 10<br>    + 动态 minor<br>    + 自动 /dev 节点<br></code></pre></td></tr></table></figure>
+<p>它不是全新的设备模型，而是对常见小字符设备场景的封装。</p>
+<h1>四、MISC 驱动 API</h1>
+<p>当设置好miscdevice以后就需要<strong>使用misc_register函数向系统中注册一个MISC设备</strong>，此函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">misc_register</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> miscdevice * misc)</span><br></code></pre></td></tr></table></figure>
+<p>函数参数和返回值含义如下： - misc：要注册的MISC设备。 - 返回值：负数，失败；0，成功。</p>
+<p>以前需要自己调用一堆的函数去创建设备，比如在以前的字符设备驱动中会使用如下几个函数完成设备创建过程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">alloc_chrdev_region(); <span class="hljs-comment">/* 申请设备号 */</span> <br>cdev_init(); <span class="hljs-comment">/* 初始化cdev */</span> <br>cdev_add(); <span class="hljs-comment">/* 添加cdev */</span> <br>class_create(); <span class="hljs-comment">/* 创建类 */</span> <br>device_create(); <span class="hljs-comment">/* 创建设备 */</span><br></code></pre></td></tr></table></figure>
+<p>现在可以直接使用 <code>misc_register</code> 一个函数来完成以上代码中的这些步骤。当卸载设备驱动模块的时候需要调用<code>misc_deregister</code> 函数来注销掉 MISC设备，函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">misc_deregister</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> miscdevice *misc)</span><br></code></pre></td></tr></table></figure>
+<p>函数参数和返回值含义如下：</p>
+<ul>
+<li>misc：要注销的MISC设备。</li>
+<li>返回值：负数，失败；0，成功。</li>
+</ul>
+<p>以前注销设备驱动的时候，需要调用一堆的函数去删除此前创建的cdev、设备等等内容，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">cdev_del(); <span class="hljs-comment">/* 删除cdev */</span> <br>unregister_chrdev_region(); <span class="hljs-comment">/* 注销设备号 */</span> <br>device_destroy(); <span class="hljs-comment">/* 删除设备 */</span> <br>class_destroy(); <span class="hljs-comment">/* 删除类 */</span><br></code></pre></td></tr></table></figure>
+<p>现在只需要一个 <code>misc_deregister</code> 函数即可完成以上代码中的这些工作。</p>
+<h1>五、实例</h1>
+<p>功能：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">write <span class="hljs-string">&quot;1&quot;</span> -&gt; 状态置 <span class="hljs-number">1</span><br>write <span class="hljs-string">&quot;0&quot;</span> -&gt; 状态置 <span class="hljs-number">0</span><br>read      -&gt; 返回当前状态<br>open      -&gt; dmesg 打印打开次数<br>release   -&gt; dmesg 打印 closed<br></code></pre></td></tr></table></figure>
+<p><code>misc_lab.c</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// SPDX-License-Identifier: GPL-2.0</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/atomic.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/miscdevice.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/uaccess.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MISC_LAB_NAME <span class="hljs-string">&quot;misc_lab&quot;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">misc_lab</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">miscdevice</span> <span class="hljs-title">misc</span>;</span><br>    <span class="hljs-type">int</span> value;<br>    <span class="hljs-type">atomic_t</span> open_count;<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">misc_lab</span> <span class="hljs-title">misc_lab_device</span>;</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">misc_lab_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>    <span class="hljs-type">int</span> count = atomic_inc_return(&amp;misc_lab_device.open_count);<br><br>    pr_info(MISC_LAB_NAME <span class="hljs-string">&quot;: opened %d times\n&quot;</span>, count);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">misc_lab_release</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>    pr_info(MISC_LAB_NAME <span class="hljs-string">&quot;: closed\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">misc_lab_write</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">const</span> <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                              <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">char</span> kbuf[<span class="hljs-number">8</span>] = &#123;<span class="hljs-number">0</span>,&#125;;<br><br>    <span class="hljs-keyword">if</span> (count == <span class="hljs-number">0</span> || count &gt;= <span class="hljs-keyword">sizeof</span>(kbuf)) &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_from_user(kbuf, buf, count)) &#123;<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (kbuf[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>        misc_lab_device.value = <span class="hljs-number">1</span>;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (kbuf[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;0&#x27;</span>) &#123;<br>        misc_lab_device.value = <span class="hljs-number">0</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">misc_lab_read</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                             <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">char</span> kbuf[<span class="hljs-number">4</span>];<br>    <span class="hljs-type">int</span> len;<br><br>    <span class="hljs-keyword">if</span> (*ppos &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    len = scnprintf(kbuf, <span class="hljs-keyword">sizeof</span>(kbuf), <span class="hljs-string">&quot;%d\n&quot;</span>, misc_lab_device.value);<br>    <span class="hljs-keyword">if</span> (count &lt; len) &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_to_user(buf, kbuf, len)) &#123;<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    *ppos += len;<br>    <span class="hljs-keyword">return</span> len;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">misc_lab_fops</span> =</span> &#123;<br>    .owner = THIS_MODULE,<br>    .open = misc_lab_open,<br>    .release = misc_lab_release,<br>    .read = misc_lab_read,<br>    .write = misc_lab_write,<br>    .llseek = no_llseek,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">misc_lab_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> ret;<br><br>    misc_lab_device.value = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">atomic_set</span>(&amp;misc_lab_device.open_count, <span class="hljs-number">0</span>);<br><br>    misc_lab_device.misc.minor = MISC_DYNAMIC_MINOR; <span class="hljs-comment">// 让内核自动分配一个未使用的 misc minor</span><br>    misc_lab_device.misc.name = MISC_LAB_NAME; <span class="hljs-comment">// /dev节点名称</span><br>    misc_lab_device.misc.fops = &amp;misc_lab_fops;<br>    misc_lab_device.misc.mode = <span class="hljs-number">0666</span>;<br><br>    ret = misc_register(&amp;misc_lab_device.misc);<br>    <span class="hljs-keyword">if</span> (ret) &#123;<br>        pr_err(MISC_LAB_NAME <span class="hljs-string">&quot;: failed to register misc device: %d\n&quot;</span>, ret);<br>        <span class="hljs-keyword">return</span> ret;<br>    &#125;<br><br>    pr_info(MISC_LAB_NAME <span class="hljs-string">&quot;: loaded, /dev/%s ready\n&quot;</span>, MISC_LAB_NAME);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">misc_lab_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    misc_deregister(&amp;misc_lab_device.misc);<br>    pr_info(MISC_LAB_NAME <span class="hljs-string">&quot;: unloaded\n&quot;</span>);<br>&#125;<br><br>module_init(misc_lab_init);<br>module_exit(misc_lab_exit);<br><br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;orange-pi-edge&quot;</span>);<br>MODULE_DESCRIPTION(<span class="hljs-string">&quot;Minimal miscdevice driver for Linux driver learning&quot;</span>);<br>MODULE_VERSION(<span class="hljs-string">&quot;1.0&quot;</span>);<br></code></pre></td></tr></table></figure>
+<p>Makefile：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs makefile">obj-m += misc_lab.o<br><br>KDIR ?= /lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build<br><br><span class="hljs-section">all:</span><br>	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KDIR)</span> M=<span class="hljs-variable">$(PWD)</span> modules<br><br><span class="hljs-section">clean:</span><br>	<span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KDIR)</span> M=<span class="hljs-variable">$(PWD)</span> clean<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: all clean</span><br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux驱动——MISC驱动</div>
+      <div>http://example.com/2026/08/04/Linux驱动——MISC驱动/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/05/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94Platform%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" title="Linux驱动——Platform设备驱动">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux驱动——Platform设备驱动</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/03/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/" title="Linux驱动——字符设备驱动开发">
+                        <span class="hidden-mobile">Linux驱动——字符设备驱动开发</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

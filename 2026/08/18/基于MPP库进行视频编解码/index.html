@@ -1,0 +1,1440 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、MPP 介绍  以下为 RK 官方 MPP 文档的 GitHub 链接，包含了中文&#x2F;英文的 MPP 开发指南： https:&#x2F;&#x2F;github.com&#x2F;rockchip-linux&#x2F;mpp&#x2F;tree&#x2F;develop&#x2F;doc  MPP（Media Process Platform）是 Rockchip 提供的一套 硬件视频编解码中间件，用于统一调用芯片上 VPU（Video Processing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于MPP库进行视频编解码">
+<meta property="og:url" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、MPP 介绍  以下为 RK 官方 MPP 文档的 GitHub 链接，包含了中文&#x2F;英文的 MPP 开发指南： https:&#x2F;&#x2F;github.com&#x2F;rockchip-linux&#x2F;mpp&#x2F;tree&#x2F;develop&#x2F;doc  MPP（Media Process Platform）是 Rockchip 提供的一套 硬件视频编解码中间件，用于统一调用芯片上 VPU（Video Processing">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/1.jpg">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/2.jpg">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/3.jpg">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/4.jpg">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/5.jpg">
+<meta property="og:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/6.jpg">
+<meta property="article:published_time" content="2026-08-18T08:01:05.000Z">
+<meta property="article:modified_time" content="2026-10-19T07:16:11.675Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta property="article:tag" content="摄像头">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/08/18/%E5%9F%BA%E4%BA%8EMPP%E5%BA%93%E8%BF%9B%E8%A1%8C%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81/1.jpg">
+  
+  
+  
+  <title>基于MPP库进行视频编解码 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于MPP库进行视频编解码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-18 16:01" pubdate>
+          星期二, 八月 18日 2026, 4:01 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">基于MPP库进行视频编解码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、MPP 介绍</h1>
+<blockquote>
+<p>以下为 RK 官方 MPP 文档的 GitHub 链接，包含了中文/英文的 MPP 开发指南：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/rockchip-linux/mpp/tree/develop/doc">https://github.com/rockchip-linux/mpp/tree/develop/doc</a></p>
+</blockquote>
+<p><strong>MPP</strong>（Media Process Platform）是 Rockchip 提供的一套 <strong>硬件视频编解码中间件</strong>，用于统一调用芯片上 <strong>VPU（Video Processing Unit）</strong> 硬件资源，实现高性能视频编码和解码。该平台对应用软件屏蔽了芯片相关的复杂底层处理，其目的是为了屏蔽不同芯片的差异，为使用者提供统一的视频媒体处理接口（Media Process Interface，缩写 MPI）。MPP 提供的功能包括：</p>
+<table>
+<thead>
+<tr>
+<th>视频解码</th>
+<th>H.265 / H.264 / H.263 / VP9 / VP8 / MPEG-4 / MPEG-2 / MPEG-1 / VC1 / MJPEG / AV1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>视频编码</td>
+<td>H.265 / H.264 / VP8 / MJPEG</td>
+</tr>
+<tr>
+<td>视频处理</td>
+<td>视频拷贝，缩放，色彩空间转换，场视频解交织（Deinterlace）</td>
+</tr>
+</tbody>
+</table>
+<p>核心功能：</p>
+<ul>
+<li><strong>硬件解码（VDEC）</strong>：支持 H.264、H.265/HEVC、VP8、VP9、AV1 等格式。</li>
+<li><strong>硬件编码（VENC）</strong>：支持 H.264、H.265、JPEG、AV1 等格式。</li>
+<li><strong>统一 API 接口</strong>：通过 C API 或 V4L2，简化上层应用调用。</li>
+<li><strong>高性能多路处理</strong>：支持多路视频流并发编解码，降低 CPU 占用，节省功耗。</li>
+<li><strong>跨平台</strong>：Linux/Android 平台均可使用。</li>
+<li><strong>开源支持</strong>：源码开源，可根据项目需求修改和移植。</li>
+</ul>
+<h1>二、MPP 结构</h1>
+<p>MPP 在源码层面主要分为以下模块：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">模块</th>
+<th style="text-align:center">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>OSAL</strong></td>
+<td style="text-align:center">跨平台底层封装：内存、线程、时间、日志等</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>MPI / Mpp API</strong></td>
+<td style="text-align:center">用户调用接口：编码/解码任务提交与获取</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Base</strong></td>
+<td style="text-align:center">核心数据结构：MppBuffer、MppFrame、MppPacket、MppTask</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Codec</strong></td>
+<td style="text-align:center">比特流解析与处理逻辑（Parser + WorkFlow）</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>HAL</strong></td>
+<td style="text-align:center">硬件抽象层，将 Codec 命令映射到 VPU 寄存器并触发执行</td>
+</tr>
+</tbody>
+</table>
+<p><strong>典型数据流：</strong></p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">用户应用 → <span class="hljs-built_in">MPI</span> API → <span class="hljs-built_in">MPP</span> Task → Codec Parser → HAL → VPU → 输出帧/比特流<br></code></pre></td></tr></table></figure>
+<p>调用流程简化：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">应用（如 FFmpeg + libva/VAAPI） <br>    ↓<br><span class="hljs-built_in">MPI</span> / <span class="hljs-built_in">MPP</span> API 调用<br>    ↓<br>Base + Codec 解析与任务组织<br>    ↓<br>HAL 生成寄存器命令<br>    ↓<br>Kernel vcodec_service 驱动<br>    ↓<br>SoC VPU 硬件执行<br>    ↓<br>返回 decoded frames / encoded packets<br></code></pre></td></tr></table></figure>
+<h2 id="2-1-代码目录结构">2.1 代码目录结构</h2>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">----                             top<br>   |<span class="hljs-string"></span><br><span class="hljs-string">   </span>|<span class="hljs-string">----- build                  CMake out-of-source build directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- cmake               cmake script directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- android             android build directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- linux               linux build directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- vc10-x86_64         visual studio 2010 on x86_64 build directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- vc12-x86_64         visual studio 2013 on x86_64 build directory</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- doc                    design documents of mpp</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- inc                    header file for external usage, including</span><br><span class="hljs-string">   </span>|<span class="hljs-string">                             platform header and mpi header</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- mpp                    Media Process Platform : mpi function private</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          implement and mpp infrastructure (vpu_api</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          private layer)</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- base                base components including MppBuffer, MppFrame,</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          MppPacket, MppTask, MppMeta, etc.</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- common              video codec protocol syntax interface for both</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          codec parser and hal</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- codec               all video codec parser, convert stream to</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                       protocol structure</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- inc              header files provided by codec module for</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                       external usage</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- dec</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- av1           av1 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- avs           avs parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- avs2          avs2 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h263          h263 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h264          h264 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h265          h265 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- m2v           mpeg2 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- mpg4          mpeg4 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- vp8           vp8 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- vp9           vp9 parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- jpeg          jpeg parser</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- enc</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- dummy         encoder controllor work flow sample</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- h264          h264 encoder</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- h265          h265 encoder</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- jpeg          jpeg encoder</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- vp8           vp8 encoder</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- hal                 Hardware Abstract Layer (HAL): modules used in mpi</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- inc              header files provided by hal for external usage</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- common           shared HAL code</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- rkdec            rockchip hardware decoder register generation</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h264d         generate register file from H.264 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h265d         generate register file from H.265 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- vp9d          generate register file from vp9 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- av1d          generate register file from AV1 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- avsd          generate register file from AVS syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- avs2d         generate register file from AVS2 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- rkenc            rockchip hardware encoder register generation</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h264e         generate register file from H.264 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- h265e         generate register file from H.265 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- jpege         generate register file from jpeg syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- vpu              vpu register generation library</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- av1d          generate register file from AV1 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- h263d         generate register file from H.263 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- h264e         generate register file from H.264 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- jpegd         generate register file from jpeg syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- jpege         generate register file from jpeg syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- m2vd          generate register file from mpeg2 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- mpg4d         generate register file from mpeg4 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- vp8d          generate register file from vp8 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">     </span>|<span class="hljs-string">----- vp8e          generate register file from vp8 syntax info</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- vproc               video process modules</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- iep              image enhancement processor</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- iep2             image enhancement processor v2</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">  </span>|<span class="hljs-string">----- vdpp             video post processor</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- legacy              generate new libvpu to include old vpuapi path</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          and new mpp path</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- test                mpp internal video protocol unit test and demo</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- test                   mpp buffer/packet component unit test and</span><br><span class="hljs-string">   </span>|<span class="hljs-string">                             mpp/mpi/vpu_api demo</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- out                    final release binary output directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- bin                 executable binary file output directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- inc                 header file output directory</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- lib                 library file output directory</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- osal                   Operation System Abstract Layer: abstract layer</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          for different operation system</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- allocator           supported allocator including Android ion and</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<span class="hljs-string">                          Linux drm</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- android             google&#x27;s android</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- inc                 osal header file for mpp modules</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- linux               mainline linux kernel</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- windows             microsoft&#x27;s windows</span><br><span class="hljs-string">   </span>|<span class="hljs-string">  </span>|<br>   |<span class="hljs-string">  </span>|<span class="hljs-string">----- test                OASL unit test</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- tools                  coding style format tools</span><br><span class="hljs-string">   </span>|<br>   |<span class="hljs-string">----- utils                  small util functions</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><code>test/</code> 下的程序<strong>不构建库</strong>，只产出可执行文件。它们链接 <code>libmpp.so</code>（或静态库）+ <code>utils/</code> 这个内部静态库，跑在板子的用户态。</p>
+</blockquote>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs objectivec">mpp/             - <span class="hljs-built_in">MPP</span> 核心实现（<span class="hljs-built_in">MPI</span> + base + codec + hal）<br>osal/            - 跨平台抽象层<br>inc/             - 对外头文件接口（<span class="hljs-built_in">MPI</span>/公共定义）<br>test/            - <span class="hljs-built_in">MPP</span> 功能测试与示例代码<br>doc/             - 设计说明文档<br>utils/ tools/    - 工具与辅助脚本<br>kmpp/            - 可能的 kernel 侧接口代码<br>build/           - <span class="hljs-built_in">CMake</span> 构建脚本配置<br></code></pre></td></tr></table></figure>
+<h2 id="2-2-模块结构">2.2 模块结构</h2>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">+------------------------------------------------------+<br>|<span class="hljs-string">           上层应用/多媒体框架（Linux/Android）         </span>|<br>|<span class="hljs-string">  OpenMax / gstreamer / libva / FFmpeg (hwaccel)      </span>|<br>+-----------------------------|<span class="hljs-string">------------------------+</span><br><span class="hljs-string">                              ▼</span><br><span class="hljs-string">    +---------------------------- MPP ----------------------------+</span><br><span class="hljs-string">    </span>|<span class="hljs-string">                                                            </span>|<br>    |<span class="hljs-string">   +--------------------+  +----------------------------+  </span>|<br>    |<span class="hljs-string">   </span>|<span class="hljs-string">      MPI / MPP     </span>|<span class="hljs-string">  </span>|<span class="hljs-string">           OSAL             </span>|<span class="hljs-string">  </span>|<br>    |<span class="hljs-string">   </span>|<span class="hljs-string">  Media Process API </span>|<span class="hljs-string">  </span>|<span class="hljs-string"> Operation System Abstract  </span>|<span class="hljs-string">  </span>|<br>    |<span class="hljs-string">   </span>|<span class="hljs-string">  (Open/Init/Put/Get)</span>|<span class="hljs-string"> </span>|<span class="hljs-string">  Layer: memory/thread/log  </span>|<span class="hljs-string">  </span>|<br>    |<span class="hljs-string">   +--------------------+  +----------------------------+  </span>|<br>    |<span class="hljs-string">               </span>|<span class="hljs-string">                                             </span>|<br>    |<span class="hljs-string">               ▼                                             </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string">      base         </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> core components:  </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> MppBuffer /       </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> MppFrame /        </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> MppPacket /       </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> MppTask / MppMeta </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    |<span class="hljs-string">               </span>|<span class="hljs-string">                                             </span>|<br>    |<span class="hljs-string">               ▼                                             </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string">      codec        </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> parser + encoder/ </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> decoder workflows </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    |<span class="hljs-string">               </span>|<span class="hljs-string">                                             </span>|<br>    |<span class="hljs-string">               ▼                                             </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string">       HAL         </span>|<span class="hljs-string">                                 </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> Hardware Abstraction</span>|<span class="hljs-string">                               </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string"> - register generator </span>|<span class="hljs-string">                              </span>|<br>    |<span class="hljs-string">        </span>|<span class="hljs-string">   for VPU codecs      </span>|<span class="hljs-string">                              </span>|<br>    |<span class="hljs-string">        +------------------+                                 </span>|<br>    +----------------------------|<span class="hljs-string">-------------------------------+</span><br><span class="hljs-string">                                 ▼</span><br><span class="hljs-string">        +------------------------ kernel ----------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                                    </span>|<br>        |<span class="hljs-string">     vcodec_service    /    v4l2 hardware drivers      </span>|<br>        |<span class="hljs-string">   (stateless frame hw codec kernel interface)       </span>|<br>        +------------------------------------------------------+<br></code></pre></td></tr></table></figure>
+<ol>
+<li><strong>MPI / MPP 层</strong></li>
+</ol>
+<ul>
+<li>MPP 的核心对外接口，提供统一的 <strong>媒体处理 API</strong>（打开/初始化/送入帧/取出结果）。</li>
+<li>管理内部任务队列、帧/包队列，负责上层与内部 codec/HAL 的协作。</li>
+<li>是上层应用调用硬件编解码的入口。</li>
+</ul>
+<ol start="2">
+<li><strong>OSAL（系统抽象层）</strong></li>
+</ol>
+<ul>
+<li>屏蔽不同操作系统差异（内存分配、线程、时间、日志等）。</li>
+<li>保证 MPP 在 Linux、Android 等平台可跨平台编译和运行。</li>
+</ul>
+<ol start="3">
+<li><strong>Base（核心数据结构层）</strong></li>
+</ol>
+<ul>
+<li>定义 MPP 的核心数据类型：
+<ul>
+<li><strong>MppBuffer</strong>：统一缓冲区对象（dma-buf / ion / drm 等）。</li>
+<li><strong>MppFrame</strong>：视频帧结构。</li>
+<li><strong>MppPacket</strong>：流数据包结构。</li>
+<li><strong>MppTask / MppMeta</strong>：任务与元数据。</li>
+</ul>
+</li>
+<li>为 codec 层和 HAL 层提供统一数据承载。</li>
+</ul>
+<ol start="4">
+<li><strong>Codec（编/解码工作流 + 解析）</strong></li>
+</ol>
+<ul>
+<li>对具体视频格式（H.264/H.265/VP8/VP9/JPEG 等）实现解析器、控制流程、逻辑。</li>
+<li>分析流数据、组织 codec 工作任务、与 HAL 交互。</li>
+</ul>
+<ol start="5">
+<li><strong>HAL（硬件抽象层）</strong></li>
+</ol>
+<ul>
+<li>将 codec 解析结果映射为硬件寄存器设置，生成配合内核驱动的配置。</li>
+<li>核心作用是与 VPU（Video Processing Unit）硬件协作：
+<ul>
+<li>生成给 vcodec_service 内核驱动的寄存器命令。</li>
+<li>支持多种编码/解码格式。</li>
+</ul>
+</li>
+<li>HAL 是 MPP 与真实硬件的桥梁。</li>
+</ul>
+<ol start="6">
+<li><strong>内核层（kernel）</strong></li>
+</ol>
+<ul>
+<li>MPP 通过 HAL 与 SoC 的硬件编/解码内核驱动交互：
+<ul>
+<li><strong>vcodec_service</strong>：Stateless API kernel side。</li>
+<li><strong>v4l2</strong>：V4L2 codec interface（部分平台）。</li>
+</ul>
+</li>
+<li>最终由内核驱动调度 <strong>VPU 硬件处理</strong>。</li>
+</ul>
+<h2 id="2-3-命名规则">2.3 命名规则</h2>
+<ul>
+<li><code>mpi</code> = MPP Interface（<code>rk_mpi.h</code> 那套对外 API）</li>
+<li><code>enc</code> / <code>dec</code> = encoder / decoder</li>
+<li><code>mt</code> = multi-thread（输入输出<strong>分</strong>线程，不是多实例）</li>
+<li><code>nt</code> = no-thread / no-timeout（<strong>关闭</strong> MPP 内部解码线程，调用者一次 <code>decode()</code> 包揽 put+get）</li>
+<li><code>multi</code> = multi-instance（多路并发，<strong>多实例</strong>）</li>
+<li><code>rc</code> = rate control（码率控制）</li>
+<li><code>rc2</code> = “RC 测试 v2″，相对于已废弃的 <code>mpi_rc_test</code></li>
+</ul>
+<p>容易搞混的是 <strong><code>mt</code> vs <code>multi</code></strong>：</p>
+<ul>
+<li><code>mt</code>（multi-thread）：<strong>1 个</strong>编/解码上下文，<strong>2 个</strong>线程（一个喂、一个取）</li>
+<li><code>multi</code>：<strong>N 个</strong>上下文，<strong>N 个</strong>线程，每个互不干扰，用来测吞吐</li>
+</ul>
+<h2 id="2-4-接口结构">2.4 接口结构</h2>
+<p>下图为 MPI 接口使用的主要数据结构：</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<ul>
+<li><code>MppMem</code> 为 C 库 malloc 内存的封装。</li>
+<li><code>MppBuffer</code> 为硬件用的 dmabuf 内存的封装。</li>
+<li><code>MppPacket</code> 为一维缓存封装，可以从 <code>MppMem</code> 和 <code>MppBuffer</code> 生成，主要用于表示码流数据。</li>
+<li><code>MppFrame</code> 为二维帧数据封装，可以从 <code>MppMem</code> 和 <code>MppBuffer</code> 生成，主要用于表示图像数据。</li>
+<li>使用 <code>MppPacket</code> 和 <code>MppFrame</code> 就可以简单有效的完成一般的视频编解码工作。</li>
+</ul>
+<h3 id="2-4-1-MppBuffer">2.4.1 MppBuffer</h3>
+<p>MppBuffer 主要用于描述供硬件使用的内存块（即缓存），提供了内存块的分配、释放和加减引用等功能，目前支持的分配器有：ion、drm 和 dma_heap。MppBuffer 几个重要的参数成员如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ptr</td>
+<td>void *</td>
+<td>表示内存块的起始虚拟地址。</td>
+</tr>
+<tr>
+<td>size</td>
+<td>size_t</td>
+<td>表示内存块的大小。</td>
+</tr>
+<tr>
+<td>fd</td>
+<td>int</td>
+<td>表示内存块的用户态空间文件句柄。</td>
+</tr>
+</tbody>
+</table>
+<p>在解码过程中，解码图像的缓存通常需要在固定的缓存池里进行轮转，为了实现这一点，MPP 在 MppBuffer 基础之上又定义了 MppBufferGroup。MppBuffer 的使用方式有两种：常规使用方式和外部导入方式，由于二者的内存分配方式不同，也称为 internal 模式和 external 模式。</p>
+<p>在 MppBuffer 常规使用方式下，MppBufferGroup 由 MPP 内部生成和维护。通过 <code>mpp_buffer_get</code> 和 <code>mpp_buffer_put</code> 对内存块进行申请和释放，如下图所示：</p>
+<p><img src="2.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>其流程大致如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">MppBufferGroup group = <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-comment">// 获取缓冲池并限制其大小和数量</span><br>mpp_buffer_group_get_internal(&amp;group, type);<br>mpp_buffer_group_limit_config(group, size, count);<br><br><span class="hljs-comment">// 把缓冲池配置给解码器，让解码器从缓冲池中取缓存解码</span><br>mpi-&gt;control(dec, MPP_DEC_SET_EXT_BUF_GROUP, group);<br><br><span class="hljs-comment">// 开始解码过程</span><br><span class="hljs-keyword">while</span> (!end_of_deconding) &#123;<br>    &#123;<span class="hljs-comment">// 括号内为MPP解码器行为，解码器使用缓存数据</span><br>        MppBuffer buffer_in_mpp_decoder;<br>        <span class="hljs-comment">// 解码器内部从缓存池取缓存解码</span><br>        mpp_buffer_get(group, &amp;bufer_in_mpp_decoder);<br>        <span class="hljs-comment">// 把图像解码到buffer内</span><br>        ...<br>	&#125;<br>    mpi-&gt;decoder_get_frame(&amp;frame);<br>    <span class="hljs-comment">// 输出MppBuffer给外部用户</span><br>    <span class="hljs-comment">// 对图像数据做处理</span><br>    MppBuffer buffer_of_user = mpp_frame_get_buffer(frame);<br>    ...<br>    <span class="hljs-comment">// 用户释放缓存引用和图像引用</span><br>    mpp_buffer_put(buffer_of_user);<br>    mpp_frame_deinit(frame);<br>&#125;<br><br><span class="hljs-comment">// 释放缓冲池</span><br>mpp_buffer_group_put(group);<br></code></pre></td></tr></table></figure>
+<p>这种方式可以实现解码器在解码过程中<strong>零拷贝输出</strong>（解码器的输出帧与解码器内部使用的参考帧用是同一帧），但不容易实现<strong>零拷贝显示</strong>（解码器的输出帧不一定在显示端可以直接显示），同时要求用户知道需要给解码器开多大的空间进行解码。</p>
+<p>另一种使用方式是把 MppBufferGroup 完全做为一个缓存的管理器，用于管理外部导入的缓存。其使用方式如下图：</p>
+<p><img src="3.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>其流程大致如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">MppBufferGroup group = <span class="hljs-literal">NULL</span>;<br>MppBufferlnfo info[<span class="hljs-number">16</span>];<br><br><span class="hljs-comment">// 获取缓存池</span><br>mpp_buffer_group_get_external(&amp;group, type);<br><br><span class="hljs-comment">// 向缓存池中导入外部缓存</span><br>mpp_buffer_commit(group, &amp;info[o]);<br>mpp_buffer_commit(group, &amp;info[<span class="hljs-number">1</span>]);<br>...<br><br><span class="hljs-comment">//把缓存池配置给解码器，让解码器从缓存池中取缓存解码</span><br>mpi-&gt;control(dec, MPP_DEC_SET_EXT_BUF_GROUP, group);<br><br><span class="hljs-comment">//开始解码过程</span><br><span class="hljs-keyword">while</span> (!end_of_decoding) &#123;<br>    &#123;<span class="hljs-comment">// 括号内为MPP解码器行为，解码器使用缓存数据</span><br>        MppBuffer buffer_in_mpp_decoder;<span class="hljs-comment">// 解码器内部从缓存池取缓存解码</span><br>        mpp_buffer_get(group, &amp;bufer_in_mpp_decoder);<br>        <span class="hljs-comment">// 把图像解码到buffer内</span><br>    	...<br>    &#125;<br>    mpi-&gt;decode_get_frame(&amp;frame);<br>    <span class="hljs-comment">// 输出MppBuffer给外部用户</span><br>    MppBuffer buffer_of_user = mpp_frame_get_buffer(frame);<br>    <span class="hljs-comment">// 对图像数据做处理</span><br>    ...<br>    <span class="hljs-comment">// 用户释放缓存引用和图像引用</span><br>    mpp_buffer_put(buffer_of_user);<br>    mpp_frame_deinit(frame);<br>&#125;<br><br><span class="hljs-comment">// 释放缓存池</span><br>mpp_buffer_group_put(group);<br></code></pre></td></tr></table></figure>
+<p>这种方式可以使得解码器使用外部的缓存，可以对接 OpenMax/gstreamer 这样的中间件，也方便对接用户己有的上层代码，便于实现零拷贝显示。</p>
+<h3 id="2-4-2-MppPacket">2.4.2 MppPacket</h3>
+<p>MppPacket 主要用于描述一维码流的相关信息，特别是有效数据的位置与长度。MppPacket 几个重要的参数成员如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data</td>
+<td>void *</td>
+<td>表示缓存空间的起始地址。</td>
+</tr>
+<tr>
+<td>size</td>
+<td>size_t</td>
+<td>表示缓存空间的大小。</td>
+</tr>
+<tr>
+<td>pos</td>
+<td>void *</td>
+<td>表示缓存空间内有效数据的起始地址。</td>
+</tr>
+<tr>
+<td>length</td>
+<td>size_t</td>
+<td>表示缓存空间内有效数据的长度。如果在 <code>decode_put_packet</code> 调用之后 length 变为 0，说明此包码流己消耗完成。</td>
+</tr>
+</tbody>
+</table>
+<p>其关系如下图所示：</p>
+<p><img src="4.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>MppPacket的其他配置参数成员如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pts</td>
+<td>RK_U64</td>
+<td>表示显示时间戳（Present Time Stamp）。</td>
+</tr>
+<tr>
+<td>dts</td>
+<td>RK_U64</td>
+<td>表示解码时间戳（Decoding Time Stamp）。</td>
+</tr>
+<tr>
+<td>eos</td>
+<td>RK_U32</td>
+<td>表示码流结束标志（End Of Stream）。</td>
+</tr>
+<tr>
+<td>buffer</td>
+<td>MppBuffer</td>
+<td>表示MppPacket对应的MppBuffer。</td>
+</tr>
+<tr>
+<td>flag</td>
+<td>RK_U32</td>
+<td>表示MPP内部使用的标志位，包含如下标志： <br>#define MPP_PACKET_FLAG_EOS (0x00000001) <br>#define MPP_PACKET_FLAG_EXTRA_DATA (0x00000002) <br>#define MPP_PACKET_FLAG_INTERNAL (0x00000004) <br>#define MPP_PACKET_FLAG_INTRA (0x00000008)</td>
+</tr>
+</tbody>
+</table>
+<p>MppPacket 作为描述一维内存的结构体，在使用时需要使用 malloc 出来的内存或者使用 MppBuffer 的内存进行初始化。在释放 MppPacket 时有几种情况：</p>
+<p>如果是外部 malloc 地址配置到 MppPacket，不会做 free 释放处理，如下示例；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *data = <span class="hljs-built_in">malloc</span>(size);<br>MppPacket pkt = <span class="hljs-literal">NULL</span>;<br><br>mpp_packet_init(&amp;pkt, data, size);<br>mpp_packet_deinit(&amp;pkt); <span class="hljs-comment">// 不会释放data</span><br><br><span class="hljs-built_in">free</span>(data);<br></code></pre></td></tr></table></figure>
+<p>如果是拷贝产生的 MppPacket，会做 free 释放内存，如下示例；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *data = <span class="hljs-built_in">malloc</span>(size);<br>MppPacket pkt = <span class="hljs-literal">NULL</span>;<br>MppPacket pkt_copy = <span class="hljs-literal">NULL</span>;<br><br>mpp_packet_init(&amp;pkt, data, size);<br>mpp_packet_copy_init(&amp;pkt_copy, pkt);<br><br>mpp_packet_deinit(&amp;pkt); <span class="hljs-comment">// 不会释放data</span><br>mpp_packet_deinit(&amp;pkt_copy); <span class="hljs-comment">// 会自动释放分配的内存</span><br><br><span class="hljs-built_in">free</span>(data);<br></code></pre></td></tr></table></figure>
+<p>如果是 MppBuffer 产生的 MppPacket，会在生成时对 MppBuffer 加引用，在释放时对 MppPacket 减引用。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">MppBuffer buffer;<br>MppPacket pkt = <span class="hljs-literal">NULL</span>;<br><br>mpp_buffer_get(<span class="hljs-literal">NULL</span>, &amp;buffer, size);<br><br>mpp_packet_init_with_buffer(&amp;pkt, buffer); <span class="hljs-comment">// 自动加引用</span><br><br>mpp_packet_deinit(&amp;pkt); <span class="hljs-comment">// 自动减引用</span><br></code></pre></td></tr></table></figure>
+<h3 id="2-4-3-MppFrame">2.4.3 MppFrame</h3>
+<p>MppFrame 主要用于定义二维图像缓存的相关信息，有效数据的位置与长度。MppFrame 几个重要的参数成员如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>width</td>
+<td>RK_U32</td>
+<td>表示水平方向像素数，单位为像素个数。</td>
+</tr>
+<tr>
+<td>height</td>
+<td>RK_U32</td>
+<td>表示垂直方向像素数，单位为像素个数。</td>
+</tr>
+<tr>
+<td>hor_stride</td>
+<td>RK_U32</td>
+<td>表示垂直方向相邻两行之间的距离，单位为byte数。</td>
+</tr>
+<tr>
+<td>ver_stride</td>
+<td>RK_U32</td>
+<td>表示图像分量之间的以行数间隔数，单位为1。</td>
+</tr>
+</tbody>
+</table>
+<p><img src="5.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>MppFrame 的其他配置参数成员如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mode</td>
+<td>RK_U32</td>
+<td>表示图像数据帧场属性。</td>
+</tr>
+<tr>
+<td>pts</td>
+<td>RK_U64</td>
+<td>表示图像的显示时间戳（Present Time Stamp）。</td>
+</tr>
+<tr>
+<td>dts</td>
+<td>RK_U64</td>
+<td>表示图像的解码时间戳（Decoding Time Stamp）。</td>
+</tr>
+<tr>
+<td>eos</td>
+<td>RK_U32</td>
+<td>表示图像的结束标志（End Of Stream）。</td>
+</tr>
+<tr>
+<td>errinfo</td>
+<td>RK_U32</td>
+<td>表示图像的错误标志，是否图像内有解码错误。</td>
+</tr>
+<tr>
+<td>discard</td>
+<td>RK_U32</td>
+<td>表示图像的丢弃标志，如果图像解码时的参考关系不满足要求，则这帧图像会被标记为需要丢弃，不被显示。</td>
+</tr>
+<tr>
+<td>buf_size</td>
+<td>size_t</td>
+<td>表示图像需要分配的缓存大小，与图像的格式相关，也与解码数据的格式相关。</td>
+</tr>
+<tr>
+<td>info_change</td>
+<td>RK_U32</td>
+<td>如果为真，表示当前 MppFrame 是一个用于标记码流信息变化的描述结构，说明了新的宽高，stride，以及图像格式。 可能的 info_change 原因有： 图像序列宽高变化。 图像序列格式变化，如 8bit 变为 10bit。 一旦 info_change 产生，需要重新分析解码器使用的内存池。</td>
+</tr>
+<tr>
+<td>fmt</td>
+<td>MppFrameFormat</td>
+<td>表示图像色彩空间格式以及内存排布方式。</td>
+</tr>
+<tr>
+<td>color_range</td>
+<td>MppFrameColorRange</td>
+<td>表示图像数据彩色空间范围： YUV full range：0 ~ 255（8bit） YUV limit range：16 ~ 235（8bit）。</td>
+</tr>
+<tr>
+<td>buffer</td>
+<td>MppBuffer</td>
+<td>表示 MppFrame 对应的 MppBuffer。</td>
+</tr>
+</tbody>
+</table>
+<p>对于解码器来说，MppFrame 是其输出的信息结构体，码流解码后的信息（包括像素数据与 pts，错误信息等相关信息）都需要带在 MppFrame 结构体给调用者。MppFrame 中的 pts/dts，以及 eos 标志，就是继承自对应的输入 MppPacket。</p>
+<p>同时，一旦发现码流分辨率改变，MppFrame 中的 info_change 标志就会对应置位，向用户通知发生了 info_change 事件，需要用户进行缓存池修改处理。</p>
+<blockquote>
+<p>FBC 与 Tile 格式</p>
+</blockquote>
+<p>MppFrameFormat 的高位标志位支持 FBC（Frame Buffer Compression）和 Tile 两种特殊的内存排布方式。</p>
+<p>FBC 是一种帧缓存压缩格式，可以减少图像数据在内存和总线中的占用带宽。MppFrameFormat 中定义了以下 FBC 类型：</p>
+<table>
+<thead>
+<tr>
+<th>FBC类型</th>
+<th>标志位</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无FBC</td>
+<td>0x0</td>
+<td>默认情况，不使用帧缓存压缩</td>
+</tr>
+<tr>
+<td>AFBC_V1</td>
+<td>0x00100000</td>
+<td>用于 ISP 输出，具有基于宽高自动计算的 payload offset</td>
+</tr>
+<tr>
+<td>AFBC_V2</td>
+<td>0x00200000</td>
+<td>用于视频解码器输出，payload offset 存储在 header 首地址的前 32 位中，始终为 0</td>
+</tr>
+<tr>
+<td>RKFBC</td>
+<td>0x00400000</td>
+<td>用于视频解码器输出和编码器输入，具有基于宽度自动计算的 header stride</td>
+</tr>
+</tbody>
+</table>
+<p>FBC 格式与 Tile 格式不能同时存在。</p>
+<p>Tile 格式通过 bit 25 标志位表示，启用后图像数据按 Tile 排布存储，而非按行连续存储。Tile 排布可以提升内存访问效率，在某些硬件上可以获得更好的性能。</p>
+<p>对于使用 FBC 或 Tile 格式的 MppFrame，图像缓存的计算方式与普通格式不同，需要预留额外的 header 空间。解码器在使用 FBC 输出时，会在 info_change 事件中通过 fmt 字段通知用户当前的输出格式，用户需要根据格式类型正确计算所需的缓存大小。</p>
+<p>如需配置解码器输出为 FBC 或 Tile 格式，可通过 control 接口的 MPP_DEC_SET_OUTPUT_FORMAT 或 MPP_DEC_SET_FRAME_INFO 命令来实现。MPP_DEC_SET_OUTPUT_FORMAT 用于配置解码器的输出图像格式，MPP_DEC_SET_FRAME_INFO 用于配置解码器的默认宽高及格式信息。两个命令的调用时机均在 mpp_init 之后、正式解码之前。具体配置值通过在 MppFrameFormat 的基础色域格式上叠加 FBC 或 Tile 标志位来设定，例如将 NV12 格式叠加 AFBC_V2 标志位即表示输出 AFBC_V2 压缩的 NV12 图像。</p>
+<h3 id="2-4-4-MppCtx">2.4.4 MppCtx</h3>
+<p>MppCtx 是提供给用户使用的 MPP 实例上下文句柄，用于指代解码器或编码器实例。</p>
+<p>用户可以通过 mpp_create 接口获取 MppCtx 实例以及 MppApi 结构体，再通过 mpp_init 来初始化 MppCtx 的编解码类型与格式，之后通过 decode_xxx/encode_xxx 以及 poll/dequeuer/enqueue 接口来进行访问，使用结束时通过 mpp_destroy 接口进行销毁。</p>
+<p><img src="6.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>如上图所示，mpp_create，mpp_init，mpp_destroy 是操作 MppCtx 接口的过程，其中 mpp_create 接口也获取到了 MPI 接口结构体 MppApi，真正的编码与解码过程是通过调用 MppApi 结构体里内的函数指针来实现，也就是上图中红框内的部分。红框内的函数调用分为编解码流程接口 put/get_packet/frame 和相关的 control 和 reset 接口。</p>
+<h3 id="2-4-5-MppApi（MPI）">2.4.5 MppApi（MPI）</h3>
+<p>MppApi 结构体封装了 MPP 的对外 API 接口，用户通过使用 MppApi 结构中提供的函数指针实现视频编解码功能，其结构如下：</p>
+<table>
+<thead>
+<tr>
+<th>成员名称</th>
+<th>成员类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>size</td>
+<td>RK_U32</td>
+<td>MppApi结构体大小。</td>
+</tr>
+<tr>
+<td>version</td>
+<td>RK_U32</td>
+<td>MppApi结构体版本。</td>
+</tr>
+<tr>
+<td>decode</td>
+<td>函数指针</td>
+<td>MPP_RET (*decode)(MppCtx ctx, MppPacket packet, MppFrame *frame) <br>视频解码接口，同时进行输入与输出，单独使用。<br>ctx ：MPP实例上下文。 <br>packet ：输入码流。<br>frame ：输出图像。 <br>返回值 ：0为正常，非零为错误码。</td>
+</tr>
+<tr>
+<td>decode_put_packet</td>
+<td>函数指针</td>
+<td>MPP_RET (*decode_put_packet)(MppCtx ctx, MppPacket packet) <br>视频解码输入接口，与decode_get_frame配合使用。 <br>ctx ：MPP实例上下文。 <br>packet ：输入码流。 <br>返回值 ：0为正常，表示码流己被MPP处理；非零为出现错误，码流未被处理，需要把码流重新输入。</td>
+</tr>
+<tr>
+<td>decode_get_frame</td>
+<td>函数指针</td>
+<td>MPP_RET (*decode_get_frame)(MppCtx ctx, MppFrame *frame) <br>视频解码输出接口，与decode_put_packet配合使用。 <br>ctx ：MPP实例上下文。 <br>frame ：输出图像。 <br>返回值 ：0为正常，表示获取输出过程正常，需要判断是否有得到有值的frame指针；非零为出现错误。</td>
+</tr>
+<tr>
+<td>encode</td>
+<td>函数指针</td>
+<td>MPP_RET (*encode)(MppCtx ctx, MppFrame frame, MppPacket *packet) <br>视频编码接口，同时进行输入与输出，单独使用。 <br>ctx ：MPP实例上下文。 <br>frame ：输入图像。 <br>packet ：输出码流。 <br>返回值 ：0为正常，非零为错误码。</td>
+</tr>
+<tr>
+<td>encode_put_frame</td>
+<td>函数指针</td>
+<td>MPP_RET (*encode_put_frame)(MppCtx ctx, MppFrame frame) <br>视频编码输入接口，与encode_get_packet配合使用。 <br>ctx ：MPP实例上下文。 <br>frame ：输入图像。 <br>返回值 ：0为正常，非零为错误码。</td>
+</tr>
+<tr>
+<td>encode_get_packet</td>
+<td>函数指针</td>
+<td>MPP_RET (*encode_get_packet)(MppCtx ctx, MppPacket *packet) <br>视频编码输出接口，与encode_put_frame配合使用。 <br>ctx ：MPP实例上下文。 <br>packet ：输出码流。 <br>返回值 ：0为正常，非零为错误码。</td>
+</tr>
+<tr>
+<td>poll</td>
+<td>函数指针</td>
+<td>MPP_RET (*poll)(MppCtx ctx, MppPortType type, MppPollType timeout) <br>端口查询接口，用于查询端口是否有数据可供dequeue。 <br>ctx ：MPP实例上下文。 <br>type ：端口类型，分为输入端口与输出端口。 <br>timeout ：查询超时参数，-1为阻塞查询，0为非阻塞查询，正值为超时毫秒数。 <br>返回值 ：0为正常，有数据可取出，非零为错误码。</td>
+</tr>
+<tr>
+<td>dequeue</td>
+<td>函数指针</td>
+<td>MPP_RET (*dequeue)(MppCtx ctx, MppPortType type, MppTask *task) <br>端口出队列接口，用于从端口中取出MppTask结构。 <br>ctx ：MPP实例上下文。 <br>type ：端口类型，分为输入端口与输出端口。 <br>task ：MppTask。 <br>返回值 ：0为正常，有数据可取出，非零为错误码。</td>
+</tr>
+<tr>
+<td>enqueue</td>
+<td>函数指针</td>
+<td>MPP_RET (*enqueue)(MppCtx ctx, MppPortType type, MppTask task) <br>端口入队列接口，用于往端口送入MppTask结构。 <br>ctx ：MPP实例上下文。 <br>type ：端口类型，分为输入端口与输出端口。 <br>task ：MppTask。 <br>返回值 ：0为正常，有数据可取出，非零为错误码。</td>
+</tr>
+<tr>
+<td>reset</td>
+<td>函数指针</td>
+<td>MPP_RET (*reset)(MppCtx ctx) <br>复位接口，用于对MppCtx的内部状态进行复位，回到可用的初始化状态。需要注意的是，reset接口是阻塞的同步接口。 <br>ctx ：MPP实例上下文。 <br>返回值 ：0为正常，有数据可取出，非零为错误码。</td>
+</tr>
+<tr>
+<td>control</td>
+<td>函数指针</td>
+<td>MPP_RET (*control)(MppCtx ctx, MpiCmd cmd, MppParam param) <br>控制接口，用于向MPP实例进行额外控制操作的接口。 <br>ctx ：MPP实例上下文。 <br>cmd ：Mpi命令类型，表示控制命令的不同类型的。 <br>param ：Mpi命令参数，表示控制控制命令的附加参数。 <br>返回值 ：0为正常，有数据可取出，非零为错误码。</td>
+</tr>
+</tbody>
+</table>
+<h1>三、实例</h1>
+<h2 id="3-1-解码器">3.1 解码器</h2>
+<p>官方提供多个基本的解码器 demo 实现。解码器 demo 为 mpi_dec_test 系列程序，包括使用 decode_put_packet 和 decode_get_frame 接口的单线程 mpi_dec_test、多线程的 mpi_dec_mt_test、多实例的 mpi_dec_multi_test 以及使用 no_thread 模式直接调用 decode 接口的 mpi_dec_nt_test。</p>
+<p>下面以 mpi_dec_test 为例，学习下 MPP 解码器的使用。首先运行测试用例  mpi_dec_test，查看运行效果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">./mpi_dec_test</span><br>mpp[62376]: mpi_dec_utils: usage: ./mpi_dec_test [options]<br>mpp[62376]: mpi_dec_utils: -i       input_file   input bitstream file                                 <br>mpp[62376]: mpi_dec_utils: -o       output_file  output decoded frame file                            <br>mpp[62376]: mpi_dec_utils: -w       width        the width of input bitstream                         <br>mpp[62376]: mpi_dec_utils: -h       height       the height of input bitstream                        <br>mpp[62376]: mpi_dec_utils: -t       type         input stream coding type                             <br>mpp[62376]: mpi_dec_utils: -f       format       output frame format type                             <br>mpp[62376]: mpi_dec_utils: -n       frame_number max output frame number                              <br>mpp[62376]: mpi_dec_utils: -s       instance_nb  number of instances                                  <br>mpp[62376]: mpi_dec_utils: -v       trace option q - quiet f - show fps                               <br>mpp[62376]: mpi_dec_utils: -slt     slt file     slt verify data file                                 <br>mpp[62376]: mpi_dec_utils: -help    help         show help                                            <br>mpp[62376]: mpi_dec_utils: -bufmode buffer mode  hi - half internal (default) i -internal e - external<br>mpp[62376]: mpi: mpp coding type support list:<br>mpp[62376]: mpi: type: dec id 0 coding: mpeg2            id 2<br>mpp[62376]: mpi: type: dec id 0 coding: mpeg4            id 4<br>mpp[62376]: mpi: type: dec id 0 coding: h.263            id 3<br>mpp[62376]: mpi: type: dec id 0 coding: h.264/AVC        id 7<br>mpp[62376]: mpi: type: dec id 0 coding: h.265/HEVC       id 16777220<br>mpp[62376]: mpi: type: dec id 0 coding: vp8              id 9<br>mpp[62376]: mpi: type: dec id 0 coding: VP9              id 10<br>mpp[62376]: mpi: type: dec id 0 coding: avs              id 16777222<br>mpp[62376]: mpi: type: dec id 0 coding: avs+             id 16777221<br>mpp[62376]: mpi: type: dec id 0 coding: avs2             id 16777223<br>mpp[62376]: mpi: type: dec id 0 coding: jpeg             id 8<br>mpp[62376]: mpi: type: dec id 0 coding: av1              id 16777224<br>mpp[62376]: mpi: type: enc id 1 coding: h.264/AVC        id 7<br>mpp[62376]: mpi: type: enc id 1 coding: jpeg             id 8<br>mpp[62376]: mpi: type: enc id 1 coding: h265             id 16777220<br>mpp[62376]: mpi: type: enc id 1 coding: vp8              id 9<br></code></pre></td></tr></table></figure>
+<p>帮助文档可以分为两部分：一是 mpi_dec_test 的命令参数说明；二是码流文件的协议类型说明。</p>
+<p>命令参数的描述说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>命令参数</th>
+<th>描述说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-i</td>
+<td>输入的码流文件。</td>
+</tr>
+<tr>
+<td>-o</td>
+<td>输出的图像文件。</td>
+</tr>
+<tr>
+<td>-w</td>
+<td>图像宽度，单位为像素。</td>
+</tr>
+<tr>
+<td>-h</td>
+<td>图像高度，单位为像素。</td>
+</tr>
+<tr>
+<td>-t</td>
+<td>码流文件的协议类型。</td>
+</tr>
+<tr>
+<td>-f</td>
+<td>图像色彩空间格式以及内存排布方式，默认为 NV12。</td>
+</tr>
+<tr>
+<td>-n</td>
+<td>最大解码帧数。测试时若码流较长，可仅输出前 n 帧。</td>
+</tr>
+<tr>
+<td>-s</td>
+<td>MPP 实例数，默认为 1。</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>日志选项：q 为静默标志；f 为 fps 显示标志。</td>
+</tr>
+<tr>
+<td>-slt</td>
+<td>输出帧对应的校验文件。</td>
+</tr>
+<tr>
+<td>-bufmode</td>
+<td>缓冲模式：hi – 半内部分配模式（默认）；i – 纯内部分配模式；e – 纯外部分配模式。</td>
+</tr>
+<tr>
+<td>-help</td>
+<td>打开帮助文档。</td>
+</tr>
+</tbody>
+</table>
+<p>mpi_dec_test 的命令参数中，输入文件（i）和码流类型（t）为强制要求配置的参数，其他参数如输出文件（o）、图像宽度（w）、图像高度（h）和解码帧数（n）等为可选参数，可以根据不同的测试需求进行配置。</p>
+<p>mpi_dec_test 的命令参数中，输出帧对应的校验文件（slt）将输出帧数据转换为对应的循环冗余校验码（具体逻辑见utils/utils.c）。校验文件的大小往往只有几 KB，在芯片的 slt 测试中，将输出帧文件的对比转换成校验文件的对比，可以显著缩短测试周期。</p>
+<p>MPP 库支持的输入文件的编码格式（t）为 MPEG2/4、H.263/4/5、VP8/9 和 JPEG 等，id 后的数字为不同编码格式对应的参数值。参数值来源于 OMX 的定义，值得注意的是，HEVC 和 AVS 格式的参数值与其他格式的有显著区别。</p>
+<p>下面先实际运行下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">$ ./mpi_dec_test -i /mnt/nfs/orangepi5pro/media-sdk-test/test.h264   -o /mnt/nfs/orangepi5pro/media-sdk-test/build-tree-out.yuv   -t <span class="hljs-number">7</span> -w <span class="hljs-number">640</span> -h <span class="hljs-number">480</span> -n <span class="hljs-number">10</span> -v f<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: input file /mnt/nfs/orangepi5pro/media-sdk-test/test.h264 size <span class="hljs-number">310407</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: cmd parse result:<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: input  file name: /mnt/nfs/orangepi5pro/media-sdk-test/test.h264<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: output file name: /mnt/nfs/orangepi5pro/media-sdk-test/build-tree-out.yuv<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: width      :  <span class="hljs-number">640</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: height     :  <span class="hljs-number">480</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: type       :    <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_utils: max frames :   <span class="hljs-number">10</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: mpi_dec_test start<br>mpp[<span class="hljs-number">96767</span>]: mpp_info: mpp version: unknown mpp version <span class="hljs-keyword">for</span> missing VCS info<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> mpi_dec_test decoder test start w <span class="hljs-number">640</span> h <span class="hljs-number">480</span> type <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode_get_frame get info changed found<br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decoder require buffer w:h [<span class="hljs-number">640</span>:<span class="hljs-number">480</span>] stride [<span class="hljs-number">640</span>:<span class="hljs-number">480</span>] buf_size <span class="hljs-number">614400</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">0</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">1</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">2</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">3</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">4</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">5</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">6</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">8</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: <span class="hljs-number">0x5597471180</span> decode get frame <span class="hljs-number">9</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: decode <span class="hljs-number">10</span> frames time <span class="hljs-number">73</span> ms delay   <span class="hljs-number">5</span> ms fps <span class="hljs-number">135.51</span><br>mpp[<span class="hljs-number">96767</span>]: mpi_dec_test: test success max memory <span class="hljs-number">1.76</span> MB<br></code></pre></td></tr></table></figure>
+<p>代码首先进行参数初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">mpi_dec_test_cmd_init(cmd, argc, argv);<br>mpi_dec_test_cmd_options(cmd);<br></code></pre></td></tr></table></figure>
+<p>然后就进入到核心：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = dec_decode(cmd);<br></code></pre></td></tr></table></figure>
+<p><code>dec_decode()</code> 可以分作五个阶段：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 打开输出文件<br><span class="hljs-bullet">2.</span> 初始化 buffer manager<br><span class="hljs-bullet">3.</span> 根据类型初始化 packet 或 frame<br><span class="hljs-bullet">4.</span> 创建并配置 MPP decoder<br><span class="hljs-bullet">5.</span> 创建 thread<span class="hljs-emphasis">_decode 线程，进入解码循环</span><br><span class="hljs-emphasis">6. 解码结束后 reset、deinit、destroy</span><br></code></pre></td></tr></table></figure>
+<p>第一二部分不过多介绍，第三部分会根据输入类型进行区分：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">cmd-&gt;simple = (cmd-&gt;type != MPP_VIDEO_CodingMJPEG) ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">if</span> (cmd-&gt;simple) &#123;<br>	mpp_packet_init(&amp;packet, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);   <br>    ...<br>&#125;<br><span class="hljs-keyword">else</span> &#123;<br> 	mpp_frame_init(&amp;frame);  <span class="hljs-comment">// MJPEG 需要预分配输出 frame   </span><br>	...<br>&#125;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>H.264/H.265 等普通视频流 -&gt; <code>dec_simple()</code></li>
+<li>MJPEG                    -&gt; <code>dec_advanced()</code></li>
+</ul>
+<p>原因是 MJPEG 高级路径要求预先告诉解码器输出 frame 和 buffer，而普通 H.264/H.265 是先动态解析，等 info change 后再建 output buffer。</p>
+<p>然后创建和初始化解码器：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_create(&amp;ctx, &amp;mpi);<br>mpp_init(ctx, MPP_CTX_DEC, type);<br></code></pre></td></tr></table></figure>
+<p>接下来读取默认解码配置：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_dec_cfg_init(&amp;cfg);<br>mpi-&gt;control(ctx, MPP_DEC_GET_CFG, cfg);<br>mpp_dec_cfg_set_u32(cfg, <span class="hljs-string">&quot;base:split_parse&quot;</span>, need_split);<br>mpi-&gt;control(ctx, MPP_DEC_SET_CFG, cfg);<br></code></pre></td></tr></table></figure>
+<p>这里的 <code>need_split = 1</code> 很重要。H.264/H.265 文件不是“一个 packet 就是一帧”，可能是：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs css">SPS/PPS<br><span class="hljs-selector-tag">I</span> 帧<br><span class="hljs-selector-tag">P</span> 帧<br>分片 NAL<br></code></pre></td></tr></table></figure>
+<p><code>need_split</code> 让 MPP 内部 parser 自己找帧边界，应用只需要把文件块不断喂进去。</p>
+<p>初始化完后，<code>dec_decode()</code> 创建了一个线程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">pthread_create(&amp;thd, &amp;attr, thread_decode, &amp;data);<br></code></pre></td></tr></table></figure>
+<p>这个线程不是多线程流水线，它只是把实际解码循环放在线程里，方便 <code>frame_num &lt; 0</code> 时主线程可以等用户按 Enter 来停止。</p>
+<p><code>thread_decode</code> 的基本逻辑是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (cmd-&gt;simple)<br>    <span class="hljs-keyword">while</span> (!data-&gt;loop_end &amp;&amp; MPP_OK == dec_simple(data)); <span class="hljs-comment">// H.264/H.265解码</span><br><span class="hljs-keyword">else</span><br>    <span class="hljs-keyword">while</span> (!data-&gt;loop_end)<br>        dec_advanced(data);  <span class="hljs-comment">// MJPEG解码</span><br></code></pre></td></tr></table></figure>
+<p>下面看 <code>dec_simple</code>：</p>
+<p>先读一块文件数据：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">reader_read(cmd-&gt;reader, &amp;slot);<br></code></pre></td></tr></table></figure>
+<p>这个 <code>reader</code> 来自 <code>mpi_dec_utils.c</code>，内部有后台线程预读文件，把它切成 <code>FileBufSlot</code>。每个 slot 里有：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">slot-&gt;data<br>slot-&gt;size<br>slot-&gt;eos<br></code></pre></td></tr></table></figure>
+<p>如果已经 EOS，但还没达到目标帧数，就：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">reader_rewind(cmd-&gt;reader);<br></code></pre></td></tr></table></figure>
+<p>也就是重新从文件头读，用于无限循环或补齐帧数。</p>
+<p>然后把 slot 设置到 packet：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_packet_set_data(packet, slot-&gt;data);<br>mpp_packet_set_size(packet, slot-&gt;size);<br>mpp_packet_set_pos(packet, slot-&gt;data);<br>mpp_packet_set_length(packet, slot-&gt;size);<br></code></pre></td></tr></table></figure>
+<p>如果是最后一包：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_packet_set_eos(packet);<br></code></pre></td></tr></table></figure>
+<p>接下来是两层循环。外层负责送 packet，内层负责取 frame。</p>
+<p>送 packet：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = mpi-&gt;decode_put_packet(ctx, packet);<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><code>decode_put_packet()</code> 成功，只代表 MPP 接收了这段压缩数据。它不代表马上解码出一帧。而且如果 MPP 输入队列满了，<code>decode_put_packet()</code> 可能失败，所以代码会 sleep 后重试：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">msleep(<span class="hljs-number">1</span>);<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>然后取 frame：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = mpi-&gt;decode_get_frame(ctx, &amp;frame);<br></code></pre></td></tr></table></figure>
+<p>如果返回 <code>MPP_ERR_TIMEOUT</code>，说明当前还没有 frame，它最多重试 30 次，每次 sleep 1 ms：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">times--;<br>msleep(<span class="hljs-number">1</span>);<br><span class="hljs-keyword">goto</span> try_again;<br></code></pre></td></tr></table></figure>
+<p>拿到 frame 后，第一件要判断的是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span> (mpp_frame_get_info_change(frame))<br></code></pre></td></tr></table></figure>
+<p>这个 frame 不是像素帧，而是解码器通知你：</p>
+<ul>
+<li>我已经解析出视频参数了</li>
+<li>宽高是多少</li>
+<li>stride 是多少</li>
+<li>每个 buffer 需要多大</li>
+</ul>
+<p>然后创建输出 buffer group：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">grp = dec_buf_mgr_setup(data-&gt;buf_mgr, buf_size, <span class="hljs-number">24</span>, cmd-&gt;buf_mode);<br></code></pre></td></tr></table></figure>
+<p>这里的 <code>24</code> 是 buffer 个数。H.264/H.265 需要参考帧和多帧输出，所以不能只给一两个 buffer。</p>
+<p>然后告诉 MPP：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">mpi-&gt;control(ctx, MPP_DEC_SET_EXT_BUF_GROUP, grp);  <span class="hljs-comment">// 以后输出 frame 用这个 buffer group</span><br>mpi-&gt;control(ctx, MPP_DEC_SET_INFO_CHANGE_READY, <span class="hljs-literal">NULL</span>);  <span class="hljs-comment">// 已经准备好了，继续解码</span><br></code></pre></td></tr></table></figure>
+<p>如果不处理 info change，后面通常拿不到正常图像帧。</p>
+<p>如果不是 info change，那就是实际解码帧。代码会读取错误和丢弃信息：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">err_info = mpp_frame_get_errinfo(frame);<br>discard = mpp_frame_get_discard(frame);<br></code></pre></td></tr></table></figure>
+<p>如果没有错误，并且配置了输出文件，就写文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dump_mpp_frame_to_file(frame, data-&gt;fp_output);<br></code></pre></td></tr></table></figure>
+<p><code>dump_mpp_frame_to_file()</code> 在 utils 里，会根据 frame 的格式把 buffer 写成原始 YUV/NV12/RGB 文件。它不是显示，也不是转码，只是导出原始帧。</p>
+<p>然后统计：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">data-&gt;frame_count++;<br>fps_calc_inc(cmd-&gt;fps);<br></code></pre></td></tr></table></figure>
+<p>最后必须释放 frame：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_frame_deinit(&amp;frame);  <span class="hljs-comment">// 如果不 deinit，就会泄漏或者让 buffer 池耗尽</span><br></code></pre></td></tr></table></figure>
+<p>而 <code>dec_advanced()</code> 和 <code>dec_simple()</code> 不一样。JPEG 是完整独立帧，所以它用了更直接的流程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">reader_index_read(cmd-&gt;reader, <span class="hljs-number">0</span>, &amp;slot);<br>mpp_packet_init_with_buffer(&amp;packet, slot-&gt;buf);<br>mpp_meta_set_frame(meta, KEY_OUTPUT_FRAME, frame);<br>mpi-&gt;decode_put_packet(ctx, packet);<br>mpi-&gt;decode_get_frame(ctx, &amp;frame_ret);<br>dump_mpp_frame_to_file(frame_ret, data-&gt;fp_output);<br></code></pre></td></tr></table></figure>
+<p>这也是为什么 MJPEG 需要提前 <code>mpp_frame_init()</code> 并设置 buffer，而 H.264/H.265 是等 info change 后再创建 buffer group。</p>
+<p>线程结束后，<code>dec_decode()</code> 做：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">mpi-&gt;reset(ctx);<br></code></pre></td></tr></table></figure>
+<p>这个很重要，提前停止、达到帧数停止、出错退出，都应该 reset，否则 MPP 可能打印 leaked buffer。</p>
+<p>然后统一释放：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_packet_deinit(&amp;data.packet);<br>mpp_frame_deinit(&amp;frame);<br>mpp_destroy(ctx);<br>mpp_buffer_put(frm_buf);<br>dec_buf_mgr_deinit(data.buf_mgr);<br>fclose(data.fp_output);<br>mpp_dec_cfg_deinit(cfg);<br></code></pre></td></tr></table></figure>
+<p>总结一下，实现 MPP 解码器，大致按照如下步骤：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> 打开输入文件，创建 reader<br><span class="hljs-bullet">2.</span> 打开输出文件<br><span class="hljs-bullet">3.</span> mpp<span class="hljs-emphasis">_create() 创建 ctx</span><br><span class="hljs-emphasis">4. mpp_</span>init(ctx, MPP<span class="hljs-emphasis">_CTX_</span>DEC, coding) 初始化解码器<br><span class="hljs-bullet">5.</span> MPP<span class="hljs-emphasis">_DEC_</span>GET<span class="hljs-emphasis">_CFG -&gt; 设置 split_</span>parse -&gt; MPP<span class="hljs-emphasis">_DEC_</span>SET<span class="hljs-emphasis">_CFG</span><br><span class="hljs-emphasis">6. 循环读输入 packet</span><br><span class="hljs-emphasis">7. decode_</span>put<span class="hljs-emphasis">_packet()，失败就等待重试</span><br><span class="hljs-emphasis">8. decode_</span>get<span class="hljs-emphasis">_frame()，没帧就等待重试</span><br><span class="hljs-emphasis">9. 如果 info_</span>change：设置 buffer group，再 SET<span class="hljs-emphasis">_INFO_</span>CHANGE<span class="hljs-emphasis">_READY</span><br><span class="hljs-emphasis">10. 如果是普通 frame：处理、写文件、frame_</span>count++、mpp<span class="hljs-emphasis">_frame_</span>deinit()<br><span class="hljs-bullet">11.</span> EOS 或达到帧数后退出<br><span class="hljs-bullet">12.</span> mpi-&gt;reset()<br><span class="hljs-bullet">13.</span> mpp<span class="hljs-emphasis">_packet_</span>deinit / mpp<span class="hljs-emphasis">_frame_</span>deinit / mpp<span class="hljs-emphasis">_destroy / release buffer group</span><br></code></pre></td></tr></table></figure>
+<h2 id="3-2-编码器">3.2 编码器</h2>
+<p>下面以 <code>mpi_enc_test.c</code> 为例，看下编码器的实现。</p>
+<p>先看执行效果：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c">$ mpi_dec_test \<br>  -i /mnt/nfs/orangepi5pro/media-sdk-test/enc-out.h264 \<br>  -o /mnt/nfs/orangepi5pro/media-sdk-test/enc-dec.yuv \<br>  -t <span class="hljs-number">7</span> -w <span class="hljs-number">640</span> -h <span class="hljs-number">480</span> -n <span class="hljs-number">10</span> -v f<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: input file /mnt/nfs/orangepi5pro/media-sdk-test/enc-out.h264 size <span class="hljs-number">23136</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: cmd parse result:<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: input  file name: /mnt/nfs/orangepi5pro/media-sdk-test/enc-out.h264<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: output file name: /mnt/nfs/orangepi5pro/media-sdk-test/enc-dec.yuv<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: width      :  <span class="hljs-number">640</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: height     :  <span class="hljs-number">480</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: type       :    <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_utils: max frames :   <span class="hljs-number">10</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: mpi_dec_test start<br>mpp[<span class="hljs-number">102659</span>]: mpp_info: mpp version: unknown mpp version <span class="hljs-keyword">for</span> missing VCS info<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> mpi_dec_test decoder test start w <span class="hljs-number">640</span> h <span class="hljs-number">480</span> type <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> loop again<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode_get_frame get info changed found<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decoder require buffer w:h [<span class="hljs-number">640</span>:<span class="hljs-number">480</span>] stride [<span class="hljs-number">640</span>:<span class="hljs-number">480</span>] buf_size <span class="hljs-number">614400</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">0</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">1</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">2</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">3</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">4</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">5</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">6</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">7</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">8</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> loop again<br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: <span class="hljs-number">0x558fc6b180</span> decode get frame <span class="hljs-number">9</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: decode <span class="hljs-number">10</span> frames time <span class="hljs-number">24</span> ms delay   <span class="hljs-number">4</span> ms fps <span class="hljs-number">413.62</span><br>mpp[<span class="hljs-number">102659</span>]: mpi_dec_test: test success max memory <span class="hljs-number">4.69</span> MB<br></code></pre></td></tr></table></figure>
+<p>解码器是“压缩码流进，YUV 帧出”。编码器正好相反：</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs xl">解码：M<span class="hljs-function"><span class="hljs-title">ppPacket</span> -&gt;</span> <span class="hljs-function"><span class="hljs-title">decode_put_packet</span> -&gt;</span> M<span class="hljs-function"><span class="hljs-title">ppFrame</span> -&gt;</span> decode_get_frame<br>编码：M<span class="hljs-function"><span class="hljs-title">ppFrame</span>  -&gt;</span> <span class="hljs-function"><span class="hljs-title">encode_put_frame</span>  -&gt;</span> M<span class="hljs-function"><span class="hljs-title">ppPacket</span> -&gt;</span> encode_get_packet<br></code></pre></td></tr></table></figure>
+<p><code>mpi_enc_test</code> 的生命周期是：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs livescript">main<br>  -&gt; 解析参数<br>  -&gt; enc_test_multi<br>    -&gt; 创建 enc_test 线程<br>      -&gt; mpi_enc_ctx_init<br>      -&gt; 创建 buffer group<br>      -&gt; 分配输入 frame buffer<br>      -&gt; 分配输出 packet buffer<br>      -&gt; mpp_create<br>      -&gt; mpp_init<span class="hljs-function"><span class="hljs-params">(MPP_CTX_ENC)</span></span><br><span class="hljs-function">      -&gt;</span> MPP_ENC_GET_CFG<br>      -&gt; mpi_enc_cfg_setup<br>      -&gt; MPP_ENC_SET_CFG<br>      -&gt; test_mpp_run<br>        -&gt; 写 SPS/PPS header<br>        -&gt; 逐帧编码<br>      -&gt; mpi-&gt;reset<br>      -&gt; destroy / release<br></code></pre></td></tr></table></figure>
+<p>大致可以把它理解成四个阶段：</p>
+<ul>
+<li>准备阶段  ：初始化输入、输出、buffer</li>
+<li>配置阶段  ：告诉 encoder 要怎么编码</li>
+<li>运行阶段  ：frame 进，packet 出</li>
+<li>清理阶段  ：reset、destroy、释放资源</li>
+</ul>
+<p>参数解析的部分不过多介绍，下面直接看核心 <code>enc_test_multi()</code>：</p>
+<p>支持多实例编码。</p>
+<p>如果 <code>-s 1</code>，它就创建一个编码线程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">pthread_create(&amp;ctxs[i].thd, <span class="hljs-literal">NULL</span>, enc_test, &amp;ctxs[i]);<br></code></pre></td></tr></table></figure>
+<p>如果 <code>-s 4</code>，它就创建 4 个 <code>enc_test()</code> 线程，每个线程有自己的：</p>
+<ul>
+<li>MppCtx</li>
+<li>MppBufferGroup</li>
+<li>输入 frame buffer</li>
+<li>输出 packet buffer</li>
+<li>输出文件</li>
+</ul>
+<blockquote>
+<p>注意，这里的“多实例”不是把一个编码器拆成多线程，而是同时创建多个独立编码器。默认 <code>-s 1</code>。</p>
+</blockquote>
+<p>如果 <code>-n -1</code>，主线程会等你按 Enter：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">**** Press Enter to stop loop encoding ****<br></code></pre></td></tr></table></figure>
+<p>然后设置 <code>loop_end = 1</code>，让编码线程退出。</p>
+<p>在 <code>enc_test_multi()</code> 中创建了一个线程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">ret = pthread_create(&amp;ctxs[i].thd, <span class="hljs-literal">NULL</span>, enc_test, &amp;ctxs[i]);<br></code></pre></td></tr></table></figure>
+<p><code>enc_test</code> 是重点。它的骨架可以简化成：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">mpi_enc_ctx_init(p, cmd, chn);<br><br>mpp_buffer_group_get_internal(&amp;p-&gt;buf_grp, ...);<br>mpp_buffer_get(p-&gt;buf_grp, &amp;priv-&gt;frm_buf, p-&gt;frame_size + p-&gt;header_size);<br>mpp_buffer_get(p-&gt;buf_grp, &amp;priv-&gt;pkt_buf, p-&gt;frame_size);<br>mpp_buffer_get(p-&gt;buf_grp, &amp;priv-&gt;md_info, mdinfo_size);<br><br>mpp_create(&amp;p-&gt;ctx, &amp;p-&gt;mpi);<br>mpi-&gt;control(p-&gt;ctx, MPP_SET_OUTPUT_TIMEOUT, &amp;timeout);<br>mpp_init(p-&gt;ctx, MPP_CTX_ENC, p-&gt;type);<br><br>mpp_enc_cfg_create(&amp;p-&gt;cfg, cmd-&gt;kmpp_mode);<br>mpi-&gt;control(p-&gt;ctx, MPP_ENC_GET_CFG, p-&gt;cfg);<br>mpi_enc_cfg_setup(p, cmd, obj_set-&gt;cfg_obj);<br><br>test_mpp_run(info);<br><br>mpi-&gt;reset(p-&gt;ctx);<br><br>mpp_destroy(p-&gt;ctx);<br>mpp_enc_cfg_deinit(p-&gt;cfg);<br>mpp_buffer_put(priv-&gt;frm_buf);<br>mpp_buffer_put(priv-&gt;pkt_buf);<br>mpp_buffer_put(priv-&gt;md_info);<br>mpp_buffer_group_put(p-&gt;buf_grp);<br></code></pre></td></tr></table></figure>
+<p><code>enc_test()</code> 里分配了三个关键 buffer：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs rust"><span class="hljs-keyword">priv</span><span class="hljs-punctuation">-&gt;</span>frm_buf<br><span class="hljs-keyword">priv</span><span class="hljs-punctuation">-&gt;</span>pkt_buf<br><span class="hljs-keyword">priv</span><span class="hljs-punctuation">-&gt;</span>md_info<br></code></pre></td></tr></table></figure>
+<p>含义：</p>
+<table>
+<thead>
+<tr>
+<th>buffer</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>frm_buf</code></td>
+<td>存放输入原始帧，比如 NV12</td>
+</tr>
+<tr>
+<td><code>pkt_buf</code></td>
+<td>存放编码输出码流</td>
+</tr>
+<tr>
+<td><code>md_info</code></td>
+<td>motion info，某些编码模式需要</td>
+</tr>
+</tbody>
+</table>
+<p>使用流程是：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stylus">CPU 把 YUV 写进 frm_buf<br><span class="hljs-function"><span class="hljs-title">mpp_buffer_sync_end</span><span class="hljs-params">()</span></span> 刷 cache<br>VPU 从 frm_buf 读原始帧<br>VPU 把编码结果写进 pkt_buf<br>CPU 从 pkt_buf 读出 packet 并写文件<br></code></pre></td></tr></table></figure>
+<p>实际写输入图像时，代码会先：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">mpp_buffer_sync_begin</span>(priv-&gt;frm_buf);<br><span class="hljs-built_in">read_image</span>(buf, ...);<br><span class="hljs-built_in">mpp_buffer_sync_end</span>(priv-&gt;frm_buf);<br></code></pre></td></tr></table></figure>
+<p><code>sync_begin/sync_end</code> 是为了 cache 一致性。CPU 写完数据后，要确保 VPU 能看到。</p>
+<p>编码 H.264/H.265 时，码流前面需要 header：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">H</span>.<span class="hljs-number">264</span>: SPS/PPS<br><span class="hljs-attribute">H</span>.<span class="hljs-number">265</span>: VPS/SPS/PPS<br></code></pre></td></tr></table></figure>
+<p>这些不是图像帧，但解码器必须靠它们知道分辨率、profile、level、帧率等信息。</p>
+<p>所以 <code>test_mpp_run()</code> 一开头做：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">mpp_packet_init_with_buffer</span>(&amp;packet, priv-&gt;pkt_buf);<br><span class="hljs-built_in">mpp_packet_set_length</span>(packet, <span class="hljs-number">0</span>);<br>mpi-&gt;<span class="hljs-built_in">control</span>(ctx, MPP_ENC_GET_HDR_SYNC, packet);<br><span class="hljs-built_in">fwrite</span>(ptr, <span class="hljs-number">1</span>, len, p-&gt;fp_output[chn]);<br></code></pre></td></tr></table></figure>
+<p>含义是：</p>
+<ul>
+<li>向编码器要一次 header</li>
+<li>把 SPS/PPS 写进 .h264 或 .h265 文件</li>
+<li>后面再写普通帧的编码数据</li>
+</ul>
+<p>如果少了这一步，输出文件可能无法被解码器正常读取。</p>
+<p><code>test_mpp_run()</code> 是最核心函数。它的循环可以写成伪代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span> 没有 pkt_eos:<br>    准备一帧原始图像到 frm_buf<br>    创建 MppFrame<br>    设置宽高、stride、格式、buffer<br>    创建 MppPacket<br>    把 MppPacket 挂到 frame meta: KEY_OUTPUT_PACKET<br>    <span class="hljs-title function_">encode_put_frame</span><span class="hljs-params">(frame)</span><br>    <span class="hljs-title function_">mpp_frame_deinit</span><span class="hljs-params">(frame)</span><br><br>    <span class="hljs-keyword">while</span> 还有 packet:<br>        <span class="hljs-title function_">encode_get_packet</span><span class="hljs-params">(packet)</span><br>        写 packet 到输出文件<br>        <span class="hljs-title function_">mpp_packet_deinit</span><span class="hljs-params">(packet)</span><br><br>    判断是否达到 frame_num 或 EOS<br></code></pre></td></tr></table></figure>
+<p>准备好原始图像后，代码每帧创建一个 <code>MppFrame</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">mpp_frame_init(&amp;frame);<br><br>mpp_frame_set_width(frame, p-&gt;width);<br>mpp_frame_set_height(frame, p-&gt;height);<br>mpp_frame_set_hor_stride(frame, p-&gt;hor_stride);<br>mpp_frame_set_ver_stride(frame, p-&gt;ver_stride);<br>mpp_frame_set_fmt(frame, p-&gt;fmt);<br>mpp_frame_set_eos(frame, p-&gt;frm_eos);<br><br>mpp_frame_set_buffer(frame, priv-&gt;frm_buf);<br></code></pre></td></tr></table></figure>
+<p>这相当于告诉编码器：</p>
+<ul>
+<li>这是一帧 640x480 NV12</li>
+<li>每行内存 stride 是 640</li>
+<li>像素在 priv-&gt;frm_buf 里面</li>
+<li>这是不是最后一帧</li>
+</ul>
+<p><code>MppFrame</code> 本身不存像素，它只是描述这帧图像并引用 <code>MppBuffer</code>。</p>
+<p>真正送入编码器：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">ret</span> = mpi-&gt;encode_put_frame(ctx, frame)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+<p>成功后释放输入 frame：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">mpp_frame_deinit</span>(&amp;frame);<br></code></pre></td></tr></table></figure>
+<p>这里释放的是 <code>MppFrame</code> 描述对象，不是释放 <code>priv-&gt;frm_buf</code>。<code>priv-&gt;frm_buf</code> 会继续复用于下一帧。</p>
+<p>然后取输出：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">do</span> &#123;<br>    ret = mpi-&gt;encode_get_packet(ctx, &amp;packet);<br><br>    ptr = mpp_packet_get_pos(packet);<br>    len = mpp_packet_get_length(packet);<br><br>    fwrite(ptr, <span class="hljs-number">1</span>, len, p-&gt;fp_output[chn]);<br><br>    mpp_packet_deinit(&amp;packet);<br>&#125; <span class="hljs-keyword">while</span> (!eoi);<br></code></pre></td></tr></table></figure>
+<p>编码完成后：</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xl"><span class="hljs-function"><span class="hljs-title">p</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">mpi</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">reset</span>(p-&gt;</span>ctx);<br></code></pre></td></tr></table></figure>
+<p>然后释放：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">mpp_destroy</span>(p-&gt;ctx);<br><span class="hljs-built_in">mpp_enc_cfg_deinit</span>(p-&gt;cfg);<br><span class="hljs-built_in">mpp_buffer_put</span>(priv-&gt;frm_buf);<br><span class="hljs-built_in">mpp_buffer_put</span>(priv-&gt;pkt_buf);<br><span class="hljs-built_in">mpp_buffer_put</span>(priv-&gt;md_info);<br><span class="hljs-built_in">mpp_buffer_group_put</span>(p-&gt;buf_grp);<br></code></pre></td></tr></table></figure>
+<p>顺序可以理解成：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> reset encoder，结束编码会话<br><span class="hljs-bullet">2.</span> destroy MppCtx<br><span class="hljs-bullet">3.</span> 释放 cfg<br><span class="hljs-bullet">4.</span> 释放 frame/packet/motion buffer<br><span class="hljs-bullet">5.</span> 释放 buffer group<br><span class="hljs-bullet">6.</span> 关闭文件<br></code></pre></td></tr></table></figure>
+<p>MPP 是异步硬件资源，必须按这个方向清理，否则容易 leaked buffer。</p>
+<p>总结一下，实现编码器的大致思路：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-number">1</span>. 初始化输入输出<br><span class="hljs-number">2</span>. 创建 buffer group<br><span class="hljs-number">3</span>. 分配 frm_buf<span class="hljs-operator">、</span>pkt_buf<span class="hljs-operator">、</span>md_info<br><span class="hljs-number">4</span>. mpp_create()<br><span class="hljs-number">5</span>. mpp_init(<span class="hljs-type">MPP_CTX_ENC</span>, type)<br><span class="hljs-number">6</span>. <span class="hljs-type">MPP_ENC_GET_CFG</span><br><span class="hljs-number">7</span>. 设置 prep<span class="hljs-regexp">/rc/</span>codec 参数<br><span class="hljs-number">8</span>. <span class="hljs-type">MPP_ENC_SET_CFG</span><br><span class="hljs-number">9</span>. <span class="hljs-type">H</span>.<span class="hljs-number">264</span><span class="hljs-regexp">/H.265 先取 header 写 SPS/</span><span class="hljs-type">PPS</span><br><span class="hljs-number">10</span>. <span class="hljs-keyword">while</span> 帧循环：<br>     准备 <span class="hljs-type">YUV</span> 到 frm_buf<br>     mpp_frame_init<br>     设置 width<span class="hljs-regexp">/height/</span>stride<span class="hljs-regexp">/format/</span>buffer<br>     mpp_packet_init_with_buffer<br>     mpp_meta_set_packet(<span class="hljs-type">KEY_OUTPUT_PACKET</span>)<br>     encode_put_frame<br>     mpp_frame_deinit<br>     <span class="hljs-keyword">while</span> packet:<br>       encode_get_packet<br>       写文件<br>       mpp_packet_deinit<br><span class="hljs-number">11</span>. reset<br><span class="hljs-number">12</span>. destroy<span class="hljs-operator">、</span>释放 buffer<span class="hljs-regexp">/cfg/</span>文件<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E6%91%84%E5%83%8F%E5%A4%B4/" class="category-chain-item">摄像头</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+        <a href="/tags/%E6%91%84%E5%83%8F%E5%A4%B4/" class="print-no-link">#摄像头</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于MPP库进行视频编解码</div>
+      <div>http://example.com/2026/08/18/基于MPP库进行视频编解码/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2032/08/20/%E8%A7%86%E9%A2%91%E7%BC%96%E8%A7%A3%E7%A0%81%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3/" title="视频编解码技术详解">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">视频编解码技术详解</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/16/Rockchip-RGA-%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Rockchip RGA 简单使用">
+                        <span class="hidden-mobile">Rockchip RGA 简单使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

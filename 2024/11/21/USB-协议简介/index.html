@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、USB 架构 系统中只能有一个主机，并且与设备进行的通信是从主机的角度进行的。主机是“上行”组件，设备则是“下行”组件，如下图表示。数据从主机转移到外设的操作是 OUT 传输。数据从外设转移到主机的操作是IN 传输。主机（尤其是主控制器）控制着所有通信并向设备发出指令。共有三种常见的 USB 主控制器：  通用主控制器接口（UHCI）：由 Intel 生产，适用于 USB 1.">
+    <meta name="description" content="[toc]  一、USB 架构 系统中只能有一个主机，并且与设备进行的通信是从主机的角度进行的。主机是“上行”组件，设备则是“下行”组件，如下图表示。数据从主机转移到外设的操作是 OUT 传输。数据从外设转移到主机的操作是IN 传输。主机（尤其是主控制器）控制着所有通信并向设备发出指令。共有三种常见的 USB 主控制器：  通用主控制器接口（UHCI）：由 Intel 生产，适用于 USB 1.0">
 <meta property="og:type" content="article">
 <meta property="og:title" content="USB 协议简介">
 <meta property="og:url" content="http://example.com/2024/11/21/USB-%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、USB 架构 系统中只能有一个主机，并且与设备进行的通信是从主机的角度进行的。主机是“上行”组件，设备则是“下行”组件，如下图表示。数据从主机转移到外设的操作是 OUT 传输。数据从外设转移到主机的操作是IN 传输。主机（尤其是主控制器）控制着所有通信并向设备发出指令。共有三种常见的 USB 主控制器：  通用主控制器接口（UHCI）：由 Intel 生产，适用于 USB 1.">
+<meta property="og:description" content="[toc]  一、USB 架构 系统中只能有一个主机，并且与设备进行的通信是从主机的角度进行的。主机是“上行”组件，设备则是“下行”组件，如下图表示。数据从主机转移到外设的操作是 OUT 传输。数据从外设转移到主机的操作是IN 传输。主机（尤其是主控制器）控制着所有通信并向设备发出指令。共有三种常见的 USB 主控制器：  通用主控制器接口（UHCI）：由 Intel 生产，适用于 USB 1.0">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/11/21/USB-%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B/21.png">
 <meta property="og:image" content="http://example.com/2024/11/21/USB-%E5%8D%8F%E8%AE%AE%E7%AE%80%E4%BB%8B/22.png">
@@ -252,7 +252,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          14k 字
+          16k 字
         
       </span>
     
@@ -263,7 +263,7 @@
         
         
         
-          119 分钟
+          135 分钟
         
       </span>
     
@@ -307,7 +307,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-usb-架构"><a class="markdownIt-Anchor" href="#一-usb-架构"></a> 一、USB 架构</h1>
+<h1>一、USB 架构</h1>
 <p>系统中只能有一个主机，并且与设备进行的通信是从主机的角度进行的。主机是“上行”组件，设备则是“下行”组件，如下图表示。数据从主机转移到外设的操作是 OUT 传输。数据从外设转移到主机的操作是IN 传输。主机（尤其是主控制器）控制着所有通信并向设备发出指令。共有三种常见的 USB 主控制器：</p>
 <ol>
 <li>通用主控制器接口（<code>UHCI</code>）：由 Intel 生产，适用于 USB 1.0 和 USB 1.1。使用UHCI 时需要得到 Intel 的许可。该控制器支持低速模式和全速模式。</li>
@@ -317,8 +317,8 @@
 <p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>通过使用集线器最多能够将 127 个设备连接至主控制器上。连接设备的数目限制由 USB 协议决定，它限制设备地址为 7 位。另外，由于集线器的时间限制和电缆传播的延迟，因此最多只能将五个集线器链接在一起。下图显示的是 USB 层次系统的框图，它表示集线器和设备的链接限制。您可以看到，随着集线器的链接限制，层次系统也限制为七层。</p>
 <p><img src="22.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="二-物理特性"><a class="markdownIt-Anchor" href="#二-物理特性"></a> 二、物理特性</h1>
-<h2 id="1-usb-接口"><a class="markdownIt-Anchor" href="#1-usb-接口"></a> 1、USB 接口</h2>
+<h1>二、物理特性</h1>
+<h2 id="1、USB-接口">1、USB 接口</h2>
 <p>一条 USB 传输线分别由地线、电源线、D+ 和 D- 四条线构成，D+ 和 D- 是差分输入线，它使用的是 3.3V 的电压（与 CMOS 的 5V 电平不同），而电源线和地线可向设备提供 5V 电压，最大电流为 500mA（可以在编程中设置）。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="23.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -407,7 +407,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-usb-信号"><a class="markdownIt-Anchor" href="#2-usb-信号"></a> 2、USB 信号</h2>
+<h2 id="2、USB-信号">2、USB 信号</h2>
 <p>USB 使用差分信号进行数据传输，这样可以有效的降低外接带来的干扰。</p>
 <p><img src="24.png" srcset="/img/loading.gif" lazyload alt="USB 输入差分放大器缓冲区"></p>
 <p>下表是 USB 通信的状态：</p>
@@ -512,9 +512,9 @@
 <li><strong>复位</strong>：在 SE0 状态持续 10 ms 时发生。在 SE0 至少持续 2.5 ms 后，该设备会复位，并开始进入复位状态</li>
 <li><strong>保持活动</strong>（<code>Keep Alive</code>）：在低速设备中使用的信号。低速设备缺少了一个帧起始数据包（用于防止挂起状态）。每次经过 1ms，它们都会使用一个 EOP 来防止设备进入挂起状态。</li>
 </ul>
-<h2 id="3-usb-字节序"><a class="markdownIt-Anchor" href="#3-usb-字节序"></a> 3、USB 字节序</h2>
+<h2 id="3、USB-字节序">3、USB 字节序</h2>
 <p>先发 LSB，在发 MSB。</p>
-<h2 id="4-usb-信号的编码"><a class="markdownIt-Anchor" href="#4-usb-信号的编码"></a> 4、USB 信号的编码</h2>
+<h2 id="4、USB-信号的编码">4、USB 信号的编码</h2>
 <p>USB 中的数据采用反向不归零编码方式（<em><strong>NRZI</strong></em>：<em><strong>none-return to zero inverted</strong></em>），并对 D+ 和 D- 线所处的不同状态定义成 <code>J</code> 和 <code>K</code> 两种状态。</p>
 <table>
 <thead>
@@ -547,7 +547,7 @@
 </ol>
 </blockquote>
 <p>反向不归零编码方式可以保证数据的完整性，而且不要求传输过程中由独立的时钟信号。</p>
-<h2 id="5-usb-设备检测"><a class="markdownIt-Anchor" href="#5-usb-设备检测"></a> 5、USB 设备检测</h2>
+<h2 id="5、USB-设备检测">5、USB 设备检测</h2>
 <p>USB1.0 和 USB1.1 支持 1.5Mb/s 的低速模式（<em><strong>Low Speed</strong></em>）和 12Mb/bs 的全速模式（<em><strong>Full Speed</strong></em>）。在 USB2.0 以上支持 480Mb/s 的高速模式（<em><strong>High Speed</strong></em>）。</p>
 <p>USB 低速模式是在 <strong>D-</strong> 线上上拉 1.5K 的电阻。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -556,7 +556,7 @@
 <p>当 USB 设备接入系统时刻，系统通过检测 USB 上的 D+ 或者 D- 线上的上拉电阻的方式来识别低速和全速设备。如上图所示，当主机端没有设备接入的时候，其 D+ 和 D- 的下拉电阻使得其电压几乎为  0V；当全速/低速设备接入后，在 D+/D- 端的上拉电阻会使得 D+/D- 出现高电平，而另外一根是低电平。主机端便知道有设备插入。</p>
 <p>对于高速设备，和全速设备一样，在 D+ 上存在上拉电阻。对于高速设备的的识别，主机先把高速设备检测为全速设备，然后再通过“Chirp 序列”的总线握手机制来识别高速和全速设备。</p>
 <p><img src="26.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="6-usb-速度"><a class="markdownIt-Anchor" href="#6-usb-速度"></a> 6、USB 速度</h2>
+<h2 id="6、USB-速度">6、USB 速度</h2>
 <p>USB 规范已经为 USB 系统定义了以下四种速度模式：低速（<em><strong>Low-Speed</strong></em>）、全速（<em><strong>Full-Speed</strong></em>）、高速（<em><strong>Hi-Speed</strong></em>）和超高速（<em><strong>Super-Speed</strong></em>）。</p>
 <p>新型主机一直能同低速设备进行通信。例如，高速主机能够与低速设备进行通信，但全速主机并不能同高速设备进行通信。</p>
 <p>低速、全速和高速设备的速率分别为 1.5 Mb/s、12 Mb/s 和 480 Mb/s。但是，这些指的是总线速率，并不是数据速率。实际的数据速率受总线加载速度、传输类型、开销、操作系统等因素的影响。数据传输则受以下内容的限制：</p>
@@ -588,10 +588,10 @@
 <li><strong>全速</strong>：时钟频率/总线速度 = 48 MHz / 12 Mb/s 时，USB 位时间为 4 个时钟周期。</li>
 <li><strong>低速</strong>：时钟频率/总线速度 = 48 MHz / 1.5 Mb/s 时，USB 位时间为 32 个时钟周期。</li>
 </ul>
-<h2 id="7-usb端口颜色编码标识"><a class="markdownIt-Anchor" href="#7-usb端口颜色编码标识"></a> 7、USB端口颜色编码标识</h2>
+<h2 id="7、USB端口颜色编码标识">7、USB端口颜色编码标识</h2>
 <p>USB 端口和连接器有时会进行颜色编码，以指示其支持的 USB 规范和功能。这些颜色不是 USB 规范所要求的，设备制造商之间也不一致。例如，Intel 使用橙色表示充电端口，而一家工业设备组件制造商选择橙色表示具有强保留机制的 USB 端口。</p>
 <p><img src="27.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="三-通信协议"><a class="markdownIt-Anchor" href="#三-通信协议"></a> 三、通信协议</h1>
+<h1>三、通信协议</h1>
 <p>USB 数据是由二进制数字串构成的：</p>
 <ul>
 <li>首先数字串构成<strong>域</strong>（七种）</li>
@@ -599,18 +599,662 @@
 <li><strong>包</strong>再构成<strong>事务</strong>（IN、OUT、SETUP）</li>
 <li><strong>事务</strong>最后构成<strong>传输</strong>（中断传输、同步传输、批量传输和控制传输）。</li>
 </ul>
-<h2 id="1-域"><a class="markdownIt-Anchor" href="#1-域"></a> 1、域</h2>
+<h2 id="1、域">1、域</h2>
 <p>域是 USB 数据最小的单位，由若干位组成，域可分为七种类型：</p>
 <ol>
-<li><strong>同步域</strong>（<code>SYNC</code>），8位，值固定为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>00000001</mn></mrow><annotation encoding="application/x-tex">0000 0001</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">1</span></span></span></span>，用于本地时钟与输入同步，标志一个包的起始。</li>
+<li><strong>同步域</strong>（<code>SYNC</code>），8位，值固定为 
+    <span id="mjx-ab5eb7f">
+      <style>
+      #mjx-ab5eb7f{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.05ex;" xmlns="http://www.w3.org/2000/svg" width="9.05ex" height="1.557ex" role="img" focusable="false" viewbox="0 -666 4000 688" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(500,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1000,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1500,0)"/></g><g data-mml-node="mn" transform="translate(2000,0)"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(500,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1000,0)"/><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z" transform="translate(1500,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>0000</mn><mn>0001</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+  ，用于本地时钟与输入同步，标志一个包的起始。</li>
 <li><strong>标识域</strong>（<code>PID</code>），由四位标识符+四位标识符反码构成，表明包的类型和格式，可以计算出 USB 的标识码有 16 种。</li>
-<li><strong>地址域</strong>（<code>ADDR</code>）：七位地址，代表了设备在主机上的地址，地址 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0000000</mn></mrow><annotation encoding="application/x-tex">000 0000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span><span class="mord">0</span></span></span></span> 被命名为零地址，是任何一个设备第一次连接到主机时，在被主机配置、枚举前的默认地址，因此一个 USB 主机只能接 127 个设备。</li>
+<li><strong>地址域</strong>（<code>ADDR</code>）：七位地址，代表了设备在主机上的地址，地址 
+    <span id="mjx-b6bca26">
+      <style>
+      #mjx-b6bca26{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.05ex;" xmlns="http://www.w3.org/2000/svg" width="7.919ex" height="1.557ex" role="img" focusable="false" viewbox="0 -666 3500 688" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(500,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1000,0)"/></g><g data-mml-node="mn" transform="translate(1500,0)"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(500,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1000,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1500,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>000</mn><mn>0000</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+   被命名为零地址，是任何一个设备第一次连接到主机时，在被主机配置、枚举前的默认地址，因此一个 USB 主机只能接 127 个设备。</li>
 <li><strong>端点域</strong>（<code>ENDP</code>），4位，由此可知一个 USB 设备有的端点数量最大为 16 个。</li>
-<li><strong>帧号域</strong>（<code>FRAM</code>），11位，每一个帧都有一个特定的帧号，帧号域最大容量为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>800</mn></mrow><annotation encoding="application/x-tex">0x800</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">8</span><span class="mord">0</span><span class="mord">0</span></span></span></span>，帧号连续增加，到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>x</mi><mn>7</mn><mi>f</mi><mi>f</mi></mrow><annotation encoding="application/x-tex">0x7ff</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">0</span><span class="mord mathnormal">x</span><span class="mord">7</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span></span></span></span> 后自动从 0 开始，对于同步传输有重要意义。</li>
+<li><strong>帧号域</strong>（<code>FRAM</code>），11位，每一个帧都有一个特定的帧号，帧号域最大容量为 
+    <span id="mjx-a64729">
+      <style>
+      #mjx-a64729{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.05ex;" xmlns="http://www.w3.org/2000/svg" width="5.819ex" height="1.557ex" role="img" focusable="false" viewbox="0 -666 2572 688" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/></g><g data-mml-node="mi" transform="translate(500,0)"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"/></g><g data-mml-node="mn" transform="translate(1072,0)"><path data-c="38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(500,0)"/><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z" transform="translate(1000,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>0</mn><mi>x</mi><mn>800</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+  ，帧号连续增加，到 
+    <span id="mjx-dd28004">
+      <style>
+      #mjx-dd28004{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.464ex;" xmlns="http://www.w3.org/2000/svg" width="6.045ex" height="2.059ex" role="img" focusable="false" viewbox="0 -705 2672 910" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/></g><g data-mml-node="mi" transform="translate(500,0)"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"/></g><g data-mml-node="mn" transform="translate(1072,0)"><path data-c="37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"/></g><g data-mml-node="mi" transform="translate(1572,0)"><path data-c="1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"/></g><g data-mml-node="mi" transform="translate(2122,0)"><path data-c="1D453" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>0</mn><mi>x</mi><mn>7</mn><mi>f</mi><mi>f</mi></math></mjx-assistive-mml></mjx-container>
+    </span>
+   后自动从 0 开始，对于同步传输有重要意义。</li>
 <li><strong>数据域</strong>（<code>DATA</code>）：长度为 0~1023 字节，在不同的传输类型中，数据域的长度各不相同，但必须为整数个字节的长度</li>
 <li><strong>校验域</strong>（<code>CRC</code>）：对令牌包（CRC5）和数据包（CRC16）中非 <code>PID</code> 域进行校验的一种方法，<code>CRC</code> 校验在通讯中应用很泛，是一种很好的校验方法，至于具体的校验方法请查阅相关资料，只须注意 <code>CRC</code> 码的除法是模 2 运算，不同于 10 进制中的除法。</li>
 </ol>
-<h2 id="2-包"><a class="markdownIt-Anchor" href="#2-包"></a> 2 、包</h2>
+<h2 id="2-、包">2 、包</h2>
 <p>包（<em><strong>Packet</strong></em>）是 USB 系统中信息传输的基本单元，所有数据都是经过打包后在总线上传输的。数据在 USB 总线上的传输以包为单位，包只能在帧内传输。</p>
 <p>高速 USB 总线的帧周期为 125us，全速以及低速 USB 总线的帧周期为 1ms。</p>
 <p>帧的起始由一个特定的包（SOF 包）表示，帧尾为 EOF。EOF 不是一个包，而是一种电平状态，EOF 期间不允许有数据传输。</p>
@@ -618,7 +1262,7 @@
 <p>其中，不同的 <code>PID</code> 标识了不同类型的 USB 包。由四位标识符 + 四位标识符反码构成。这里只用<code>PID0~4</code>，<code>PID4~7</code> 是 <code>PID0~4</code> 的取反，用来校验 PID。</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="21-pid-域"><a class="markdownIt-Anchor" href="#21-pid-域"></a> 2.1 PID 域</h3>
+<h3 id="2-1-PID-域">2.1 PID 域</h3>
 <p>包由域构成的，PID 将 USB 的包划分为了四种类型，分别是<strong>令牌包</strong>、<strong>数据包</strong>、<strong>握手包</strong>和<strong>特殊包</strong>，不同的包的域结构不同，介绍如下：</p>
 <ol>
 <li>
@@ -697,20 +1341,181 @@
 </tr>
 </tbody>
 </table>
-<h3 id="22-address-域"><a class="markdownIt-Anchor" href="#22-address-域"></a> 2.2 Address 域</h3>
+<h3 id="2-2-Address-域">2.2 Address 域</h3>
 <p>地址域有两部分组成：7bits 的设备地址 ADDR +4 bits 的端点地址 ENDP</p>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>可以知道，USB 系统理论上最大支持链接 127 个设备，每个设备最多 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>4</mn></msup><mo>=</mo><mn>16</mn></mrow><annotation encoding="application/x-tex">2^4=16</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">4</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">6</span></span></span></span> 个端点。 实际上由于 <code>INTER</code> 硬件设计上的缺陷，根本达不到这么多。</p>
+<p>可以知道，USB 系统理论上最大支持链接 127 个设备，每个设备最多 
+    <span id="mjx-0938d88">
+      <style>
+      #mjx-0938d88{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="7.398ex" height="2.09ex" role="img" focusable="false" viewbox="0 -841.7 3270.1 923.7" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="mn" transform="translate(533,363) scale(0.707)"><path data-c="34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"/></g></g><g data-mml-node="mo" transform="translate(1214.3,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mn" transform="translate(2270.1,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(500,0)"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>2</mn><mn>4</mn></msup><mo>=</mo><mn>16</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+   个端点。 实际上由于 <code>INTER</code> 硬件设计上的缺陷，根本达不到这么多。</p>
 <p>这个 <code>ENDP</code> 只用在 <code>IN/OUT/SETUP</code> 令牌包中。</p>
-<h3 id="23-frame-number-域"><a class="markdownIt-Anchor" href="#23-frame-number-域"></a> 2.3 Frame Number 域</h3>
+<h3 id="2-3-Frame-Number-域">2.3 Frame Number 域</h3>
 <p>当 USB 令牌包的 PID 为 SOF 时候，其数据字段必须为 11 位的帧序列号。</p>
 <p>帧号占11位，主机每发出一个帧，帧号都会自加1，当帧号达到0x7FF时，将归零重新开始计数。对于同步传输有重要意义。</p>
-<h3 id="24-data-域"><a class="markdownIt-Anchor" href="#24-data-域"></a> 2.4 Data 域</h3>
+<h3 id="2-4-Data-域">2.4 Data 域</h3>
 <p>仅存在于 DATA 信息包，根据不同的传输类型，拥有不同大小的字节（0~1023字节）</p>
 <p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="25-crc-域"><a class="markdownIt-Anchor" href="#25-crc-域"></a> 2.5 CRC 域</h3>
+<h3 id="2-5-CRC-域">2.5 CRC 域</h3>
 <p>用于进行数据的 CRC 校验。</p>
-<h2 id="3-事务"><a class="markdownIt-Anchor" href="#3-事务"></a> 3、事务</h2>
+<h2 id="3、事务">3、事务</h2>
 <p>在 USB 上数据信息的一次接收或发送的处理过程称为事务处理（<em><strong>Transaction</strong></em>）。一个事务由一系列包组成，具体由哪些包组成，它取决于具体的事务。</p>
 <p>事务分别有 <code>IN</code>、<code>OUT</code>和 <code>SETUP</code> 三大事务，每一种事务都由令牌包、数据包、握手包三个阶段构成。</p>
 <blockquote>
@@ -728,15 +1533,15 @@
 <ul>
 <li><strong>令牌包</strong>阶段——主机发送一个 <code>PID</code> 为 <code>SETUP</code> 的设置包给设备，通知设备要接收数据；</li>
 <li><strong>数据</strong>包阶段——主机给设备发送数据，固定为 8 个字节的 <code>DATA0</code> 包，这 8 个字节的内容就是标准的 USB 设备请求命令。</li>
-<li><strong>握手包</strong>阶段——设备--&gt;主机，设备正确接收到主机的命令信息后，返回 <code>ACK</code>，此后总线进入空闲状态，并准备下一个传输（在 <code>SETUP</code> 事务后通常是一个 <code>IN</code> 或 <code>OUT</code> 事务构成的传输）</li>
+<li><strong>握手包</strong>阶段——设备–&gt;主机，设备正确接收到主机的命令信息后，返回 <code>ACK</code>，此后总线进入空闲状态，并准备下一个传输（在 <code>SETUP</code> 事务后通常是一个 <code>IN</code> 或 <code>OUT</code> 事务构成的传输）</li>
 </ul>
 </li>
 </ol>
 <p>整个过程为：</p>
 <ul>
-<li>主机--&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA0+8字节Data+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA0+8字节Data+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
 <ol start="2">
 <li><code>IN</code> 事务：主机用来从设备读取数据
@@ -755,9 +1560,9 @@
 </ol>
 <p>整个过程为：</p>
 <ul>
-<li>主机--&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
-<li>设备--&gt;主机，<code>SYNC+DATA1/0+(0~1023)字节Data+CRC16</code> 或 <code>SYNC+NAK/STALL</code>（设备忙或设备出错）</li>
-<li>主机--&gt;设备，<code>SYNC+ACK</code></li>
+<li>主机–&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
+<li>设备–&gt;主机，<code>SYNC+DATA1/0+(0~1023)字节Data+CRC16</code> 或 <code>SYNC+NAK/STALL</code>（设备忙或设备出错）</li>
+<li>主机–&gt;设备，<code>SYNC+ACK</code></li>
 </ul>
 <ol start="3">
 <li><code>OUT</code> 事务：主机用来向设备发送数据
@@ -776,11 +1581,11 @@
 </ol>
 <p>整个过程为：</p>
 <ul>
-<li>主机--&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA1/0+(0~1023)字节Data+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA1/0+(0~1023)字节Data+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
-<h2 id="4-传输"><a class="markdownIt-Anchor" href="#4-传输"></a> 4、传输</h2>
+<h2 id="4、传输">4、传输</h2>
 <p>传输由 <code>OUT</code>、<code>IN</code>、<code>SETUP</code> 事务其中的事务构成，有四种类型：中断传输、批量传输、同步传输、控制传输，其中中断传输和批量转输的结构一样，同步传输有最简单的结构，而控制传输是最重要的也是最复杂的传输。</p>
 <ul>
 <li><strong>中断传输（Control Transfer）</strong></li>
@@ -788,7 +1593,7 @@
 <li><strong>同步传输（Isochronous Transfer）</strong></li>
 <li><strong>控制传输（Control Transfer）</strong></li>
 </ul>
-<h3 id="41-控制传输"><a class="markdownIt-Anchor" href="#41-控制传输"></a> 4.1 控制传输</h3>
+<h3 id="4-1-控制传输">4.1 控制传输</h3>
 <p><strong>控制传输（Control Transfer）</strong>：最重要的也是最复杂的传输，控制传输由三个阶段构成（<strong>初始设置阶段</strong>、<strong>可选数据阶段</strong>、<strong>状态信息步骤</strong>），每一个阶段可以看成一个的传输，也就是说控制传输其实是由三个传输构成的，用来于 USB 设备初次加接到主机之后，主机通过控制传输来交换信息，设置地址和读取设备的描述符，使得主机识别设备，并安装相应的驱动程序，这是每一个 USB 开发者都要关心的问题。</p>
 <ul>
 <li>
@@ -827,23 +1632,23 @@
 <ol>
 <li><strong>初始设置</strong>步骤：
 <ul>
-<li>主机--&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA0+8字节+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA0+8字节+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
 </li>
 <li><strong>可选数据</strong>步骤：（数据较多时，此步骤可以分多次，此时 <code>DATA0/DATA1</code> 交替传送）
 <ul>
-<li>主机--&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
-<li>设备--&gt;主机，<code>SYNC+DATA1+n字节+CRC16或SYNC+NAK/STALL</code></li>
-<li>主机--&gt;设备，<code>SYNC+ACK</code></li>
+<li>主机–&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
+<li>设备–&gt;主机，<code>SYNC+DATA1+n字节+CRC16或SYNC+NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+ACK</code></li>
 </ul>
 </li>
 <li><strong>状态信息</strong>步骤：
 <ul>
-<li>主机--&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA1+0字节+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA1+0字节+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
 </li>
 </ol>
@@ -851,28 +1656,28 @@
 <ol>
 <li>初始设置步骤：
 <ul>
-<li>主机--&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA0+8字节+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+SETUP+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA0+8字节+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
 </li>
 <li>可选数据步骤：（数据较多时，此步骤可以分多次，此时 <code>DATA0/DATA1</code> 交替传送）
 <ul>
-<li>主机--&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
-<li>主机--&gt;设备，<code>SYNC+DATA1+n字节+CRC16</code></li>
-<li>设备--&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+OUT+ADDR+ENDP+CRC5</code></li>
+<li>主机–&gt;设备，<code>SYNC+DATA1+n字节+CRC16</code></li>
+<li>设备–&gt;主机，<code>SYNC+ACK/NAK/STALL</code></li>
 </ul>
 </li>
 <li>状态信息步骤：
 <ul>
-<li>主机--&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
-<li>设备--&gt;主机，<code>SYNC+DATA1+0字节+CRC16或SYNC+NAK/STALL</code></li>
-<li>主机--&gt;设备，<code>SYNC+ACK</code></li>
+<li>主机–&gt;设备，<code>SYNC+IN+ADDR+ENDP+CRC5</code></li>
+<li>设备–&gt;主机，<code>SYNC+DATA1+0字节+CRC16或SYNC+NAK/STALL</code></li>
+<li>主机–&gt;设备，<code>SYNC+ACK</code></li>
 </ul>
 </li>
 </ol>
-<h3 id="42-批量传输"><a class="markdownIt-Anchor" href="#42-批量传输"></a> 4.2 批量传输</h3>
-<p><strong>批量传输（Bulk Transfer）</strong>：由 <code>OUT</code> 事务和 <code>IN</code> 事务构成，用于<mark>大容量数据传输</mark>，没有固定的传输速率，也不占用带宽，适用于打印机、存储设备等。当总线忙时，<code>USB</code> 会优先进行其他类型的数据传输，而暂时停止批量转输。</p>
+<h3 id="4-2-批量传输">4.2 批量传输</h3>
+<p><strong>批量传输（Bulk Transfer）</strong>：由 <code>OUT</code> 事务和 <code>IN</code> 事务构成，用于==大容量数据传输==，没有固定的传输速率，也不占用带宽，适用于打印机、存储设备等。当总线忙时，<code>USB</code> 会优先进行其他类型的数据传输，而暂时停止批量转输。</p>
 <p>批量传输是可靠的传输，需要握手包来表明传输的结果。若数据量比较大，将采用多次批量事务传输来完成全部数据的传输，传输过程中数据包的 <code>PID</code> 按照 <code>DATA0-DATA1-DATA0-..</code> 的方式翻转，以保证发送端和接收端的同步。</p>
 <p>一次批量传输（<em><strong>Transfer</strong></em>）由 1 次到多次批量事务传输（<em><strong>Transaction</strong></em>）组成。</p>
 <p>重传机制：</p>
@@ -881,19 +1686,19 @@
 <li>发送端按照 <code>DATA0-DATA1-DATA0-..</code> 的顺序发送数据包，只有成功的事务传输才会导致 <code>PID</code> 翻转，也就是说发送端只有在接收到 <code>ACK</code> 后才会翻转 <code>PID</code>，发送下一个数据包，否则会重试本次事务传输。同样，若在接收端发现接收到到的数据包不是按照此顺序翻转的，比如连续收到两个 <code>DATA0</code>，那么接收端认为第二个 <code>DATA0</code> 是前一个 <code>DATA0</code> 的重传</li>
 </ul>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="43-中断传输"><a class="markdownIt-Anchor" href="#43-中断传输"></a> 4.3 中断传输</h3>
+<h3 id="4-3-中断传输">4.3 中断传输</h3>
 <p><strong>中断传输（Control Transfer）</strong>：由 <code>OUT</code> 事务和 <code>IN</code> 事务构成，用于键盘、鼠标等 <code>HID</code> 设备的数据传输中</p>
 <p>中断传输在流程上除不支持 <code>PING</code> 之外，其他的跟批量传输是一样的。他们之间的区别也仅在于事务传输发生的端点不一样、支持的最大包长度不一样、优先级不一样等这样一些对用户来说透明的东西。主机在排定中断传输任务时，会根据对应中断端点描述符中指定的查询间隔发起中断传输。中断传输有较高的优先级，仅次于同步传输。</p>
 <p>同样中断传输也采用 <code>PID</code> 翻转的机制来保证收发端数据同步。下图为中断传输的流程图。</p>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="44-同步传输"><a class="markdownIt-Anchor" href="#44-同步传输"></a> 4.4 同步传输</h3>
+<h3 id="4-4-同步传输">4.4 同步传输</h3>
 <p><strong>同步传输（Isochronous Transfer）</strong>：由 <code>OUT</code> 事务和 <code>IN</code> 事务构成，有两个特殊地方：</p>
 <ul>
 <li>第一，在同步传输的 <code>IN</code> 和 <code>OUT</code> 事务中是没有握手包阶段的；</li>
 <li>第二，在数据包阶段所有的数据包都为 <code>DATA0</code></li>
 </ul>
-<p>同步传输不支持 <code>handshake</code> 和重传，所以它是<mark>不可靠传输</mark>。</p>
-<h1 id="四-usb-请求"><a class="markdownIt-Anchor" href="#四-usb-请求"></a> 四、USB 请求</h1>
+<p>同步传输不支持 <code>handshake</code> 和重传，所以它是==不可靠传输==。</p>
+<h1>四、USB 请求</h1>
 <p>标准的 USB 设备请求命令是用在控制传输中的“初始设置步骤”里的数据包阶段（即<code>DATA0</code>，由八个字节构成）。</p>
 <p>标准 USB 设备请求命令共有 11 个，大小都是 8 个字节，具有相同的结构，由 5 个字段构成（字段是标准请求命令的数据部分），结构如下（括号中的数字表示字节数，首字母<code>bm</code>、<code>b</code>、<code>w</code> 分别表示位图、字节，双字节）：</p>
 <p><code>bmRequestType(1)+bRequest(1)+wvalue(2)+wIndex(2)+wLength(2)</code></p>
@@ -923,7 +1728,7 @@
 <li>1： 接收者为接口</li>
 <li>2： 接收者为端点</li>
 <li>3： 接收者为其他接收者</li>
-<li>4...31：保留</li>
+<li>4…31：保留</li>
 </ul>
 </li>
 </ul>
@@ -1021,7 +1826,7 @@
 <li><code>wIndex</code>：根据不同的命令，含义也不同，主要用于传送索引或偏移</li>
 <li><code>wLength</code>：如有数据传送阶段，此为数据字节数</li>
 </ul>
-<h1 id="五-usb-描述符"><a class="markdownIt-Anchor" href="#五-usb-描述符"></a> 五、USB 描述符</h1>
+<h1>五、USB 描述符</h1>
 <p>USB 协议为 USB 设备定义了一套描述设备功能和属性的有固定结构的描述符。USB 设备通过这些描述符向 USB 主机汇报设备的各种各样属性，主机通过对这些描述符的访问对设备进行类型识别、配置并为其提供相应的客户端驱动程序。</p>
 <p>USB 设备通过描述符反映自己的设备特性。USB描述符是由特定格式排列的一组数据结构组成。</p>
 <p>在 USB 设备枚举过程中，主机端的协议软件需要解析从 USB 设备读取的所有描述符信息。在 USB 主向设备发送读取描述符的请求后，USB 设备将所有的描述符以连续的数据流方式传输给 USB 主机。主机从第一个读到的字符开始，根据双方规定好的数据格式，顺序地解析读到的数据流。</p>
@@ -1037,7 +1842,7 @@
 </ul>
 <p>所有 USB 描述符都由一种通用格式组成。第一个字节指定描述符的长度，而第二个字节表示描述符类型。如果描述符的长度小于规范定义的长度，那么主机将忽略它。但是，如果大小大于预期，主机将忽略额外的字节，并在返回的实际长度结束时开始寻找下一个描述符。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">USB_COMMON_DESCRIPTOR</span> &#123;</span><br>    UCHAR   bLength;<br>    UCHAR   bDescriptorType;<br>&#125; USB_COMMON_DESCRIPTOR, *PUSB_COMMON_DESCRIPTOR;<br></code></pre></td></tr></table></figure>
-<h2 id="1-设备描述符"><a class="markdownIt-Anchor" href="#1-设备描述符"></a> 1、设备描述符</h2>
+<h2 id="1、设备描述符">1、设备描述符</h2>
 <p>USB 设备描述符是 USB设备在进行插拔和初始化过程中，最先被主机读取的一部分信息，它包含了设备的一些基本属性信息，如 USB 规范版本、设备类、设备子类、设备协议、最大数据包长度等。</p>
 <p>USB 设备描述符通常是在设备插入时被主机读取，在获取到设备描述符后，主机可以自动加载相应的驱动程序，完成设备的初始化和配置。</p>
 <p>设备描述符是 USB 设备的第一个描述符，<font color="yellowblue">每个 USB 设备都得具有设备描述符，且只能拥有一个</font>。</p>
@@ -1141,14 +1946,14 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-配置描述符"><a class="markdownIt-Anchor" href="#2-配置描述符"></a> 2、配置描述符</h2>
+<h2 id="2、配置描述符">2、配置描述符</h2>
 <p>配置描述符定义了设备的配置信息，一个设备可以有多个配置描述符。不过大部分的 USB 设备只有一个配置描这符。</p>
 <p>配置描述符指定设备的供电方式、最大功耗是多少、它拥有的接口数量。因此，可以有两种配置，一种用于设备由总线供电时，另一种用于设备供电时。由于这是接口描述符的“头”，因此使一种配置使用与另一种配置不同的传输模式也是可行的。</p>
 <p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>一旦主机检查了所有配置，主机将发送具有非零值的 <code>SetConfiguration</code> 命令，该值与其中一个配置的<code>bConfigurationValue</code> 匹配。这用于选择所需的配置。</p>
 <p>USB 配置描述符的结构如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">CONFIGURATION_DESCRIPTOR_STRUCT</span> </span><br><span class="hljs-class">&#123;</span> <br>    BYTE bLength;              <span class="hljs-comment">// 配置描述符的字节数大小，固定为9字节，即0x09</span><br>  	BYTE bDescriptorType;      <span class="hljs-comment">// 描述符类型编号，为0x02 </span><br>  	WORD wTotalLength;         <span class="hljs-comment">// 配置所返回的所有数量的大小（包括配置，接口，端点和设备类及厂商定义的描述符）</span><br>  	BYTE bNumInterface;        <span class="hljs-comment">// 此配置所支持的接口数量 </span><br>  	BYTE bConfigurationVale;   <span class="hljs-comment">// Set_Configuration命令需要的参数值 </span><br>  	BYTE iConfiguration;       <span class="hljs-comment">// 描述该配置的字符串的索引值 </span><br>    BYTE bmAttribute;          <span class="hljs-comment">// 供电模式的选择，Bit4-0保留，D7:总线供电，D6:自供电，D5:远程唤醒</span><br>    BYTE MaxPower;             <span class="hljs-comment">// 设备从总线提取的最大电流，以2mA为单位</span><br>&#125; CONFIGURATION_DESCRIPTOR_STRUCT<br></code></pre></td></tr></table></figure>
-<h2 id="3-接口描述符"><a class="markdownIt-Anchor" href="#3-接口描述符"></a> 3、接口描述符</h2>
+<h2 id="3、接口描述符">3、接口描述符</h2>
 <p>接口描述符一般是按设备的运行状态分类，这样设备可以在不同的接口中切换来实现设备运行状态的切换，如在设备在运行状态下使用正常的接口描述符，在停止状态下使用该接口描述符的备用接口描述符。</p>
 <p>配置描述符中包含了一个或多个接口描述符，这里的“接口”并不是指物理存在的接口，在这里把它称之为“功能”更易理解些，例如一个设备既有录音的功能又有扬声器的功能，则这个设备至少就有两个“接口”。</p>
 <p>如果一个配置描述符不止支持一个接口描述符，并且每个接口描述符都有一个或多个端点描述符，那么在响应 USB 主机的配置描述符命令时，USB 设备的端点描述符总是紧跟着相关的接口描述符后面，作为配置描述符的一部分被返回。接口描述符不可直接用 <code>Set_Descriptor</code> 和 <code>Get_Descriptor</code> 来存取。</p>
@@ -1230,12 +2035,12 @@
 </tr>
 </tbody>
 </table>
-<h2 id="4-接口关联描述符"><a class="markdownIt-Anchor" href="#4-接口关联描述符"></a> 4、接口关联描述符</h2>
+<h2 id="4、接口关联描述符">4、接口关联描述符</h2>
 <p>对于复合USB设备的<a target="_blank" rel="noopener" href="https://www.usbzh.com/article/detail-64.html">接口描述符</a>，可以在每个类（Class）要合并的<a target="_blank" rel="noopener" href="https://www.usbzh.com/article/detail-64.html">接口描述符</a>之前加一个接口关联描述符（Interface Association Descriptor，IAD),其作用就是把多个接口定义成一个类设备，即多个接口作用于一个设备。</p>
 <p>接口关联描述符的定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">USB_INTERFACE_ASSOCIATION_DESCRIPTOR</span> </span><br><span class="hljs-class">&#123;</span>    <br>    UCHAR   bLength;            <span class="hljs-comment">// 接口关联描述符的长度，0x08   </span><br>    UCHAR   bDescriptorType;    <span class="hljs-comment">// 描述符类型为接口关联描述符，值为0x0b   </span><br>    UCHAR   bFirstInterface;    <span class="hljs-comment">// 该接口关联描述符所关联的第一个接口号  </span><br>    UCHAR   bInterfaceCount;    <span class="hljs-comment">// 该接口关联描述符所拥有的连续接口数  </span><br>    UCHAR   bFunctionClass;     <span class="hljs-comment">// 接口关联描述符的功能所实现的USB类  </span><br>    UCHAR   bFunctionSubClass;  <span class="hljs-comment">// 	接口关联描述符所实现的USB子类</span><br>    UCHAR   bFunctionProtocol;  <span class="hljs-comment">// 接口关联描述符所实现的USB协议，未用，必须为PC_PROTOCOL_UNDEFINED，值为0x00</span><br>    UCHAR   iFunction;          <span class="hljs-comment">// 功能的字符串索引</span><br>&#125; USB_INTERFACE_ASSOCIATION_DESCRIPTOR, *PUSB_INTERFACE_ASSOCIATION_DESCRIPTOR;<br></code></pre></td></tr></table></figure>
 <p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="5-端点描述符"><a class="markdownIt-Anchor" href="#5-端点描述符"></a> 5、端点描述符</h2>
+<h2 id="5、端点描述符">5、端点描述符</h2>
 <p>端点是设备与主机之间进行数据传输的逻辑接口，除配置使用的端点 0（控制端点，一般一个设备只有一个控制端点）为双向端口外，其它均为单向。端点描述符描述了数据的传输类型、传输方向、数据包大小和端点号（也可称为端点地址）等。</p>
 <p>除了描述符中描述的端点外，每个设备必须要有一个默认的控制型端点，地址为 0，它的数据传输为双向，而且没有专门的描述符，只是在设备描述符中定义了它的最大包长度。主机通过此端点向设备发送命令，获得设备的各种描述符的信息，并通过它来配置设备。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">ENDPOIN_DESCRIPTOR_STRUCT</span> </span><br><span class="hljs-class">&#123;</span> <br>    BYTE bLength;           <span class="hljs-comment">// 设备描述符的字节数大小，为0x7 </span><br>    BYTE bDescriptorType;   <span class="hljs-comment">// 描述符类型编号，为0x05</span><br>    BYTE bEndpointAddress;  <span class="hljs-comment">// 端点地址及输入输出属性</span><br>    BYTE bmAttribute;       <span class="hljs-comment">// 端点的传输类型属性，Bit1..0：传送类型</span><br>    WORD wMaxPacketSize;    <span class="hljs-comment">// 端点收、发的最大包的大小 </span><br>    BYTE bInterval;         <span class="hljs-comment">// 主机查询端点的时间间隔 </span><br>&#125; ENDPOIN_DESCRIPTOR_STRUCT ；<br></code></pre></td></tr></table></figure>
@@ -1315,7 +2120,7 @@
 </blockquote>
 </li>
 </ul>
-<h2 id="6-设备限定描述符"><a class="markdownIt-Anchor" href="#6-设备限定描述符"></a> 6、设备限定描述符</h2>
+<h2 id="6、设备限定描述符">6、设备限定描述符</h2>
 <p>设备限定描述符描述符用在当一个设备能够工作在不同的速度下时，会获取设备限定描述符。</p>
 <p>同时<strong>支持全速与高速的设备</strong>，必须有一个 <code>Device Qualifier Descriptor</code>。当设备转换速度的时候，设备描述符中的某些字段可能改变。<code>Device Qualifier Descriptor</code> 描述符储存当前不适用的速度的字段数值。设备描述符与 <code>device_qualifier</code> 描述符中的字段数值，视所选择的速度来做交替。</p>
 <p>比如有一个高速的设备和一个全速的设备，他们的 VID、 PID 以及设备版本号都一样，先接入高速的设备，系统会“记住”他的速度是高速的。拔掉后再接入一个全速的设备，由于他们的标识都一样，系统会认为这是个相同的设备工作在不同的速度下，会请求设备限定描述符。 这里其实虽然用了两个不同速度的设备来举例，但是在主机端看来，这和一个设备工作在两种速率是一样的。 反过来如果先接入全速再接入高速，也会这样。</p>
@@ -1398,7 +2203,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="7-字符串描述符"><a class="markdownIt-Anchor" href="#7-字符串描述符"></a> 7、字符串描述符</h2>
+<h2 id="7、字符串描述符">7、字符串描述符</h2>
 <p>字符串描述符是可选的，描述了如制商、设备名称或序列号等信息。如果不支持字符串描述符，其设备描述符、配置描述符、接口描述符内的所有字符串描述符索引都必须为 0。字符串使用的是Unicode 编码。</p>
 <blockquote>
 <p>在设备描述符中的 <code>iManufacturer</code>、<code>iProduct</code>、<code>iSerialNumber</code> 就代表的字符串描述符的 Index</p>
@@ -1442,11 +2247,11 @@
 <td>语言标识码0（LANGID）</td>
 </tr>
 <tr>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
 </tr>
 <tr>
 <td>N</td>
@@ -1504,7 +2309,7 @@
 <blockquote>
 <p><code>bString</code> 域为设备实际返回的以 <code>UNICODE</code> 编码的字符串流，我们在编写设备端硬件驱动的时候需要字符串转换为 <code>UNICODE</code> 编码，您可以通过一些 <code>UNICODE</code> 转换工具进行转换</p>
 </blockquote>
-<h1 id="六-usb-枚举"><a class="markdownIt-Anchor" href="#六-usb-枚举"></a> 六、USB 枚举</h1>
+<h1>六、USB 枚举</h1>
 <p>当 USB 设备插上主机时，主机就通过一系列的动作来对设备进行枚举配置（配置是属于枚举的一个态，态表示暂时的状态），这这些态如下：</p>
 <ol>
 <li>接入态（<code>Attached</code>）：全/高速设备 D+ 引脚外接 1.5k 上拉电阻，低速设备 D- 引脚外接 1.5k 上拉电阻，设备接入主机后，主机通过检测信号线上的电平变化来发现设备的接入，并获取设备速度；</li>
@@ -1561,7 +2366,7 @@
 <p>之后主机发送 <code>Get_Descriptor</code> 请求，读取配置描述符，字符串等，逐一了解设备更详细的信息。事实上，对于配置描述符的标准请求中，有时<code>wLength</code> 一项会大于实际配置描述符的长度（9 字节），比如 255。这样的效果便是：主机发送了一个 <code>Get_Descriptor_Configuration</code> 的请求，设备会把接口描述符，端点描述符等后续描述符一并回给主机，主机则根据描述符头部的标志判断送上来的具体是何种描述符。</p>
 <ol start="11">
 <li>
-<h4 id="主机给设备挂载驱动复合设备除外"><a class="markdownIt-Anchor" href="#主机给设备挂载驱动复合设备除外"></a> 主机给设备挂载驱动（复合设备除外）</h4>
+<h4 id="主机给设备挂载驱动（复合设备除外）">主机给设备挂载驱动（复合设备除外）</h4>
 </li>
 </ol>
 <p>主机通过解析描述符后对设备有了足够的了解，会选择一个最合适的驱动给设备。在驱动的选择过程中，Windows 系统会和系统 INF 文件里的厂商 ID，产品 ID，有时甚至用到设备返回来的产品版本号进行匹配。如果没有匹配的选项，Windows 会根据设备返回来的类，子类，协议值信息选择。如果该设备以前在系统上成功枚举过，操作系统会根据以前记录的登记信息而非 INF 文件挂载驱动。当操作系统给设备指定了驱动之后，就由驱动来负责对设备的访问。</p>
@@ -1570,7 +2375,7 @@
 <p>实际情况没有上述关系复杂。一般来说，一个设备就一个配置，一个接口，如果设备是多功能符合设备，则有多个接口。端点一般都有好几个，比如 Mass Storage 设备一般就有两个端点（控制端点 0 除外）。</p>
 <ol start="12">
 <li>
-<h4 id="设备驱动选择一个配置"><a class="markdownIt-Anchor" href="#设备驱动选择一个配置"></a> 设备驱动选择一个配置</h4>
+<h4 id="设备驱动选择一个配置">设备驱动选择一个配置</h4>
 </li>
 </ol>
 <p>驱动（注意，这里是驱动，之后的事情都是有驱动来接管负责与设备的通信）根据前面设备回复的信息，发送 <code>Set_Configuration</code> 请求来正式确定选择设备的哪个配置作为工作配置（对于大多数设备来说，一般只有一个配置被定义）。至此，设备处于配置状态，当然，设备也应该使能它的各个接口。</p>

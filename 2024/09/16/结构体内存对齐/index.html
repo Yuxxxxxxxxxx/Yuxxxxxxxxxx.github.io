@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、什么是结构体内存对齐 进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024]; 思考一下 	no">
+    <meta name="description" content="[toc]  一、什么是结构体内存对齐 进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024]; 思考一下 	nod">
 <meta property="og:type" content="article">
 <meta property="og:title" content="结构体内存对齐">
 <meta property="og:url" content="http://example.com/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、什么是结构体内存对齐 进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024]; 思考一下 	no">
+<meta property="og:description" content="[toc]  一、什么是结构体内存对齐 进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024]; 思考一下 	nod">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/1.png">
 <meta property="og:image" content="http://example.com/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/2.png">
@@ -286,7 +286,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-什么是结构体内存对齐"><a class="markdownIt-Anchor" href="#一-什么是结构体内存对齐"></a> 一、什么是结构体内存对齐</h1>
+<h1>一、什么是结构体内存对齐</h1>
 <p>进入讲解前，先看一段 C 代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node1</span> &#123;</span><br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-type">char</span> b;<br>    <span class="hljs-type">char</span> c;<br>&#125; node1[<span class="hljs-number">1024</span>];<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node2</span> &#123;</span><br>    <span class="hljs-type">char</span> b;<br>    <span class="hljs-type">int</span> a;<br>    <span class="hljs-type">char</span> c;<br>&#125; node2[<span class="hljs-number">1024</span>];<br></code></pre></td></tr></table></figure>
 <p>思考一下 <code>	node1</code> 和 <code>node2</code> 的大小分别为多少？</p>
@@ -298,21 +298,21 @@
 </blockquote>
 <p>一样的成员属性，但 <code>node1</code> 只有 8K，而 <code>node2</code> 的大小却有 12K。</p>
 <p>由此可见，结构体对齐，实质上就是内存对齐。</p>
-<h1 id="二-为什么要结构体内存对齐"><a class="markdownIt-Anchor" href="#二-为什么要结构体内存对齐"></a> 二、为什么要结构体内存对齐</h1>
+<h1>二、为什么要结构体内存对齐</h1>
 <p>为什么要结构体对齐，原因就是内存要对齐，原因是芯片内存的制造限制，是制造成本约束，是内存读取效率要求。</p>
 <p>数据结构（尤其是栈）应该尽可能地在自然边界上对齐。原因在于，</p>
 <ul>
-<li>为了访问<mark>未对齐</mark>的内存，处理器需要作<mark>两次</mark>内存访问；</li>
-<li>而<mark>对齐</mark>的内存访问仅需要<mark>⼀次</mark>访问。</li>
+<li>为了访问==未对齐==的内存，处理器需要作==两次==内存访问；</li>
+<li>而==对齐==的内存访问仅需要==⼀次==访问。</li>
 </ul>
 <p>假设一个处理器总是从内存中取 8 个字节，则地址必须是 8 的倍数。如果我们能保证将所有的 double 类型的数据的地址都对齐成 8 的倍数，那么就可以用一个内存操作来读或者写值了。否则，我们可能需要执行两次内存访问，因为对象可能被分放在两个 8 字节内存块中。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>总体来说，结构体的内存对齐是拿空间来换取时间的做法。</p>
 </blockquote>
-<h1 id="三-对齐系数"><a class="markdownIt-Anchor" href="#三-对齐系数"></a> 三、对齐系数</h1>
+<h1>三、对齐系数</h1>
 <p>对齐系数是指编译器在内存布局中对结构体成员进行对齐的要求。由于硬件访问内存的方式有一定的要求，结构体的对齐方式会影响内存的使用效率和访问速度。</p>
-<p>在大多数编译器中，结构体对齐系数是通过编译器的编译选项或者特定的指令来指定的。对齐系数通常以<mark>字节</mark>为单位，表示结构体成员的起始位置必须是该字节数的整数倍。</p>
+<p>在大多数编译器中，结构体对齐系数是通过编译器的编译选项或者特定的指令来指定的。对齐系数通常以==字节==为单位，表示结构体成员的起始位置必须是该字节数的整数倍。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>注意，不同的平台，模数是不一样的。</p>
@@ -326,7 +326,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> pack(4)</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node3</span> &#123;</span><br>	<span class="hljs-type">int</span> a;<br>	<span class="hljs-type">double</span> b;<br>&#125; node3;<br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> pack()</span><br></code></pre></td></tr></table></figure>
 <p>将它的对齐模数改为了 4，结果如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">The size of node3 is: <span class="hljs-number">12</span><br>node3.a address: <span class="hljs-number">0042F</span>1B8<br>node3.b address: <span class="hljs-number">0042F</span>1BC<br></code></pre></td></tr></table></figure>
-<h1 id="四-结构体对齐规则"><a class="markdownIt-Anchor" href="#四-结构体对齐规则"></a> 四、结构体对齐规则</h1>
+<h1>四、结构体对齐规则</h1>
 <ol>
 <li>结构体的内存大小，并非其内部元素大小之和；</li>
 <li>结构体变量的起始地址，可以被最大元素基本类型大小或者模数整除；</li>
@@ -337,26 +337,26 @@
 <li><code>union</code> 和 <code>bitfield</code> 变量也遵循结构体内存对齐原则。</li>
 </ol>
 <p>下面结合例子来看一下：</p>
-<h2 id="1-例一文章开头的例子"><a class="markdownIt-Anchor" href="#1-例一文章开头的例子"></a> 1、例一：文章开头的例子</h2>
+<h2 id="1、例一：文章开头的例子">1、例一：文章开头的例子</h2>
 <p>对于本文一开始提到的例子，它们的内存对齐方式如下（这里就不以数组举例了）：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node1</span> &#123;</span><br>	<span class="hljs-type">int</span> a;<br>	<span class="hljs-type">char</span> b;<br>	<span class="hljs-type">char</span> c;<br>&#125; node1;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node2</span> &#123;</span><br>	<span class="hljs-type">char</span> b;<br>	<span class="hljs-type">int</span> a;<br>	<span class="hljs-type">char</span> c;<br>&#125; node2;<br></code></pre></td></tr></table></figure>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>解释如下：</p>
 <p><code>node1</code> 中的元素 a 是 int 类型，按 4 个字节对齐，其地址位是 4 的整数倍；而 b 和 c 就按 1 字节对齐，就跟在 a 后面就行了。</p>
 <p><code>node2</code> 中 b 是按 1 个字节对齐，放在最前面；而 a 是按 4 个字节对齐，其地址位必须是 4 的整数倍，所以，只能找到个 +4 的位置；紧接着 c 就按 1 字节对齐，跟其后面。</p>
-<h2 id="2-例二稍微复杂的情况"><a class="markdownIt-Anchor" href="#2-例二稍微复杂的情况"></a> 2、例二：稍微复杂的情况</h2>
+<h2 id="2、例二：稍微复杂的情况">2、例二：稍微复杂的情况</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node4</span> &#123;</span><br>	<span class="hljs-type">char</span>  a;<br>	<span class="hljs-type">short</span> b;<br>	<span class="hljs-type">char</span>  c;<br>	<span class="hljs-type">int</span>   d;<br>	<span class="hljs-type">char</span>  e;<br>&#125; node4;<br></code></pre></td></tr></table></figure>
 <p>结果如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">The size of node4 is: <span class="hljs-number">16</span><br>node4.a address: <span class="hljs-number">00E1</span>F1C4<br>node4.b address: <span class="hljs-number">00E1</span>F1C6<br>node4.c address: <span class="hljs-number">00E1</span>F1C8<br>node4.d address: <span class="hljs-number">00E1</span>F1CC<br>node4.e address: <span class="hljs-number">00E1</span>F1D0<br></code></pre></td></tr></table></figure>
 <p>其内存分布如下：</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="3-结合-union-和-struct"><a class="markdownIt-Anchor" href="#3-结合-union-和-struct"></a> 3、结合 union 和 struct</h2>
+<h2 id="3、结合-union-和-struct">3、结合 union 和 struct</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node5</span> &#123;</span><br>	<span class="hljs-type">int</span> a;        <br>	<span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>		<span class="hljs-type">char</span> ua[<span class="hljs-number">9</span>];      <br>		<span class="hljs-type">int</span> ub;<br>	&#125;u;      <br>	<span class="hljs-type">double</span> b;  <br>	<span class="hljs-type">int</span> c;<br>&#125; node5;<br></code></pre></td></tr></table></figure>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>如果 union 里的元素类型不一样，那就以最大长度的那个类型对齐了。</p>
 </blockquote>
-<h2 id="4-结构体嵌套"><a class="markdownIt-Anchor" href="#4-结构体嵌套"></a> 4、结构体嵌套</h2>
+<h2 id="4、结构体嵌套">4、结构体嵌套</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>	<span class="hljs-type">int</span> a;<br>	<span class="hljs-type">char</span> b;<br>&#125; node1;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node11</span> &#123;</span><br>	node1 nd1;<br>	<span class="hljs-type">char</span> c;<br>&#125; node11;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>	<span class="hljs-type">short</span> a;<br>	<span class="hljs-type">char</span> b;<br>&#125; node2;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Node22</span> &#123;</span><br>	node2 nd2;<br>	<span class="hljs-type">char</span> c;<br>&#125; node22;<br></code></pre></td></tr></table></figure>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">The size of node11 is: <span class="hljs-number">12</span><br>node11.nd1 address: <span class="hljs-number">0028F</span>1D4<br>node11.c address: <span class="hljs-number">0028F</span>1DC<br><br>The size of node22 is: <span class="hljs-number">6</span><br>node22.nd2 address: <span class="hljs-number">0028F</span>1E0<br>node22.c address: <span class="hljs-number">0028F</span>1E4<br></code></pre></td></tr></table></figure>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>

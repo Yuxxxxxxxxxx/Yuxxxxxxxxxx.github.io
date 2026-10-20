@@ -1,0 +1,946 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、字符设备驱动简介 Linux&#x2F;Unix 系统将硬件设备分为两大类：  字符设备  特点：以字节流的形式进行数据传输。数据像水流一样，没有固定的块大小，只能顺序访问。 举例：键盘、鼠标、串口、控制台 (&#x2F;dev&#x2F;console)、声卡等。我们最常见的例子就是终端，你输入的字符会一个接一个地传递给系统。   块设备  特点：以数据块 为单位进行数据传输（如 512B、1KB、4KB）。支持随机访问">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux驱动——字符设备驱动开发">
+<meta property="og:url" content="http://example.com/2026/08/03/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、字符设备驱动简介 Linux&#x2F;Unix 系统将硬件设备分为两大类：  字符设备  特点：以字节流的形式进行数据传输。数据像水流一样，没有固定的块大小，只能顺序访问。 举例：键盘、鼠标、串口、控制台 (&#x2F;dev&#x2F;console)、声卡等。我们最常见的例子就是终端，你输入的字符会一个接一个地传递给系统。   块设备  特点：以数据块 为单位进行数据传输（如 512B、1KB、4KB）。支持随机访问">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/08/03/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/1.jpg">
+<meta property="article:published_time" content="2026-08-03T06:46:37.000Z">
+<meta property="article:modified_time" content="2026-10-01T14:54:15.180Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/08/03/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91/1.jpg">
+  
+  
+  
+  <title>Linux驱动——字符设备驱动开发 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux驱动——字符设备驱动开发"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-03 14:46" pubdate>
+          星期一, 八月 3日 2026, 2:46 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux驱动——字符设备驱动开发</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、字符设备驱动简介</h1>
+<p>Linux/Unix 系统将硬件设备分为两大类：</p>
+<ol>
+<li>字符设备
+<ul>
+<li>特点：以字节流的形式进行数据传输。数据像水流一样，没有固定的块大小，只能顺序访问。</li>
+<li>举例：键盘、鼠标、串口、控制台 (/dev/console)、声卡等。我们最常见的例子就是终端，你输入的字符会一个接一个地传递给系统。</li>
+</ul>
+</li>
+<li>块设备
+<ul>
+<li>特点：以数据块 为单位进行数据传输（如 512B、1KB、4KB）。支持随机访问，可以任意跳到某个数据块进行读写。通常有缓存机制。</li>
+<li>举例：硬盘、U盘、SD卡等存储设备。</li>
+</ul>
+</li>
+</ol>
+<p>Linux 里一切皆文件。用户态不会直接调用“驱动函数”，而是通过设备文件。然后使用标准的文件操作函数（如 <code>open</code>, <code>read</code>, <code>write</code>, <code>close</code>）与之交互。而驱动的工作，就是实现这些函数背后的具体逻辑。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -l /dev/null /dev/zero /dev/random /dev/tty<br></code></pre></td></tr></table></figure>
+<p>你会看到类似：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">crw-rw-rw- 1 root root 1, 3 ... /dev/null<br>crw-rw-rw- 1 root root 1, 5 ... /dev/zero<br>crw-rw-rw- 1 root root 1, 8 ... /dev/random<br>crw-rw-rw- 1 root root 5, 0 ... /dev/tty<br></code></pre></td></tr></table></figure>
+<p>第一个字符 <code>c</code> 表示字符设备。后面的 <code>1, 3</code> 是主设备号和次设备号。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主设备号 major</td>
+<td>表示哪一类设备，内核用它找对应驱动</td>
+</tr>
+<tr>
+<td>次设备号 minor</td>
+<td>表示这一类设备里的第几个实例</td>
+</tr>
+<tr>
+<td><code>/dev/xxx</code></td>
+<td>用户态看到的设备节点</td>
+</tr>
+<tr>
+<td>字符设备</td>
+<td>以字节流方式读写，典型是 <code>read/write/ioctl</code></td>
+</tr>
+<tr>
+<td>块设备</td>
+<td>以块为单位访问，典型是磁盘、分区</td>
+</tr>
+</tbody>
+</table>
+<p>所谓字符设备驱动就是一段运行在<strong>内核空间</strong>的程序代码，它充当了<strong>用户空间应用程序</strong>与<strong>底层硬件字符设备</strong>之间的桥梁。</p>
+<p>它负责：</p>
+<ul>
+<li><strong>将用户的请求</strong>（如 <code>read</code>, <code>write</code>）<strong>翻译成操控硬件的具体指令</strong>。</li>
+<li><strong>将硬件的行为和状态</strong>（如数据到达、操作完成）<strong>反馈给用户程序</strong>。</li>
+</ul>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<h1>二、字符设备驱动的核心对象</h1>
+<p>学习字符设备，先抓住四个对象：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dev_t</code></td>
+<td>设备号，包含 major 和 minor</td>
+</tr>
+<tr>
+<td><code>struct cdev</code></td>
+<td>内核里的字符设备对象</td>
+</tr>
+<tr>
+<td><code>struct file_operations</code></td>
+<td>用户态系统调用到驱动函数的映射表</td>
+</tr>
+<tr>
+<td><code>struct file</code></td>
+<td>一次打开文件的内核表示</td>
+</tr>
+</tbody>
+</table>
+<p>最小关系如下：</p>
+<figure class="highlight ocaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ocaml">用户态 fd<br>    ↓<br><span class="hljs-keyword">struct</span> file<br>    ↓<br>file_operations<br>    |<br>    +--&gt; <span class="hljs-keyword">open</span><br>    +--&gt; read<br>    +--&gt; write<br>    +--&gt; release<br></code></pre></td></tr></table></figure>
+<p>下面一个一个看这几个对象。</p>
+<h2 id="2-1-设备号——dev-t">2.1 设备号——dev_t</h2>
+<p>这是内核中用来唯一标识一个设备的号码。由主设备号（major）和次设备号（minor）组成。</p>
+<ul>
+<li>主设备号：标识设备对应的驱动。例如，所有由同一个驱动管理的串口共享一个主设备号。=</li>
+<li>次设备号：由驱动使用，用来区分同一个驱动管理的不同设备或实例。例如，一个驱动管理两个串口，它们主设备号相同，但次设备号不同。</li>
+</ul>
+<blockquote>
+<p>驱动需要向内核申请（或静态指定）一个设备号。</p>
+</blockquote>
+<h2 id="2-2-字符设备结构——cdev">2.2 字符设备结构——cdev</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cdev</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span> <span class="hljs-title">kobj</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> *<span class="hljs-title">ops</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>	<span class="hljs-type">dev_t</span> dev;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> count;<br>&#125; __randomize_layout;<br></code></pre></td></tr></table></figure>
+<p>内核用这个结构体来在内部表示一个字符设备。它通常与 <code>dev_t</code>（设备号）和 <code>file_operations</code>（操作方法）关联在一起。</p>
+<p>驱动需要<strong>分配、初始化并把这个 <code>cdev</code> 结构体添加到内核</strong>中，这样内核才知道这个设备的存在。</p>
+<h2 id="2-3-文件操作集——file-operations">2.3 文件操作集——file_operations</h2>
+<p>这是字符设备驱动的核心，是一个函数指针的集合。驱动开发者通过填充这个结构体，告诉内核：“当用户对我的设备文件进行某种操作时，请调用我写的这个函数。”</p>
+<p>关键成员包括：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span><br>	<span class="hljs-type">loff_t</span> (*llseek) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span>, <span class="hljs-type">int</span>);<br>	<span class="hljs-type">ssize_t</span> (*read) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">char</span> __user *, <span class="hljs-type">size_t</span>, <span class="hljs-type">loff_t</span> *);<br>	<span class="hljs-type">ssize_t</span> (*write) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">const</span> <span class="hljs-type">char</span> __user *, <span class="hljs-type">size_t</span>,<span class="hljs-type">loff_t</span> *);<br>    <span class="hljs-type">ssize_t</span> (*read_iter) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-keyword">struct</span> iov_iter *);<br>    <span class="hljs-type">ssize_t</span> (*write_iter) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-keyword">struct</span> iov_iter *);<br>    <span class="hljs-type">int</span> (*iterate) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> dir_context *);<br>    <span class="hljs-type">unsigned</span> <span class="hljs-title function_">int</span> <span class="hljs-params">(*poll)</span> <span class="hljs-params">(<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> poll_table_struct *)</span>;<br>    <span class="hljs-type">long</span> (*unlocked_ioctl) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>    <span class="hljs-type">long</span> (*compat_ioctl) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>);<br>    <span class="hljs-type">int</span> (*mmap) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> vm_area_struct *);<br>    <span class="hljs-type">int</span> (*mremap)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> vm_area_struct *);<br>    <span class="hljs-type">int</span> (*open) (<span class="hljs-keyword">struct</span> inode *, <span class="hljs-keyword">struct</span> file *);<br>    <span class="hljs-type">int</span> (*flush) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">fl_owner_t</span> id);<br>    <span class="hljs-type">int</span> (*release) (<span class="hljs-keyword">struct</span> inode *, <span class="hljs-keyword">struct</span> file *);<br>    <span class="hljs-type">int</span> (*fsync) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span>, <span class="hljs-type">loff_t</span>, <span class="hljs-type">int</span> datasync);<br>    <span class="hljs-type">int</span> (*aio_fsync) (<span class="hljs-keyword">struct</span> kiocb *, <span class="hljs-type">int</span> datasync);<br>    <span class="hljs-type">int</span> (*fasync) (<span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>);<br>    <span class="hljs-type">int</span> (*lock) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file_lock *);<br>    <span class="hljs-type">ssize_t</span> (*sendpage) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-keyword">struct</span> page *, <span class="hljs-type">int</span>, <span class="hljs-type">size_t</span>,<span class="hljs-type">loff_t</span> *, <span class="hljs-type">int</span>);<br>    <span class="hljs-type">unsigned</span> <span class="hljs-title function_">long</span> <span class="hljs-params">(*get_unmapped_area)</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>,</span><br><span class="hljs-params">    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)</span>;<br>    <span class="hljs-type">int</span> (*check_flags)(<span class="hljs-type">int</span>);<br>    <span class="hljs-type">int</span> (*flock) (<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">int</span>, <span class="hljs-keyword">struct</span> file_lock *);<br>    <span class="hljs-type">ssize_t</span> (*splice_write)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> file *,<span class="hljs-type">loff_t</span> *, <span class="hljs-type">size_t</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>);<br>    <span class="hljs-type">ssize_t</span> (*splice_read)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">loff_t</span> *, <span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-type">size_t</span>, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>);<br>    <span class="hljs-type">int</span> (*setlease)(<span class="hljs-keyword">struct</span> file *, <span class="hljs-type">long</span>, <span class="hljs-keyword">struct</span> file_lock **, <span class="hljs-type">void</span> **);<br>    <span class="hljs-type">long</span> (*fallocate)(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">int</span> mode, <span class="hljs-type">loff_t</span> offset,<span class="hljs-type">loff_t</span> len);<br>    <span class="hljs-type">void</span> (*show_fdinfo)(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-keyword">struct</span> file *f);<br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> CONFIG_MMU</span><br>	<span class="hljs-type">unsigned</span> (*mmap_capabilities)(<span class="hljs-keyword">struct</span> file *);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br> &#125;;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>owner</code> 拥有该结构体的模块的指针，一般设置为 <code>THIS_MODULE</code>。</li>
+<li><code>llseek</code> 函数用于修改文件当前的读写位置。</li>
+<li><code>read</code>：实现用户空间 read() 调用的逻辑。</li>
+<li><code>write</code>：实现用户空间 write() 调用的逻辑。</li>
+<li><code>poll</code> 是个轮询函数，用于查询设备是否可以进行非阻塞的读写。</li>
+<li><code>unlocked_ioctl</code> 函数提供对于设备的控制功能，与应用程序中的 ioctl 函数对应。</li>
+<li><code>compat_ioctl</code> 函数与 <code>unlocked_ioctl</code> 函数功能一样，区别在于在 64 位系统上，32 位的应用程序调用将会使用此函数。在 32 位的系统上运行 32 位的应用程序调用的是 <code>unlocked_ioctl</code>。</li>
+<li><code>mmap</code> 函数用于将设备的内存映射到进程空间中(也就是用户空间)，一般帧缓冲设备会使用此函数，比如 LCD 驱动的显存，将帧缓冲(LCD 显存)映射到用户空间中以后应用程序就可以直接操作显存了，这样就不用在用户空间和内核空间之间来回复制。</li>
+<li><code>open</code>：当设备文件被打开时调用，常用于初始化。</li>
+<li><code>release</code>：当设备文件被关闭时调用，常用于清理资源。</li>
+<li><code>ioctl</code>：用于实现设备特定的命令和控制（如设置串口波特率）。</li>
+<li><code>fasync</code> 函数用于刷新待处理的数据，用于将缓冲区中的数据刷新到磁盘中。</li>
+<li><code>aio_fsync</code> 函数与 <code>fasync</code> 函数的功能类似，只是 <code>aio_fsync</code> 是异步刷新待处理的数据。</li>
+</ul>
+<p>用户需要自己实现这些函数，并注册回调函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">char_lab_fops</span> =</span> &#123;<br>    .owner = THIS_MODULE,<br>    .open = char_lab_open,<br>    .release = char_lab_release,<br>    .read = char_lab_read,<br>    .write = char_lab_write,<br>    .llseek = no_llseek,<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这张表告诉内核：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">用户态 open()    -&gt; char_lab_open()<br>用户态 read()    -&gt; char_lab_read()<br>用户态 write()   -&gt; char_lab_write()<br>用户态 close()   -&gt; char_lab_release()<br></code></pre></td></tr></table></figure>
+<h1>三、字符设备驱动结构</h1>
+<h2 id="3-1-驱动模块的加载和卸载">3.1 驱动模块的加载和卸载</h2>
+<p>Linux 驱动有两种运行方式：</p>
+<ol>
+<li>第一种就是将驱动编译进 Linux 内核中，这样当 Linux 内核启动的时候就会自动运行驱动程序</li>
+<li>第二种就是将驱动编译成模块(Linux 下模块扩展名为 <code>.ko</code>)，在 Linux 内核启动以后使用 <code>insmod</code> 命令加载驱动模块。在调试驱动的时候一般都选择将其编译为模块，这样我们修改驱动以后只需要编译一下驱动代码即可，不需要编译整个 Linux 代码。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">module_init(xxx_init); <span class="hljs-comment">//注册模块加载函数</span><br>module_exit(xxx_exit); <span class="hljs-comment">//注册模块卸载函数</span><br></code></pre></td></tr></table></figure>
+<p><code>module_init</code> 函数用来向 Linux 内核注册一个模块加载函数，参数 <code>xxx_init</code> 就是需要注册的具体函数，当使用 <code>insmod</code> 命令加载驱动的时候，<code>xxx_init</code> 这个函数就会被调用。<code>module_exit()</code> 函数用来向 Linux 内核注册一个模块卸载函数，参数 <code>xxx_exit</code> 就是需要注册的具体函数，当使用 <code>rmmod</code> 命令卸载具体驱动的时候 <code>xxx_exit</code> 函数就会被调用。</p>
+<h2 id="3-2-字符设备的注册与注销">3.2 字符设备的注册与注销</h2>
+<p>字符设备的注册和注销函数原型如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title function_">register_chrdev</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> major, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name,</span><br><span class="hljs-params">							   <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> file_operations *fops)</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">unregister_chrdev</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> major, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span><br></code></pre></td></tr></table></figure>
+<p><code>register_chrdev</code> 函数用于注册字符设备，此函数一共有三个参数，这三个参数的含义如下：</p>
+<ul>
+<li><code>major</code>：主设备号，Linux 下每个设备都有一个设备号，设备号分为主设备号和次设备号两部分，关于设备号后面会详细讲解。</li>
+<li><code>name</code>：设备名字，指向一串字符串。</li>
+<li><code>fops</code>：结构体 <code>file_operations</code> 类型指针，指向设备的操作函数集合变量。</li>
+</ul>
+<p><code>unregister_chrdev</code> 函数用户注销字符设备，此函数有两个参数，这两个参数含义如下：</p>
+<ul>
+<li><code>major</code>：要注销的设备对应的主设备号。</li>
+<li><code>name</code>：要注销的设备对应的设备名。</li>
+</ul>
+<p>一般字符设备的注册在驱动模块的入口函数 <code>xxx_init</code> 中进行，字符设备的注销在驱动模块的出口函数 <code>xxx_exit</code> 中进行。</p>
+<p>例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">test_fops</span>;</span><br>    <br><span class="hljs-comment">/* 驱动入口函数 */</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">xxx_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>  &#123; <br>    <span class="hljs-comment">/* 入口函数具体内容 */</span><br>	<span class="hljs-type">int</span> retvalue = <span class="hljs-number">0</span>;  <br>    <br>    <span class="hljs-comment">/* 注册字符设备驱动 */</span><br>    retvalue = register_chrdev(<span class="hljs-number">200</span>, <span class="hljs-string">&quot;chrtest&quot;</span>, &amp;test_fops);<br>    <span class="hljs-keyword">if</span>(retvalue &lt; <span class="hljs-number">0</span>)&#123;<br>		<span class="hljs-comment">/* 字符设备注册失败,自行处理 */</span><br>		&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/* 驱动出口函数 */</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">xxx_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">/* 注销字符设备驱动 */</span><br>    unregister_chrdev(<span class="hljs-number">200</span>, <span class="hljs-string">&quot;chrtest&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">/* 将上面两个函数指定为驱动的入口和出口函数 */</span><br>module_init(xxx_init);<br>module_exit(xxx_exit);<br></code></pre></td></tr></table></figure>
+<h2 id="3-3-常用的回调">3.3 常用的回调</h2>
+<p>前面我们定义了 <code>file_operations</code> 结构体类型的变量 <code>test_fops</code>，但是还没对其进行初始化，也就是初始化其中的open、release、read 和 write 等具体的设备操作函数。接下来对这些函数进行初始化。在初始化 test_fops 之前我们要分析一下需求，也就是要对 <code>char_lab</code> 这个设备进行哪些操作，只有确定了需求以后才知道我们应该实现哪些操作函数。下面介绍几个比较常用的回调函数。</p>
+<p>设备打开和关闭是最基本的要求，几乎所有的设备都得提供打开和关闭的功能。因此我们需要实现 file_operations 中的 open 和 release 这两个函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">char_lab_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span> <br>&#123;<br>    pr_info(<span class="hljs-string">&quot;char_lab: opened\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>open</code> 函数会在用户态调用 <code>open(“/dev/char_lab”, ...)</code> 时调用。</p>
+<p>返回值：</p>
+<table>
+<thead>
+<tr>
+<th>返回值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>打开成功</td>
+</tr>
+<tr>
+<td>负 errno</td>
+<td>打开失败，如 <code>-EBUSY</code>、<code>-ENOMEM</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>release</code> 会在用户态关闭文件描述符时触发。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">char_lab_release</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>    pr_info(<span class="hljs-string">&quot;char_lab: closed\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>注意：<code>release</code> 不是“每次 close fd 都必然一对一调用”。多个 fd 可能指向同一个内核 <code>struct file</code>，内核在最后一个引用释放时调用 <code>release</code>。入门阶段可以先把它理解为 close 回调。</p>
+<p>write 会在用户态调用 <code>write(fd, buffer, count);</code> 时进入：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">char_lab_write</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">const</span> <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                              <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">char</span> kbuf[<span class="hljs-number">8</span>];<br>    <span class="hljs-type">int</span> ret_value = <span class="hljs-number">0</span>;<br><br>    ret_value = copy_from_user(kbuf, buf, count); <br>    <span class="hljs-keyword">if</span> (ret_value == <span class="hljs-number">0</span>) &#123;<br>		printk(<span class="hljs-string">&quot;kernel recevdata:%s\r\n&quot;</span>, writebuf);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		printk(<span class="hljs-string">&quot;kernel recevdata failed!\r\n&quot;</span>);<br>	&#125;<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>关键点：<code>buf</code> 是用户态地址。内核不能直接用 <code>memcpy</code> 解引用它，必须用 <code>copy_from_user</code>。</p>
+<p>成功时通常返回 <code>count</code>，表示“用户传了多少字节，我接受了多少字节”。</p>
+<p><code>read</code> 在用户态调用 <code>read(fd, buffer, count);</code> 时调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">char_lab_read</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                             <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">int</span> ret_value = <span class="hljs-number">0</span>;<br>    <br>    ret_value = copy_to_user(buf, kbuf, len);<br>    <span class="hljs-keyword">if</span> (ret_value == <span class="hljs-number">0</span>) &#123;<br>		printk(<span class="hljs-string">&quot;kernel senddata ok!\r\n&quot;</span>);<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		printk(<span class="hljs-string">&quot;kernel senddata failed!\r\n&quot;</span>);<br>	&#125;<br>	<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这次 <code>buf</code> 也是用户态地址，但方向反过来，要用 <code>copy_to_user</code>：</p>
+<p><code>read</code> 要处理 <code>*ppos</code>。否则用户态执行 <code>cat /dev/char_lab</code> 时，第二次读还可能继续返回数据，严重时让 <code>cat</code> 一直循环。</p>
+<p>完成之后，即可注册回调函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">chrdevbase_fops</span> =</span> &#123;<br>	.owner = THIS_MODULE,<br>    .open = char_lab_open,<br>    .read = char_lab_read,<br>    .write = char_lab_write,<br>    .release = char_lab_release,<br>&#125;;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><code>copy_to_user</code> 和 <code>copy_from_user</code></p>
+<p>注意代码是编写在内核环境下的，而数据却是在用户态下。内核态和用户态有不同的地址空间和权限。用户态传进来的指针可能是：</p>
+<ul>
+<li>非法地址。</li>
+<li>已释放地址。</li>
+<li>恶意伪造地址。</li>
+<li>当前页不在内存里的地址。</li>
+</ul>
+<p>如果驱动直接：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">memcpy</span>(kernel_buf, user_buf, count);   <span class="hljs-comment">// 错误</span><br></code></pre></td></tr></table></figure>
+<p>内核可能直接 oops。</p>
+<p>正确做法是：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">copy_from_user(kernel_buf, user_buf, count);<br>copy_to_user(user_buf, kernel_buf, count);<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="3-4-设备号">3.4 设备号</h2>
+<p>设备号 是 Linux 内核用来唯一标识一个设备的编号。它类似于我们身份证号，内核通过这个号码来找到对应的设备驱动。</p>
+<p>它是一个 <code>dev_t</code> 类型的变量（在 <code>#include &lt;linux/types.h&gt;</code> 中定义），本质上是一个 32位的无符号整数。</p>
+<p>设备号由两部分组成：</p>
+<ul>
+<li>主设备号 - 占用高 12 位 (范围  0~4095)。它用来标识设备对应的驱动程序。内核通过主设备号将设备文件与驱动程序关联起来。例如，所有由同一个字符设备驱动管理的设备，它们的主设备号是相同的。</li>
+<li>次设备号 - 占用低 20 位。它由驱动程序自己使用，用来区分由同一个驱动管理的不同设备实例或不同功能。</li>
+</ul>
+<p>它们共同构成了一个完整的设备号。</p>
+<p>一个形象的比喻：</p>
+<ul>
+<li>主设备号 就像是一个公司的总机号码，你拨打这个号码可以找到这家公司。</li>
+<li>次设备号 就像是公司的分机号码，帮你转接到公司内部的某个具体部门或员工。</li>
+</ul>
+<p>Linux 提供了一个名为 <code>dev_t</code> 的数据类型表示设备号，<code>dev_t</code> 定义在文件 <code>include/linux/types.h</code> 里面，定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">typedef</span> __u32 <span class="hljs-type">__kernel_dev_t</span>;<br>......<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">__kernel_dev_t</span> <span class="hljs-type">dev_t</span>;<br></code></pre></td></tr></table></figure>
+<p>此外，在文件 <code>include/linux/kdev_t.h</code> 中提供了几个关于设备号的操作函数，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> MINORBITS 20</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MINORMASK ((1U &lt;&lt; MINORBITS) - 1) 8 </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MAJOR(dev) ((unsigned int) ((dev) &gt;&gt; MINORBITS))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MINOR(dev) ((unsigned int) ((dev) &amp; MINORMASK))</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MKDEV(ma,mi) (((ma) &lt;&lt; MINORBITS) | (mi))</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>MINORBITS</code> 表示次设备号位数，一共是 20 位。</li>
+<li><code>MINORMASK</code> 表示次设备号掩码。</li>
+<li><code>MAJOR</code> 用于从 <code>dev_t</code> 中获取主设备号，将 <code>dev_t</code> 右移 20 位即可。</li>
+<li><code>MINOR</code> 用于从 <code>dev_t</code> 中获取次设备号，取 <code>dev_t</code> 的低 20 位的值即可。</li>
+<li><code>MKDEV</code> 用于将给定的主设备号和次设备号的值组合成 <code>dev_t</code> 类型的设备号。</li>
+</ul>
+<h2 id="3-5-设备号的分配与注册">3.5 设备号的分配与注册</h2>
+<h3 id="3-5-1-静态分配">3.5.1 静态分配</h3>
+<p>开发者自己指定一个明确的主设备号。<strong>不推荐</strong>，因为容易与系统中已有的设备号冲突。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> MY_MAJOR 211 <span class="hljs-comment">// 假设我们选211做主设备号</span></span><br><span class="hljs-type">dev_t</span> devno = MKDEV(MY_MAJOR, <span class="hljs-number">0</span>); <span class="hljs-comment">// 次设备号从0开始</span><br>register_chrdev_region(devno, count, <span class="hljs-string">&quot;my_device&quot;</span>);<br></code></pre></td></tr></table></figure>
+<h3 id="3-5-2-动态分配">3.5.2 动态分配</h3>
+<p>让内核自动分配一个可用的主设备号。这是现代驱动开发的首选方式，可以避免冲突。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">dev_t</span> devno;<br><span class="hljs-type">int</span> major;<br><span class="hljs-comment">// 请求内核分配 count 个设备号（从次设备号0开始）</span><br>alloc_chrdev_region(&amp;devno, <span class="hljs-number">0</span>, count, <span class="hljs-string">&quot;my_device&quot;</span>);<br><span class="hljs-comment">// 获取动态分配的主设备号</span><br>major = MAJOR(devno);<br></code></pre></td></tr></table></figure>
+<p>无论哪种方式，在驱动卸载时，都必须<strong>释放</strong>设备号：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">unregister_chrdev_region(devno, count);<br></code></pre></td></tr></table></figure>
+<h2 id="3-6-字符设备驱动的一般编写流程">3.6 字符设备驱动的一般编写流程</h2>
+<ol>
+<li>确定主次设备号：静态指定或动态向内核申请。</li>
+<li>实现 <code>file_operations</code> 方法：编写 open, read, write 等函数的具体代码。在这些函数中，你可能会：
+<ul>
+<li>从硬件寄存器读取数据（read）</li>
+<li>向硬件寄存器写入数据（write）</li>
+<li>配置硬件（ioctl）</li>
+<li>使用 <code>copy_to_user()</code> 和 <code>copy_from_user()</code> 在内核空间和用户空间之间安全地传递数据</li>
+</ul>
+</li>
+<li>初始化并注册 cdev：
+<ul>
+<li>使用 <code>cdev_init()</code> 将 cdev 与 file_operations 绑定</li>
+<li>使用 <code>cdev_add()</code> 将设备注册到内核，使其生效</li>
+</ul>
+</li>
+<li>创建设备文件：在 /dev 目录下使用 <code>mknod</code> 命令或通过驱动代码自动创建（使用 <code>device_create</code>）一个设备文件，并将其与你的设备号关联。</li>
+<li>模块的加载和卸载：
+<ul>
+<li>在模块加载函数 (<code>module_init</code>) 中完成上述的申请设备号、注册 cdev 等操作</li>
+<li>在模块卸载函数 (<code>module_exit</code>) 中完成相反的清理工作：注销 cdev、释放设备号等</li>
+</ul>
+</li>
+</ol>
+<h1>四、实例</h1>
+<p>char_lab.c：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/atomic.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/device.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/uaccess.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CHAR_LAB_NAME <span class="hljs-string">&quot;char_lab&quot;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> char_lab_value;<br><span class="hljs-type">static</span> <span class="hljs-type">atomic_t</span> char_lab_open_count;<br><br><span class="hljs-type">static</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> char_lab_major;<br><span class="hljs-type">static</span> <span class="hljs-type">dev_t</span> char_lab_devno;<br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-keyword">class</span> *<span class="hljs-title">char_lab_class</span>;</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">char_lab_device</span>;</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">char</span> *<span class="hljs-title function_">char_lab_devnode</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> device *dev, <span class="hljs-type">umode_t</span> *mode)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (mode) &#123;<br>        *mode = <span class="hljs-number">0666</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">char_lab_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>    <span class="hljs-type">int</span> count = atomic_inc_return(&amp;char_lab_open_count);<br><br>    pr_info(CHAR_LAB_NAME <span class="hljs-string">&quot;: opened %d times\n&quot;</span>, count);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">char_lab_release</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>    pr_info(CHAR_LAB_NAME <span class="hljs-string">&quot;: closed\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">char_lab_write</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">const</span> <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                              <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">char</span> kbuf[<span class="hljs-number">8</span>] = &#123;<span class="hljs-number">0</span>,&#125;;<br><br>    <span class="hljs-keyword">if</span> (count == <span class="hljs-number">0</span> || count &gt;= <span class="hljs-keyword">sizeof</span>(kbuf)) &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_from_user(kbuf, buf, count)) &#123;<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (kbuf[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;1&#x27;</span>) &#123;<br>        char_lab_value = <span class="hljs-number">1</span>;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (kbuf[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;0&#x27;</span>) &#123;<br>        char_lab_value = <span class="hljs-number">0</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">char_lab_read</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">char</span> __user *buf,</span><br><span class="hljs-params">                             <span class="hljs-type">size_t</span> count, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-type">char</span> kbuf[<span class="hljs-number">4</span>];<br>    <span class="hljs-type">int</span> len;<br><br>    <span class="hljs-keyword">if</span> (*ppos &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br><br>    len = scnprintf(kbuf, <span class="hljs-keyword">sizeof</span>(kbuf), <span class="hljs-string">&quot;%d\n&quot;</span>, char_lab_value);<br>    <span class="hljs-keyword">if</span> (count &lt; len) &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_to_user(buf, kbuf, len)) &#123;<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    *ppos += len;<br>    <span class="hljs-keyword">return</span> len;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">char_lab_fops</span> =</span> &#123;<br>    .owner = THIS_MODULE,<br>    .open = char_lab_open,<br>    .release = char_lab_release,<br>    .read = char_lab_read,<br>    .write = char_lab_write,<br>    .llseek = no_llseek,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">char_lab_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> ret;<br><br>    char_lab_value = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">atomic_set</span>(&amp;char_lab_open_count, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-comment">// register_chrdev 是传统字符设备注册接口：</span><br>    <span class="hljs-comment">//   major == 0 时由内核动态分配主设备号；</span><br>    <span class="hljs-comment">//   返回值为分配到的 major，失败时返回负 errno。</span><br>    ret = register_chrdev(<span class="hljs-number">0</span>, CHAR_LAB_NAME, &amp;char_lab_fops);<br>    <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;<br>        pr_err(CHAR_LAB_NAME <span class="hljs-string">&quot;: failed to register chrdev: %d\n&quot;</span>, ret);<br>        <span class="hljs-keyword">return</span> ret;<br>    &#125;<br><br>    char_lab_major = ret;<br>    char_lab_devno = MKDEV(char_lab_major, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-comment">// register_chrdev 只注册字符设备号；下面用 class/device 让 udev 创建 /dev/char_lab。</span><br>    char_lab_class = class_create(THIS_MODULE, CHAR_LAB_NAME);<br>    <span class="hljs-keyword">if</span> (IS_ERR(char_lab_class)) &#123;<br>        ret = PTR_ERR(char_lab_class);<br>        pr_err(CHAR_LAB_NAME <span class="hljs-string">&quot;: failed to create class: %d\n&quot;</span>, ret);<br>        unregister_chrdev(char_lab_major, CHAR_LAB_NAME);<br>        <span class="hljs-keyword">return</span> ret;<br>    &#125;<br>    char_lab_class-&gt;devnode = char_lab_devnode;<br><br>    char_lab_device = device_create(char_lab_class, <span class="hljs-literal">NULL</span>, char_lab_devno, <span class="hljs-literal">NULL</span>,<br>                                    CHAR_LAB_NAME);<br>    <span class="hljs-keyword">if</span> (IS_ERR(char_lab_device)) &#123;<br>        ret = PTR_ERR(char_lab_device);<br>        pr_err(CHAR_LAB_NAME <span class="hljs-string">&quot;: failed to create device: %d\n&quot;</span>, ret);<br>        char_lab_device = <span class="hljs-literal">NULL</span>;<br>        class_destroy(char_lab_class);<br>        unregister_chrdev(char_lab_major, CHAR_LAB_NAME);<br>        <span class="hljs-keyword">return</span> ret;<br>    &#125;<br><br>    pr_info(CHAR_LAB_NAME <span class="hljs-string">&quot;: loaded, major=%u, /dev/%s ready\n&quot;</span>,<br>            char_lab_major, CHAR_LAB_NAME);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">char_lab_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    device_destroy(char_lab_class, char_lab_devno);<br>    class_destroy(char_lab_class);<br>    unregister_chrdev(char_lab_major, CHAR_LAB_NAME);<br>    pr_info(CHAR_LAB_NAME <span class="hljs-string">&quot;: unloaded, major=%u\n&quot;</span>, char_lab_major);<br>&#125;<br><br>module_init(char_lab_init);<br>module_exit(char_lab_exit);<br><br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;orange-pi-edge&quot;</span>);<br>MODULE_DESCRIPTION(<span class="hljs-string">&quot;Minimal register_chrdev character device for Linux driver learning&quot;</span>);<br>MODULE_VERSION(<span class="hljs-string">&quot;1.0&quot;</span>);<br></code></pre></td></tr></table></figure>
+<p>Makefile：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">obj-m += char_lab.o<br><br>KDIR ?= /lib/modules/$(shell uname -r)/build<br><br>all:<br>	$(MAKE) -C $(KDIR) M=$(PWD) modules<br><br>clean:<br>	$(MAKE) -C $(KDIR) M=$(PWD) clean<br><br>.PHONY: all clean<br></code></pre></td></tr></table></figure>
+<p>然后开始运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">make<br>sudo insmod char_lab.ko<br>ls -l /dev/char_lab<br></code></pre></td></tr></table></figure>
+<p>可以看到：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">crw-rw-rw- <span class="hljs-number">1</span> root root <span class="hljs-number">10</span>, <span class="hljs-number">119</span> Aug  <span class="hljs-number">3</span> <span class="hljs-number">16</span>:<span class="hljs-number">10</span> /dev/char_lab<br></code></pre></td></tr></table></figure>
+<p>主设备号 <code>10</code> 是 misc 设备常用的主设备号，次设备号 <code>119</code> 是动态分配的。不同系统上 minor 可能不同。</p>
+<p>测试：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo 1 &gt; /dev/char_lab<br>cat /dev/char_lab<br>echo 0 &gt; /dev/char_lab<br>cat /dev/char_lab<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">output</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">1</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">0</span><br></code></pre></td></tr></table></figure>
+<p>观察 open/release：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo dmesg | grep char_lab | tail -n 12<br></code></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">[12932.175513] char_lab: loaded, /dev/char_lab ready<br>[12932.398737] char_lab: opened 1 times<br>[12932.398779] char_lab: closed<br>[12932.400051] char_lab: opened 2 times<br>[12932.400092] char_lab: closed<br>[12932.400455] char_lab: opened 3 times<br>[12932.400482] char_lab: closed<br>[12932.403216] char_lab: opened 4 times<br>[12932.403311] char_lab: closed<br>[12932.403937] char_lab: opened 5 times<br>[12932.404311] char_lab: closed<br></code></pre></td></tr></table></figure>
+<p>这说明：</p>
+<ul>
+<li><code>insmod</code> 后 <code>misc_register()</code> 成功。</li>
+<li><code>echo 1 &gt; /dev/char_lab</code> 触发了 <code>open/write/release</code>。</li>
+<li><code>cat /dev/char_lab</code> 触发了 <code>open/read/release</code>。</li>
+<li><code>open_count</code> 递增，说明 <code>open</code> 回调执行了。</li>
+</ul>
+<p>卸载驱动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo rmmod char_lab<br>ls /dev/char_lab<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">output</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ls</span>: cannot access <span class="hljs-string">&#x27;/dev/char_lab&#x27;</span>: No such file or directory</span><br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux驱动——字符设备驱动开发</div>
+      <div>http://example.com/2026/08/03/Linux驱动——字符设备驱动开发/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/04/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94MISC%E9%A9%B1%E5%8A%A8/" title="Linux驱动——MISC驱动">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux驱动——MISC驱动</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/01/Linux%E8%AE%BE%E5%A4%87%E6%A0%91/" title="Linux设备树">
+                        <span class="hidden-mobile">Linux设备树</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

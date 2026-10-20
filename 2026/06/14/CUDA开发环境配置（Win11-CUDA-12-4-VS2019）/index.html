@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、CUDA Toolkit 安装 这里选择自定义：  这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：   这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。  下载好后可以在 cmd 中进行验证： 1nvcc -V  同时也可以看见它自动为我">
+    <meta name="description" content="一、CUDA Toolkit 安装 这里选择自定义：  这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：   这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。  下载好后可以在 cmd 中进行验证： 1nvcc -V  同时也可以看见它自动为我们">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CUDA开发环境配置（Win11 + CUDA 12.4 + VS2019）">
 <meta property="og:url" content="http://example.com/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、CUDA Toolkit 安装 这里选择自定义：  这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：   这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。  下载好后可以在 cmd 中进行验证： 1nvcc -V  同时也可以看见它自动为我">
+<meta property="og:description" content="一、CUDA Toolkit 安装 这里选择自定义：  这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：   这里 Nsight 相关的都取消勾选，我在这里勾选了的话后面安装时会报错。  下载好后可以在 cmd 中进行验证： 1nvcc -V  同时也可以看见它自动为我们">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/1.jpg">
 <meta property="og:image" content="http://example.com/2026/06/14/CUDA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%EF%BC%88Win11-CUDA-12-4-VS2019%EF%BC%89/2.jpg">
@@ -292,7 +292,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-cuda-toolkit-安装"><a class="markdownIt-Anchor" href="#一-cuda-toolkit-安装"></a> 一、CUDA Toolkit 安装</h1>
+                <h1>一、CUDA Toolkit 安装</h1>
 <p>这里选择自定义：</p>
 <p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
 <p>这里的 Visual Studio Integration 一定要选上，因为接下来是在 VS 上进行开发的，并且在安装 CUDA Toolkit 之前就要保证要先安装好 VS：</p>
@@ -305,7 +305,7 @@
 <p><img src="3.jpg" srcset="/img/loading.gif" lazyload alt></p>
 <p>同时也可以看见它自动为我们创建好了环境变量：</p>
 <p><img src="4.jpg" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="二-vs-2019-配置"><a class="markdownIt-Anchor" href="#二-vs-2019-配置"></a> 二、VS 2019 配置</h1>
+<h1>二、VS 2019 配置</h1>
 <p>CUDA 为 Visual Studio 提供了搭建 CUDA 项目模板的插件，在安装 CUDA 时，该插件会被自动下载并配置。然而，如果是先安装 CUDA 后安装 Visual Studio，插件不会被自动配置到 VS 中，而需在下载了 VS 后手动配置，或者干脆重装CUDA。</p>
 <p>下面介绍一下手动配置的方法。</p>
 <p>首先来到 Toolkit 的下载路径，找到 CUDA 提供的 VS 模板插件：</p>
@@ -320,11 +320,11 @@
 <p><img src="6.jpg" srcset="/img/loading.gif" lazyload alt></p>
 <p>现在新建一个 CUDA 项目并打开，下面要进行一些设置：</p>
 <ol>
-<li>项目右键--项目属性--VC++目录--包含目录：添加CUDA的include（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\include）</li>
-<li>项目右键--项目属性--VC++目录--库目录：添加CUDA的lib（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\lib\x64）</li>
-<li>项目右键--项目属性--链接器--输入：cuda.lib</li>
-<li>项目右键--项目属性--CUDA C/C++--common--CUDA Toolkit Common Dir：输入 CUDA 所在路径（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4）</li>
-<li>项目右键--生成依赖项--生成自定义：勾选 CUDA 选项</li>
+<li>项目右键–项目属性–VC++目录–包含目录：添加CUDA的include（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\include）</li>
+<li>项目右键–项目属性–VC++目录–库目录：添加CUDA的lib（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4\lib\x64）</li>
+<li>项目右键–项目属性–链接器–输入：cuda.lib</li>
+<li>项目右键–项目属性–CUDA C/C+±-common–CUDA Toolkit Common Dir：输入 CUDA 所在路径（D:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\V12.4）</li>
+<li>项目右键–生成依赖项–生成自定义：勾选 CUDA 选项</li>
 </ol>
 <p><img src="7.jpg" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="8.jpg" srcset="/img/loading.gif" lazyload alt></p>
@@ -416,9 +416,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/06/17/Markdown-%E5%B8%B8%E7%94%A8%E6%95%B0%E5%AD%A6%E7%AC%A6%E5%8F%B7%E6%95%B4%E7%90%86/" title="Markdown 常用数学符号整理">
+                      <a href="/2026/06/24/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-1-%EF%BC%9Atransformer%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88/" title="Transformer架构详解(1)：transformer架构总览">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Markdown 常用数学符号整理</span>
+                        <span class="hidden-mobile">Transformer架构详解(1)：transformer架构总览</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     

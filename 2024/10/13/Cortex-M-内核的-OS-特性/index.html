@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、通用堆栈知识 在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从">
+    <meta name="description" content="@toc  一、通用堆栈知识 在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cortex-M 内核的 OS 特性">
 <meta property="og:url" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、通用堆栈知识 在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的栈是从">
+<meta property="og:description" content="@toc  一、通用堆栈知识 在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：  Heap 主要用于 Malloc、Free，动态内存申请和释放。 Stack 也非常重要，程序编译后所包含的大量 PUSH 和 POP 指令操作，系统根据 SP（堆栈指针） 寄存器访问当前对应栈内存，通过栈保存临时数据。大部分的栈都是向下生长的（也有向上生长的）。M 内核的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/1.png">
 <meta property="og:image" content="http://example.com/2024/10/13/Cortex-M-%E5%86%85%E6%A0%B8%E7%9A%84-OS-%E7%89%B9%E6%80%A7/2.png">
@@ -300,9 +300,9 @@
             
               <div class="markdown-body">
                 
-                <p></p>
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
-<h1 id="一-通用堆栈知识"><a class="markdownIt-Anchor" href="#一-通用堆栈知识"></a> 一、通用堆栈知识</h1>
+<h1>一、通用堆栈知识</h1>
 <p>在前面讲解 STM32 启动文件的时候就已经提到过，有关堆栈大小的设置是在启动文件中设置的：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>Heap</code> 主要用于 Malloc、Free，动态内存申请和释放。</p>
@@ -316,7 +316,7 @@
 <p>下面继续执行，可以看到，数据是从高地址向低地址存储的。</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>当然，内存空间只是连续字节数据的抽象，本身并不区分堆和栈的概念，它做的只是存储和读写信息。因此，如何定义堆栈、初始化建立堆栈环境，在嵌入式软件运行前便显得尤为重要。这涉及到处理器提供的堆栈机制、操作系统内存管理和进程切换等方方面面。</p>
-<h1 id="二-双堆栈用法"><a class="markdownIt-Anchor" href="#二-双堆栈用法"></a> 二、双堆栈用法</h1>
+<h1>二、双堆栈用法</h1>
 <p>下图取自权威指南：</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在搭载实时操作系统内核的嵌入式软件中，栈往往分为两大类，除了满足系统基本的主栈（main stack）外，往往还需要进程/线程栈（process stack）。这两部分内存空间是独立存在的：</p>
@@ -352,9 +352,9 @@
 <p>栈指针又切换回 MSP 了。而退出中断后，又会自动切换回 PSP：</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>这也印证了刚才所说的，在任务中使用 PSP，在中断中使用 MSP。使用双堆栈，把任务和中断使用的栈区分开，这样安全性会更好一些。</p>
-<h1 id="三-pendsv-中断介绍和用法"><a class="markdownIt-Anchor" href="#三-pendsv-中断介绍和用法"></a> 三、PendSV 中断介绍和用法</h1>
+<h1>三、PendSV 中断介绍和用法</h1>
 <p><code>PendSV</code> 典型使用场合是在上下文切换时（在不同任务之间切换）。上下文切换的本质就是保存当前执行现场 A，切换到另一个任务 B 里面。切换回来时又要恢复执行现场 A（将一系列的寄存器入栈、出栈）。</p>
-<p>由于 <code>PendSV</code> 的特点就是支持<mark>缓期执行</mark>，所以 RTOS 可以利用它这个特点，进行任务调度过程的上下文切换。而为什么要使用<mark>缓期执行</mark>的特点来进行上下文切换呢？简单的说就是任何 RTOS，都需要尽量不打断外设中断。 我们来举例说明，假如一个系统中有两个就绪的任务，上下文切换被切换的场合可以是：</p>
+<p>由于 <code>PendSV</code> 的特点就是支持==缓期执行==，所以 RTOS 可以利用它这个特点，进行任务调度过程的上下文切换。而为什么要使用==缓期执行==的特点来进行上下文切换呢？简单的说就是任何 RTOS，都需要尽量不打断外设中断。 我们来举例说明，假如一个系统中有两个就绪的任务，上下文切换被切换的场合可以是：</p>
 <ol>
 <li>执行一个系统调用</li>
 <li>系统滴答定时器 SYSTICK 中断，触发了任务的调度。</li>
@@ -368,7 +368,7 @@
 <ul>
 <li>一般 OS 在调度任务时，会关闭中断，也就是进入临界区，而 OS 任务调度是要耗时的，这就会出现一种情况： 在任务调度期间，如果新的外部 IRQ 发生，CPU 将不能够快速响应处理。</li>
 </ul>
-<p>而现在有了 <code>PendSV</code>，<code>PendSV</code> 异常会自动延迟上下文切换的请求（<mark>缓期执行</mark>），直到其它的 ISR 都完成了处理后才放行。为实现这个机制，需要把<code>PendSV</code> 为最低优先级的异常。</p>
+<p>而现在有了 <code>PendSV</code>，<code>PendSV</code> 异常会自动延迟上下文切换的请求（==缓期执行==），直到其它的 ISR 都完成了处理后才放行。为实现这个机制，需要把<code>PendSV</code> 为最低优先级的异常。</p>
 <p>如果 OS 检测到某 IRQ 正在活动并且被 SysTick 抢占，它将悬起一个 PendSV 异常，以便缓期执行上下文切换。</p>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面用一个数组模拟栈空间，来展示一下函数的切换：</p>
@@ -383,7 +383,7 @@
 <p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>旁边的寄存器的值和我们硬件自动入栈的值也是对应的：</p>
 <p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="四-svc-软中断介绍和用法"><a class="markdownIt-Anchor" href="#四-svc-软中断介绍和用法"></a> 四、SVC 软中断介绍和用法</h1>
+<h1>四、SVC 软中断介绍和用法</h1>
 <p><code>SVC</code> 用于生成系统函数调用的请求，例如，用户程序不允许直接访问硬件，操作系统可以通过 <code>SVC</code> 提供对硬件的访问。因此，当用户程序想要使用某些硬件时，可以使用 <code>SVC</code> 指令，然后执行操作系统中的软件异常处理程序，并提供用户应用程序请求的服务。通过这种方式，对硬件的访问由操作系统控制，操作系统可以阻止用户应用程序直接访问硬件，从而提供更可靠的系统。</p>
 <p><code>SVC</code> 还可以使软件更具可移植性，因为用户程序不需要知道硬件的编程细节。用户程序只需要知道应用程序编程接口(API)函数 ID 和参数，而实际的硬件级编程是由设备驱动程序处理的。</p>
 <p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -402,7 +402,7 @@
 <p>单步运行后直接跳转，并且把函数数据也一并保存在 R0、R1、R2 寄存器中：</p>
 <p><img src="20.png" srcset="/img/loading.gif" lazyload alt><br>
 当我们调用 OS 内核的 API 的时候，一调用就会进入到 SVC 中断，让这个函数直接在 SVC 中断中执行，这样把 OS 的函数和我们自己写的应用程序隔离开了。</p>
-<h1 id="五-特权级和非特权级使用方法"><a class="markdownIt-Anchor" href="#五-特权级和非特权级使用方法"></a> 五、特权级和非特权级使用方法</h1>
+<h1>五、特权级和非特权级使用方法</h1>
 <blockquote>
 <p>特权级和非特权级只是针对中断外的任务来说的，中断全部都是特权级</p>
 </blockquote>

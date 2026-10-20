@@ -287,21 +287,21 @@
 <hr>
 <p><code>CMake</code> 是个一个开源的跨平台自动化建构系统，用来管理软件建置的程序，并不依赖于某特定编译器，并可支持多层目录、多个应用程序与多个函数库。</p>
 <p><code>CMake</code> 通过使用简单的配置文件 <code>CMakeLists.txt</code>，自动生成不同平台的构建文件（如 Makefile、Ninja 构建文件、Visual Studio 工程文件等），简化了项目的编译和构建过程。</p>
-<p><code>CMake</code> 本身不是构建工具，而是<mark>生成构建系统的工具</mark>，它生成的构建系统可以使用不同的编译器和工具链。</p>
-<h1 id="一-基本使用"><a class="markdownIt-Anchor" href="#一-基本使用"></a> 一、基本使用</h1>
+<p><code>CMake</code> 本身不是构建工具，而是==生成构建系统的工具==，它生成的构建系统可以使用不同的编译器和工具链。</p>
+<h1>一、基本使用</h1>
 <p>最基本的 <code>CMake</code> 项目是从单个源代码文件构建的可执行文件。对于像这样的简单项目，只需要一个包含三个命令的 <code>CMakeLists.txt</code> 文件。</p>
 <p>下面是一个 esp32-idf 项目生成的 <code>CMakeLists.txt</code> 文件：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br><br>include($ENV&#123;IDF_PATH&#125;/tools/cmake/project.cmake)<br>project(rmt_ws2812)<br></code></pre></td></tr></table></figure>
 <p>下面将从它开始一步步地介绍 CMake 的结构和语法。</p>
-<h2 id="1-命令语句"><a class="markdownIt-Anchor" href="#1-命令语句"></a> 1、命令语句</h2>
-<h3 id="11-指定最低版本要求"><a class="markdownIt-Anchor" href="#11-指定最低版本要求"></a> 1.1 指定最低版本要求</h3>
+<h2 id="1、命令语句">1、命令语句</h2>
+<h3 id="1-1-指定最低版本要求">1.1 指定最低版本要求</h3>
 <p>任何项目的 <code>CMakeLists.txt</code> 都必须首先使用 <code>cmake_minimum_required()</code> 命令指定最低 <code>CMake</code> 版本。这将建立策略设置，并确保以下 <code>CMake</code> 函数与兼容的 <code>CMake</code> 版本一起运行。语法如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION &lt;version&gt;)<br></code></pre></td></tr></table></figure>
 <p>就比如上面的 <code>cmake_minimum_required(VERSION 3.16)</code>。</p>
-<h3 id="12-定义项目的名称和使用的编程语言"><a class="markdownIt-Anchor" href="#12-定义项目的名称和使用的编程语言"></a> 1.2 定义项目的名称和使用的编程语言</h3>
+<h3 id="1-2-定义项目的名称和使用的编程语言">1.2 定义项目的名称和使用的编程语言</h3>
 <p>要启动项目，我们使用 <code>project()</code> 命令来设置项目名称。每个项目都需要此调用，并且应在 <code>cmake_minimum_required()</code> 之后立即调用。正如我们稍后将看到的，此命令还可用于指定其他项目级别信息，例如语言或版本号。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">project(&lt;project_name&gt; [&lt;language&gt;...])<br>project(&lt;PROJECT-NAME&gt;<br>        [VERSION &lt;major&gt;[.&lt;minor&gt;[.&lt;patch&gt;[.&lt;tweak&gt;]]]]<br>        [DESCRIPTION &lt;project-description-<span class="hljs-built_in">string</span>&gt;]<br>        [HOMEPAGE_URL &lt;url-<span class="hljs-built_in">string</span>&gt;]<br>        [LANGUAGES &lt;language-name&gt;...])<br></code></pre></td></tr></table></figure>
-<h3 id="13-指定要生成的可执行文件和其源文件"><a class="markdownIt-Anchor" href="#13-指定要生成的可执行文件和其源文件"></a> 1.3 指定要生成的可执行文件和其源文件</h3>
+<h3 id="1-3-指定要生成的可执行文件和其源文件">1.3 指定要生成的可执行文件和其源文件</h3>
 <p>通过 <code>add_executable()</code> 命令，可以告诉 <code>CMake</code> 使用指定的源代码文件创建可执行文件：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">add_executable(&lt;target&gt; &lt;options&gt;... &lt;source_files&gt;...)<br></code></pre></td></tr></table></figure>
 <p>注意，<code>&lt;name&gt;</code> 对应于逻辑目标名称，并且在项目中必须是全局唯一的。生成的可执行文件的实际文件名是根据本机平台的约定（例如 <code>&lt;name&gt;.exe</code> 或仅 <code>&lt;name&gt;</code>）构建的。</p>
@@ -313,7 +313,7 @@
 </ul>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">add_executable(MyProject main.cpp other.cpp)<br></code></pre></td></tr></table></figure>
-<h3 id="14-实例一基本使用"><a class="markdownIt-Anchor" href="#14-实例一基本使用"></a> 1.4 实例一——基本使用</h3>
+<h3 id="1-4-实例一——基本使用">1.4 实例一——基本使用</h3>
 <p>前面的函数一时理解不了也没事，先学会用就行了。下面看一个简单的实例，看一下 CMake 是怎么用的。</p>
 <p>先写一个简单的 C 程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello World!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -323,50 +323,50 @@
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>在项目目录下，CMake 为我们生成了如下文件：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
-<p>正如前面所言，<code>CMake</code> 本身不是构建工具，而是<mark>生成构建系统的工具</mark>。它为我们生成了一个 Makefile 文件，下面 make 一下：</p>
+<p>正如前面所言，<code>CMake</code> 本身不是构建工具，而是==生成构建系统的工具==。它为我们生成了一个 Makefile 文件，下面 make 一下：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>或者直接 <code>cmake --build .</code> 一步到位</p>
 </blockquote>
 <p>执行成功！</p>
 <p>相比于我以前直接编写 Makefile 文件要方便不少。</p>
-<h3 id="15-创建一个库静态库或动态库及其源文件"><a class="markdownIt-Anchor" href="#15-创建一个库静态库或动态库及其源文件"></a> 1.5 创建一个库（静态库或动态库）及其源文件</h3>
+<h3 id="1-5-创建一个库（静态库或动态库）及其源文件">1.5 创建一个库（静态库或动态库）及其源文件</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">add_library(&lt;target&gt; &lt;source_files&gt;...)<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">add_library(MyProject STATIC library.cpp)<br></code></pre></td></tr></table></figure>
-<h3 id="16-链接目标文件与其他库"><a class="markdownIt-Anchor" href="#16-链接目标文件与其他库"></a> 1.6 链接目标文件与其他库</h3>
+<h3 id="1-6-链接目标文件与其他库">1.6 链接目标文件与其他库</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">target_link_libraries(&lt;target&gt; &lt;libraries&gt;...)<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">target_link_libraries(MyProject MyLibrary)<br></code></pre></td></tr></table></figure>
-<h3 id="17-添加头文件搜索路径"><a class="markdownIt-Anchor" href="#17-添加头文件搜索路径"></a> 1.7 添加头文件搜索路径</h3>
+<h3 id="1-7-添加头文件搜索路径">1.7 添加头文件搜索路径</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">include_directories(&lt;dirs&gt;...)<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">include_directories($&#123;PROJECT_SOURCE_DIR&#125;/include)<br></code></pre></td></tr></table></figure>
-<h3 id="18-设置变量的值"><a class="markdownIt-Anchor" href="#18-设置变量的值"></a> 1.8 设置变量的值</h3>
+<h3 id="1-8-设置变量的值">1.8 设置变量的值</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">set</span>(&lt;variable&gt; &lt;value&gt;...)<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-built_in">set</span>(CMAKE_CXX_STANDARD <span class="hljs-number">11</span>)<br></code></pre></td></tr></table></figure>
-<h3 id="19-设置目标属性"><a class="markdownIt-Anchor" href="#19-设置目标属性"></a> 1.9 设置目标属性</h3>
+<h3 id="1-9-设置目标属性">1.9 设置目标属性</h3>
 <p>指定编译给定目标时要使用的包含目录。命名的 <code>&lt;target&gt;</code> 必须由 <code>add_executable()</code> 或 <code>add_library()</code> 等命令创建，并且不能是 <code>ALIAS</code> 目标。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">target_include_directories(&lt;target&gt; [SYSTEM] [AFTER|BEFORE]<br>  &lt;INTERFACE|PUBLIC|PRIVATE&gt; [items1...]<br>  [&lt;INTERFACE|PUBLIC|PRIVATE&gt; [items2...] ...])<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">target_include_directories(MyExecutable PRIVATE $&#123;PROJECT_SOURCE_DIR&#125;/include)<br></code></pre></td></tr></table></figure>
-<h3 id="110-安装规则"><a class="markdownIt-Anchor" href="#110-安装规则"></a> 1.10 安装规则</h3>
+<h3 id="1-10-安装规则">1.10 安装规则</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">install(TARGETS target1 [target2 ...]<br>        [RUNTIME DESTINATION dir]<br>        [LIBRARY DESTINATION dir]<br>        [ARCHIVE DESTINATION dir]<br>        [INCLUDES DESTINATION [dir ...]]<br>        [PRIVATE_HEADER DESTINATION dir]<br>        [PUBLIC_HEADER DESTINATION dir])<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">install(TARGETS MyExecutable RUNTIME DESTINATION bin)<br></code></pre></td></tr></table></figure>
-<h3 id="111-条件语句"><a class="markdownIt-Anchor" href="#111-条件语句"></a> 1.11 条件语句</h3>
+<h3 id="1-11-条件语句">1.11 条件语句</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span>(expression)<br>  # Commands<br><span class="hljs-title function_">elseif</span><span class="hljs-params">(expression)</span><br>  # Commands<br><span class="hljs-title function_">else</span><span class="hljs-params">()</span><br>  # Commands<br><span class="hljs-title function_">endif</span><span class="hljs-params">()</span><br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span>(CMAKE_BUILD_TYPE STREQUAL <span class="hljs-string">&quot;Debug&quot;</span>)<br>  message(<span class="hljs-string">&quot;Debug build&quot;</span>)<br>endif()<br></code></pre></td></tr></table></figure>
-<h3 id="112-自定义命令"><a class="markdownIt-Anchor" href="#112-自定义命令"></a> 1.12 自定义命令</h3>
+<h3 id="1-12-自定义命令">1.12 自定义命令</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">add_custom_command(<br>   TARGET target<br>   PRE_BUILD | PRE_LINK | POST_BUILD<br>   COMMAND command1 [ARGS] [WORKING_DIRECTORY dir]<br>   [COMMAND command2 [ARGS]]<br>   [DEPENDS [depend1 [depend2 ...]]]<br>   [COMMENT comment]<br>   [VERBATIM]<br>)<br></code></pre></td></tr></table></figure>
 <p>例如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">add_custom_command(<br>   TARGET MyExecutable POST_BUILD<br>   COMMAND $&#123;CMAKE_COMMAND&#125; -E echo <span class="hljs-string">&quot;Build completed.&quot;</span><br>)<br></code></pre></td></tr></table></figure>
-<h2 id="2-变量和缓存"><a class="markdownIt-Anchor" href="#2-变量和缓存"></a> 2、变量和缓存</h2>
+<h2 id="2、变量和缓存">2、变量和缓存</h2>
 <p><code>CMake</code> 使用变量来存储和传递信息，这些变量可以在 <code>CMakeLists.txt</code> 文件中定义和使用。</p>
 <p>变量可以分为普通变量和缓存变量。</p>
-<h3 id="21-普通变量"><a class="markdownIt-Anchor" href="#21-普通变量"></a> 2.1 普通变量</h3>
+<h3 id="2-1-普通变量">2.1 普通变量</h3>
 <ul>
 <li>定义变量：</li>
 </ul>
@@ -375,7 +375,7 @@
 <li>使用变量：</li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">message(STATUS <span class="hljs-string">&quot;Variable MY_VAR is $&#123;MY_VAR&#125;&quot;</span>)<br></code></pre></td></tr></table></figure>
-<h3 id="22-缓存变量"><a class="markdownIt-Anchor" href="#22-缓存变量"></a> 2.2 缓存变量</h3>
+<h3 id="2-2-缓存变量">2.2 缓存变量</h3>
 <p>缓存变量存储在 <code>CMake</code> 的缓存文件中，用户可以在 <code>CMake</code> 配置时修改这些值。缓存变量通常用于用户输入的设置，例如编译选项和路径。</p>
 <ul>
 <li>定义缓存变量：</li>
@@ -385,15 +385,15 @@
 <li>使用缓存变量：</li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">message(STATUS <span class="hljs-string">&quot;Cache variable MY_CACHE_VAR is $&#123;MY_CACHE_VAR&#125;&quot;</span>)<br></code></pre></td></tr></table></figure>
-<h3 id="23-特殊变量"><a class="markdownIt-Anchor" href="#23-特殊变量"></a> 2.3 特殊变量</h3>
+<h3 id="2-3-特殊变量">2.3 特殊变量</h3>
 <p>前面的变量都是我们自己定义的，而 <code>CMake</code> 有一些特殊的变量，这些变量要么是在幕后创建的，要么在由项目代码设置时对 <code>CMake</code> 有意义。其中许多变量以 <code>CMAKE_</code> 开头。在为项目创建变量时，请避免此命名约定。其中两个特殊的用户可设置变量是 <code>CMAKE_CXX_STANDARD</code> 和 <code>CMAKE_CXX_STANDARD_REQUIRED</code>。这些可以一起使用来指定构建项目所需的 C++ 标准。</p>
-<h3 id="24-实例二指定-c-标准"><a class="markdownIt-Anchor" href="#24-实例二指定-c-标准"></a> 2.4 实例二——指定 C++ 标准</h3>
+<h3 id="2-4-实例二——指定-C-标准">2.4 实例二——指定 C++ 标准</h3>
 <p>现在尝试在 <code>CMakeLists.txt</code> 文件中指定 C++ 标准：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">cmake_minimum_required(VERSION <span class="hljs-number">3.16</span>)<br>  <br>add_executable(test01 main.c)<br><br>project(test01)<br><br><span class="hljs-built_in">set</span>(CMAKE_CXX_STANDARD <span class="hljs-number">11</span>)<br><span class="hljs-built_in">set</span>(CMAKE_CXX_STANDARD_REQUIRED True)<br></code></pre></td></tr></table></figure>
 <p>在前面的基础上添加最后两句即可。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// main.cpp</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;algorithm&gt;</span></span><br><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    std::vector&lt;<span class="hljs-type">int</span>&gt; vec = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> sum = <span class="hljs-number">0</span>;<br><br>    for_each(vec.<span class="hljs-built_in">begin</span>(), vec.<span class="hljs-built_in">end</span>(), [&amp;sum](<span class="hljs-type">int</span> x) &#123;<br>        sum += x;<br>    &#125;);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Sum: &quot;</span> &lt;&lt; sum &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>后面的过程不再多说。</p>
-<h2 id="3-实例三添加版本号和配置的头文件"><a class="markdownIt-Anchor" href="#3-实例三添加版本号和配置的头文件"></a> 3、实例三——添加版本号和配置的头文件</h2>
+<h2 id="3、实例三——添加版本号和配置的头文件">3、实例三——添加版本号和配置的头文件</h2>
 <p>有时，在 <code>CMakelists.txt</code> 文件中定义的变量在源代码中也可用可能很有用。在这种情况下，我们希望打印项目版本。</p>
 <p>实现此目的的一种方法是使用配置的头文件。我们创建一个包含一个或多个要替换的变量的输入文件。这些变量具有类似于 <code>@VAR@</code> 的特殊语法。然后，我们使用 <code>configure_file()</code> 命令将输入文件复制到给定的输出文件，并将这些变量替换为 <code>CMakelists.txt</code> 文件中的 <code>VAR</code> 当前值。</p>
 <p><code>configure_file()</code> 命令格式见下：</p>

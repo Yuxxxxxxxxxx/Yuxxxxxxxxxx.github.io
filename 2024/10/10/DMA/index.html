@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、简介 DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数">
+    <meta name="description" content="[toc]  一、简介 DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据">
 <meta property="og:type" content="article">
 <meta property="og:title" content="DMA 详解">
 <meta property="og:url" content="http://example.com/2024/10/10/DMA/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、简介 DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数">
+<meta property="og:description" content="[toc]  一、简介 DMA（Direct Memory Access，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/10/DMA/1.png">
 <meta property="og:image" content="http://example.com/2024/10/10/DMA/2.png">
@@ -285,7 +285,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-简介"><a class="markdownIt-Anchor" href="#一-简介"></a> 一、简介</h1>
+<h1>一、简介</h1>
 <p><code>DMA</code>（<em><strong>Direct Memory Access</strong></em>，直接存储器访问）顾名思义，就是绕开 CPU 直接访问 Memory。在计算机中，相比 CPU，Memory 和外设的速度是非常慢的，因而在 Memory 和 Memory (或者 Memory 和外设)之间搬运数据，非常浪费 CPU 的时间，造成 CPU 无法及时处理一些实时事件。因此，工程师们就设计出来一种专门用来搬运数据的器件——DMA 控制器（<code>DMA Controller</code>，<code>DMAC</code>），协助 CPU 进行数据搬运。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt><br>
 由上图可知，DMA 无需 CPU 直接控制传输，也没有中断处理方式那样保留现场和恢复现场的过程，通过硬件为 RAM 与 I/O 设备开辟一条直接传送数据的通路，能使 CPU 的效率大为提高。</p>
@@ -300,9 +300,9 @@
 因为程序使用虚拟地址，而且一般使用 Cache 地址，所以 Cache 中的内容与其物理地址（内存）的内容不一定一致，所以在启动 DMA 传输前一定要将该地址的 Cache 刷新，即写入内存</li>
 <li>OS 并不能保证每次分配到的内存空间在物理上是连续的。尤其是在系统使用过一段时间而又分配了一块比较大的内存时。所以每次都需要判断地址是不是连续的，如果不连续就需要把这段内存分成几段让 DMA 完成传输</li>
 </ul>
-<h1 id="二-stm32-中的-dma"><a class="markdownIt-Anchor" href="#二-stm32-中的-dma"></a> 二、STM32 中的 DMA</h1>
+<h1>二、STM32 中的 DMA</h1>
 <p>刚才简单介绍了一下，什么是 DMA，下面结合实例，看一下 DMA 是怎么在 STM32 中使用的。</p>
-<h2 id="1-dma-框图"><a class="markdownIt-Anchor" href="#1-dma-框图"></a> 1、DMA 框图</h2>
+<h2 id="1、DMA-框图">1、DMA 框图</h2>
 <p>这是 STM32F4xx 设备的 DMA 框图：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>每个通道都直接连接专用的硬件 DMA 请求，每个通道都同样支持软件触发。这些功能通过软件来配置：</p>
@@ -315,8 +315,8 @@
 <li>FLASH、SRAM、外设的 SRAM、APB1、APB2 和 AHB 外 设均可作为访问的源和目标；</li>
 <li>可编程的数据传输数目：最大为 65535。</li>
 </ol>
-<p>中间的 FIFO 区，每个数据流（总共 8 个数据流）都有一个独立的 FIFO，可以实现存储器接口到外设接口之间的数据长度<mark>非对齐传输</mark>。</p>
-<h3 id="11-传输方式"><a class="markdownIt-Anchor" href="#11-传输方式"></a> 1.1 传输方式</h3>
+<p>中间的 FIFO 区，每个数据流（总共 8 个数据流）都有一个独立的 FIFO，可以实现存储器接口到外设接口之间的数据长度==非对齐传输==。</p>
+<h3 id="1-1-传输方式">1.1 传输方式</h3>
 <p>DMA 的作用就是实现数据的直接传输，而去掉了传统数据传输需要 CPU 寄存器参与的环节，主要涉及三种情况的数据传输，但本质上是一样的，都是从内存的某一区域传输到内存的另一区域（外设的数据寄存器本质上就是内存的一个存储单元）。三种情况的数据传输如下：</p>
 <ul>
 <li>外设到内存)</li>
@@ -335,10 +335,10 @@
 </ol>
 <p>DMA 有以下两种传输方式：</p>
 <ol>
-<li><code>DMA_Mode_Normal</code>（正常模式）：当一次 DMA 数据传输完后，停止 DMA 传送 ，也就是<mark>只传输一次</mark></li>
-<li><code>DMA_Mode_Circular</code>（循环传输模式）：当传输结束时，硬件自动会将传输数据量寄存器进行重装，进行下一轮的数据传输。 也就是<mark>多次传输模式</mark></li>
+<li><code>DMA_Mode_Normal</code>（正常模式）：当一次 DMA 数据传输完后，停止 DMA 传送 ，也就是==只传输一次==</li>
+<li><code>DMA_Mode_Circular</code>（循环传输模式）：当传输结束时，硬件自动会将传输数据量寄存器进行重装，进行下一轮的数据传输。 也就是==多次传输模式==</li>
 </ol>
-<h3 id="12-仲裁器"><a class="markdownIt-Anchor" href="#12-仲裁器"></a> 1.2 仲裁器</h3>
+<h3 id="1-2-仲裁器">1.2 仲裁器</h3>
 <p>仲裁器用于仲裁数据流 0~7 的请求优先级，保证数据有序传输。</p>
 <p>仲裁器根据通道请求的优先级来启动外设/存储器的访问。优先权管理分2个阶段：</p>
 <ol>
@@ -355,7 +355,7 @@
 <blockquote>
 <p>注意： 在大容量产品和互联型产品中，DMA1 控制器拥有高于 DMA2 控制器的优先级。</p>
 </blockquote>
-<h3 id="13-数据流"><a class="markdownIt-Anchor" href="#13-数据流"></a> 1.3 数据流</h3>
+<h3 id="1-3-数据流">1.3 数据流</h3>
 <blockquote>
 <p>仅限于 Cortex-M4 内核上有数据流</p>
 </blockquote>
@@ -367,18 +367,18 @@
 <p>STM32F4xx 有两个 DMA：DMA1、DMA2，其请求映射如下表：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h3 id="14-指针递增模式"><a class="markdownIt-Anchor" href="#14-指针递增模式"></a> 1.4 指针递增模式</h3>
+<h3 id="1-4-指针递增模式">1.4 指针递增模式</h3>
 <p>根据 <code>DMA_SxCR</code> 寄存器中 <code>PINC</code> 和 <code>MINC</code> 位的状态，外设和存储器指针在每次传输后可以自动向后递增或保持常量。当设置为增量模式时，下一个要传输的地址将是前一个地址加上增量值。</p>
 <p>通过单个寄存器访问外设源或目标数据时，禁止递增模式十分有用。</p>
 <p>如果使能了递增模式，则根据在 <code>DMA_SxCR</code> 寄存器 <code>PSIZE</code> 或 <code>MSIZE</code> 位中编程的数据宽度，下一次传输的地址将是前一次传输的地址递增 1个数据宽度、2个数据宽度或 4个数据宽度。</p>
-<h3 id="15-存储器到存储器模式"><a class="markdownIt-Anchor" href="#15-存储器到存储器模式"></a> 1.5 存储器到存储器模式</h3>
+<h3 id="1-5-存储器到存储器模式">1.5 存储器到存储器模式</h3>
 <p>DMA 通道的操作可以在没有外设请求的情况下进行，这种操作就是存储器到存储器模式。</p>
 <p>当设置了 <code>DMA_CCRx</code> 寄存器中的 <code>MEM2MEM</code> 位之后，在软件设置了 <code>DMA_CCRx</code> 寄存器中的 EN 位启动 DMA 通道时，DMA 传输将马上开始。当 <code>DMA_CNDTRx</code> 寄存器变为 0 时，DMA 传输结束。存储器到存储器模式不能与循环模式同时使用。</p>
 <p>这里要注意仅 DMA2 的外设接口可以访问存储器，所以仅 DMA2 控制器支持存储器到存储器的传输，DMA1 不支持。</p>
-<h3 id="16-dma-中断"><a class="markdownIt-Anchor" href="#16-dma-中断"></a> 1.6 DMA 中断</h3>
+<h3 id="1-6-DMA-中断">1.6 DMA 中断</h3>
 <p>每个 DMA 通道都可以在 DMA 传输过半、传输完成和传输错误时产生中断。为应用的灵活性考虑，通过设置寄存器的不同位来打开这些中断。</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-dma-配置"><a class="markdownIt-Anchor" href="#2-dma-配置"></a> 2、DMA 配置</h2>
+<h2 id="2、DMA-配置">2、DMA 配置</h2>
 <p>经过刚才的介绍可以知道，要配置 DMA，大致要实现如下内容：</p>
 <ol>
 <li>源地址（<em><strong>Source Address</strong></em>）：源地址表示数据传输的起始地址，即外设设备中数据缓冲区的地址。DMA 将从这个地址开始读取数据。</li>

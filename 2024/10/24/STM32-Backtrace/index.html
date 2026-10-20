@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、栈回溯  1、寄存器知识 在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP  PSP(SP_process) MSP(SP_main)">
+    <meta name="description" content="[toc]  一、栈回溯 1、寄存器知识 在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP  PSP(SP_process) MSP(SP_main)   1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="STM32 调试之栈回溯和 CmBacktrace 的使用">
 <meta property="og:url" content="http://example.com/2024/10/24/STM32-Backtrace/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、栈回溯  1、寄存器知识 在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP  PSP(SP_process) MSP(SP_main)">
+<meta property="og:description" content="[toc]  一、栈回溯 1、寄存器知识 在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP  PSP(SP_process) MSP(SP_main)   1">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/24/STM32-Backtrace/1.png">
 <meta property="og:image" content="http://example.com/2024/10/24/STM32-Backtrace/2.png">
@@ -296,8 +296,8 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-栈回溯"><a class="markdownIt-Anchor" href="#一-栈回溯"></a> 一、栈回溯</h1>
-<h2 id="1-寄存器知识"><a class="markdownIt-Anchor" href="#1-寄存器知识"></a> 1、寄存器知识</h2>
+<h1>一、栈回溯</h1>
+<h2 id="1、寄存器知识">1、寄存器知识</h2>
 <p>在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>按照 ARM Cortex-M 的设计，一共有 32 个寄存器。</p>
@@ -330,11 +330,11 @@
 <li>程序计数寄存器</li>
 </ol>
 <p>该寄存器会自动指向当前指向的程序地址。</p>
-<p>不同于其他的处理器架构，Cortex-M 的定位一开始就是为实时性、小体积容量的设计考虑的，所以在中断处理这一块，也做了一个十分有意思的设计——<mark>自动压栈</mark>处理。</p>
+<p>不同于其他的处理器架构，Cortex-M 的定位一开始就是为实时性、小体积容量的设计考虑的，所以在中断处理这一块，也做了一个十分有意思的设计——==自动压栈==处理。</p>
 <p>一般的 CPU 进入中断后都会去进行压栈操作，因为栈就是函数的现场，保护了栈内容，中断退出的时候只需要恢复栈数据就可以恢复到程序执行的状态了。以往这个阶段都是通过人工操作写程序完成的，在 Cortex-M 上，将部分栈由硬件自动压入。其压入栈的顺序一般如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">xPSR-&gt;PC(返回地址)-&gt;LR-&gt;R12-&gt;R3-&gt;R2-&gt;R1-&gt;R0<br></code></pre></td></tr></table></figure>
 <p>这些寄存器硬件自动压入，效率上应该有较大的提升。另外的一些寄存器可以手动处理。</p>
-<h2 id="2-示例分析"><a class="markdownIt-Anchor" href="#2-示例分析"></a> 2、示例分析</h2>
+<h2 id="2、示例分析">2、示例分析</h2>
 <p>为了方便演示，这里写的示例程序非常简单，而在实际的项目场景中，分析起来会非常复杂。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">test3</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span> &#123;<br>	<span class="hljs-type">int</span> res = (a &lt;&lt; <span class="hljs-number">2</span>) + <span class="hljs-number">3</span>;<br>	<span class="hljs-keyword">return</span> res;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">test2</span><span class="hljs-params">(<span class="hljs-type">int</span> arg)</span> &#123;<br>	<span class="hljs-type">int</span> res = test3(arg) * <span class="hljs-number">2</span>;<br>	<span class="hljs-keyword">return</span> res;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">test1</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> &#123;<br>	<span class="hljs-type">int</span> a2 = test2(a);<br>	<span class="hljs-keyword">return</span> a2 + b;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	test1(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);<br>	<br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>	&#123;<br>		<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>下面进入调试界面，SP 栈指针指向地址 <code>0x2000 0CC8</code>:</p>
@@ -359,7 +359,7 @@
 <p>注意看，在 test2 中，这里出栈的时候将 LR 的值赋给的 PC 指针，从而完成了回溯的操作。</p>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>test1 同理。</p>
-<h1 id="二-移植-cm_backtrace"><a class="markdownIt-Anchor" href="#二-移植-cm_backtrace"></a> 二、移植 cm_backtrace</h1>
+<h1>二、移植 cm_backtrace</h1>
 <p><a target="_blank" rel="noopener" href="https://github.com/armink/CmBacktrace">CmBacktrace</a> （<em><strong>Cortex Microcontroller Backtrace</strong></em>）是一款针对 ARM Cortex-M 系列 MCU 的错误代码自动追踪、定位，错误原因自动分析的开源库。主要特性如下：</p>
 <ul>
 <li>支持的错误包括：
@@ -384,7 +384,7 @@
 </ul>
 <p>我们可以通过故障寄存器信息来定位故障原因及故障代码地址，虽然这样能解决一小部分问题，但是重复的、繁琐的分析过程也会耽误很多时间。而且对于一些复杂问题，只依靠代码地址是无法解决的，必须得还原错误现场的函数调用逻辑关系。虽然连接仿真器可以查看到的函数调用栈，但故障状态下是无法显示的，所以还是得一步步 F10/F11 单步去定位错误代码的位置。</p>
 <p>而通过 <code>cm_backtrace</code> 调试可以大大地提高我们 Debug 的效率。</p>
-<h2 id="1-移植"><a class="markdownIt-Anchor" href="#1-移植"></a> 1、移植</h2>
+<h2 id="1、移植">1、移植</h2>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs xml">└── cm_backtrace<br>    ├── fault_handler<br>    |   └── keil<br>    |       └── cmb_fault.S<br>    └── Languages<br>    |   └── en-US<br>    |       └── cmb_en_US.h<br>    ├── cm_backtrace.c<br>    ├── cm_backtrace.h<br>    ├── cmb_cfg.h<br>    └── cmb_def.h<br></code></pre></td></tr></table></figure>
 <p>将这些文件移植到工程目录下。</p>
 <p>然后进入 <code>cmb_cfg.h</code>，这里的配置项需要我们自己来配置：</p>
@@ -422,8 +422,8 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> cmb_println(...)        printf(__VA_ARGS__);printf(<span class="hljs-string">&quot;\r\n&quot;</span>)  </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMB_USING_BARE_METAL_PLATFORM</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMB_CPU_PLATFORM_TYPE   CMB_CPU_ARM_CORTEX_M4 </span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMB_USING_DUMP_STACK_INFO</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMB_PRINT_LANGUAGE   CMB_PRINT_LANGUAGE_ENGLISH</span><br></code></pre></td></tr></table></figure>
 <p>然后，如果你原本的程序中有 <code>HardFault_Handler</code>，记得注释掉，因为 <code>cmb_fault.S</code> 中也实现了一个  <code>HardFault_Handler</code></p>
 <p>配置好后就可以使用 <code>CmBacktrace</code> 了。</p>
-<h2 id="2-api-说明"><a class="markdownIt-Anchor" href="#2-api-说明"></a> 2、API 说明</h2>
-<h3 id="21-库初始化"><a class="markdownIt-Anchor" href="#21-库初始化"></a> 2.1 库初始化</h3>
+<h2 id="2、API-说明">2、API 说明</h2>
+<h3 id="2-1-库初始化">2.1 库初始化</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">cm_backtrace_init</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *firmware_name, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *hardware_ver, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *software_ver)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>firmware_name</code>	固件名称，需与编译器生成的固件名称对应</li>
@@ -433,7 +433,7 @@
 <blockquote>
 <p>注意 ：以上入参将会在断言或故障时输出，主要起了追溯的作用</p>
 </blockquote>
-<h3 id="22-获取函数调用栈"><a class="markdownIt-Anchor" href="#22-获取函数调用栈"></a> 2.2 获取函数调用栈</h3>
+<h3 id="2-2-获取函数调用栈">2.2 获取函数调用栈</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">size_t</span> <span class="hljs-title function_">cm_backtrace_call_stack</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> *buffer, <span class="hljs-type">size_t</span> size, <span class="hljs-type">uint32_t</span> sp)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>buffer</code>	存储函数调用栈的缓冲区</li>
@@ -442,7 +442,7 @@
 </ul>
 <p>示例：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 建立深度为 16 的函数调用栈缓冲区，深度大小不应该超过 CMB_CALL_STACK_MAX_DEPTH（默认16） */</span><br><span class="hljs-type">uint32_t</span> call_stack[<span class="hljs-number">16</span>] = &#123;<span class="hljs-number">0</span>&#125;;<br><span class="hljs-type">size_t</span> i, depth = <span class="hljs-number">0</span>;<br><span class="hljs-comment">/* 获取当前环境下的函数调用栈，每个元素将会以 32 位地址形式存储， depth 为函数调用栈实际深度 */</span><br>depth = cm_backtrace_call_stack(call_stack, <span class="hljs-keyword">sizeof</span>(call_stack), __get_SP());<br><br><span class="hljs-comment">/* 输出当前函数调用栈信息</span><br><span class="hljs-comment"> * 注意：查看函数名称及具体行号时，需要使用 addr2line 工具转换</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; depth; i++) &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%08x &quot;</span>, call_stack[i]);<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="23-追踪断言错误信息"><a class="markdownIt-Anchor" href="#23-追踪断言错误信息"></a> 2.3 追踪断言错误信息</h3>
+<h3 id="2-3-追踪断言错误信息">2.3 追踪断言错误信息</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">cm_backtrace_assert</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> sp)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>sp</code>	断言环境时的堆栈指针</li>
@@ -450,14 +450,14 @@
 <blockquote>
 <p>注意 ：入参 SP 尽量在断言函数内部获取，而且尽可能靠近断言函数开始的位置。当在断言函数的子函数中（例如：在 RT-Thread 的断言钩子方法中）使用时，由于函数嵌套会存在寄存器入栈的操作，此时再获取 SP 将发生变化，就需要人为调整（加减固定的偏差值）入参值，所以作为新手不建议在断言的子函数中使用该函数。</p>
 </blockquote>
-<h3 id="24-追踪故障错误信息"><a class="markdownIt-Anchor" href="#24-追踪故障错误信息"></a> 2.4 追踪故障错误信息</h3>
+<h3 id="2-4-追踪故障错误信息">2.4 追踪故障错误信息</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">cm_backtrace_fault</span><span class="hljs-params">(<span class="hljs-type">uint32_t</span> fault_handler_lr, <span class="hljs-type">uint32_t</span> fault_handler_sp)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li><code>fault_handler_lr</code>	故障处理函数环境下的 LR 寄存器值</li>
 <li><code>fault_handler_sp</code>	故障处理函数环境下的 SP 寄存器值</li>
 </ul>
 <p>该函数可以在故障处理函数（例如：<code>HardFault_Handler</code>）中调用。另外，库本身提供了 HardFault 处理的汇编文件（点击查看，需根据自己编译器进行选择），会在故障时自动调用 <code>cm_backtrace_fault</code> 方法。所以移植时，最简单的方式就是直接使用该汇编文件。</p>
-<h2 id="3-使用示例"><a class="markdownIt-Anchor" href="#3-使用示例"></a> 3、使用示例</h2>
+<h2 id="3、使用示例">3、使用示例</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// fault_test.c</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">fault_test_by_unalign</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> &#123;<br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> * SCB_CCR = (<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> *) <span class="hljs-number">0xE000ED14</span>; <span class="hljs-comment">// SCB-&gt;CCR</span><br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> * p;<br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> value;<br><br>    *SCB_CCR |= (<span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">3</span>); <span class="hljs-comment">/* bit3: UNALIGN_TRP. */</span><br><br>    p = (<span class="hljs-type">int</span> *) <span class="hljs-number">0x00</span>;<br>    value = *p;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr:0x%02X value:0x%08X\r\n&quot;</span>, (<span class="hljs-type">int</span>) p, value);<br><br>    p = (<span class="hljs-type">int</span> *) <span class="hljs-number">0x04</span>;<br>    value = *p;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr:0x%02X value:0x%08X\r\n&quot;</span>, (<span class="hljs-type">int</span>) p, value);<br><br>    p = (<span class="hljs-type">int</span> *) <span class="hljs-number">0x03</span>;<br>    value = *p;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;addr:0x%02X value:0x%08X\r\n&quot;</span>, (<span class="hljs-type">int</span>) p, value);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">fault_test_by_div0</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> &#123;<br>	<span class="hljs-comment">// 使能除 0 异常，否则会直接将结果当作 0 处理</span><br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> * SCB_CCR = (<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> *) <span class="hljs-number">0xE000ED14</span>; <span class="hljs-comment">// SCB-&gt;CCR</span><br>    <span class="hljs-type">int</span> x, y, z;<br><br>    *SCB_CCR |= (<span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">4</span>); <span class="hljs-comment">/* bit4: DIV_0_TRP. */</span><br><br>    x = <span class="hljs-number">10</span>;<br>    y = <span class="hljs-number">0</span>;<br>    z = x / y;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;z:%d\n&quot;</span>, z);<br>&#125;<br><br><span class="hljs-comment">// main.c</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> HARDWARE_VERSION               <span class="hljs-string">&quot;V1.0.0&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOFTWARE_VERSION               <span class="hljs-string">&quot;V0.1.0&quot;</span></span><br><br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">fault_test_by_unalign</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">fault_test_by_div0</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	... <span class="hljs-comment">// 一系列初始化函数</span><br><br>	cm_backtrace_init(<span class="hljs-string">&quot;CmBacktrace&quot;</span>, HARDWARE_VERSION, SOFTWARE_VERSION);<br>	<br>	fault_test_by_div0();<br> <br> 	<span class="hljs-comment">// 正常情况下不会执行到这</span><br>    <span class="hljs-type">uint8_t</span> _continue = <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span>(_continue == <span class="hljs-number">1</span>) &#123;<br>        bsp_led_on(GPIO_Pin_5);<br>        bsp_delay_ms(<span class="hljs-number">10000</span>);<br>        bsp_led_off(GPIO_Pin_5);<br>        bsp_delay_ms(<span class="hljs-number">10000</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>烧录运行后，从串口打印出如下信息：</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -479,7 +479,7 @@
 <p>进入 Keil 调试状态，看一下这个地址：</p>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>直接就定位到了错误的地方，比我们自己分析要方便不少！</p>
-<h2 id="4-重新演示"><a class="markdownIt-Anchor" href="#4-重新演示"></a> 4、重新演示</h2>
+<h2 id="4、重新演示">4、重新演示</h2>
 <p>下面再用 CmBacktrace 重新调试一下最开始我们分析的那个例子，对 test3 做了一下修改：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">test3</span><span class="hljs-params">(<span class="hljs-type">int</span> a)</span> &#123;<br>	<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> * SCB_CCR = (<span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> *) <span class="hljs-number">0xE000ED14</span>; <span class="hljs-comment">// SCB-&gt;CCR</span><br>	*SCB_CCR |= (<span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">4</span>); <span class="hljs-comment">/* bit4: DIV_0_TRP. */</span><br>	<br>	<span class="hljs-type">int</span> x;<br>	x = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> res = a / x;<br>	<br>	<span class="hljs-keyword">return</span> res;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">test2</span><span class="hljs-params">(<span class="hljs-type">int</span> arg)</span> &#123;<br>	<span class="hljs-type">int</span> res = test3(arg) * <span class="hljs-number">2</span>;<br>	<span class="hljs-keyword">return</span> res;<br>&#125;<br> <br><span class="hljs-type">int</span> <span class="hljs-title function_">test1</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> &#123;<br>	<span class="hljs-type">int</span> a2 = test2(a);<br>	<span class="hljs-keyword">return</span> a2 + b;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>

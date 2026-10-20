@@ -1,0 +1,1356 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、概述 本文主要介绍一下几种图像格式： RAW、RGB、YUV、NV12、MJPEG。 这些图像格式分别处于图像处理链路的不同阶段，从传感器原始数据到最终显示&#x2F;存储的压缩格式。下面按数据&quot;原始程度&quot;从高到低逐一讲解。 1采集 → 处理 → 显示 → 编码 → 传输 不同阶段需要不同的数据格式。  进一步简化： 123456789RAW ↓ISP ↓RGB &#x2F; YUV ↓编码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用图像格式介绍">
+<meta property="og:url" content="http://example.com/2026/08/15/%E5%B8%B8%E7%94%A8%E5%9B%BE%E5%83%8F%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、概述 本文主要介绍一下几种图像格式： RAW、RGB、YUV、NV12、MJPEG。 这些图像格式分别处于图像处理链路的不同阶段，从传感器原始数据到最终显示&#x2F;存储的压缩格式。下面按数据&quot;原始程度&quot;从高到低逐一讲解。 1采集 → 处理 → 显示 → 编码 → 传输 不同阶段需要不同的数据格式。  进一步简化： 123456789RAW ↓ISP ↓RGB &#x2F; YUV ↓编码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/08/15/%E5%B8%B8%E7%94%A8%E5%9B%BE%E5%83%8F%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/1.jpg">
+<meta property="og:image" content="http://example.com/2026/08/15/%E5%B8%B8%E7%94%A8%E5%9B%BE%E5%83%8F%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/2.jpg">
+<meta property="article:published_time" content="2026-08-15T14:51:53.000Z">
+<meta property="article:modified_time" content="2026-10-11T08:21:03.274Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="摄像头">
+<meta property="article:tag" content="图像格式">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/08/15/%E5%B8%B8%E7%94%A8%E5%9B%BE%E5%83%8F%E6%A0%BC%E5%BC%8F%E4%BB%8B%E7%BB%8D/1.jpg">
+  
+  
+  
+  <title>常用图像格式介绍 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="常用图像格式介绍"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-15 22:51" pubdate>
+          星期六, 八月 15日 2026, 10:51 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">常用图像格式介绍</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、概述</h1>
+<p>本文主要介绍一下几种图像格式： RAW、RGB、YUV、NV12、MJPEG。</p>
+<p>这些图像格式分别处于<strong>图像处理链路</strong>的<strong>不同阶段</strong>，从传感器原始数据到最终显示/存储的压缩格式。下面按数据&quot;原始程度&quot;从高到低逐一讲解。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">采集 → 处理 → 显示 → 编码 → 传输<br></code></pre></td></tr></table></figure>
+<p>不同阶段需要不同的数据格式。</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>进一步简化：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs text">RAW<br> ↓<br>ISP<br> ↓<br>RGB / YUV<br> ↓<br>编码<br> ↓<br>传输<br></code></pre></td></tr></table></figure>
+<h1>二、RAW —— 传感器原始数据</h1>
+<p><strong>定义</strong>：图像传感器（CMOS/CCD）每个像素点只感光一种颜色（红或绿或蓝），输出的是未经任何处理（原始数据）的电信号量化值。</p>
+<p><strong>关键特征</strong>：</p>
+<ul>
+<li>
+<p><strong>单通道</strong>：每个像素只有一个数值，不是 RGB 三通道</p>
+</li>
+<li>
+<p><strong>Bayer 阵列</strong>：最常见的排列方式，50% 绿、25% 红、25% 蓝</p>
+<p>text</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span> <span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span> <span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span><br><span class="hljs-selector-tag">G</span> <span class="hljs-selector-tag">B</span> <span class="hljs-selector-tag">G</span> <span class="hljs-selector-tag">B</span> <span class="hljs-selector-tag">G</span> <span class="hljs-selector-tag">B</span><br><span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span> <span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span> <span class="hljs-attribute">R</span> <span class="hljs-selector-tag">G</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>位深高</strong>：通常 10bit、12bit、14bit、16bit（普通 RGB 只有 8bit）</p>
+</li>
+<li>
+<p><strong>线性响应</strong>：没有经过 gamma、白平衡、去马赛克等处理</p>
+</li>
+<li>
+<p><strong>数据量大</strong>：例如 1920×1080×12bit ≈ 3MB/帧</p>
+</li>
+</ul>
+<p><strong>优点</strong>：保留最大信息量，后期空间大（白平衡、曝光可无损调整）<br>
+<strong>缺点</strong>：不能直接显示，必须经过 ISP 处理</p>
+<p><strong>典型场景</strong>：相机拍照、工业相机、手机 Sensor 输出</p>
+<h1>三、ISP —— 图像质量保证</h1>
+<blockquote>
+<p>RAW 数据无法直接显示。必须经过 ISP 处理。</p>
+</blockquote>
+<p><strong>ISP（Image Signal Processor，图像信号处理器）</strong>，它是从 <strong>RAW → 可显示图像</strong> 的完整处理管线。可以是：</p>
+<ul>
+<li><strong>硬件 ISP</strong>：手机 SoC 里的专用模块（高通 Spectra、联发科 Imagiq、海思 ISP）</li>
+<li><strong>软件 ISP</strong>：如 libcamera、Raspberry Pi 的 <code>raspistill</code>、OpenCV 部分流程</li>
+<li><strong>混合</strong>：硬件做实时部分，软件做高级处理</li>
+</ul>
+<p><strong>核心职责</strong>：把传感器输出的、人眼无法直接看的 Bayer RAW，变成色彩正确、亮度自然、噪点可控的 RGB/YUV 图像。</p>
+<p><img src="2.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Demosaic</td>
+<td>Bayer 插值</td>
+</tr>
+<tr>
+<td>AWB</td>
+<td>自动白平衡</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=277491949&amp;content_type=Article&amp;match_order=1&amp;q=AE&amp;zhida_source=entity">AE</a></td>
+<td>自动曝光</td>
+</tr>
+<tr>
+<td>AF</td>
+<td>自动对焦</td>
+</tr>
+<tr>
+<td>NR</td>
+<td>降噪</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td>Gamma校正</td>
+</tr>
+<tr>
+<td>CCM</td>
+<td>色彩校正</td>
+</tr>
+</tbody>
+</table>
+<p>ISP 的调校水平往往决定：夜视效果是否优秀。</p>
+<h1>四、RGB —— 三通道像素格式</h1>
+<p><strong>定义</strong>：每个像素用红、绿、蓝三个分量表示颜色，是最直观的颜色模型。</p>
+<p><strong>常见排布</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">格式</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">RGB888</td>
+<td style="text-align:left">每通道 8bit，共 24bit 像素</td>
+</tr>
+<tr>
+<td style="text-align:left">RGB565</td>
+<td style="text-align:left">R:5bit G:6bit B:5bit，共 16bit</td>
+</tr>
+<tr>
+<td style="text-align:left">RGBA8888</td>
+<td style="text-align:left">带 Alpha 通道，32bit</td>
+</tr>
+<tr>
+<td style="text-align:left">BGR888</td>
+<td style="text-align:left">OpenCV 默认顺序</td>
+</tr>
+</tbody>
+</table>
+<p>RGB888 - 最常见格式：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-built_in">R0</span> G0 B0 | <span class="hljs-built_in">R1</span> G1 B1 | <span class="hljs-built_in">R2</span> G2 B2 | ...<br></code></pre></td></tr></table></figure>
+<p><strong>优点</strong>：直观、显示设备原生支持、处理算法友好<br>
+<strong>缺点</strong>：数据量大；不符合人眼特性（人眼对亮度敏感、对色度不敏感）</p>
+<p><strong>典型场景</strong>：显示器、OpenCV、图像算法中间结果</p>
+<p>RGB565 - 嵌入式设备常见</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-built_in">R0</span> G0 B0 | <span class="hljs-built_in">R1</span> G1 B1 | <span class="hljs-built_in">R2</span> G2 B2 | ...<br></code></pre></td></tr></table></figure>
+<p>内存布局和 RGB888 一样，不过每个颜色占用的位数更小，适用于内存受限的嵌入式设备。</p>
+<p>需要注意，使用 opencv 时：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cv2.imread()<br></code></pre></td></tr></table></figure>
+<p>读取出来实际上是：BGR，而不是：RGB，这会导致：红色变蓝色。</p>
+<h1>五、YUV —— 亮度/色度分离</h1>
+<blockquote>
+<p><strong>定义</strong>：用 <strong>Y（亮度）</strong> 和 <strong>U/V（色度）</strong> 表示颜色。核心思想是<strong>色度可以降采样</strong>，因为人眼对亮度分辨率敏感、对色彩分辨率不敏感。</p>
+<p><strong>为什么能省带宽</strong>：</p>
+<ul>
+<li>Y 保留全部像素</li>
+<li>U/V 可以只存 1/2 或 1/4</li>
+</ul>
+</blockquote>
+<p>RGB 最大的问题：数据量太大</p>
+<p>例如：1920 × 1080 × 3 ≈ 6.22MB，那么 30FPS 带宽约等于 186MB/s。带宽压力巨大。</p>
+<p>YUV 将图像拆成：</p>
+<table>
+<thead>
+<tr>
+<th>分量</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Y</td>
+<td>亮度</td>
+</tr>
+<tr>
+<td>U</td>
+<td>蓝色差</td>
+</tr>
+<tr>
+<td>V</td>
+<td>红色差</td>
+</tr>
+</tbody>
+</table>
+<p>因为：人眼对亮度敏感，对颜色不敏感。所以：Y 完整保留，U/V 压缩存储。</p>
+<p>YUV 在存储上通常分为平面格式（<code>Planar</code>），半平面格式（<code>Semi-Planar</code>）以及打包格式（<code>Packed</code>）。</p>
+<ul>
+<li>平面格式有时也称为三面格式（<code>Triplanar</code>），即 Y, U, V 三个分量各自使用单独的数组保存，这种三平面分离的格式比较方便视频编码，例如：YV12、J420、IMC1、I422、J422</li>
+<li>半平面格式具有两个平面而不是三个平面，一个平面存储亮度（Y）分量，另一个平面存储两个色度（UV）分量。有时也将它们称为双平面格式（<code>BiPlanar</code>），例如：NV12、NV21</li>
+<li>打包格式通常只有一个平面，所有亮度（Y）和色度（UV）数据都交织在一起。有点类似于 RGB 格式，只是使用了不同的色彩空间，例如：AYUV、YUYV、UYVY</li>
+</ul>
+<p><strong>常见采样格式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">格式</th>
+<th style="text-align:left">含义</th>
+<th style="text-align:left">数据量（相对 RGB）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">YUV444</td>
+<td style="text-align:left">U/V 与 Y 同分辨率</td>
+<td style="text-align:left">3 字节/像素</td>
+</tr>
+<tr>
+<td style="text-align:left">YUV422</td>
+<td style="text-align:left">U/V 水平减半</td>
+<td style="text-align:left">2 字节/像素</td>
+</tr>
+<tr>
+<td style="text-align:left">YUV420</td>
+<td style="text-align:left">U/V 水平和垂直都减半</td>
+<td style="text-align:left">1.5 字节/像素</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-1-YUV444（无降采样）">5.1 YUV444（无降采样）</h2>
+<p>每个像素都有独立的 Y、U、V。</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs tp">像素:   (<span class="hljs-number">0</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">1</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">2</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">3</span>,<span class="hljs-number">0</span>)<br><span class="hljs-keyword">Y</span>:       <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">2</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">3</span><br>U:       U<span class="hljs-number">0</span>    U<span class="hljs-number">1</span>    U<span class="hljs-number">2</span>    U<span class="hljs-number">3</span><br>V:       V<span class="hljs-number">0</span>    V<span class="hljs-number">1</span>    V<span class="hljs-number">2</span>    V<span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+<p><strong>数据量</strong>：3 字节/像素（8bit 时）</p>
+<p><strong>图示</strong>（每个格子一个完整 YUV）：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs">┌────┬────┬────┬────┐<br>│YUV │YUV │YUV │YUV │<br>├────┼────┼────┼────┤<br>│YUV │YUV │YUV │YUV │<br>└────┴────┴────┴────┘<br></code></pre></td></tr></table></figure>
+<p><strong>用途</strong>：高质量后期、色度需要精确处理的场景。</p>
+<h2 id="5-2-YUV422（水平方向色度减半）">5.2 YUV422（水平方向色度减半）</h2>
+<p><strong>每 2 个水平相邻像素共用一组 U、V</strong>，Y 不变。</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs tp">像素:   (<span class="hljs-number">0</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">1</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">2</span>,<span class="hljs-number">0</span>) (<span class="hljs-number">3</span>,<span class="hljs-number">0</span>)<br><span class="hljs-keyword">Y</span>:       <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">2</span>    <span class="hljs-keyword">Y</span><span class="hljs-number">3</span><br>U:       U<span class="hljs-number">0</span>          U<span class="hljs-number">2</span><br>V:       V<span class="hljs-number">0</span>          V<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+<p>即：Y0 Y1 共用 U0 V0；Y2 Y3 共用 U2 V2。</p>
+<p><strong>数据量</strong>：2 字节/像素（Y 1 + UV 共 1）</p>
+<p><strong>图示</strong>：</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs tp">┌──────┬──────┬──────┬──────┐<br>│ <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>   │ <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>   │ <span class="hljs-keyword">Y</span><span class="hljs-number">2</span>   │ <span class="hljs-keyword">Y</span><span class="hljs-number">3</span>   │<br>│ U<span class="hljs-number">0</span> V<span class="hljs-number">0</span>│      │ U<span class="hljs-number">2</span> V<span class="hljs-number">2</span>│      │<br>└──────┴──────┴──────┴──────┘<br></code></pre></td></tr></table></figure>
+<p><strong>常见排布</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">名称</th>
+<th style="text-align:left">排布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">YUYV (YUY2)</td>
+<td style="text-align:left">Y0 U0 Y1 V0 Y2 U2 Y3 V2</td>
+</tr>
+<tr>
+<td style="text-align:left">UYVY</td>
+<td style="text-align:left">U0 Y0 V0 Y1 U2 Y2 V2 Y3</td>
+</tr>
+<tr>
+<td style="text-align:left">YV16</td>
+<td style="text-align:left">Y 平面 + U 平面 + V 平面（planar）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>用途</strong>：视频采集卡、专业视频、USB 摄像头</p>
+<h2 id="5-3-YUV420（水平和垂直都减半）">5.3 YUV420（水平和垂直都减半）</h2>
+<p><strong>每 2×2 的 4 个像素共用一组 U、V</strong>，Y 不变。</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gcode">像素:   <span class="hljs-comment">(0,0)</span> <span class="hljs-comment">(1,0)</span> <span class="hljs-comment">(2,0)</span> <span class="hljs-comment">(3,0)</span><br>        <span class="hljs-comment">(0,1)</span> <span class="hljs-comment">(1,1)</span> <span class="hljs-comment">(2,1)</span> <span class="hljs-comment">(3,1)</span><br>Y:       Y<span class="hljs-number">00</span>   Y<span class="hljs-number">10</span>   Y<span class="hljs-number">20</span>   Y<span class="hljs-number">30</span><br>         Y<span class="hljs-number">01</span>   Y<span class="hljs-number">11</span>   Y<span class="hljs-number">21</span>   Y<span class="hljs-number">31</span><br>U:       U<span class="hljs-number">0</span>          U<span class="hljs-number">2</span><br>V:       V<span class="hljs-number">0</span>          V<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+<p>即：Y00 Y10 Y01 Y11 共用 U0 V0。</p>
+<p><strong>数据量</strong>：1.5 字节/像素（Y 1 + UV 共 0.5）</p>
+<p><strong>关键</strong>：U、V 的分辨率是 Y 的 <strong>1/4</strong>（宽高各一半）。</p>
+<p><strong>图示</strong>（以 4×4 为例）：</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs tp"><span class="hljs-keyword">Y</span> 平面 (<span class="hljs-number">4</span>×<span class="hljs-number">4</span> = <span class="hljs-number">16</span> 个 <span class="hljs-keyword">Y</span>):<br>┌────┬────┬────┬────┐<br>│<span class="hljs-keyword">Y</span><span class="hljs-number">00</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">10</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">20</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">30</span> │<br>├────┼────┼────┼────┤<br>│<span class="hljs-keyword">Y</span><span class="hljs-number">01</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">11</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">21</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">31</span> │<br>├────┼────┼────┼────┤<br>│<span class="hljs-keyword">Y</span><span class="hljs-number">02</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">12</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">22</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">32</span> │<br>├────┼────┼────┼────┤<br>│<span class="hljs-keyword">Y</span><span class="hljs-number">03</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">13</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">23</span> │<span class="hljs-keyword">Y</span><span class="hljs-number">33</span> │<br>└────┴────┴────┴────┘<br><br>U/V 平面 (<span class="hljs-number">2</span>×<span class="hljs-number">2</span> = <span class="hljs-number">4</span> 组):<br>┌────┬────┐<br>│U0V<span class="hljs-number">0</span>│U2V<span class="hljs-number">2</span>│   ← 对应 <span class="hljs-keyword">Y</span> 的左上 <span class="hljs-number">2</span>×<span class="hljs-number">2</span> 和右上 <span class="hljs-number">2</span>×<span class="hljs-number">2</span><br>├────┼────┤<br>│U1V<span class="hljs-number">1</span>│U3V<span class="hljs-number">3</span>│   ← 对应 <span class="hljs-keyword">Y</span> 的左下 <span class="hljs-number">2</span>×<span class="hljs-number">2</span> 和右下 <span class="hljs-number">2</span>×<span class="hljs-number">2</span><br>└────┴────┘<br></code></pre></td></tr></table></figure>
+<h1>六、YUYV —— USB 摄像头最常见格式</h1>
+<p><strong>YUYV</strong>（也叫 <strong>YUY2</strong>，FourCC 代码 <code>YUYV</code> / <code>YUY2</code>）是 <strong>YUV422 的一种 packed（打包）排布</strong>。</p>
+<ul>
+<li><strong>采样格式</strong>：YUV422（色度水平减半）</li>
+<li><strong>内存排布</strong>：packed（Y、U、V 交错，不分区）</li>
+<li><strong>数据量</strong>：2 字节/像素</li>
+</ul>
+<p>核心规则：<strong>每 2 个水平相邻像素，共用一组 U、V，按 <code>Y0 U Y1 V</code> 的顺序打包。</strong></p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs tp">字节序:  <span class="hljs-keyword">Y</span><span class="hljs-number">0</span>  U<span class="hljs-number">0</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">1</span>  V<span class="hljs-number">0</span>  |  <span class="hljs-keyword">Y</span><span class="hljs-number">2</span>  U<span class="hljs-number">2</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">3</span>  V<span class="hljs-number">2</span>  |  <span class="hljs-keyword">Y</span><span class="hljs-number">4</span>  U<span class="hljs-number">4</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">5</span>  V<span class="hljs-number">4</span>  | ...<br>像素:    ├─ 像素<span class="hljs-number">0</span> ─┤├─ 像素<span class="hljs-number">1</span> ─┤<br>         └──── 共用 U<span class="hljs-number">0</span> V<span class="hljs-number">0</span> ────┘<br></code></pre></td></tr></table></figure>
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>每 4 个字节表示 2 个像素</li>
+<li>第 1 字节：像素 0 的 Y</li>
+<li>第 2 字节：像素 0/1 共用的 U</li>
+<li>第 3 字节：像素 1 的 Y</li>
+<li>第 4 字节：像素 0/1 共用的 V</li>
+</ul>
+<p><strong>图示</strong>（一行 8 像素）：</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs tp">内存:  <span class="hljs-keyword">Y</span><span class="hljs-number">0</span> U<span class="hljs-number">0</span> <span class="hljs-keyword">Y</span><span class="hljs-number">1</span> V<span class="hljs-number">0</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">2</span> U<span class="hljs-number">2</span> <span class="hljs-keyword">Y</span><span class="hljs-number">3</span> V<span class="hljs-number">2</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">4</span> U<span class="hljs-number">4</span> <span class="hljs-keyword">Y</span><span class="hljs-number">5</span> V<span class="hljs-number">4</span>  <span class="hljs-keyword">Y</span><span class="hljs-number">6</span> U<span class="hljs-number">6</span> <span class="hljs-keyword">Y</span><span class="hljs-number">7</span> V<span class="hljs-number">6</span><br>       └──像素<span class="hljs-number">0</span>,<span class="hljs-number">1</span>──┘ └──像素<span class="hljs-number">2</span>,<span class="hljs-number">3</span>──┘ └──像素<span class="hljs-number">4</span>,<span class="hljs-number">5</span>──┘ └──像素<span class="hljs-number">6</span>,<span class="hljs-number">7</span>──┘<br>       └─共用U0V<span class="hljs-number">0</span>─┘  └─共用U2V<span class="hljs-number">2</span>─┘  └─共用U4V<span class="hljs-number">4</span>─┘  └─共用U6V<span class="hljs-number">6</span>─┘<br></code></pre></td></tr></table></figure>
+<h1>七、NV12 —— 视频行业事实标准</h1>
+<p><strong>定义</strong>：NV12 是 <strong>YUV420SP</strong> 的一种，属于&quot;半平面（semi-planar）&quot;格式。</p>
+<p><strong>内存布局</strong>：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs prolog">[ <span class="hljs-symbol">Y</span> 平面：<span class="hljs-symbol">W</span>×<span class="hljs-symbol">H</span> 字节 ]<br>[ <span class="hljs-symbol">UV</span> 交错平面：(<span class="hljs-symbol">W</span>/<span class="hljs-number">2</span>)×(<span class="hljs-symbol">H</span>/<span class="hljs-number">2</span>)×<span class="hljs-number">2</span> 字节 ]<br>   <span class="hljs-symbol">U0</span> <span class="hljs-symbol">V0</span> <span class="hljs-symbol">U1</span> <span class="hljs-symbol">V1</span> <span class="hljs-symbol">U2</span> <span class="hljs-symbol">V2</span> ...<br></code></pre></td></tr></table></figure>
+<p>UV 平面的 strides, width 与 Y 平面一样长，但 height 仅为 Y 平面的一半。因此一个像素 12 bits，<strong>图示</strong>（以 4×4 为例）：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span><br><span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span><br><span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span><br><span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span> <span class="hljs-attribute">Y</span><br>---------<br>U V U V<br>U V U V<br></code></pre></td></tr></table></figure>
+<p><strong>对比其他 YUV420</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">格式</th>
+<th style="text-align:left">排布</th>
+<th style="text-align:left">特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">I420 (YU12)</td>
+<td style="text-align:left">Y + U平面 + V平面</td>
+<td style="text-align:left">三平面</td>
+</tr>
+<tr>
+<td style="text-align:left">YV12</td>
+<td style="text-align:left">Y + V平面 + U平面</td>
+<td style="text-align:left">三平面</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>NV12</strong></td>
+<td style="text-align:left">Y + UV交错</td>
+<td style="text-align:left">两平面（半平面）</td>
+</tr>
+<tr>
+<td style="text-align:left">NV21</td>
+<td style="text-align:left">Y + VU交错</td>
+<td style="text-align:left">两平面，Android 相机常用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么用 NV12</strong>：</p>
+<ul>
+<li>GPU/硬件编解码器友好（UV 交错连续，便于硬件读取）</li>
+<li>内存对齐简单</li>
+<li>Android Camera、Intel Media SDK、很多 ISP 输出默认格式</li>
+</ul>
+<p><strong>优点</strong>：硬件友好、省带宽<br>
+<strong>缺点</strong>：仍是 YUV 家族，需转换才能显示</p>
+<blockquote>
+<p>NV21 与 NV12 唯一区别：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-comment"># NV12</span><br><span class="hljs-attribute">UV</span> UV UV<br><br><span class="hljs-comment"># NV21</span><br>VU VU VU<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h1>八、MJPEG —— 运动 JPEG</h1>
+<blockquote>
+<h3 id="为什么需要-MJPEG？">为什么需要 MJPEG？</h3>
+<p>1080P@30FPS：</p>
+<p><strong>YUYV</strong> 需要带宽约为 124MB/s，USB2.0 无法承载。</p>
+<p>而 <strong>MJPEG</strong> 只需要 10~30MB/s。</p>
+</blockquote>
+<p><strong>定义</strong>：把视频的每一帧都独立用 <strong>JPEG 压缩</strong>，然后把这些 JPEG 帧串起来传输/存储。</p>
+<p><strong>结构</strong>：</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs prolog">[<span class="hljs-symbol">JPEG</span>帧<span class="hljs-number">1</span>][<span class="hljs-symbol">JPEG</span>帧<span class="hljs-number">2</span>][<span class="hljs-symbol">JPEG</span>帧<span class="hljs-number">3</span>]...<br></code></pre></td></tr></table></figure>
+<p><strong>关键特征</strong>：</p>
+<ul>
+<li><strong>帧内压缩</strong>：每帧独立，不依赖前后帧</li>
+<li><strong>有损压缩</strong>：压缩率高（可到 1/10~1/20）</li>
+<li><strong>可直接解码显示</strong>：每帧都是完整图片</li>
+</ul>
+<p><strong>对比其他视频编码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:left">MJPEG</th>
+<th style="text-align:left">H.264/H.265</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">压缩方式</td>
+<td style="text-align:left">仅帧内</td>
+<td style="text-align:left">帧内+帧间</td>
+</tr>
+<tr>
+<td style="text-align:left">压缩率</td>
+<td style="text-align:left">中</td>
+<td style="text-align:left">高</td>
+</tr>
+<tr>
+<td style="text-align:left">延迟</td>
+<td style="text-align:left">低</td>
+<td style="text-align:left">较高</td>
+</tr>
+<tr>
+<td style="text-align:left">随机访问</td>
+<td style="text-align:left">任意帧可解</td>
+<td style="text-align:left">需关键帧</td>
+</tr>
+<tr>
+<td style="text-align:left">计算复杂度</td>
+<td style="text-align:left">低</td>
+<td style="text-align:left">高</td>
+</tr>
+<tr>
+<td style="text-align:left">带宽</td>
+<td style="text-align:left">大</td>
+<td style="text-align:left">小</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优点</strong>：低延迟、实现简单、每帧独立、硬件要求低<br>
+<strong>缺点</strong>：压缩率不如 H.264，带宽/存储消耗大</p>
+<p><strong>典型场景</strong>：USB 摄像头、网络摄像头、工业相机、无人机图传、视频监控（低延迟场景）</p>
+<h1>九、H.264/H.265</h1>
+<p>需要注意的是，H.264 和 H.265 是视频压缩编码标准，和前面的 RAW/RGB/YUV/NV12/MJPEG 属于<strong>完全不同的层次</strong>——前面那些是<strong>像素格式</strong>，H.264/H.265 是<strong>压缩编码格式</strong>。</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">┌─────────────────────────────────────────────┐<br>│  像素格式层（未压缩 / 原始表示）              │<br>│  RAW → RGB → YUV → NV12 / YUYV / I420 <span class="hljs-string">...</span>   │<br>└─────────────────────────────────────────────┘<br>                    │<br>                    ▼<br>┌─────────────────────────────────────────────┐<br>│  压缩编码层（降低码率）                       │<br>│  MJPEG（帧内）  H.264  H.265  VP9  AV1 <span class="hljs-string">...</span>   │<br>└─────────────────────────────────────────────┘<br>                    │<br>                    ▼<br>┌─────────────────────────────────────────────┐<br>│  封装层（容器）                               │<br>│  MP4  MKV  TS  FLV  RTP <span class="hljs-string">...</span>                  │<br>└─────────────────────────────────────────────┘<br></code></pre></td></tr></table></figure>
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>YUV/NV12 是<strong>编码器的输入</strong></li>
+<li>H.264/H.265 是<strong>编码器的输出</strong>（压缩码流）</li>
+<li>MP4 等是<strong>容器</strong>，里面装 H.264/H.265 码流</li>
+</ul>
+<p>原始 YUV420 数据量太大：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">分辨率</th>
+<th style="text-align:left">帧率</th>
+<th style="text-align:left">YUV420 码率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">720p</td>
+<td style="text-align:left">30</td>
+<td style="text-align:left">~220 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">1080p</td>
+<td style="text-align:left">30</td>
+<td style="text-align:left">~500 Mbps</td>
+</tr>
+<tr>
+<td style="text-align:left">4K</td>
+<td style="text-align:left">60</td>
+<td style="text-align:left">~2000 Mbps</td>
+</tr>
+</tbody>
+</table>
+<p>而实际网络/存储需求：</p>
+<ul>
+<li>在线视频：几 Mbps</li>
+<li>蓝光：几十 Mbps</li>
+<li>视频通话：几百 kbps</li>
+</ul>
+<p>压缩比需要 100~1000 倍。</p>
+<h2 id="9-1-H-264">9.1 H.264</h2>
+<p><strong>全称</strong>：H.264 / MPEG-4 AVC（Advanced Video Coding）<br>
+<strong>发布</strong>：2003 年（ITU-T + ISO/IEC 联合）<br>
+<strong>别名</strong>：AVC、MPEG-4 Part 10</p>
+<ol>
+<li>核心框架</li>
+</ol>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs gcode">输入帧 <span class="hljs-comment">(YUV420)</span><br>   │<br>   ▼<br>┌──────────────┐<br>│ 帧内/帧间预测 │ ← 运动估计、参考帧<br>└──────────────┘<br>   │<br>   ▼<br>┌──────────────┐<br>│ 残差         │ = 原帧 - 预测帧<br>└──────────────┘<br>   │<br>   ▼<br>┌──────────────┐<br>│ 变换 <span class="hljs-comment">(DCT)</span>   │ <span class="hljs-number">4</span>×<span class="hljs-number">4</span> / <span class="hljs-number">8</span>×<span class="hljs-number">8</span> 整数变换<br>└──────────────┘<br>   │<br>   ▼<br>┌──────────────┐<br>│ 量化         │ 有损，压缩主要来源<br>└──────────────┘<br>   │<br>   ▼<br>┌──────────────┐<br>│ 熵编码       │ CABAC / CAVLC<br>└──────────────┘<br>   │<br>   ▼<br>H<span class="hljs-number">.264</span> 码流<br></code></pre></td></tr></table></figure>
+<ol start="2">
+<li>关键技术</li>
+</ol>
+<p><strong>① 帧类型</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">I 帧</td>
+<td style="text-align:left">帧内编码，独立可解，关键帧</td>
+</tr>
+<tr>
+<td style="text-align:left">P 帧</td>
+<td style="text-align:left">前向预测，参考前面的帧</td>
+</tr>
+<tr>
+<td style="text-align:left">B 帧</td>
+<td style="text-align:left">双向预测，参考前后帧</td>
+</tr>
+</tbody>
+</table>
+<p><strong>② 宏块（Macroblock）</strong></p>
+<ul>
+<li>H.264 基本单元是 <strong>16×16 宏块</strong></li>
+<li>可细分到 16×16、16×8、8×16、8×8、8×4、4×4</li>
+</ul>
+<p><strong>③ 运动估计与补偿</strong></p>
+<ul>
+<li>在参考帧里找最匹配的块</li>
+<li>记录<strong>运动矢量（MV）</strong>，而非像素本身</li>
+<li>支持 1/4 像素精度</li>
+</ul>
+<p><strong>④ 变换与量化</strong></p>
+<ul>
+<li>4×4 / 8×8 整数 DCT</li>
+<li>量化步长 QP（0~51），越大压缩越狠、画质越差</li>
+</ul>
+<p><strong>⑤ 熵编码</strong></p>
+<ul>
+<li><strong>CAVLC</strong>：上下文自适应变长编码，简单</li>
+<li><strong>CABAC</strong>：上下文自适应二进制算术编码，压缩率高 10~15%，但慢</li>
+</ul>
+<p><strong>⑥ 环路滤波</strong></p>
+<ul>
+<li>去块滤波（Deblocking Filter）</li>
+<li>消除块效应</li>
+</ul>
+<ol start="3">
+<li>Profile 与 Level</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Profile</th>
+<th style="text-align:left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Baseline</td>
+<td style="text-align:left">视频通话、低延迟</td>
+</tr>
+<tr>
+<td style="text-align:left">Main</td>
+<td style="text-align:left">标清/高清广播</td>
+</tr>
+<tr>
+<td style="text-align:left">High</td>
+<td style="text-align:left">蓝光、高清存储</td>
+</tr>
+<tr>
+<td style="text-align:left">High 10</td>
+<td style="text-align:left">10bit</td>
+</tr>
+<tr>
+<td style="text-align:left">High 4:4:4</td>
+<td style="text-align:left">专业</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Level</strong>：限制分辨率、码率、宏块数等（如 Level 4.1 支持 1080p30）</p>
+<ol start="4">
+<li>优缺点</li>
+</ol>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>压缩率高（比 MPEG-2 高 2~3 倍）</li>
+<li>兼容性极好，几乎所有设备支持</li>
+<li>硬件编解码成熟</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>相比 H.265 压缩率低</li>
+<li>4K/8K 下码率仍偏高</li>
+</ul>
+<h2 id="9-2-H-265">9.2 H.265</h2>
+<p><strong>全称</strong>：H.265 / HEVC（High Efficiency Video Coding）<br>
+<strong>发布</strong>：2013 年<br>
+<strong>目标</strong>：在相同画质下，码率比 H.264 <strong>降低 50%</strong></p>
+<ol>
+<li>相对 H.264 的改进</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方面</th>
+<th style="text-align:left">H.264</th>
+<th style="text-align:left">H.265</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">基本单元</td>
+<td style="text-align:left">16×16 宏块</td>
+<td style="text-align:left"><strong>CTU 最大 64×64</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">块划分</td>
+<td style="text-align:left">固定几种</td>
+<td style="text-align:left"><strong>四叉树灵活划分</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">变换</td>
+<td style="text-align:left">4×4 / 8×8</td>
+<td style="text-align:left"><strong>4×4 ~ 32×32</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">帧内预测</td>
+<td style="text-align:left">9 种方向</td>
+<td style="text-align:left"><strong>35 种方向</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">运动补偿</td>
+<td style="text-align:left">1/4 像素</td>
+<td style="text-align:left">1/4 像素 + 更多模式</td>
+</tr>
+<tr>
+<td style="text-align:left">熵编码</td>
+<td style="text-align:left">CABAC/CAVLC</td>
+<td style="text-align:left"><strong>仅 CABAC</strong>（改进版）</td>
+</tr>
+<tr>
+<td style="text-align:left">并行处理</td>
+<td style="text-align:left">有限</td>
+<td style="text-align:left"><strong>Tile、WPP</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">环路滤波</td>
+<td style="text-align:left">Deblocking</td>
+<td style="text-align:left">Deblocking + <strong>SAO</strong></td>
+</tr>
+</tbody>
+</table>
+<ol start="2">
+<li>关键技术</li>
+</ol>
+<p><strong>① CTU（Coding Tree Unit）</strong></p>
+<ul>
+<li>最大 64×64</li>
+<li>用四叉树递归划分到 8×8</li>
+<li>大块适合平坦区，小块适合细节区</li>
+</ul>
+<p><strong>② 35 种帧内预测方向</strong></p>
+<ul>
+<li>H.264 只有 9 种</li>
+<li>更精确的方向预测 → 残差更小</li>
+</ul>
+<p><strong>③ SAO（Sample Adaptive Offset）</strong></p>
+<ul>
+<li>在去块滤波后，逐像素补偿</li>
+<li>减少振铃效应，提升画质</li>
+</ul>
+<p><strong>④ WPP / Tile 并行</strong></p>
+<ul>
+<li>Wavefront Parallel Processing</li>
+<li>多核并行编码/解码</li>
+</ul>
+<ol start="3">
+<li>Profile 与 Level</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Profile</th>
+<th style="text-align:left">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Main</td>
+<td style="text-align:left">8bit 4:2:0</td>
+</tr>
+<tr>
+<td style="text-align:left">Main 10</td>
+<td style="text-align:left">10bit 4:2:0（HDR）</td>
+</tr>
+<tr>
+<td style="text-align:left">Main Still Picture</td>
+<td style="text-align:left">单帧图像</td>
+</tr>
+<tr>
+<td style="text-align:left">Main 4:4:4</td>
+<td style="text-align:left">专业</td>
+</tr>
+</tbody>
+</table>
+<ol start="4">
+<li>优缺点</li>
+</ol>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>压缩率比 H.264 高 50%</li>
+<li>支持 4K/8K、HDR、10bit</li>
+<li>适合带宽受限场景</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li><strong>专利授权复杂</strong>（多个专利池）</li>
+<li>编码复杂度高（比 H.264 高 2~10 倍）</li>
+<li>老旧设备不支持</li>
+<li>浏览器支持不如 H.264 广泛</li>
+</ul>
+<h1>十、常见格式数据量对比</h1>
+<p>以 1920×1080 为例：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>每像素占用</th>
+<th>单帧大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RGB888</td>
+<td>3 Byte</td>
+<td>6.22 MB</td>
+</tr>
+<tr>
+<td>YUYV</td>
+<td>2 Byte</td>
+<td>4.15 MB</td>
+</tr>
+<tr>
+<td>NV12</td>
+<td>1.5 Byte</td>
+<td>3.11 MB</td>
+</tr>
+<tr>
+<td>MJPEG</td>
+<td>压缩后</td>
+<td>0.1~1 MB</td>
+</tr>
+</tbody>
+</table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E6%91%84%E5%83%8F%E5%A4%B4/" class="category-chain-item">摄像头</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%91%84%E5%83%8F%E5%A4%B4/" class="print-no-link">#摄像头</a>
+      
+        <a href="/tags/%E5%9B%BE%E5%83%8F%E6%A0%BC%E5%BC%8F/" class="print-no-link">#图像格式</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>常用图像格式介绍</div>
+      <div>http://example.com/2026/08/15/常用图像格式介绍/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/16/Rockchip-RGA-%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" title="Rockchip RGA 简单使用">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Rockchip RGA 简单使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/12/V4L2%E6%A1%86%E6%9E%B6%E2%80%94%E2%80%94%E8%A7%86%E9%A2%91%E9%87%87%E9%9B%86%E5%AE%8C%E6%95%B4%E9%93%BE%E8%B7%AF/" title="V4L2框架——视频采集完整链路">
+                        <span class="hidden-mobile">V4L2框架——视频采集完整链路</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

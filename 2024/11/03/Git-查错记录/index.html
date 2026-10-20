@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题   一、ssh: connect to host github.com port 22: Connection refused 123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read">
+    <meta name="description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused 123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Git 查错记录">
 <meta property="og:url" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题   一、ssh: connect to host github.com port 22: Connection refused 123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read">
+<meta property="og:description" content="[toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused 123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/1.png">
 <meta property="og:image" content="http://example.com/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/2.png">
@@ -287,7 +287,7 @@
 <blockquote>
 <p>本文记录本人了最近在 Git 开发遇到的一些问题</p>
 </blockquote>
-<h1 id="一-ssh-connect-to-host-githubcom-port-22-connection-refused"><a class="markdownIt-Anchor" href="#一-ssh-connect-to-host-githubcom-port-22-connection-refused"></a> 一、ssh: connect to host <a target="_blank" rel="noopener" href="http://github.com">github.com</a> port 22: Connection refused</h1>
+<h1>一、ssh: connect to host <a target="_blank" rel="noopener" href="http://github.com">github.com</a> port 22: Connection refused</h1>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git pull origin</span><br>ssh: connect to host github.com port 22: Connection refused<br>fatal: Could not read from remote repository.<br><br>Please make sure you have the correct access rights<br>and the repository exists.<br></code></pre></td></tr></table></figure>
 <p>遇到这个问题，说明 22 端口可能被防火墙屏蔽了，可以尝试连接 GitHub 的 443 端口。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">vim ~/.ssh/config</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">添加如下几行</span><br>Host github.com<br>  Hostname ssh.github.com<br>  Port 443<br></code></pre></td></tr></table></figure>
@@ -299,7 +299,7 @@
 <p>如果 <code>~/.ssh</code> 目录下没有 config 文件，新建一个即可。<br>
 <br>这个方案有效的前提是：执行命令 <code>ssh -T -p 443 git@ssh.github.com</code> 后不再提示 connection refused，所以要尝试这个方案的话先执行这条命令测试下。</p>
 </blockquote>
-<h1 id="二-免密登录"><a class="markdownIt-Anchor" href="#二-免密登录"></a> 二、免密登录</h1>
+<h1>二、免密登录</h1>
 <ol>
 <li><code>HTTPS</code> 配置免密登录</li>
 </ol>
@@ -325,7 +325,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ssh -T git@github.com</span><br></code></pre></td></tr></table></figure>
 <p>出现 successfully 就成功了：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Hi &lt;USERNAME&gt;! You&#x27;ve successfully authenticated, but GitHub does not provide shell access.<br></code></pre></td></tr></table></figure>
-<h1 id="三-rejected-master-master-fetch-first"><a class="markdownIt-Anchor" href="#三-rejected-master-master-fetch-first"></a> 三、! [rejected]        master -&gt; master (fetch first)</h1>
+<h1>三、! [rejected]        master -&gt; master (fetch first)</h1>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>出现这种问题是由于本地仓库与远程仓库存在冲突导致的，一般是由于先有的本地仓库，然后创建远程仓库并用 <code>git remote add</code> 命令进行关联。此时，远程仓库存在 <code>README.md</code> 和 <code>.gitignore</code> 文件，而本地仓库不存在，此时使用 <code>git push</code> 提交命令则会报错，错误如下所示：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git push origin main</span><br>! [rejected]        master -&gt; master (fetch first)<br>error: 无法推送一些引用到 &#x27;git@github.com:JJXiangJiaoJun/My_JSP.git&#x27;<br>提示：更新被拒绝，因为远程仓库包含您本地尚不存在的提交。这通常是因为另外<br>提示：一个仓库已向该引用进行了推送。再次推送前，您可能需要先整合远程变更<br>提示：（如 &#x27;git pull ...&#x27;）。<br>提示：详见 &#x27;git push --help&#x27; 中的 &#x27;Note about fast-forwards&#x27; 小节。<br></code></pre></td></tr></table></figure>
@@ -354,13 +354,13 @@
 <blockquote>
 <p>推荐使用第二种方法，虽然麻烦点，但是可靠</p>
 </blockquote>
-<h1 id="四-error-源引用表达式-main-没有匹配"><a class="markdownIt-Anchor" href="#四-error-源引用表达式-main-没有匹配"></a> 四、error: 源引用表达式 main 没有匹配</h1>
+<h1>四、error: 源引用表达式 main 没有匹配</h1>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git push origin main</span><br>error: 源引用表达式 main 没有匹配<br>error: 推送一些引用到 ‘https://github.com/***.git’ 失败<br></code></pre></td></tr></table></figure>
 <p>这里我们使用的是 <code>git push origin main</code> 命令，希望将本地代码文件夹同步到远程 repo 上去，在执行“<code>git push</code>”命令时出现了错误；</p>
 <p>在经过一系列调试之后，我们发现这里错误的原因是本地没有 main 分支，这又是什么情况呢？</p>
 <p>因为在一般情况下，如果当前本地 repo 没有任何分支，在执行 <code>git add</code> 操作时，会先建立一个默认的本地分支，并且默认 repo 的名称为 master。</p>
-<p>于是错误提示中的“源引用表达式 main”实际上指的是<mark>待上传源分支main</mark>，而此时本地 Git 工作区中不存在 main 分支，（因为默认建立的是 master 分支），于是 Git 给出了 main 匹配不到的错误提示；当前本地分支名是可以修改的，新版本的git也给出了修改的提示：</p>
+<p>于是错误提示中的“源引用表达式 main”实际上指的是==待上传源分支main==，而此时本地 Git 工作区中不存在 main 分支，（因为默认建立的是 master 分支），于是 Git 给出了 main 匹配不到的错误提示；当前本地分支名是可以修改的，新版本的git也给出了修改的提示：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">提示：使用 ‘master’ 作为初始分支的名称。这个默认分支名称可能会更改。要在新仓库中<br>提示：配置使用初始分支名，并消除这条警告，请执行：<br>提示：<br>提示： git config --global init.defaultBranch &lt;名称&gt;<br>提示：<br>提示：除了 ‘master’ 之外，通常选定的名字有 ‘main’、‘trunk’ 和 ‘development’。<br>提示：可以通过以下命令重命名刚创建的分支：<br>提示：<br>提示： git branch -m<br></code></pre></td></tr></table></figure>
 <p>出现这个问题的最主要原因还是在于本地仓库和远程仓库实际上是独立的两个仓库。假如我之前是直接 clone 的方式在本地建立起远程 Github 仓库的克隆本地仓库就不会有这问题了。</p>
 <p>所以解决办法就是修改分支名称：</p>

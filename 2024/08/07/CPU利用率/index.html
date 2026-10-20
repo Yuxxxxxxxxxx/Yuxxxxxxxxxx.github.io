@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。  一、什么是 CPU 使用率 Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量">
+    <meta name="description" content="[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率 Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 J">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下查看 CPU 使用率">
 <meta property="og:url" content="http://example.com/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。  一、什么是 CPU 使用率 Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量">
+<meta property="og:description" content="[toc]  CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。 一、什么是 CPU 使用率 Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。 为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 J">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/1.png">
 <meta property="og:image" content="http://example.com/2024/08/07/CPU%E5%88%A9%E7%94%A8%E7%8E%87/2.png">
@@ -248,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          3.6k 字
         
       </span>
     
@@ -259,7 +259,7 @@
         
         
         
-          24 分钟
+          30 分钟
         
       </span>
     
@@ -304,7 +304,7 @@
                 <p>[toc]</p>
 <hr>
 <p>CPU 使用率是最直观和最常用的系统性能指标，更是我们在排查性能问题时，通常会关注的第一个指标。</p>
-<h1 id="一-什么是-cpu-使用率"><a class="markdownIt-Anchor" href="#一-什么是-cpu-使用率"></a> 一、什么是 CPU 使用率</h1>
+<h1>一、什么是 CPU 使用率</h1>
 <p>Linux 作为一个多任务操作系统，将每个 CPU 的时间划分为很短的时间片，再通过调度器轮流分配给各个任务使用，因此造成多任务同时运行的错觉。</p>
 <p>为了维护 CPU 时间， Linux 通过事先定义的节拍率(内核中表示为 HZ)，触发时间中断，并使用全局变量 Jiffies  记录了开机以来的节拍数。每发生一次时间中断，Jiffies 的值就加 1。节拍率 HZ 是内核的可配选项，可以设置为 100、250、1000 等。不同的系统可能设置不同数值。</p>
 <p>Linux 通过 <code>/proc</code> 虚拟文件系统，向用户空间提供了系统内部状态的信息，而 <code>/proc/stat</code> 提供的就是系统的 CPU 和任务统计信息。比方说，如果你只关注 CPU 的话，可以执行下面的命令：</p>
@@ -312,7 +312,7 @@
 <p>第一列表示的是 CPU 编号，如 cpu0、cpu1 ，而第一行没有编号的 cpu ，表示的是所有 CPU 的累加结果。其他列则表示不同场景下 CPU 的累加节拍数，它的单位是 <code>USER_HZ</code>，也就是 10 ms（1/100 秒），所以这其实就是不同场景下的 CPU 时间。下面，依次为各列的含义：</p>
 <ul>
 <li><strong>user</strong>（通常缩写为 us），代表用户态 CPU 时间。注意，它不包括下面的 <code>nice</code>时间，但包括了 <code>guest</code> 时间。</li>
-<li><strong>nice</strong>（通常缩写为 ni），代表低优先级用户态 CPU 时间，也就是进程的 nice 值被调整为 <code>1-19</code> 之间时的 CPU 时间。这里注意，nice 可取值范围是 -20 到 19，<mark>数值越大，优先级反而越低</mark>。</li>
+<li><strong>nice</strong>（通常缩写为 ni），代表低优先级用户态 CPU 时间，也就是进程的 nice 值被调整为 <code>1-19</code> 之间时的 CPU 时间。这里注意，nice 可取值范围是 -20 到 19，==数值越大，优先级反而越低==。</li>
 <li><strong>system</strong>（通常缩写为 sys），代表内核态 CPU 时间。</li>
 <li><strong>idle</strong>（通常缩写为 id），代表空闲时间。注意，它不包括等待 I/O 的时间（iowait）。</li>
 <li><strong>iowait</strong>（通常缩写为 wa），代表等待 I/O 的 CPU 时间。</li>
@@ -323,15 +323,333 @@
 <li><strong>guest_nice</strong>（通常缩写为 gnice），代表以低优先级运行虚拟机的时间。</li>
 </ul>
 <p>而我们通常所说的 CPU 使用率，就是除了空闲时间外的其他时间占总 CPU 时间的百分比，用公式来表示就是：</p>
-<p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>P</mi><mi>U</mi><mtext>使用率</mtext><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mtext>空闲时间</mtext><mrow><mtext>总</mtext><mi>C</mi><mi>P</mi><mi>U</mi><mtext>时间</mtext></mrow></mfrac></mrow><annotation encoding="application/x-tex">CPU 使用率 = 1 -  \frac{空闲时间}{总 CPU时间}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mord cjk_fallback">使</span><span class="mord cjk_fallback">用</span><span class="mord cjk_fallback">率</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">总</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">间</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">空</span><span class="mord cjk_fallback">闲</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">间</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>但直接用 <code>/proc/stat</code> 的数据这是开机以来的节拍数累加值，所以直接算出来的，是开机以来的平均 CPU 使用率，一般没有什么参考价值。</p>
+
+    <span id="mjx-9ef2256">
+      <style>
+      #mjx-9ef2256{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" display="true" style="position: relative;"><svg style="vertical-align: -2.059ex;" xmlns="http://www.w3.org/2000/svg" width="31.792ex" height="5.285ex" role="img" focusable="false" viewbox="0 -1426 14052 2336" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(760,0)"><path data-c="1D443" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/></g><g data-mml-node="mi" transform="translate(1511,0)"><path data-c="1D448" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/></g><g data-mml-node="mi" transform="translate(2278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">使</text></g><g data-mml-node="mi" transform="translate(3278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">用</text></g><g data-mml-node="mi" transform="translate(4278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">率</text></g><g data-mml-node="mo" transform="translate(5555.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mn" transform="translate(6611.6,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mo" transform="translate(7333.8,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mfrac" transform="translate(8334,0)"><g data-mml-node="mrow" transform="translate(859,676)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">空</text></g><g data-mml-node="mi" transform="translate(1000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">闲</text></g><g data-mml-node="mi" transform="translate(2000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="mi" transform="translate(3000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g></g><g data-mml-node="mrow" transform="translate(220,-710)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">总</text></g><g data-mml-node="mi" transform="translate(1000,0)"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(1760,0)"><path data-c="1D443" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/></g><g data-mml-node="mi" transform="translate(2511,0)"><path data-c="1D448" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/></g><g data-mml-node="mi" transform="translate(3278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="mi" transform="translate(4278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g></g><rect width="5478" height="60" x="120" y="220"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>C</mi><mi>P</mi><mi>U</mi><mi mathvariant="normal">使</mi><mi mathvariant="normal">用</mi><mi mathvariant="normal">率</mi><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi mathvariant="normal">空</mi><mi mathvariant="normal">闲</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">间</mi></mrow><mrow><mi mathvariant="normal">总</mi><mi>C</mi><mi>P</mi><mi>U</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">间</mi></mrow></mfrac></math></mjx-assistive-mml></mjx-container>
+    </span>
+  <p>但直接用 <code>/proc/stat</code> 的数据这是开机以来的节拍数累加值，所以直接算出来的，是开机以来的平均 CPU 使用率，一般没有什么参考价值。</p>
 <p>事实上，为了计算 CPU 使用率，性能工具一般都会取间隔一段时间（比如 1 秒）的两次值，作差后，再计算出这段时间内的平均 CPU 使用率，即：</p>
-<p class="katex-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>平均</mtext><mi>C</mi><mi>P</mi><mi>U</mi><mtext>使用率</mtext><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mtext>空闲时</mtext><msub><mtext>间</mtext><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>−</mo><mtext>空闲时</mtext><msub><mtext>间</mtext><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mrow><mrow><mtext>总</mtext><mi>C</mi><mi>P</mi><mi>U</mi><mtext>时</mtext><msub><mtext>间</mtext><mrow><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>−</mo><mtext>总</mtext><mi>C</mi><mi>P</mi><mi>U</mi><mtext>时</mtext><msub><mtext>间</mtext><mrow><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">平均 CPU 使用率 = 1 -  \frac{空闲时间_{new} - 空闲时间_{old}}{总 CPU时间_{new} - 总 CPU时间_{old}}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord cjk_fallback">平</span><span class="mord cjk_fallback">均</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mord cjk_fallback">使</span><span class="mord cjk_fallback">用</span><span class="mord cjk_fallback">率</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.19633em;vertical-align:-0.8360000000000001em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.3139999999999996em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">总</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mord cjk_fallback">时</span><span class="mord"><span class="mord cjk_fallback">间</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord cjk_fallback">总</span><span class="mord mathnormal" style="margin-right:0.07153em;">C</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mord cjk_fallback">时</span><span class="mord"><span class="mord cjk_fallback">间</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">空</span><span class="mord cjk_fallback">闲</span><span class="mord cjk_fallback">时</span><span class="mord"><span class="mord cjk_fallback">间</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02691em;">w</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord cjk_fallback">空</span><span class="mord cjk_fallback">闲</span><span class="mord cjk_fallback">时</span><span class="mord"><span class="mord cjk_fallback">间</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8360000000000001em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
-<p>跟系统的指标类似，Linux 也给每个进程提供了运行情况的统计信息，也就是 <code>/proc/[pid]/stat</code>。不过，这个文件包含的数据就比较丰富了，总共有 52 列的数据，这里不再赘述。</p>
-<h1 id="二-查看-cpu-利用率"><a class="markdownIt-Anchor" href="#二-查看-cpu-利用率"></a> 二、查看 CPU 利用率</h1>
-<h2 id="1-使用-top-查看"><a class="markdownIt-Anchor" href="#1-使用-top-查看"></a> 1、使用 top 查看</h2>
+
+    <span id="mjx-e7779ec">
+      <style>
+      #mjx-e7779ec{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" display="true" style="position: relative;"><svg style="vertical-align: -2.059ex;" xmlns="http://www.w3.org/2000/svg" width="56.335ex" height="5.285ex" role="img" focusable="false" viewbox="0 -1426 24899.9 2336" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">平</text></g><g data-mml-node="mi" transform="translate(1000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">均</text></g><g data-mml-node="mi" transform="translate(2000,0)"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(2760,0)"><path data-c="1D443" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/></g><g data-mml-node="mi" transform="translate(3511,0)"><path data-c="1D448" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/></g><g data-mml-node="mi" transform="translate(4278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">使</text></g><g data-mml-node="mi" transform="translate(5278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">用</text></g><g data-mml-node="mi" transform="translate(6278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">率</text></g><g data-mml-node="mo" transform="translate(7555.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mn" transform="translate(8611.6,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mo" transform="translate(9333.8,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mfrac" transform="translate(10334,0)"><g data-mml-node="mrow" transform="translate(1498,676)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">空</text></g><g data-mml-node="mi" transform="translate(1000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">闲</text></g><g data-mml-node="mi" transform="translate(2000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="msub" transform="translate(3000,0)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g><g data-mml-node="TeXAtom" transform="translate(1033,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mi" transform="translate(600,0)"><path data-c="1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/></g><g data-mml-node="mi" transform="translate(1066,0)"><path data-c="1D464" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"/></g></g></g><g data-mml-node="mo" transform="translate(5565.3,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mi" transform="translate(6565.5,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">空</text></g><g data-mml-node="mi" transform="translate(7565.5,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">闲</text></g><g data-mml-node="mi" transform="translate(8565.5,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="msub" transform="translate(9565.5,0)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g><g data-mml-node="TeXAtom" transform="translate(1033,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D45C" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/></g><g data-mml-node="mi" transform="translate(485,0)"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"/></g><g data-mml-node="mi" transform="translate(783,0)"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g></g></g></g><g data-mml-node="mrow" transform="translate(220,-710)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">总</text></g><g data-mml-node="mi" transform="translate(1000,0)"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(1760,0)"><path data-c="1D443" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/></g><g data-mml-node="mi" transform="translate(2511,0)"><path data-c="1D448" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/></g><g data-mml-node="mi" transform="translate(3278,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="msub" transform="translate(4278,0)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g><g data-mml-node="TeXAtom" transform="translate(1033,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mi" transform="translate(600,0)"><path data-c="1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/></g><g data-mml-node="mi" transform="translate(1066,0)"><path data-c="1D464" d="M580 385Q580 406 599 424T641 443Q659 443 674 425T690 368Q690 339 671 253Q656 197 644 161T609 80T554 12T482 -11Q438 -11 404 5T355 48Q354 47 352 44Q311 -11 252 -11Q226 -11 202 -5T155 14T118 53T104 116Q104 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Q21 293 29 315T52 366T96 418T161 441Q204 441 227 416T250 358Q250 340 217 250T184 111Q184 65 205 46T258 26Q301 26 334 87L339 96V119Q339 122 339 128T340 136T341 143T342 152T345 165T348 182T354 206T362 238T373 281Q402 395 406 404Q419 431 449 431Q468 431 475 421T483 402Q483 389 454 274T422 142Q420 131 420 107V100Q420 85 423 71T442 42T487 26Q558 26 600 148Q609 171 620 213T632 273Q632 306 619 325T593 357T580 385Z"/></g></g></g><g data-mml-node="mo" transform="translate(6843.3,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mi" transform="translate(7843.5,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">总</text></g><g data-mml-node="mi" transform="translate(8843.5,0)"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(9603.5,0)"><path data-c="1D443" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/></g><g data-mml-node="mi" transform="translate(10354.5,0)"><path data-c="1D448" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/></g><g data-mml-node="mi" transform="translate(11121.5,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">时</text></g><g data-mml-node="msub" transform="translate(12121.5,0)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">间</text></g><g data-mml-node="TeXAtom" transform="translate(1033,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D45C" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/></g><g data-mml-node="mi" transform="translate(485,0)"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"/></g><g data-mml-node="mi" transform="translate(783,0)"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g></g></g></g><rect width="14325.9" height="60" x="120" y="220"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi mathvariant="normal">平</mi><mi mathvariant="normal">均</mi><mi>C</mi><mi>P</mi><mi>U</mi><mi mathvariant="normal">使</mi><mi mathvariant="normal">用</mi><mi mathvariant="normal">率</mi><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi mathvariant="normal">空</mi><mi mathvariant="normal">闲</mi><mi mathvariant="normal">时</mi><msub><mi mathvariant="normal">间</mi><mrow data-mjx-texclass="ORD"><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>−</mo><mi mathvariant="normal">空</mi><mi mathvariant="normal">闲</mi><mi mathvariant="normal">时</mi><msub><mi mathvariant="normal">间</mi><mrow data-mjx-texclass="ORD"><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mrow><mrow><mi mathvariant="normal">总</mi><mi>C</mi><mi>P</mi><mi>U</mi><mi mathvariant="normal">时</mi><msub><mi mathvariant="normal">间</mi><mrow data-mjx-texclass="ORD"><mi>n</mi><mi>e</mi><mi>w</mi></mrow></msub><mo>−</mo><mi mathvariant="normal">总</mi><mi>C</mi><mi>P</mi><mi>U</mi><mi mathvariant="normal">时</mi><msub><mi mathvariant="normal">间</mi><mrow data-mjx-texclass="ORD"><mi>o</mi><mi>l</mi><mi>d</mi></mrow></msub></mrow></mfrac></math></mjx-assistive-mml></mjx-container>
+    </span>
+  <p>跟系统的指标类似，Linux 也给每个进程提供了运行情况的统计信息，也就是 <code>/proc/[pid]/stat</code>。不过，这个文件包含的数据就比较丰富了，总共有 52 列的数据，这里不再赘述。</p>
+<h1>二、查看 CPU 利用率</h1>
+<h2 id="1、使用-top-查看">1、使用 top 查看</h2>
 <p><code>top</code> 是一个命令行工具安装在任何 Linux 系统上，它主要提供由 Linux 内核管理的所有当前运行任务的动态实时统计汇总。它监视 Linux 系统上进程、CPU 和内存的完整利用率。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ top<br></code></pre></td></tr></table></figure>
 <p>结果如下：</p>
@@ -350,7 +668,7 @@
 <p>继续往下看，空白行之后是进程的实时信息，每个进程都有一个 %CPU 列，表示进程的 CPU 使用率。它是用户态和内核态 CPU 使用率的总和，包括进程用户空间使用的 CPU、通过系统调用执行的内核空间 CPU 、以及在就绪队列等待运行的 CPU。在虚拟化环境中，它还包括了运行虚拟机占用的CPU。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>可以发现，<code>top</code> 并没有细分进程的用户态 CPU 和内核态 CPU。</p>
-<h2 id="2-用-pidstat-查看"><a class="markdownIt-Anchor" href="#2-用-pidstat-查看"></a> 2、用 pidstat 查看</h2>
+<h2 id="2、用-pidstat-查看">2、用 pidstat 查看</h2>
 <p><code>pidstat</code> 是一个专门分析每个进程 CPU 使用情况的工具。比如，下面的 <code>pidstat</code> 命令，就间隔 1 秒展示了进程的 5 组 CPU 使用率，包含：</p>
 <ul>
 <li>用户态CPU使用率(%usr);</li>
@@ -361,7 +679,7 @@
 </ul>
 <p>最后的 Average 部分，还计算了5组数据的平均值。</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="3-用-ps-查看"><a class="markdownIt-Anchor" href="#3-用-ps-查看"></a> 3、用 ps 查看</h2>
+<h2 id="3、用-ps-查看">3、用 ps 查看</h2>
 <p><code>ps</code> 命令可用于确定哪个进程占用了 CPU。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ps -eo pid,%cpu,cmd --<span class="hljs-built_in">sort</span>=-%cpu<br></code></pre></td></tr></table></figure>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -372,7 +690,7 @@
 <p>如果要仅显示前几个进程，可以将输出通过head命令进行截取。例如，要显示前 5 个进程，可以使用以下命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ps -eo pid,%cpu,cmd --<span class="hljs-built_in">sort</span>=-%cpu | grep -v PID | <span class="hljs-built_in">head</span> -n 5<br></code></pre></td></tr></table></figure>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="4-用-htop-查看"><a class="markdownIt-Anchor" href="#4-用-htop-查看"></a> 4、用 htop 查看</h2>
+<h2 id="4、用-htop-查看">4、用 htop 查看</h2>
 <p><code>htop</code> 是一个交互式的进程查看器和系统监控工具，它提供了比传统的 <code>top</code> 命令更多的功能和更友好的界面。它提供了 CPU 和系统资源利用率的详细摘要。可以垂直滚动或水平滚动以显示更多详细信息。它还在命令列下提供进程路径。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ htop<br></code></pre></td></tr></table></figure>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -383,7 +701,7 @@
 <li>红色的表示 <font color="red">kernel(内核)</font>使用情况</li>
 <li>青色的表示 <font color="cyan">virtuality(虚拟性)</font>使用情况</li>
 </ul>
-<h2 id="5-用-nmon-查看"><a class="markdownIt-Anchor" href="#5-用-nmon-查看"></a> 5、用 nmon 查看</h2>
+<h2 id="5、用-nmon-查看">5、用 nmon 查看</h2>
 <p><code>nmon</code> 是 Linux 系统的一个性能监控工具。它用于实时监测系统的 CPU、内存、磁盘、网络等资源的使用情况，帮助管理员分析系统性能并做出优化调整。</p>
 <p><code>nmon</code> 工具以文字界面的形式展示监控结果，提供了丰富的信息和统计数据，可以实时查看系统的运行状况。它的输出格式清晰简洁，容易理解和分析。</p>
 <p>使用 <code>nmon</code> 命令：</p>
@@ -393,17 +711,17 @@
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>按下 c 键可以来查看 CPU 的使用率：</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="6-用-atop-查看"><a class="markdownIt-Anchor" href="#6-用-atop-查看"></a> 6、用 atop 查看</h2>
+<h2 id="6、用-atop-查看">6、用 atop 查看</h2>
 <p><code>atop</code> 是在 Linux 系统的一个高级性能监控工具。与 <code>nmon</code> 类似，<code>atop</code> 也用于实时监测系统的各种资源的使用情况，但它提供了更为详细和全面的性能数据，让管理员更深入地了解系统运行情况。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ atop<br></code></pre></td></tr></table></figure>
 <p><img src="12.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>也可以使用以下命令把 CPU 使用率记录到文件中，下次直接读取文件查看 CPU 利用率。写入文件使用“<code>-w 文件名</code>”，读出文件使用“<code>-r 文件名</code>”：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ root@projectsauron:~# atop -w <span class="hljs-built_in">test</span><br>^C<br>$ root@projectsauron:~# atop -r <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="7-用-glances-查看"><a class="markdownIt-Anchor" href="#7-用-glances-查看"></a> 7、用 glances 查看</h2>
+<h2 id="7、用-glances-查看">7、用 glances 查看</h2>
 <p><code>glances</code> 是一种跨平台的实时系统监控工具，该工具是用python编写的，并使用库程序详细提供了对 CPU、内存、磁盘、网络和进程等系统资源的监测信息。<code>glances</code> 以直观和交互的方式呈现系统监控数据，并提供了丰富的选项和功能，方便用户进行系统性能的实时监控和分析。</p>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="8-用-vmstat-查看"><a class="markdownIt-Anchor" href="#8-用-vmstat-查看"></a> 8、用 vmstat 查看</h2>
+<h2 id="8、用-vmstat-查看">8、用 vmstat 查看</h2>
 <p><code>vmstat</code>（<em><strong>virtual memory statistics</strong></em>）是一个在 Linux 系统上用于监视虚拟内存、进程、CPU 和 IO 性能的命令行工具。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ vmstat<br></code></pre></td></tr></table></figure>
 <p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -452,7 +770,7 @@
 <p>如果想使用 <code>vmstat</code> 命令以 2 秒的间隔监视系统资源，间隔 5 次。在这种情况下，可以使用以下命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ vmstat 2 5<br></code></pre></td></tr></table></figure>
 <p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="9-用-sar-查看"><a class="markdownIt-Anchor" href="#9-用-sar-查看"></a> 9、用 sar 查看</h2>
+<h2 id="9、用-sar-查看">9、用 sar 查看</h2>
 <p><code>sar</code>（<em><strong>System Activity Reporter</strong></em>）是一个在 Linux 系统上用于收集、报告和存档系统活动数据的命令行工具。</p>
 <p>使用 <code>sar</code> 命令，可以按特定时间间隔监视 CPU 使用率：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sar 3<br></code></pre></td></tr></table></figure>
@@ -460,7 +778,7 @@
 <p>也可以通过如下来显示每隔 3 秒 10 条后的运行数据。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sar 3 10<br></code></pre></td></tr></table></figure>
 <p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="10-dstat"><a class="markdownIt-Anchor" href="#10-dstat"></a> 10、dstat</h2>
+<h2 id="10、dstat">10、dstat</h2>
 <p><code>dstat</code> 是一个在 Linux 系统上使用的用于监控系统资源使用情况的命令。它可以提供关于 CPU、内存、磁盘、网络等方面的实时数据，并以可读性高的格式输出。该工具结合了 <code>vmstat</code>，<code>iostat</code>，<code>ifstat</code>，<code>netstat</code> 以及更多的信息。并且支持输出 CSV 格式报表，并能导入到 Gnumeric 和 Excel 以生成图形</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ dstat<br></code></pre></td></tr></table></figure>
 <p><img src="19.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -470,10 +788,10 @@
 <p>最占 CPU 的进程获取：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ dstat --top-cpu  <br></code></pre></td></tr></table></figure>
 <p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="11-iostat"><a class="markdownIt-Anchor" href="#11-iostat"></a> 11、iostat</h2>
+<h2 id="11、iostat">11、iostat</h2>
 <p>这个命令主要用来查看 IO 使用情况，也可以来查看 CPU，不如上述命令常用。</p>
 <p><img src="22.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="三-总结"><a class="markdownIt-Anchor" href="#三-总结"></a> 三、总结</h1>
+<h1>三、总结</h1>
 <p>Linux 系统上有各种可用的工具和命令来监视 CPU 使用率和系统资源利用率，那么多命令工具可根据实际情况，直观可视化的 <code>nmon</code> 和 <code>galances</code> 比较方便查看结果。</p>
 
                 

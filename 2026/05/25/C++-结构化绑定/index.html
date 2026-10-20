@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="在现代 C++（C17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。  一、引入 在 C++17 之前，如果我们想从一个函数返回多个值，或者解构一个容器&#x2F;结构体，通常有以下几种做法，但它们都各有痛点。  使用">
+    <meta name="description" content="在现代 C++（C++17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C++ 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。 一、引入 在 C++17 之前，如果我们想从一个函数返回多个值，或者解构一个容器&#x2F;结构体，通常有以下几种做法，但它们都各有痛点。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++ 结构化绑定">
 <meta property="og:url" content="http://example.com/2026/05/25/C++-%E7%BB%93%E6%9E%84%E5%8C%96%E7%BB%91%E5%AE%9A/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="在现代 C++（C17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。  一、引入 在 C++17 之前，如果我们想从一个函数返回多个值，或者解构一个容器&#x2F;结构体，通常有以下几种做法，但它们都各有痛点。  使用">
+<meta property="og:description" content="在现代 C++（C++17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C++ 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。 一、引入 在 C++17 之前，如果我们想从一个函数返回多个值，或者解构一个容器&#x2F;结构体，通常有以下几种做法，但它们都各有痛点。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-25T05:56:19.000Z">
 <meta property="article:modified_time" content="2026-05-29T09:35:44.869Z">
@@ -277,8 +277,8 @@
             
               <div class="markdown-body">
                 
-                <p>在现代 C++（C<ins>17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C</ins> 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。</p>
-<h1 id="一-引入"><a class="markdownIt-Anchor" href="#一-引入"></a> 一、引入</h1>
+                <p>在现代 C++（C++17 及以后）中，**结构化绑定（Structured Bindings）**是一项革命性的语法特性。它极大地提升了代码的可读性，减少了样板代码，并让 C++ 在处理多返回值和复合数据结构时，拥有了媲美 Python、Go 等现代语言的优雅体验。</p>
+<h1>一、引入</h1>
 <p>在 C++17 之前，如果我们想从一个函数返回多个值，或者解构一个容器/结构体，通常有以下几种做法，但它们都各有痛点。</p>
 <ol>
 <li>使用 <code>std::pair</code> 或 <code>std::tuple</code> + `std::tie</li>
@@ -295,7 +295,7 @@
 </ol>
 <p>使用指针或引用作为函数参数来传出结果：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">getValues</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp; outX, <span class="hljs-type">int</span>&amp; outY)</span> </span>&#123;<br>    outX = <span class="hljs-number">10</span>;<br>    outY = <span class="hljs-number">20</span>;<br>&#125; <span class="hljs-comment">// 痛点：割裂了函数调用与变量初始化的连续性，且不支持 const</span><br></code></pre></td></tr></table></figure>
-<h1 id="二-结构化绑定的作用"><a class="markdownIt-Anchor" href="#二-结构化绑定的作用"></a> 二、结构化绑定的作用</h1>
+<h1>二、结构化绑定的作用</h1>
 <p>为了解决上面的几个问题，C++ 17 引入了结构化绑定。</p>
 <p>结构化绑定允许<strong>在单条语句中声明多个变量，并用一个结构体、数组、<code>pair</code> 或 <code>tuple</code> 的成员来初始化它们</strong>。</p>
 <p>其基本语法如下：</p>
@@ -329,7 +329,7 @@
 <p>Tuple-like (元组类)类型： 任何实现了 <code>std::tuple_size</code>、<code>std::tuple_element</code> 和 <code>get</code> 模版的类型（如 <code>std::pair</code>, <code>std::tuple</code>, <code>std::array</code>） 。</p>
 </li>
 </ol>
-<h1 id="三-应用"><a class="markdownIt-Anchor" href="#三-应用"></a> 三、应用</h1>
+<h1>三、应用</h1>
 <ol>
 <li>
 <p>遍历 <code>std::map</code></p>

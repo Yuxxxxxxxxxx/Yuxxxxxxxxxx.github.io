@@ -1,0 +1,784 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、什么是 Tile？ 在 CUDA 编程中，Tile（瓦片 &#x2F; 分块） 指的是把一个大问题切成许多大小固定、能装载进快速存储（共享内存 &#x2F; 寄存器）的小块，让线程块（block）或线程（thread）以这些小块为单位循环处理。 简而言之，Tile 就是&quot;数据搬运&quot;与&quot;数据计算&quot;之间的桥梁——它让同一块数据被多次复用，从而把全局内存的带宽瓶颈转化为片上高速存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA tile">
+<meta property="og:url" content="http://example.com/2026/07/18/CUDA-tile/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、什么是 Tile？ 在 CUDA 编程中，Tile（瓦片 &#x2F; 分块） 指的是把一个大问题切成许多大小固定、能装载进快速存储（共享内存 &#x2F; 寄存器）的小块，让线程块（block）或线程（thread）以这些小块为单位循环处理。 简而言之，Tile 就是&quot;数据搬运&quot;与&quot;数据计算&quot;之间的桥梁——它让同一块数据被多次复用，从而把全局内存的带宽瓶颈转化为片上高速存">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/18/CUDA-tile/1.jpg">
+<meta property="article:published_time" content="2026-07-18T00:23:09.000Z">
+<meta property="article:modified_time" content="2026-09-17T08:05:20.176Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="CUDA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/07/18/CUDA-tile/1.jpg">
+  
+  
+  
+  <title>CUDA tile - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CUDA tile"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-18 08:23" pubdate>
+          星期六, 七月 18日 2026, 8:23 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CUDA tile</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、什么是 Tile？</h1>
+<p>在 CUDA 编程中，<strong>Tile（瓦片 / 分块）</strong> 指的是把一个大问题切成许多大小固定、能装载进快速存储（共享内存 / 寄存器）的小块，让线程块（block）或线程（thread）以这些小块为单位循环处理。</p>
+<p>简而言之，Tile 就是&quot;数据搬运&quot;与&quot;数据计算&quot;之间的桥梁——它让同一块数据被多次复用，从而把全局内存的带宽瓶颈转化为片上高速存储的吞吐问题。</p>
+<p>以矩阵乘法 <code>C = A × B</code> 为例，朴素实现中每个 <code>C</code> 元素都要重新读一遍 <code>A</code> 的一行和 <code>B</code> 的一列，重复读取量是 O(N) 级的。而 tiling 让每个线程块只从全局内存加载一次数据，然后在共享内存里反复使用，全局内存访问量从 O(N³) 降到 O(N²)。</p>
+<h1>二、Tiling 的两个维度</h1>
+<h2 id="2-1-Block-level-Tiling-使用共享内存">2.1 Block-level Tiling (使用共享内存)</h2>
+<p>把 C 切成 32×32 的 tile，每个 block 算一个 tile。K 维度也切：</p>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>线程块协作把一块数据搬进共享内存，块内所有线程共享这一份数据。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> BM = <span class="hljs-number">32</span>, BN = <span class="hljs-number">32</span>, BK = <span class="hljs-number">16</span>;<br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">matmulTiled</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">float</span>* A, <span class="hljs-type">const</span> <span class="hljs-type">float</span>* B, <span class="hljs-type">float</span>* C,</span></span><br><span class="hljs-params"><span class="hljs-function">                            <span class="hljs-type">int</span> M, <span class="hljs-type">int</span> N, <span class="hljs-type">int</span> K)</span> </span>&#123;<br>    __shared__ <span class="hljs-type">float</span> As[BM][BK];<br>    __shared__ <span class="hljs-type">float</span> Bs[BK][BN];<br><br>    <span class="hljs-type">int</span> by = blockIdx.y, bx = blockIdx.x;<br>    <span class="hljs-type">int</span> ty = threadIdx.y, tx = threadIdx.x;<br>    <span class="hljs-type">int</span> row = by * TILE + ty;<br>    <span class="hljs-type">int</span> col = bx * TILE + tx;<br><br>    <span class="hljs-type">float</span> sum = <span class="hljs-number">0.0f</span>;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> numTiles = (K + TILE - <span class="hljs-number">1</span>) / TILE;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> t = <span class="hljs-number">0</span>; t &lt; numTiles; ++t) &#123;<br>        <span class="hljs-comment">// 全局内存 -&gt; 共享内存（协作加载）</span><br>        <span class="hljs-keyword">if</span> (row &lt; M &amp;&amp; t + tx &lt; K) As[ty][tx] = A[row * K + tx];<br>        <span class="hljs-keyword">else</span>                       As[ty][tx] = <span class="hljs-number">0.0f</span>;<br>        <span class="hljs-keyword">if</span> (t + ty &lt; K &amp;&amp; col &lt; N) Bs[ty][tx] = B[(t + ty) * N + col];<br>        <span class="hljs-keyword">else</span>                       Bs[ty][tx] = <span class="hljs-number">0.0f</span>;<br>        __syncthreads();   <span class="hljs-comment">// 等待 tile 全部就位</span><br><br>        <span class="hljs-comment">// 在片上完成 TILE 次乘加</span><br>        <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> k = <span class="hljs-number">0</span>; k &lt; BK; ++k)<br>            sum += As[ty][k] * Bs[k][tx];<br>        __syncthreads();   <span class="hljs-comment">// 防止下一轮覆盖尚未读完的数据</span><br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (row &lt; M &amp;&amp; col &lt; N)<br>        C[row * N + col] = sum;<br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>补充：代码说明</p>
+</blockquote>
+<ul>
+<li>核心思想：一个 block 只算 C 的一小块</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> BM = <span class="hljs-number">32</span>, BN = <span class="hljs-number">32</span>, BK = <span class="hljs-number">32</span>;<br>__shared__ <span class="hljs-type">float</span> As[BM][BK];   <span class="hljs-comment">// 32 x 32,存 A 的一个 tile</span><br>__shared__ <span class="hljs-type">float</span> Bs[BK][BN];   <span class="hljs-comment">// 32 x 32,存 B 的一个 tile</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>一个 block 负责输出 C 的一个 <strong>BM × BN = 32 × 32</strong> 的 tile。</li>
+<li>一个 block 有 <strong>32 × 32 = 1024 个线程</strong>,即每个线程正好对应输出 tile 中一个元素。</li>
+</ul>
+<p>一个 block 负责 C 的：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">行范围：[<span class="hljs-keyword">by*BM, </span><span class="hljs-keyword">by*BM </span>+ <span class="hljs-keyword">BM)</span><br><span class="hljs-keyword"></span>列范围：[<span class="hljs-keyword">bx*BN, </span><span class="hljs-keyword">bx*BN </span>+ <span class="hljs-keyword">BN)</span><br></code></pre></td></tr></table></figure>
+<p>也就是说:<strong>每个线程 <code>(ty, tx)</code> 负责计算 <code>C[row][col]</code> 一个元素</strong>。</p>
+<p>假设 <code>M = N = K = 64</code>,那么 C 是 64×64。我们不可能让一个 block 一次算完,所以<strong>把 C 切成 32×32 的小块(tile)</strong>:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs routeros">C (64x64) 切成 2x2 个 tile:<br><br>        <span class="hljs-attribute">bx</span>=0      <span class="hljs-attribute">bx</span>=1<br>      ┌────────┬────────┐<br><span class="hljs-attribute">by</span>=0  │ tile00 │ tile01 │<br>      ├────────┼────────┤<br><span class="hljs-attribute">by</span>=1  │ tile10 │ tile11 │<br>      └────────┴────────┘<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>(by, bx)</code> 就是<strong>哪个 tile</strong>。</li>
+<li>每个 tile 是 32×32,由一个 block 负责。</li>
+</ul>
+<p>一个 block 有 32×32 = 1024 个线程,排列成:</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs tap">threadIdx.x = tx: <span class="hljs-number"> 0 </span><span class="hljs-number"> 1 </span><span class="hljs-number"> 2 </span>...<span class="hljs-number"> 31 </span>  (横向)<br>threadIdx.y = ty:  0<br>                   1<br>                   2<br>                  ...<br>                 <span class="hljs-number"> 31 </span>               (纵向)<br></code></pre></td></tr></table></figure>
+<p>我们让<strong>每个线程负责 tile 里的一个元素</strong>,就像把 1024 个格子分给 1024 个人:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros">        <span class="hljs-attribute">tx</span>=0  <span class="hljs-attribute">tx</span>=1  <span class="hljs-attribute">tx</span>=2 <span class="hljs-built_in">..</span>.<br><span class="hljs-attribute">ty</span>=0    T00   T01   T02<br><span class="hljs-attribute">ty</span>=1    T10   T11   T12<br><span class="hljs-attribute">ty</span>=2    T20   T21   T22<br><span class="hljs-built_in">..</span>.<br></code></pre></td></tr></table></figure>
+<p>线程 <code>(ty, tx)</code> 就是 tile 里第 <code>ty</code> 行、第 <code>tx</code> 列的那个格子。</p>
+<p>线程 <code>(ty, tx)</code> 在 tile 内的位置是 <code>(ty, tx)</code>,但 tile 本身在 C 里有偏移:</p>
+<ul>
+<li>tile 的左上角在 C 中的位置是 <code>(by*32, bx*32)</code></li>
+<li>线程 <code>(ty, tx)</code> 在 tile 内偏移 <code>(ty, tx)</code></li>
+<li>所以它在 C 中的<strong>全局位置</strong>是:</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">row = by * <span class="hljs-number">32</span> + ty     ← 全局第几行<br>col = bx * <span class="hljs-number">32</span> + tx     ← 全局第几列<br></code></pre></td></tr></table></figure>
+<p><strong>这就是代码里这两行的由来:</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> row = by * BM + ty;   <span class="hljs-comment">// 全局行 = block 行起点 + 线程行偏移</span><br><span class="hljs-type">int</span> col = bx * BN + tx;   <span class="hljs-comment">// 全局列 = block 列起点 + 线程列偏移</span><br></code></pre></td></tr></table></figure>
+<p>接下来看这段代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">As[ty][tx] = A[row * K + kt + tx];<br></code></pre></td></tr></table></figure>
+<p>回忆分块矩阵乘。要算 C 的这块 tile,需要:</p>
+<ul>
+<li>A 的<strong>一段行</strong> (对应 C 的这些 row)</li>
+<li>B 的<strong>一段列</strong> (对应 C 的这些 col)</li>
+</ul>
+<p>具体来说，C 的这个 tile (全局行 <code>by*32..by*32+31</code>)在 K 维度上要扫过<strong>整条 K</strong>,但一次只搬一个 K-tile(宽 32):</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">A 的这块(要搬到 <span class="hljs-keyword">As</span>):<br>        kt      kt+<span class="hljs-number">32</span><br><span class="hljs-keyword">by</span>*<span class="hljs-number">32</span>   ┌────────┐<br>        │        │<br>        │  <span class="hljs-keyword">As</span>    │   ← <span class="hljs-number">32</span> 行(行方向) x <span class="hljs-number">32</span> 列(K方向)<br>        │        │<br><span class="hljs-keyword">by</span>*<span class="hljs-number">32</span>+<span class="hljs-number">32</span>└────────┘<br></code></pre></td></tr></table></figure>
+<p><strong>As 的形状是 32(行) × 32(K列)</strong>，和我们线程的 <code>(ty, tx)</code> 网格正好对应:</p>
+<ul>
+<li><code>As</code> 的第 <code>ty</code> 行 ← A 的全局第 <code>row = by*32 + ty</code> 行</li>
+<li><code>As</code> 的第 <code>tx</code> 列 ← A 的全局第 <code>kt + tx</code> 列(在这个 K-tile 内的第 tx 列)</li>
+</ul>
+<p>所以:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">As[ty][tx]  对应  A[row][kt + tx]<br>            对应  A[row * K + kt + tx]<br></code></pre></td></tr></table></figure>
+<p>B 同理。</p>
+<p>矩阵乘定义:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">C[i][j] = Σ_k  A[i][k] * B[k][j]<br></code></pre></td></tr></table></figure>
+<p>我们的线程负责 <code>C[row][col]</code>，即 <code>i = ty</code>(tile 内行)、<code>j = tx</code>(tile 内列)。那么:</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs inform7">C<span class="hljs-comment">[ty]</span><span class="hljs-comment">[tx]</span> = Σ_k  A<span class="hljs-comment">[ty]</span><span class="hljs-comment">[k]</span> * B<span class="hljs-comment">[k]</span><span class="hljs-comment">[tx]</span><br></code></pre></td></tr></table></figure>
+<p>而共享内存里:</p>
+<ul>
+<li><code>A[ty][k]</code> 就是 <code>As[ty][k]</code>(A 的 tile 存储)</li>
+<li><code>B[k][tx]</code> 就是 <code>Bs[k][tx]</code>(B 的 tile 存储)</li>
+</ul>
+<p>所以:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">acc += As[ty][k] * Bs[k][tx];<br></code></pre></td></tr></table></figure>
+<p><strong>这里 <code>k</code> 是 tile 内的 K 偏移,从 0 到 31。</strong> 因为每个线程负责一个输出元素,它需要沿 K 方向把 32 个数乘起来累加。</p>
+<h2 id="2-2-Thread-level-Tiling-使用寄存器">2.2 Thread-level Tiling (使用寄存器)</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> BM = <span class="hljs-number">64</span>, BN = <span class="hljs-number">64</span>, BK = <span class="hljs-number">16</span>;<br><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> TM = <span class="hljs-number">4</span>,  TN = <span class="hljs-number">4</span>;     <span class="hljs-comment">// each thread computes 4x4 of C</span><br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">matmul_2d_tile</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">float</span>* A, <span class="hljs-type">const</span> <span class="hljs-type">float</span>* B, <span class="hljs-type">float</span>* C,</span></span><br><span class="hljs-params"><span class="hljs-function">                               <span class="hljs-type">int</span> M, <span class="hljs-type">int</span> N, <span class="hljs-type">int</span> K)</span> </span>&#123;<br>    __shared__ <span class="hljs-type">float</span> As[BM][BK];<br>    __shared__ <span class="hljs-type">float</span> Bs[BK][BN];<br><br>    <span class="hljs-type">int</span> by = blockIdx.y, bx = blockIdx.x;<br>    <span class="hljs-type">int</span> ty = threadIdx.y, tx = threadIdx.x;<br><br>    <span class="hljs-type">int</span> row0 = by * BM + ty * TM;<br>    <span class="hljs-type">int</span> col0 = bx * BN + tx * TN;<br><br>    <span class="hljs-type">float</span> acc[TM][TN] = &#123;<span class="hljs-number">0</span>&#125;;<br><br>    <span class="hljs-comment">// each tile: load BM*BK + BK*BN floats with the 16x16 thread block</span><br>    <span class="hljs-comment">// 16*16 = 256 threads, BM*BK = 1024 elems → each thread loads 4 of A, 4 of B</span><br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> threads_per_block = <span class="hljs-number">16</span> * <span class="hljs-number">16</span>;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> tid = ty * <span class="hljs-number">16</span> + tx;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> kt = <span class="hljs-number">0</span>; kt &lt; K; kt += BK) &#123;<br>        <span class="hljs-comment">// load As (BM=64 x BK=16 = 1024 floats), 256 threads × 4 each</span><br>        <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; ++i) &#123;<br>            <span class="hljs-type">int</span> load_id = i * threads_per_block + tid;<br>            <span class="hljs-type">int</span> r = load_id / BK, c = load_id % BK;<br>            <span class="hljs-type">int</span> gr = by * BM + r, gc = kt + c;<br>            As[r][c] = (gr &lt; M &amp;&amp; gc &lt; K) ? A[gr * K + gc] : <span class="hljs-number">0.f</span>;<br>        &#125;<br>        <span class="hljs-comment">// load Bs (BK=16 x BN=64 = 1024 floats)</span><br>        <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">4</span>; ++i) &#123;<br>            <span class="hljs-type">int</span> load_id = i * threads_per_block + tid;<br>            <span class="hljs-type">int</span> r = load_id / BN, c = load_id % BN;<br>            <span class="hljs-type">int</span> gr = kt + r, gc = bx * BN + c;<br>            Bs[r][c] = (gr &lt; K &amp;&amp; gc &lt; N) ? B[gr * N + gc] : <span class="hljs-number">0.f</span>;<br>        &#125;<br>        __syncthreads();<br><br>        <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> k = <span class="hljs-number">0</span>; k &lt; BK; ++k) &#123;<br>            <span class="hljs-type">float</span> a_reg[TM], b_reg[TN];<br>            <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; TM; ++i) a_reg[i] = As[ty * TM + i][k];<br>            <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; TN; ++j) b_reg[j] = Bs[k][tx * TN + j];<br>            <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; TM; ++i)<br>                <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; TN; ++j)<br>                    acc[i][j] += a_reg[i] * b_reg[j];<br>        &#125;<br>        __syncthreads();<br>    &#125;<br><br>    <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; TM; ++i)<br>        <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; TN; ++j) &#123;<br>            <span class="hljs-type">int</span> r = row0 + i, c = col0 + j;<br>            <span class="hljs-keyword">if</span> (r &lt; M &amp;&amp; c &lt; N) C[r * N + c] = acc[i][j];<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h1>三、应用场景</h1>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">场景</th>
+<th style="text-align:left">Tile 的对象</th>
+<th style="text-align:left">收益来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">矩阵乘法</td>
+<td style="text-align:left">A 的行块、B 的列块</td>
+<td style="text-align:left">输入复用降到 O(N²)</td>
+</tr>
+<tr>
+<td style="text-align:left">矩阵转置</td>
+<td style="text-align:left">输入 / 输出 tile</td>
+<td style="text-align:left">合并访存，避免 uncoalesced</td>
+</tr>
+<tr>
+<td style="text-align:left">卷积 / Stencil</td>
+<td style="text-align:left">输入 halo 区域</td>
+<td style="text-align:left">邻域重复使用</td>
+</tr>
+<tr>
+<td style="text-align:left">归约</td>
+<td style="text-align:left">每线程多元素 + 块内树形</td>
+<td style="text-align:left">减少同步与原子操作</td>
+</tr>
+<tr>
+<td style="text-align:left">多维数组</td>
+<td style="text-align:left">2D → 1D 展平</td>
+<td style="text-align:left">访存带宽利用率最大化</td>
+</tr>
+</tbody>
+</table>
+<p>以<strong>转置</strong>为例，tiling 是解决&quot;读合并、写不合并&quot;矛盾的必备手段：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> TILE = <span class="hljs-number">32</span>;<br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">transpose</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">float</span>* in, <span class="hljs-type">float</span>* out, <span class="hljs-type">int</span> rows, <span class="hljs-type">int</span> cols)</span> </span>&#123;<br>    __shared__ <span class="hljs-type">float</span> tile[TILE][TILE + <span class="hljs-number">1</span>];   <span class="hljs-comment">// +1 避免 bank conflict</span><br><br>    <span class="hljs-type">int</span> x = blockIdx.x * TILE + threadIdx.x;<br>    <span class="hljs-type">int</span> y = blockIdx.y * TILE + threadIdx.y;<br><br>    <span class="hljs-keyword">if</span> (x &lt; cols &amp;&amp; y &lt; rows)<br>        tile[threadIdx.y][threadIdx.x] = in[y * cols + x];<br><br>    __syncthreads();<br><br>    x = blockIdx.y * TILE + threadIdx.x;<br>    y = blockIdx.x * TILE + threadIdx.y;<br>    <span class="hljs-keyword">if</span> (x &lt; rows &amp;&amp; y &lt; cols)<br>        out[y * rows + x] = tile[threadIdx.x][threadIdx.y];<br>&#125;<br></code></pre></td></tr></table></figure>
+<h1>四、注意</h1>
+<p>Tile 不是越大越好，需要平衡以下几个因素：</p>
+<p><strong>1. Tile 大小 vs 占用率（Occupancy）</strong> 共享内存是有限的（如 SM 上 48KB~164KB）。tile 越大，单个 block 占用越多，能同时驻留的 block 越少。必须在&quot;数据复用率&quot;和&quot;延迟掩盖能力&quot;之间找平衡点。</p>
+<p><strong>2. Bank Conflict</strong> 共享内存被划分成 32 个 bank。若同一 warp 的多个线程访问同一 bank 的不同地址，会串行化。典型对策：</p>
+<ul>
+<li>Padding（如上例 <code>[TILE][TILE+1]</code>）</li>
+<li>交换索引布局</li>
+<li>使用 swizzle（CUTLASS 常用的 XOR 打散）</li>
+</ul>
+<p><strong>3. 同步开销</strong> 每个 tile 迭代至少两次 <code>__syncthreads()</code>。tile 太小 → 同步太频繁；tile 太大 → 并行度不足。</p>
+<p><strong>4. 边界检查</strong> 当矩阵维度不是 tile 尺寸的整数倍时，加载阶段需要判断越界并用 0 填充（对加法/乘法是恒等元）。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/CUDA/" class="print-no-link">#CUDA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CUDA tile</div>
+      <div>http://example.com/2026/07/18/CUDA-tile/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/22/CUDA-Warp-Shuffle/" title="CUDA Warp Shuffle">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CUDA Warp Shuffle</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/" title="CUDA 内存分配API">
+                        <span class="hidden-mobile">CUDA 内存分配API</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

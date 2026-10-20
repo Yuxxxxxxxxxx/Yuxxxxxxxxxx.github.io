@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" target="_self">
-          STM32 map 文件浅析
+        <a href="/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" target="_self">
+          Git 查错记录
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/24/STM32-map-%E6%96%87%E4%BB%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/03/Git-%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/" target="_self">
         <div>
-          [toc]   一、概述 .map 文件是编译器链接时生成的一个文件，它主要包含了交叉链接信息。通过 .map 文件，我们可以知道整个工程的函数调用关系、FLASH 和 RAM 占用情况及其详细汇总信息，能具体到单个源文件（.c/.s）的占用情况，根据这些信息，我们可以对代码进行优化。.map 文件可以分为以下 5 个组成部分：  程序段交叉引用关系（Section Cross Reference
+          [toc]   本文记录本人了最近在 Git 开发遇到的一些问题  一、ssh: connect to host github.com port 22: Connection refused 123456$ git pull originssh: connect to host github.com port 22: Connection refusedfatal: Could not read
         </div>
       </a>
 
@@ -245,8 +245,80 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-24 21:48" pubdate>
-              2024-09-24
+            <time datetime="2024-11-03 20:18" pubdate>
+              2024-11-03
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B7%A5%E5%85%B7/" class="category-chain-item">工具</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B7%A5%E5%85%B7/Git/" class="category-chain-item">Git</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Git/">#Git</a>
+            
+              <a href="/tags/%E6%9F%A5%E9%94%99%E8%AE%B0%E5%BD%95/">#查错记录</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" target="_self">
+          【STM32】通过 DWT 实现毫秒级延时
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/02/STM32-DWT-%E5%AE%9E%E7%8E%B0%E6%AF%AB%E7%A7%92%E7%BA%A7%E5%BB%B6%E6%97%B6/" target="_self">
+        <div>
+          [toc]  零、前言 在 FreeRTOS 中，SysTick 被用于作为调度器的一部分进行任务调度，那么如果我需要使用软件模拟通信，例如软件 I2C，需要使用 delay，就无法使用 SysTick 实现的 delay。 因此，这里提供一种基于 DWT 实现的 delay。 一、DWT 在实现我们的代码之前，如果你没有了解过 DWT，那就先来看一下：  这里只介绍待会儿会用到的延时相关的内容
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-11-02 11:03" pubdate>
+              2024-11-02
             </time>
           </div>
         
@@ -299,15 +371,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" target="_self">
-          STM32 通过软件模拟 I2C 驱动 24Cxx 系列存储器
+        <a href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" target="_self">
+          BLE 协议之 L2CAP
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/23/STM32-I2C-%E9%A9%B1%E5%8A%A8-AT24Cxx/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/11/01/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8BL2CAP/" target="_self">
         <div>
-          [toc]   I2C 相关知识可以参考 IIC 通信协议详解   一、AT24CXXX 系列存储器介绍  1、基本信息 下表是 AT24CXXX 的容量：  AT24C01，AT24C02，AT24C04，AT24C08，AT24C16，AT24C32，AT24C64，AT24C128，AT24C256… 不同的 xxx 代表不同的容量。     AT24CXXX bit容量 Byte容量
+          [toc]   一、简介 经过 Link Layer 的抽象之后，两个 BLE 设备之间可存在两条逻辑上的数据通道：  一条是无连接的广播通道，天高任鸟飞 另一条是基于连接的数据通道，是一个点对点（Master to Slave）的逻辑通道。  广播通道暂且不提，这个数据通道（后面简称逻辑通道，Logical Channel），要怎么使用，还需要一番思索，例如：  Logical Channel
         </div>
       </a>
 
@@ -315,152 +387,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-23 12:34" pubdate>
-              2024-09-23
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/STM32/">#STM32</a>
-            
-              <a href="/tags/I2C/">#I2C</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" target="_self">
-          STM32 通过 SPI 驱动 W25Q128
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/21/STM32-SPI-%E9%A9%B1%E5%8A%A8-W25Q128/" target="_self">
-        <div>
-          [toc]   有关 SPI 的内容在 SPI 通信协议详解，不熟悉的可以参考一下   我使用设备的是 STM32F407 + W25Q128   一、STM32 SPI 框图   1、通讯引脚 这四个引脚想必大家也很熟悉了，就不过多介绍。我是用的是 SPI1，引脚如下：  SPI1 是 APB2 总线上的设备，最高通信速率达 42Mbtis/s。 如下是 W25Q128 的引脚图：  所以连接方
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-21 13:33" pubdate>
-              2024-09-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/STM32/">#STM32</a>
-            
-              <a href="/tags/SPI/">#SPI</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" target="_self">
-          BLE 协议之链路层
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/20/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E9%93%BE%E8%B7%AF%E5%B1%82/" target="_self">
-        <div>
-          [toc]    一、前言 在 BLE 协议之物理层  一文中，我简单介绍了 BLE 的物理层。接下来就是链路层（Link Layer）了，它主要的功能，就是在这些 Physical Channel 上收发数据，与此同时，不可避免的需要控制 RF 收发相关的参数。除此之外，还要做到以下几个功能：  通道共享 ： Physical Layer 仅仅提供了有限的 40 个 Physical Chann
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-20 12:42" pubdate>
-              2024-09-20
+            <time datetime="2024-11-01 18:49" pubdate>
+              2024-11-01
             </time>
           </div>
         
@@ -513,15 +441,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" target="_self">
-          STM32 芯片启动过程
+        <a href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" target="_self">
+          BLE 协议之传输层
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/18/STM32%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/25/BLE-%E5%8D%8F%E8%AE%AE%E4%B9%8B%E4%BC%A0%E8%BE%93%E5%B1%82/" target="_self">
         <div>
-          1、栈 Stack 2、堆 Heap 3、中断向量表 Vectors  3.1 中断响应流程   4、复位程序 Reset_Handler 5、中断服务函数 6、用户堆栈初始化 1、初始化 SP、PC 及中断向量表 2、设置系统时钟 3、初始化堆栈并进入 main     一、前言 下面主要讲解从上电复位到 main 函数的过程。主要有以下步骤：  初始化堆栈指针：SP = __initial_
+          [toc]   在 BLE 协议中，传输层位于 Host 和 Controller 之间，提供一种无需知道数据内容便可以传输数据的能力。其主要是通过硬件传输介质（如：UART、SDIO、USB 等），传输上层数据。  上图即是 UART 传输层的功能框图。 一、HCI 简介  Core5.4 P1728   该图展示了两个设备之间的数据传输路径。Host 通过 HCI Driver 和 Contr
         </div>
       </a>
 
@@ -529,78 +457,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-18 16:56" pubdate>
-              2024-09-18
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
-            
-              <a href="/tags/STM32/">#STM32</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" target="_self">
-          BLE 协议之物理层
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/17/BLE%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%89%A9%E7%90%86%E5%B1%82/" target="_self">
-        <div>
-          1、物理通道 2、物理通道的细分 1、调制方式 2、GFSK      一、概述  物理层（Physical Layer）是 BLE 协议栈最·底层，它规定了 BLE 通信的基础射频参数，包括信号频率、调制方案等。 BLE 工作频率是 2.4GHz，它使用 GFSK 频率调制，并使用跳频机制来解决频道拥挤问题。 BLE 5 的物理层有三种实现方案，分别是：  1M Sym/s 的无编码物理层 2
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-17 10:34" pubdate>
-              2024-09-17
+            <time datetime="2024-10-25 08:42" pubdate>
+              2024-10-25
             </time>
           </div>
         
@@ -653,15 +511,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" target="_self">
-          结构体内存对齐
+        <a href="/2024/10/24/STM32-Backtrace/" target="_self">
+          STM32 调试之栈回溯和 CmBacktrace 的使用
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/16/%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/24/STM32-Backtrace/" target="_self">
         <div>
-          [toc]   一、什么是结构体内存对齐 进入讲解前，先看一段 C 代码： 1234567891011struct Node1 &#123;    int a;    char b;    char c;&#125; node1[1024];struct Node2 &#123;    char b;    int a;    char c;&#125; node2[1024]; 思考一下 	no
+          [toc]  一、栈回溯 1、寄存器知识 在 Cortex-M 上弄清楚栈的布局，就必须理解 Cortex-M 上的压栈入栈的机制和原理。下面从该体系架构上说说 Cortex-M 上比较重要的细节。  按照 ARM Cortex-M 的设计，一共有 32 个寄存器。  13 个通用寄存器，r0-r12 2 个不同模式下使用的 SP  PSP(SP_process) MSP(SP_main)   1
         </div>
       </a>
 
@@ -669,8 +527,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-16 11:54" pubdate>
-              2024-09-16
+            <time datetime="2024-10-24 00:35" pubdate>
+              2024-10-24
             </time>
           </div>
         
@@ -688,6 +546,13 @@
   <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/STM32/" class="category-chain-item">STM32</a>
+  
+  
+
+  
 
       </span>
     
@@ -702,7 +567,9 @@
             
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/%E5%86%85%E5%AD%98%E5%AF%B9%E9%BD%90/">#内存对齐</a>
+              <a href="/tags/STM32/">#STM32</a>
+            
+              <a href="/tags/%E8%B0%83%E8%AF%95/">#调试</a>
             
           </div>
         
@@ -716,15 +583,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/12/MQTT/" target="_self">
-          MQTT 协议概述
+        <a href="/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
+          动态链接过程分析
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/12/MQTT/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
         <div>
-          1、组成部分 2、客户端 3、服务器 1、连接服务器 2、订阅主题 3、发布消息 4、取消订阅 5、断开连接 1、MQTT 固定头 2、MQTT 可变头 3. Payload消息体     一、概述 MQTT（Message Queuing Telemetry Transport，消息队列遥测传输协议），是一种基于发布/订阅（publish/subscribe）模式的“轻量级”通讯协议，该协议构
+          [toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言 静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位
         </div>
       </a>
 
@@ -732,71 +599,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-12 16:40" pubdate>
-              2024-09-12
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" class="category-chain-item">通信协议</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/">#通信协议</a>
-            
-              <a href="/tags/MQTT/">#MQTT</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" target="_self">
-          Linux 下 C/C++ 程序编译的过程
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/08/Linux-C%E7%A8%8B%E5%BA%8F%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B/" target="_self">
-        <div>
-          [toc]  本文将介绍如何将 C/C++ 语言编写的程序转换成为处理器能够执行的二进制代码的过程，包括四个步骤：预处理（Preprocessing）编译（Compilation）汇编（Assembly）链接（Linking）。  在此之前，首先来看一下 GCC 工具链。  一、GCC 工具链 GCC 是 GUN Compiler Collection 的简称，是 Linux 系统上常用的编译工具
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-08 15:52" pubdate>
-              2024-09-08
+            <time datetime="2024-10-23 09:12" pubdate>
+              2024-10-23
             </time>
           </div>
         
@@ -828,7 +632,7 @@
             
               <a href="/tags/Linux/">#Linux</a>
             
-              <a href="/tags/%E7%BC%96%E8%AF%91/">#编译</a>
+              <a href="/tags/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5/">#动态链接</a>
             
           </div>
         
@@ -842,15 +646,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
-          FreeRTOS 队列 Queue 源码解析
+        <a href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
+          静态链接过程分析
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2024/09/06/FreeRTOS-queue-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/22/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" target="_self">
         <div>
-          [toc]  在 FreeRTOS 快速入门（四）之队列 一文中，我简单地叙述了 FreeRTOS 中队列的工作机制和基本使用。这一节我将依据 FreeRTOS V10.4.3 的源码深入地去探究队列是如何实现的。学好队列对我们后续学习信号量等知识的时候有很大的帮助。  一、队列  1、队列结构体 队列结构体定义在目录 queue.c 下： 1234567891011121314151617181
+          @toc   本文测试环境为 ubuntu20.04 + gcc version 9.4.0 (Ubuntu 9.4.0-1ubuntu1~20.04.2)  一、开始 首先，编写两个简单的文件用于待会儿的分析： 123456789101112131415161718192021// swap.cint shared = 1;void swap(int *a, int *b)&#123;    i
         </div>
       </a>
 
@@ -858,8 +662,71 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2024-09-06 10:03" pubdate>
-              2024-09-06
+            <time datetime="2024-10-22 12:18" pubdate>
+              2024-10-22
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Linux/">#Linux</a>
+            
+              <a href="/tags/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5/">#静态链接</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
+          ESP32-IDF 非易失存储 NVS
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/21/ESP32-IDF-NVS/" target="_self">
+        <div>
+          @toc  零、前言 NVS（Non-volatile storage，非易失存储），意思是掉电后能依然能持久化保存数据。在我们应用 NVS 时，一般用于存储一些配置数据、状态数据等，一般不会用来存储存放大量的数据量。 在嵌入式系统中，NVS 主要是在 Flash 进行==键值对==的存储。举个例子，假设我们要把东西存到 Flash 中，按照底层的操作习惯，我们要先指定一个地址，然后对这个地址执行
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-21 00:18" pubdate>
+              2024-10-21
             </time>
           </div>
         
@@ -879,7 +746,7 @@
   
     <span>></span>
     
-  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/FreeRTOS/" class="category-chain-item">FreeRTOS</a>
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
   
   
 
@@ -898,7 +765,147 @@
             
               <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
             
-              <a href="/tags/FreeRTOS/">#FreeRTOS</a>
+              <a href="/tags/ESP32/">#ESP32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
+          ESP32-IDF 分区表
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/20/ESP32-IDF-%E5%88%86%E5%8C%BA%E8%A1%A8/" target="_self">
+        <div>
+          [toc]  一、基本介绍 使用时要添加头文件 #include &quot;esp_partition.h&quot;。 1、配置结构体 1.1 esp_partition_t 1234567891011typedef struct &#123;    esp_flash_t* flash_chip;            /*!&lt; SPI flash chip on which the
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-20 08:18" pubdate>
+              2024-10-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/ESP32/">#ESP32</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
+          ESP32-IDF 通用定时器 GPTimer
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/10/19/ESP32-IDF-GPTimer/" target="_self">
+        <div>
+          @toc  一、基本介绍 1、配置结构体 1.1 gptimer_config_t 1234567891011121314typedef struct &#123;    gptimer_clock_source_t clk_src;      /*!&lt; GPTimer clock source */    gptimer_count_direction_t direction; /*!&l
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-10-19 08:33" pubdate>
+              2024-10-19
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" class="category-chain-item">嵌入式</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/ESP32/" class="category-chain-item">ESP32</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">#嵌入式</a>
+            
+              <a href="/tags/ESP32/">#ESP32</a>
             
           </div>
         
@@ -910,7 +917,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/8/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/#board">7</a><a class="page-number" href="/page/8/#board">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/#board">10</a><a class="page-number" href="/page/11/#board">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/#board">14</a><a class="extend next" rel="next" href="/page/10/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/8/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/#board">7</a><a class="page-number" href="/page/8/#board">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/#board">10</a><a class="page-number" href="/page/11/#board">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/#board">17</a><a class="extend next" rel="next" href="/page/10/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]   前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。  一、GDT  1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）">
+    <meta name="description" content="[TOC]  前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT 1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）。在单">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内存管理（二）之GDT与LDT">
 <meta property="og:url" content="http://example.com/2024/07/20/GDTLDT/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]   前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。  一、GDT  1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）">
+<meta property="og:description" content="[TOC]  前言 在 Linux 系统中，GDT（Global Descriptor Table）和 LDT（Local Descriptor Table）是用来管理和定义内存段（segment）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。 一、GDT 1、什么是 GDT 全局描述符表（Global Descriptor Table，GDT）。在单">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/07/20/GDTLDT/1.png">
 <meta property="og:image" content="http://example.com/2024/07/20/GDTLDT/2.png">
@@ -230,7 +230,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.3k 字
+          2.7k 字
         
       </span>
     
@@ -241,7 +241,7 @@
         
         
         
-          20 分钟
+          23 分钟
         
       </span>
     
@@ -285,17 +285,178 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h1>
+<h1>前言</h1>
 <p>在 Linux 系统中，GDT（<em>Global Descriptor Table</em>）和 LDT（<em>Local Descriptor Table</em>）是用来管理和定义内存段（<em>segment</em>）的数据结构。它们是在 x86 架构下操作系统使用的关键概念，用于实现内存保护和虚拟内存管理。</p>
-<h1 id="一-gdt"><a class="markdownIt-Anchor" href="#一-gdt"></a> 一、GDT</h1>
-<h2 id="1-什么是-gdt"><a class="markdownIt-Anchor" href="#1-什么是-gdt"></a> 1、什么是 GDT</h2>
+<h1>一、GDT</h1>
+<h2 id="1、什么是-GDT">1、什么是 GDT</h2>
 <p>全局描述符表（<em>Global Descriptor Table</em>，<em>GDT</em>）。在单处理器系统中只有一个 GDT，而在多处理器系统中每个 CPU 对应一个 GDT。</p>
 <p>GDT 可以放置在内存的任何位置。当程序员通过段寄存器引用一个段描述符时，CPU 必须知道 GDT 的入口地址，即基地址放在何处。为此，Intel 的设计者提供了一个 GDTR 寄存器，用于存放GDT的基地址。程序员将 GDT 设定在内存的某个位置后，可以通过 LGDT 指令将 GDT 的基地址加载到 GDTR 寄存器中。从此，CPU 便根据 GDTR 寄存器中的内容作为 GDT 的入口来访问 GDT。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="GDTR 寄存器结构"></p>
-<p>GDTR 寄存器长度为 6 字节，前两个字节为 GDT 界限，后 4 个字节为 GDT 表的基地址。所以说，GDT 最多只能拥有 8192 个描述符（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>65536</mn><mi mathvariant="normal">/</mi><mn>8</mn></mrow><annotation encoding="application/x-tex">65536 / 8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">6</span><span class="mord">5</span><span class="mord">5</span><span class="mord">3</span><span class="mord">6</span><span class="mord">/</span><span class="mord">8</span></span></span></span>）。</p>
-<h2 id="2-gdt-的作用"><a class="markdownIt-Anchor" href="#2-gdt-的作用"></a> 2、GDT 的作用</h2>
+<p>GDTR 寄存器长度为 6 字节，前两个字节为 GDT 界限，后 4 个字节为 GDT 表的基地址。所以说，GDT 最多只能拥有 8192 个描述符（
+    <span id="mjx-237963d">
+      <style>
+      #mjx-237963d{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="7.919ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 3500 1000" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mn"><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"/><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z" transform="translate(500,0)"/><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z" transform="translate(1000,0)"/><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z" transform="translate(1500,0)"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(2000,0)"/></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(2500,0)"><g data-mml-node="mo"><path data-c="2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"/></g></g><g data-mml-node="mn" transform="translate(3000,0)"><path data-c="38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"/></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><mn>65536</mn><mrow data-mjx-texclass="ORD"><mo>/</mo></mrow><mn>8</mn></math></mjx-assistive-mml></mjx-container>
+    </span>
+  ）。</p>
+<h2 id="2、GDT-的作用">2、GDT 的作用</h2>
 <p>GDT 是用来管理和定义操作系统中所有内存段的数据结构。在操作系统加载时，会初始化 GDT，然后使用 GDT 中的描述符来设置每个段的基地址、段限长和访问权限等信息。这些描述符将用于处理内存分页、保护模式和特权级等操作。</p>
-<h2 id="3-gdt-的结构"><a class="markdownIt-Anchor" href="#3-gdt-的结构"></a> 3、GDT 的结构</h2>
+<h2 id="3、GDT-的结构">3、GDT 的结构</h2>
 <p>所有的 GDT 都存放在 <code>cpu_gdt_table</code> 数组中，而所有 GDT 的地址和它们的大小（当初始化 gdtr 寄存器时使用）被存放在 <code>cpu_gdt_descr</code> 数组中。这两个数组都在文件 <code>arch/i386/kernel/head.S</code> 中，如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs asm">cpu_gdt_descr:<br>	.word GDT_ENTRIES*8-1<br>	.long cpu_gdt_table<br><br>......<br><br>ENTRY(cpu_gdt_table)<br>	.quad 0x0000000000000000	/* NULL descriptor */<br>	.quad 0x0000000000000000	/* 0x0b reserved */<br>	.quad 0x0000000000000000	/* 0x13 reserved */<br>	.quad 0x0000000000000000	/* 0x1b reserved */<br>	.quad 0x0000000000000000	/* 0x20 unused */<br>	.quad 0x0000000000000000	/* 0x28 unused */<br>	.quad 0x0000000000000000	/* 0x33 TLS entry 1 */<br>	.quad 0x0000000000000000	/* 0x3b TLS entry 2 */<br>	.quad 0x0000000000000000	/* 0x43 TLS entry 3 */<br>	.quad 0x0000000000000000	/* 0x4b reserved */<br>	.quad 0x0000000000000000	/* 0x53 reserved */<br>	.quad 0x0000000000000000	/* 0x5b reserved */<br><br>	.quad 0x00cf9a000000ffff	/* 0x60 kernel 4GB code at 0x00000000 */<br>	.quad 0x00cf92000000ffff	/* 0x68 kernel 4GB data at 0x00000000 */<br>	.quad 0x00cffa000000ffff	/* 0x73 user 4GB code at 0x00000000 */<br>	.quad 0x00cff2000000ffff	/* 0x7b user 4GB data at 0x00000000 */<br><br>	.quad 0x0000000000000000	/* 0x80 TSS descriptor */<br>	.quad 0x0000000000000000	/* 0x88 LDT descriptor */<br><br>	/* Segments used for calling PnP BIOS */<br>	.quad 0x00c09a0000000000	/* 0x90 32-bit code */<br>	.quad 0x00809a0000000000	/* 0x98 16-bit code */<br>	.quad 0x0080920000000000	/* 0xa0 16-bit data */<br>	.quad 0x0080920000000000	/* 0xa8 16-bit data */<br>	.quad 0x0080920000000000	/* 0xb0 16-bit data */<br>	/*<br>	 * The APM segments have byte granularity and their bases<br>	 * and limits are set at run time.<br>	 */<br>	.quad 0x00409a0000000000	/* 0xb8 APM CS    code */<br>	.quad 0x00009a0000000000	/* 0xc0 APM CS 16 code (16 bit) */<br>	.quad 0x0040920000000000	/* 0xc8 APM DS    data */<br><br>	.quad 0x0000000000000000	/* 0xd0 - unused */<br>	.quad 0x0000000000000000	/* 0xd8 - unused */<br>	.quad 0x0000000000000000	/* 0xe0 - unused */<br>	.quad 0x0000000000000000	/* 0xe8 - unused */<br>	.quad 0x0000000000000000	/* 0xf0 - unused */<br>	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */<br></code></pre></td></tr></table></figure>
 <p>如下是 GDT 的布局示意图。每个 GDT 包含 18 个段描述符和 14 空的，未使用的，或保留的项。</p>
@@ -330,10 +491,10 @@
 <li>其次，GDT 中只有少数项可能依赖于 CPU 正在执行的进程（LDT 和 TLS 段描述符）。</li>
 <li>最后，在某些情况下，处理器可能临时修改 GDT 副本里的某个项，例如，当调用 APM 的 BIOS 例程时就会发生这种情况。</li>
 </ol>
-<h2 id="4-基于-gdt-的内存寻址"><a class="markdownIt-Anchor" href="#4-基于-gdt-的内存寻址"></a> 4、基于 GDT 的内存寻址</h2>
+<h2 id="4、基于-GDT-的内存寻址">4、基于 GDT 的内存寻址</h2>
 <p>该部分在前面已经比较详细地介绍了，可以看：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140531630">Linux 内存管理（一）之分段机制</a>。</p>
-<h1 id="二-ldt"><a class="markdownIt-Anchor" href="#二-ldt"></a> 二、LDT</h1>
-<h2 id="1-什么是-ldt"><a class="markdownIt-Anchor" href="#1-什么是-ldt"></a> 1、什么是 LDT</h2>
+<h1>二、LDT</h1>
+<h2 id="1、什么是-LDT">1、什么是 LDT</h2>
 <p>局部描述符表（<em>Local Descriptor Table</em>，<em>LDT</em>）和前面提到的 LDT 类似，不过有以下区别：</p>
 <ol>
 <li>GDT 是全局的，为整个系统定义了全局的段描述符。它包含了系统中所有进程和线程所使用的公共段描述符；LDT 是进程本地的，为每个进程定义了私有的段描述符。</li>
@@ -343,11 +504,11 @@
 <p>查找 GDT 在线性地址中的基地址，需要借助 GDTR；而查找 LDT 相应基地址，需要的是 GDT 中的段描述符。访问 LDT 需要使用段选择符，为了减少访问 LDT 时候的段转换次数，LDT 的段选择符，段基址，段限长都要放在 LDTR 寄存器之中。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt="LDRT 寄存器结构"></p>
 <p>注意，此时 LDTR 高 13  位存放的是对应 LDT 段描述符在 GDT 中的索引号。</p>
-<h2 id="2-ldt-的作用"><a class="markdownIt-Anchor" href="#2-ldt-的作用"></a> 2、LDT 的作用</h2>
+<h2 id="2、LDT-的作用">2、LDT 的作用</h2>
 <p>LDT 的作用是实现进程的虚拟内存隔离和保护。每个进程都可以拥有自己的 LDT，并且通过任务状态段来引用和切换不同的 LDT。</p>
 <p>通过 LDT，每个进程可以定义自己的代码段、数据段、堆栈段等。这样，不同进程之间的内存可以隔离开来，一个进程无法直接访问其他进程的内存。</p>
 <p>大多数用户态下的 Linux 程序不使用局部描述符表，这样内核就定义了一个缺省的 LDT 供大多数进程共享。缺省的局部描述符表存放在 <code>default_ldt</code> 数组中。它包含 5 个项但内核仅仅有效地使用了其中的两个项：用于 <strong>iBCS</strong> 执行文件的调用门和 <strong>Solaris/x86</strong> 可执行文件的调用门。（调用门是 80x86 微处理器提供的一种机制，用于在调用预定义函数时改变 CPU 的特权级。）</p>
-<h2 id="3-基于-ldt-的内存寻址"><a class="markdownIt-Anchor" href="#3-基于-ldt-的内存寻址"></a> 3、基于 LDT 的内存寻址</h2>
+<h2 id="3、基于-LDT-的内存寻址">3、基于 LDT 的内存寻址</h2>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt="基于 LDT 的内存寻址"></p>
 <ol>
 <li>首先从 GDTR 寄存器中获取 GDT 的基址。</li>
@@ -356,7 +517,7 @@
 <li>用段选择符高 13 位位置索引值（注意要乘以8）从 LDT 段中得到段描述符。</li>
 <li>段描述符符包含段的基址、限长、优先级等各种属性，这就得到了段基址，再加上偏移地址得到最后的线性地址。</li>
 </ol>
-<h1 id="三-总结"><a class="markdownIt-Anchor" href="#三-总结"></a> 三、总结</h1>
+<h1>三、总结</h1>
 <p>GDT 和 LDT 的结构关系如下：</p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt="GDT、LDT关系"></p>
 <p>对于操作系统来说，每个系统必须定义一个 GDT，用于系统中的所有任务和程序。可选择性定义若干个 LDT。GDT 本身不是一个段，而是线性地址空间的一个数据结构；GDT 的线性基地址和长度必须加载进 GDTR 之中。因为每个描述符长度是 8，所以 GDT 的基地址最好进行 8 字节对齐。</p>

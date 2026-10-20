@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、workqueue 与 tasklet 的区别 前面已经讲过中断和 tasklet 了，本文将介绍使用 workqueue 来处理中断。首先来看下它和 tasklet 有什么区别。    对比项 tasklet workqueue     上下文 softirq 进程上下文   能否睡眠 不能 能   能否拿 mutex 不能 能   执行者 softirq 机制 kworker 内核线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux驱动——使用workqueue处理中断">
+<meta property="og:url" content="http://example.com/2026/08/09/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E4%BD%BF%E7%94%A8workqueue%E5%A4%84%E7%90%86%E4%B8%AD%E6%96%AD/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、workqueue 与 tasklet 的区别 前面已经讲过中断和 tasklet 了，本文将介绍使用 workqueue 来处理中断。首先来看下它和 tasklet 有什么区别。    对比项 tasklet workqueue     上下文 softirq 进程上下文   能否睡眠 不能 能   能否拿 mutex 不能 能   执行者 softirq 机制 kworker 内核线程">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-09T11:29:05.000Z">
+<meta property="article:modified_time" content="2026-10-06T02:55:49.719Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="设备驱动">
+<meta property="article:tag" content="中断子系统">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux驱动——使用workqueue处理中断 - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux驱动——使用workqueue处理中断"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-08-09 19:29" pubdate>
+          星期日, 八月 9日 2026, 7:29 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux驱动——使用workqueue处理中断</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、workqueue 与 tasklet 的区别</h1>
+<p>前面已经讲过中断和 tasklet 了，本文将介绍使用 workqueue 来处理中断。首先来看下它和 tasklet 有什么区别。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>tasklet</th>
+<th>workqueue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上下文</td>
+<td>softirq</td>
+<td>进程上下文</td>
+</tr>
+<tr>
+<td>能否睡眠</td>
+<td>不能</td>
+<td>能</td>
+</tr>
+<tr>
+<td>能否拿 mutex</td>
+<td>不能</td>
+<td>能</td>
+</tr>
+<tr>
+<td>执行者</td>
+<td>softirq 机制</td>
+<td>kworker 内核线程</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>通常更低</td>
+<td>受调度影响</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>极短、原子性处理</td>
+<td>耗时、可能睡眠</td>
+</tr>
+<tr>
+<td>新代码推荐</td>
+<td>少用</td>
+<td>优先</td>
+</tr>
+</tbody>
+</table>
+<p><code>tasklet</code> 运行在软中断上下文中，操作必须是原子的；而 <code>workqueue</code> 运行在内核进程上下文中，操作不必是原子的。因此 <code>workqueue</code> 具有更大的灵活性。特别是，<code>workqueue</code> 可以<strong>休眠</strong>。</p>
+<p>选择规则：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs markdown">不能睡眠 + 非常短 + 延迟敏感：<br><span class="hljs-code">    tasklet</span><br><span class="hljs-code"></span><br>可能睡眠 + 需要 mutex + 工作耗时：<br><span class="hljs-code">    workqueue</span><br><span class="hljs-code"></span><br>处理逻辑就是中断本身的后续：<br><span class="hljs-code">    threaded IRQ</span><br></code></pre></td></tr></table></figure>
+<p>现代内核里，很多过去用 tasklet 的场景会改写为 threaded IRQ 或 workqueue。除非你维护旧驱动或明确需要 softirq 级延迟，否则不应该优先选择 tasklet。</p>
+<h1>二、workqueue 的使用</h1>
+<h2 id="2-1-workqueue">2.1 workqueue</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 原型*/</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">work_struct</span> &#123;</span><br>    <span class="hljs-type">atomic_long_t</span> data;       		<span class="hljs-comment">/*工作处理函数func的参数*/</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">entry</span>;</span>       	<span class="hljs-comment">/*连接工作的链表结点*/</span><br>    <span class="hljs-type">work_func_t</span> func;             	<span class="hljs-comment">/*工作处理函数*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_LOCKDEP</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">lockdep_map</span> <span class="hljs-title">lockdep_map</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-comment">/* </span><br><span class="hljs-comment">&quot;data&quot;表示的意义就比较丰富了。这种在一个C语言变量里塞入不同的类型的数据的方法在Linux的代码实现中还是不难见到的：</span><br><span class="hljs-comment"> - 最后的4个bits是作为&quot;flags&quot;标志位使用的；</span><br><span class="hljs-comment"> - 中间的4个bits是用于flush功能的&quot;color&quot;，flush功能简单地说就是：等待workqueue队列上的任务都处理完，并清空workqueue队列</span><br><span class="hljs-comment"> - 剩下的bits在不同的场景下有不同的含义(相当于C语言里的&quot;union&quot;)，它可以指向work item所在的workqueue队列的地址，由于低8位被挪作他用，因此要求workqueue队列的地址是按照256字节对齐的。它还可以表示处理work item的worker线程所在的pool的ID(关于pool将在本文的后半部分介绍)。</span><br><span class="hljs-comment">*/</span><br>&#125;; <br></code></pre></td></tr></table></figure>
+<p><strong>创建 workqueue：</strong></p>
+<p>如果因为某些原因，如需要执行的是个阻塞性质的任务而不愿或不能使用内核提供的共享 workqueue，这时需要自己创建 workqueue。</p>
+<p>创建 workqueue 时，有 2 个选择，可选择系统范围内的 ST，也可选择每 CPU 一个内核线程的 MT。</p>
+<ul>
+<li>single threaded (ST):：工作者线程的表现形式之一，在系统范围内，只有一个工作者线程为workqueue服务</li>
+<li>multi threaded (MT)：工作者线程的表现形式之一，在多 CPU 系统上每个 CPU 上都有一个工作者线程为 workqueue 服务</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/workqueue.h&gt;</span></span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">workqueue_struct</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cpu_workqueue_struct</span> *<span class="hljs-title">cpu_wq</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name;   <span class="hljs-comment">/*workqueue name*/</span><br>    <span class="hljs-type">int</span> singlethread;   <span class="hljs-comment">/*是不是单线程 - 单线程我们首选第一个CPU -0表示采用默认的工作者线程event*/</span><br>    <span class="hljs-type">int</span> freezeable;  <span class="hljs-comment">/* Freeze threads during suspend */</span><br>    <span class="hljs-type">int</span> rt;<br>&#125;; <br><br><span class="hljs-keyword">struct</span> workqueue_struct *<span class="hljs-title function_">create_workqueue</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span>;<br><span class="hljs-comment">// MT形式，用于创建一个workqueue队列，为系统中的每个CPU都创建一个内核线程。</span><br><span class="hljs-keyword">struct</span> workqueue_struct *<span class="hljs-title function_">create_singlethread_workqueue</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name)</span>;<br><span class="hljs-comment">// 用于创建workqueue，只创建一个内核线程。</span><br><br><span class="hljs-comment">//--------------</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">destroy_workqueue</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> workqueue_struct *<span class="hljs-built_in">queue</span>)</span>;<br><span class="hljs-comment">// 释放workqueue队列。</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>相对于 <code>create_singlethread_workqueue</code>，<code>create_workqueue</code> 同样会分配一个 wq 的 workqueue。</p>
+<p>不同之处在于，对于多 CPU 系统而言，<code>create_workqueue</code>对每一个 active 的 CPU，都会为之创建一个  per-CPU 的 cwq 结构，对应每一个 cwq，都会生成一个新的 worker_thread。</p>
+</blockquote>
+<p><strong>声明、初始化：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* 静态创建工作项 */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*<span class="hljs-type">work_func_t</span>)</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *work)</span>;<br>DECLARE_WORK(work, func);<br>DECLARE_DELAYED_WORK(work, func);<br><br><br><span class="hljs-comment">/* 动态创建工作项 */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">work_struct</span> <span class="hljs-title">work</span>;</span> <br>INIT_WORK(<span class="hljs-keyword">struct</span> work_struct *work, <span class="hljs-type">work_func_t</span> func);<br>PREPARE_WORK(<span class="hljs-keyword">struct</span> work_struct *work, <span class="hljs-type">work_func_t</span> func);<br>INIT_DELAYED_WORK(<span class="hljs-keyword">struct</span> delayed_work *work, <span class="hljs-type">work_func_t</span> func);<br>PREPARE_DELAYED_WORK(<span class="hljs-keyword">struct</span> delayed_work *work, <span class="hljs-type">work_func_t</span> func);<br></code></pre></td></tr></table></figure>
+<p>该系列宏最终都会创建一个以 <code>work</code>命名的工作项，并设置了回调函数 <code>func</code>，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">workqueue_func</span><span class="hljs-params">(<span class="hljs-type">void</span> * arg)</span>;<br><br>DECLARE_WORK(work,  workqueue_func); <br><br><span class="hljs-comment">// 相当于</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">work_struct</span> <span class="hljs-title">work</span>;</span> <br>INIT_WORK(&amp;work, workqueue_func);<br></code></pre></td></tr></table></figure>
+<p><strong>调度 work：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 使用内核默认的 workqueue</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">schedule_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *work)</span>;  <br><br><span class="hljs-comment">// 使用指定的 workqueue</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">queue_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> workqueue_struct *wq, <span class="hljs-keyword">struct</span> work_struct *work)</span>;<br></code></pre></td></tr></table></figure>
+<p><strong>取消 work：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">cancel_delayed_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *work)</span>;  <br></code></pre></td></tr></table></figure>
+<p><strong>返回值：</strong></p>
+<ul>
+<li>如果这个工作项在它开始执行前被取消，返回值是非零。内核保证给定工作项的执行不会在调用 <code>cancel_delay_work</code> 成功后被执行。</li>
+<li>如果 <code>cancel_delay_work</code> 返回 0，则这个工作项可能已经运行在一个不同的处理器，并且仍然可能在调用 <code>cancel_delayed_work</code> 之后被执行。要绝对确保工作函数没有在 <code>cancel_delayed_work</code> 返回 0 后在任何地方运行，你必须跟随这个调用之后接着调用 <code>flush_workqueue</code>。在 <code>flush_workqueue</code> 返回后。任何在改调用之前提交的工作函数都不会在系统任何地方运行。</li>
+</ul>
+<p>例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span>&#123;</span><br>    <span class="hljs-type">int</span> test;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">work_struct</span> <span class="hljs-title">save</span>;</span><br>&#125;;<br> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span> <span class="hljs-title">test_work</span>;</span> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">workqueue_struct</span> *<span class="hljs-title">test_workqueue</span>;</span><br> <br><span class="hljs-type">void</span> <span class="hljs-title function_">do_save</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *p_work)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span> *<span class="hljs-title">p_test_work</span> =</span> container_of(p_work, <span class="hljs-keyword">struct</span> my_work_struct, save);<br>    printk(<span class="hljs-string">&quot;%d\n&quot;</span>,p_test_work-&gt;test);<br>&#125;<br>  <br><span class="hljs-type">void</span> <span class="hljs-title function_">test_init</span><span class="hljs-params">()</span><br>&#123;<br>    INIT_WORK(&amp;(test_work.save), do_save);<br>    test_work.test = <span class="hljs-number">1</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">if</span> 0</span><br>    test_workqueue = create_workqueue(<span class="hljs-string">&quot;test_workqueue&quot;</span>);<br>    <span class="hljs-keyword">if</span> (!test_workqueue)<br>        panic(<span class="hljs-string">&quot;Failed to create test_workqueue\n&quot;</span>);<br>    queue_work(test_workqueue, &amp;(test_work.save));<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    schedule_work(&amp;(test_work.save));<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br> <br><span class="hljs-type">void</span> <span class="hljs-title function_">test_destory</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">if</span>(test_workqueue)<br>        destroy_workqueue(test_workqueue);<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="2-2-delayed-work">2.2 delayed work</h2>
+<p>在内核中，除了 work_struct 外还有一个结构体 <code>delayed_work</code>。如果希望“稍后执行”，而不是“马上排队”就可以使用它。该工作队列里拥有一个 timer 定时器结构体，从而实现延时工作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">delayed_work</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">work_struct</span> <span class="hljs-title">work</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timer_list</span> <span class="hljs-title">timer</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><strong>定义：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">delayed_work</span> <span class="hljs-title">my_delaywork</span>;</span><br></code></pre></td></tr></table></figure>
+<p><strong>初始化：</strong></p>
+<p>绑定 delaywork 对应的函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">INIT_DELAYED_WORK(&amp;my_delaywork , my_delaywork_func);<br></code></pre></td></tr></table></figure>
+<p>实现对应的回调函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">my_delaywork_func</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *work)</span> <br>&#123;<br>    printk(<span class="hljs-string">&quot;delaywork running\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>调度 delaywork：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 使用内核默认的 workqueue</span><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">schedule_delayed_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> delayed_work *dwork,</span><br><span class="hljs-params">                     <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> delay)</span>;<br><span class="hljs-comment">// 提交到指定的 wq 上执行。</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">queue_delayed_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> workqueue_struct *wq,<span class="hljs-keyword">struct</span> delayed_work *dwork, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> delay)</span>;<br><span class="hljs-type">int</span> <span class="hljs-title function_">queue_delayed_work_on</span><span class="hljs-params">(<span class="hljs-type">int</span> cpu, <span class="hljs-keyword">struct</span> workqueue_struct *wq,</span><br><span class="hljs-params">                          <span class="hljs-keyword">struct</span> delayed_work *dwork, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> delay)</span>;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>使用delayed workqueue最主要的是调用queue_delayed_work。</p>
+</blockquote>
+<p>**描述：**提交work到某条wq，工作项随后在某个合适时机将被执行。</p>
+<p><strong>参数解析：</strong></p>
+<ul>
+<li>wq：workqueue</li>
+<li>work：需要执行的任务。</li>
+<li>dalay：延迟时间，以 ms 为单位。（内部通过注册定时器实现延迟）最少延迟 delay jiffies 之后该工作才会被执行</li>
+</ul>
+<p><strong>例子：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">schedule_delayed_work(&amp;my_delaywork , msecs_to_jiffies(<span class="hljs-number">200</span>));<br></code></pre></td></tr></table></figure>
+<p><strong>取消 delaywork：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">cancel_delayed_work_sync(&amp;my_delaywork);<br></code></pre></td></tr></table></figure>
+<p><strong>例子：</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/workqueue.h&gt;</span></span><br><span class="hljs-comment">// ...</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span>&#123;</span><br>    <span class="hljs-type">int</span> test;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">delayed_work</span> <span class="hljs-title">my_delay_work</span>;</span><br>&#125;;<br> <br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span> <span class="hljs-title">test_work</span>;</span> <br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">workqueue_struct</span> *<span class="hljs-title">test_workqueue</span>;</span><br> <br><span class="hljs-type">void</span> <span class="hljs-title function_">do_my_delay_work</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> work_struct *p_work)</span><br>&#123;<br>    <span class="hljs-comment">// 注意，这里的container_of要求 `.work`。</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_work_struct</span> *<span class="hljs-title">p_test_work</span> =</span> container_of(p_work, <span class="hljs-keyword">struct</span> my_work_struct, my_delay_work.work);<br>    printk(<span class="hljs-string">&quot;%d\n&quot;</span>,p_test_work-&gt;test);<br>    <span class="hljs-comment">// 再次运行</span><br>    schedule_delayed_work(&amp;(test_work.my_delay_work), msecs_to_jiffies(<span class="hljs-number">200</span>));<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">test_init</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> delay_ms;<br><br>    INIT_DELAYED_WORK(&amp;(test_work.my_delay_work), do_my_delay_work);<br>    test_work.test = <span class="hljs-number">1</span>;<br>    <span class="hljs-comment">// 延迟 200ms</span><br>    delay_ms = msecs_to_jiffies(<span class="hljs-number">200</span>);<br><span class="hljs-meta">#<span class="hljs-keyword">if</span> 1</span><br>    <span class="hljs-comment">// 以 独立的 wq 运行work</span><br>    test_workqueue = create_workqueue(<span class="hljs-string">&quot;test_workqueue&quot;</span>);<br><br>    <span class="hljs-keyword">if</span> (!test_workqueue)<br>        panic(<span class="hljs-string">&quot;Failed to create test_workqueue\n&quot;</span>);<br>    queue_delayed_work(test_workqueue, &amp;(test_work.my_delay_work), delay_ms);<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-comment">// 以内核中默认的wq运行work</span><br>    schedule_delayed_work(&amp;(test_work.my_delay_work), delay_ms);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br> <br><span class="hljs-type">void</span> <span class="hljs-title function_">test_destory</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">if</span>(test_workqueue)<br>        destroy_workqueue(test_workqueue);<br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="category-chain-item">设备驱动</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Linux/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F/" class="category-chain-item">中断子系统</a>
+  
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="print-no-link">#设备驱动</a>
+      
+        <a href="/tags/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F/" class="print-no-link">#中断子系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux驱动——使用workqueue处理中断</div>
+      <div>http://example.com/2026/08/09/Linux驱动——使用workqueue处理中断/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年8月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/08/10/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94V4L2%E6%A1%86%E6%9E%B6/" title="Linux驱动——V4L2框架">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux驱动——V4L2框架</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/08/08/Linux%E9%A9%B1%E5%8A%A8%E2%80%94%E2%80%94%E4%BD%BF%E7%94%A8tasklet%E5%A4%84%E7%90%86%E4%B8%AD%E6%96%AD/" title="Linux驱动——使用tasklet处理中断">
+                        <span class="hidden-mobile">Linux驱动——使用tasklet处理中断</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

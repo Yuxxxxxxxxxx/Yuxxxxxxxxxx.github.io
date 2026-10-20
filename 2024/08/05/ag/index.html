@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述  1、功能 在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。  2、下载 在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher  Debian&#x2F;Ubuntu:">
+    <meta name="description" content="[toc]  一、概述 1、功能 在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载 在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher  Debian&#x2F;Ubuntu:  1su">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 下 ag 命令的使用">
 <meta property="og:url" content="http://example.com/2024/08/05/ag/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述  1、功能 在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。  2、下载 在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher  Debian&#x2F;Ubuntu:">
+<meta property="og:description" content="[toc]  一、概述 1、功能 在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。 2、下载 在下面是各个系统安装 ag 的命令： 1sudo apt-get install silversearcher-ag  MacOS:  1brew install the_silver_searcher  Debian&#x2F;Ubuntu:  1su">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-05T13:01:48.000Z">
 <meta property="article:modified_time" content="2024-11-13T16:50:37.116Z">
@@ -279,10 +279,10 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
-<h2 id="1-功能"><a class="markdownIt-Anchor" href="#1-功能"></a> 1、功能</h2>
+<h1>一、概述</h1>
+<h2 id="1、功能">1、功能</h2>
 <p>在 Linux 系统中，ag 命令是用于文本搜索的高效工具。它具有快速、灵活的搜索功能，并支持正则表达式匹配。</p>
-<h2 id="2-下载"><a class="markdownIt-Anchor" href="#2-下载"></a> 2、下载</h2>
+<h2 id="2、下载">2、下载</h2>
 <p>在下面是各个系统安装 ag 的命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get install silversearcher-ag<br></code></pre></td></tr></table></figure>
 <ol>
@@ -305,7 +305,7 @@
 <li><strong>Arch</strong>:</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> pacman -S the_silver_searcher<br></code></pre></td></tr></table></figure>
-<h1 id="二-常用参数说明"><a class="markdownIt-Anchor" href="#二-常用参数说明"></a> 二、常用参数说明</h1>
+<h1>二、常用参数说明</h1>
 <p>ag 目录的语法格式如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ag [选项] [搜索模式] [文件/目录]<br></code></pre></td></tr></table></figure>
 <p>下面是一些常用的参数：</p>
@@ -318,7 +318,7 @@
 <li><strong>-n</strong>：显示行号。</li>
 </ul>
 <p>更多参数信息，可以使用命令：<code>ag -h</code> 查看。</p>
-<h1 id="三-实例"><a class="markdownIt-Anchor" href="#三-实例"></a> 三、实例</h1>
+<h1>三、实例</h1>
 <ol>
 <li>在指定目录下查询字符串</li>
 </ol>
@@ -358,7 +358,7 @@
 </ol>
 <p>与 <code>ag -c</code> 类似，不过 <code>ag -l</code> 只会列出匹配到的文件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -c <span class="hljs-string">&quot;alloc&quot;</span> ./include<br>include/bb_e2fs_defs.h<br>include/dump.h<br>include/inet_common.h<br>include/bb_archive.h<br>include/platform.h<br>include/libbb.h<br></code></pre></td></tr></table></figure>
-<h1 id="四-帮助文档"><a class="markdownIt-Anchor" href="#四-帮助文档"></a> 四、帮助文档</h1>
+<h1>四、帮助文档</h1>
 <p>如下是 <code>ag -h</code> 的打印信息：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs bash">[projectsauron]:~/linux/nfs/busybox-1.29.0$ ag -h<br>用法: ag [FILE-TYPE] [OPTIONS] PATTERN [PATH]<br><br>  递归地在 PATH 中搜索 PATTERN.<br>  Like grep or ack, but faster.<br><br>例子:<br>  ag -i foo /bar/<br><br>输出选项:<br>     --ackmate            打印结果为 Ackmate 可解析的格式<br>  -A --after [LINES]      打印匹配后的行 (默认值:2)<br>  -B --before [LINES]     打印匹配前的行 (默认值:2)<br>     --[no]<span class="hljs-built_in">break</span>          打印不同文件中匹配项之间的换行符 (默认开启)<br>  -c --count              只打印每个文件中匹配项的数量. (这通常与匹配行的数量不同)<br>     --[no]color          在结果中打印颜色代码 (默认启用)<br>     --color-line-number  行号的颜色代码 (Default: 1;33)<br>     --color-match        结果匹配数字的颜色代码 (Default: 30;43)<br>     --color-path         路径名称的颜色代码 (Default: 1;32)<br>     --column             在结果中打印列号<br>     --[no]filename       打印文件名 (启用，除非搜索单个文件)<br>  -H --[no]heading        在每个文件匹配结果前打印文件名 (默认开启)<br>  -C --context [LINES]    打印匹配前后的行 (默认值:2)<br>     --[no]group          和 --[no]<span class="hljs-built_in">break</span> --[no]heading 相同<br>  -g --filename-pattern PATTERN 打印匹配 PATTERN 的文件名<br>  -l --files-with-matches       只打印包含匹配项的文件名 (不要打印匹配的行)<br>  -L --files-without-matches    只打印不包含匹配项的文件名<br>     --print-all-files    打印所有搜索文件的标题，即使是那些不包含匹配项的文件<br>     --[no]numbers        打印行号。默认是当搜索流时省略行号<br>  -o --only-matching      只打印匹配的行<br>     --print-long-lines   在非常长的行上打印匹配 (默认: &gt;2k 字符)<br>     --passthrough        搜索流时，打印所有行，即使它们不匹配<br>     --silent             屏蔽所有日志信息，包括错误信息<br>     --stats              打印统计数据(扫描的文件，花费的时间等)<br>     --stats-only         打印统计信息，不打印其他信息<br>                          (搜索单个文件时和 --count 相同)<br>     --vimgrep            打印类似 vim 的 :vimgrep /pattern/g<br>                          (它会报告行上的每个匹配项)<br>  -0 --null --print0      用 null 分隔文件名 (对于 <span class="hljs-string">&#x27;xargs -0&#x27;</span>)<br><br>搜索选项:<br>  -a --all-types          搜索所有文件(不包括隐藏文件或忽略文件中的模式)<br>  -D --debug              Ridiculous debugging (可能没有用)<br>     --depth NUM          搜索最多 NUM 个目录深度(默认值:25)<br>  -f --follow             Follow symlinks<br>  -F --fixed-strings      Alias <span class="hljs-keyword">for</span> --literal <span class="hljs-keyword">for</span> compatibility with grep<br>  -G --file-search-regex  PATTERN 将搜索限制为文件名匹配模式<br>     --hidden             搜索隐藏文件 (obeys .*ignore files)<br>  -i --ignore-case        不区分大小写<br>     --ignore PATTERN     忽略匹配模式的文件/目录<br>                          (literal file/directory names also allowed)<br>     --ignore-dir NAME    Alias <span class="hljs-keyword">for</span> --ignore <span class="hljs-keyword">for</span> compatibility with ack.<br>  -m --max-count NUM      在 NUM 匹配后跳过文件的其余部分 (默认:10 000)<br>     --one-device         不要通过链接到其他设备.<br>  -p --path-to-ignore STRING Use .ignore file at STRING<br>  -Q --literal            不将 PATTERN 解析为正则表达式<br>  -s --case-sensitive     匹配区分大小写<br>  -S --smart-case         不区分大小写，除非 PATTERN 包含大写字符(默认启用)<br>     --search-binary      在二进制文件中查找匹配项<br>  -t --all-text           搜索所有文本文件(不包括隐藏文件)<br>  -u --unrestricted       不加限制地搜索所有文件(ignore .ignore, .gitignore, etc.;<br>                          也可以搜索二进制文件和隐藏文件)<br>  -U --skip-vcs-ignores   Ignore VCS ignore files<br>                          (.gitignore, .hgignore; still obey .ignore)<br>  -v --invert-match<br>  -w --word-regexp        仅匹配整个单词<br>  -W --width NUM          以 NUM 个字符截断匹配的行<br>  -z --search-zip         搜索压缩文件(例如gzip)的内容<br><br>文件类型:<br>搜索可以被限制为某些类型的文件。例如:<br>  ag --html needle<br>  - 在后缀为 .htm、.html、.shtml 或 .xhtml 的文件中搜索 needle 。<br><br>要获取支持的文件类型列表，请运行:<br>  ag --list-file-types<br><br>ag最初由Geoff Greer创建。更多信息(和最新版本)可以查询 http://geoff.greer.fm/ag<br></code></pre></td></tr></table></figure>
 <p>​</p>

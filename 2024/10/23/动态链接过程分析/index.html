@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。  一、前言 静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定">
+    <meta name="description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言 静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位">
 <meta property="og:type" content="article">
 <meta property="og:title" content="动态链接过程分析">
 <meta property="og:url" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。  一、前言 静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定">
+<meta property="og:description" content="[toc]  上文 静态链接过程分析 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。 一、前言 静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。 因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/1.png">
 <meta property="og:image" content="http://example.com/2024/10/23/%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/2.png">
@@ -307,7 +307,7 @@
                 <p>[toc]</p>
 <hr>
 <p>上文 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/143127425">静态链接过程分析</a> 讲解了静态链接的过程，尤其强调了重定位的过程。本文将继续介绍动态链接的过程。</p>
-<h1 id="一-前言"><a class="markdownIt-Anchor" href="#一-前言"></a> 一、前言</h1>
+<h1>一、前言</h1>
 <p>静态链接得到的可执行程序，被操作系统加载之后就可以直接执行。</p>
 <p>因为在链接的时候，链接器已经把所有目标文件中的代码、数据等 Section，都组装到可执行文件中了。并且把代码中所有使用的外部符号（变量、函数），都进行了重定位（即：把变量、函数的地址，都填写到代码段中需要重定位的地方），因此可执行程序在执行的时候，不依赖于其它的外部模块即可运行。</p>
 <p>这里的前提是可执行文件是可写的。</p>
@@ -323,7 +323,7 @@
 <p>要解决这个问题，那就涉及到了 Linux 中的动态链接器的核心工作。</p>
 <p>既然代码段在被加载到内存中之后不可写，但是数据段是可写的。在代码段中引用的外部符号，可以在数据段中增加一个跳板：让代码段先引用数据段中的内容，然后在重定位时，把外部符号的地址填写到数据段中对应的位置，如下图所示：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="二-示例程序"><a class="markdownIt-Anchor" href="#二-示例程序"></a> 二、示例程序</h1>
+<h1>二、示例程序</h1>
 <p>下面还是来结合简单的示例来分析：</p>
 <p>我们需要 3 个源文件来讨论动态链接中重定位的过程：<code>main.c</code>、<code>a.c</code>、<code>b.c</code>，其中的 <code>a.c</code> 和 <code>b.c</code> 被编译成动态库，然后 <code>main.c</code> 与这两个动态库一起动态链接成可执行程序。它们之间的依赖关系是：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt>代码如下：</p>
@@ -358,8 +358,8 @@
 <p>然后我们可以用 <code>patchelf</code> 工具来查看一个可执行文件或动态库依赖于哪个模块：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">patchelf --print-needed xxx</span><br></code></pre></td></tr></table></figure>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="三-动态库的加载过程"><a class="markdownIt-Anchor" href="#三-动态库的加载过程"></a> 三、动态库的加载过程</h1>
-<h2 id="1-动态链接器加载动态库"><a class="markdownIt-Anchor" href="#1-动态链接器加载动态库"></a> 1、动态链接器加载动态库</h2>
+<h1>三、动态库的加载过程</h1>
+<h2 id="1、动态链接器加载动态库">1、动态链接器加载动态库</h2>
 <p>当执行 main 程序的时候，操作系统首先把 main 加载到内存，然后通过 <code>.interp</code> 段信息来查看该文件依赖哪些动态库：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -s main</span><br></code></pre></td></tr></table></figure>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -368,9 +368,9 @@
 <p>然后，动态链接器发现：main 依赖 <code>liba.so</code>，于是它就在虚拟地址空间中找一块能放得下 <code>liba.so</code> 的空闲空间，然后把 <code>liba.so</code> 中需要加载到内存中的代码段、数据段都加载进来。当然，在加载 <code>liba.so</code> 时，又会发现它依赖 <code>libb.so</code>，于是又把在虚拟地址空间中找一块能放得下<code>libb.so</code> 的空闲空间，把 <code>libb.so</code> 中的代码段、数据段等加载到内存中，示意图如下所示：</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
-<p>动态链接器自身也是一个动态库，而且是一个特殊的动态库：它<mark>不依赖于其他的任何动态库</mark>，因为当它被加载的时候，没有人帮它去加载依赖的动态库，否则就变成死循环了。</p>
+<p>动态链接器自身也是一个动态库，而且是一个特殊的动态库：它==不依赖于其他的任何动态库==，因为当它被加载的时候，没有人帮它去加载依赖的动态库，否则就变成死循环了。</p>
 </blockquote>
-<h2 id="2-动态库的加载地址"><a class="markdownIt-Anchor" href="#2-动态库的加载地址"></a> 2、动态库的加载地址</h2>
+<h2 id="2、动态库的加载地址">2、动态库的加载地址</h2>
 <p>一个进程在运行时的实际加载地址(或者说虚拟内存区域)，可以通过指令读取出来：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/[进程的 pid]/maps</span> <br></code></pre></td></tr></table></figure>
 <hr>
@@ -424,11 +424,11 @@
 <p>可以看出 main 可执行程序是位于低地址，所有的动态库都位于 4G 内存空间的最后 1G 空间中。</p>
 <p>还有另外一个指令也很好用 <code>$ pmap [进程的 pid]</code>，也可以打印出每个模块的内存地址：</p>
 <p><img src="14.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="四-符号重定位"><a class="markdownIt-Anchor" href="#四-符号重定位"></a> 四、符号重定位</h1>
-<h2 id="1-全局符号表"><a class="markdownIt-Anchor" href="#1-全局符号表"></a> 1、全局符号表</h2>
+<h1>四、符号重定位</h1>
+<h2 id="1、全局符号表">1、全局符号表</h2>
 <p>在上一篇文章的静态链接中学习过，链接器在扫描每一个目标文件(<code>.o</code> 文件)的时候，会把每个目标文件中的符号提取出来，构成一个全局符号表。</p>
 <p>然后在第二遍扫描的时候，查看每个目标文件中需要重定位的符号，然后在全局符号表中查找该符号被安排在什么地址，然后把这个地址填写到引用的地方，这就是静态链接时的重定位。</p>
-<p>但是动态链接过程中的重定位，与静态链接的处理方式差别就大很多了，因为每个符号的地址只有在<mark>运行</mark>的时候才能知道它们的地址。例如：<code>liba.so</code> 引用了 <code>libb.so</code> 中的变量和函数，而 <code>libb.so</code> 中的这两个符号被加载到什么位置，直到 main 程序准备执行的时候，才能被链接器加载到内存中的某个随机的位置。</p>
+<p>但是动态链接过程中的重定位，与静态链接的处理方式差别就大很多了，因为每个符号的地址只有在==运行==的时候才能知道它们的地址。例如：<code>liba.so</code> 引用了 <code>libb.so</code> 中的变量和函数，而 <code>libb.so</code> 中的这两个符号被加载到什么位置，直到 main 程序准备执行的时候，才能被链接器加载到内存中的某个随机的位置。</p>
 <p>也就是说：动态链接器知道每个动态库中的代码段、数据段被加载的内存地址，因此动态链接器也会维护一个全局符号表，其中存放着每一个动态库中导出的符号以及它们的内存地址信息。</p>
 <p>在示例代码 <code>main.c</code> 函数中，我们通过 <code>dlopen</code> 返回的句柄来打印进程中的一些全局符号的地址信息，输出内容如下：</p>
 <p><img src="15.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -440,20 +440,20 @@
 </ol>
 <p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-全局偏移表-got"><a class="markdownIt-Anchor" href="#2-全局偏移表-got"></a> 2、全局偏移表 GOT</h2>
+<h2 id="2、全局偏移表-GOT">2、全局偏移表 GOT</h2>
 <p>在示例代码中，<code>liba.so</code> 是比较特殊的，它既被 main 可执行程序所依赖，又依赖于 <code>libb.so</code>。而且，在 <code>liba.so</code> 中，定义了静态、动态的全局变量和函数，可以很好的概况很多种情况，因此这部分内容就主要来分析 <code>liba.so</code> 这个动态库。</p>
 <p>前文说过：代码重定位需要修改代码段中的符号引用，而代码段被加载到内存中又没有可写的权限，动态链接解决这个矛盾的方案是：增加一层间接性。</p>
-<p>例如：<code>liba.so</code> 的代码中引用了 <code>libb.so</code> 中的变量 b，在 <code>liba.so</code> 的代码段，并不是在引用的地方直接指向 <code>libb.so</code> 数据段中变量 b 的地址，而是指向了 <code>liba.so</code> 自己的数据段中的某个位置，在<mark>重定位</mark>阶段，链接器再把 <code>libb.so</code> 中变量 b 的地址填写到这个位置。</p>
+<p>例如：<code>liba.so</code> 的代码中引用了 <code>libb.so</code> 中的变量 b，在 <code>liba.so</code> 的代码段，并不是在引用的地方直接指向 <code>libb.so</code> 数据段中变量 b 的地址，而是指向了 <code>liba.so</code> 自己的数据段中的某个位置，在==重定位==阶段，链接器再把 <code>libb.so</code> 中变量 b 的地址填写到这个位置。</p>
 <p>因为 <code>liba.so</code> 自己的代码段和数据段位置是相对固定的，这样的话，<code>liba.so</code> 的代码段被加载到内存之后，就再也不用修改了。而数据段中这个间接跳转的位置，就称作：全局偏移表(<code>GOT</code>，<em><strong>Global Offset Table</strong></em>)。</p>
 <p><code>liba.so</code> 的代码段中引用了 <code>libb.so</code> 中的符号 b，既然 b 的地址需要在重定位时才能确定，那么就在数据段中开辟一块空间（GOT表)，重定位时把 b 的地址填写到 GOT 表中。</p>
-<p>而 <code>liba.so</code> 的代码段中，把 GOT 表的地址填写到引用 b 的地方，因为 GOT 表在<mark>编译</mark>阶段是可以确定的，使用的是<mark>相对地址</mark>。这样，就可以在不修改 <code>liba.so</code> 代码段的前提下，动态地对符号 b 进行了重定位！</p>
+<p>而 <code>liba.so</code> 的代码段中，把 GOT 表的地址填写到引用 b 的地方，因为 GOT 表在==编译==阶段是可以确定的，使用的是==相对地址==。这样，就可以在不修改 <code>liba.so</code> 代码段的前提下，动态地对符号 b 进行了重定位！</p>
 <p>其实，在一个动态库中存在 2 个 GOT 表，分别用于重定位变量符号（section 名称：<code>.got</code>）和函数符号（section 名称：<code>.got.plt</code>）。也就是说：</p>
 <ul>
 <li>所有变量类型的符号重定位信息都位于 <code>.got</code> 中</li>
 <li>所有函数类型的符号重定位信息都位于 <code>.got.plt</code> 中</li>
 </ul>
 <p>并且，在一个动态库文件中，有两个特殊的段（<code>.rel.dyn</code> 和 <code>.rel.plt</code>）来告诉链接器：<code>.got</code> 和 <code>.got.plt</code> 这两个表中，有哪些符号需要进行重定位。</p>
-<h2 id="3-libaso-动态库文件的布局"><a class="markdownIt-Anchor" href="#3-libaso-动态库文件的布局"></a> 3、<a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 动态库文件的布局</h2>
+<h2 id="3、liba-so-动态库文件的布局">3、<a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 动态库文件的布局</h2>
 <p>为了更深刻的理解 <code>.got</code> 和 <code>.got.plt</code> 这两个表，有必要来拆解一下 <code>liba.so</code> 动态库文件的内部结构。</p>
 <p>通过 <code>readelf -S liba.so</code> 指令来看一下这个 ELF 文件中都有哪些 section：</p>
 <p><img src="18.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -479,8 +479,8 @@
 </ul>
 <p>通过以上这 2 张图(红色矩形框)，可以得到 <code>liba.so</code> 动态库文件的内部结构如下：</p>
 <p><img src="20.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="4-libaso-动态库的虚拟地址"><a class="markdownIt-Anchor" href="#4-libaso-动态库的虚拟地址"></a> 4、<a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 动态库的虚拟地址</h2>
-<p>来继续观察 <code>liba.so</code> 文件 segment 信息中的 <code>VirtAddr</code> 列，它表示的是<mark>被加载到虚拟内存中的地址</mark>：</p>
+<h2 id="4、liba-so-动态库的虚拟地址">4、<a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 动态库的虚拟地址</h2>
+<p>来继续观察 <code>liba.so</code> 文件 segment 信息中的 <code>VirtAddr</code> 列，它表示的是==被加载到虚拟内存中的地址==：</p>
 <p><img src="21.png" srcset="/img/loading.gif" lazyload alt></p>
 <blockquote>
 <p>因为编译动态库时，使用了代码位置无关参数（<code>-fPIC</code>)，这里的虚拟地址从 <code>0x0000 0000</code> 开始。</p>
@@ -488,7 +488,7 @@
 <p>当 <code>liba.so</code> 的代码段、数据段被加载到内存中时，动态链接器找到一块空闲空间，这个空间的开始地址，就相当于一个基地址。</p>
 <p><code>liba.so</code> 中的代码段和数据段中所有的虚拟地址信息，只要加上这个基地址，就得到了实际虚拟地址。所以结合前面的信息可得：</p>
 <p><img src="22.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="5-got-表的内部结构"><a class="markdownIt-Anchor" href="#5-got-表的内部结构"></a> 5、GOT 表的内部结构</h2>
+<h2 id="5、GOT-表的内部结构">5、GOT 表的内部结构</h2>
 <p>现在，我们已经知道了 <code>liba.so</code> 库的文件布局，也知道了它的虚拟地址，此时就可以来进一步的看一下 <code>.got</code> 和 <code>.got.plt</code> 这两个表的内部结构了。从刚才的图片中看出：</p>
 <ul>
 <li><code>.got</code> 表的长度是 0x18，说明有 6 个表项(每个表项占 4 个字节)</li>
@@ -512,7 +512,7 @@
 <li><code>liba.so</code> 的代码中在操作变量 b 的时候，就到 <code>.got</code> 表中的 <code>0x0000 3fec</code> 这个地址处来获取变量 b 的真正地址</li>
 <li><code>liba.so</code> 的代码中在调用 func_b 函数的时候，就到 <code>.got.plt</code> 表中的 <code>0x0000 400c</code> 这个地址处来获取函数的真正地址</li>
 </ul>
-<h2 id="6-反汇编-libaso-代码"><a class="markdownIt-Anchor" href="#6-反汇编-libaso-代码"></a> 6、反汇编 <a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 代码</h2>
+<h2 id="6、反汇编-liba-so-代码">6、反汇编 <a target="_blank" rel="noopener" href="http://liba.so">liba.so</a> 代码</h2>
 <p>下面就来反汇编一下 <code>liba.so</code>，看一下指令码中是如何对这两个表项进行寻址的。</p>
 <p>执行反汇编指令：<code>$ objdump -d liba.so</code>，这里只贴出 func_a1 函数的反汇编代码：</p>
 <p><img src="25.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -529,8 +529,8 @@
 <p>第 3 个红色矩形框，是调用函数 func_b，稍微复杂一些，跳转到符号 <code>func_b@plt</code> 的地方，看一下反汇编代码：</p>
 <p><img src="26.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><code>jmp</code> 指令调用了 <code>%ebx + 0xc</code>（得到 0x400c）处的那个函数指针，从上面的 <code>.got.plt</code> 布局图中可以看出，重定位之后这个表项中存储的正是 func_b 函数的地址（<code>libb.so</code> 中代码段的某个位置），所以就正确的跳转到该函数中了。</p>
-<h1 id="五-补充"><a class="markdownIt-Anchor" href="#五-补充"></a> 五、补充</h1>
-<h2 id="1-延迟绑定-plt"><a class="markdownIt-Anchor" href="#1-延迟绑定-plt"></a> 1、延迟绑定 plt</h2>
+<h1>五、补充</h1>
+<h2 id="1、延迟绑定-plt">1、延迟绑定 plt</h2>
 <p>实际应用中，共享对象可能会访问大量的外部函数，也就是说，有一个庞大的 <code>got.plt</code> 表。</p>
 <p>当加载该共享对象时，理论上，动态链接器就要将该共享对象涉及到的外部模块全部加载并链接，这可能会耗费大量时间，而且，很多外部函数，也许在整个进程生命周期内，都不会被实际调用一次，加载消耗的时间就浪费了。</p>
 <p>为了优化这一点，引入延迟绑定（<em><strong>lazy binding</strong></em>）技术。具体办法是，调用外部函数的指令不直接从 <code>got.plt</code> 中取函数地址，而是新建一个plt段，从这个里面取函数的地址。</p>

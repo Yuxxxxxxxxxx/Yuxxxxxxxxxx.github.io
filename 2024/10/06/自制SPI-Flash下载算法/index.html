@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述 本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部">
+    <meta name="description" content="[toc]  一、概述 本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于 STM32F407 的 SPI Flash下载算法">
 <meta property="og:url" content="http://example.com/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述 本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部">
+<meta property="og:description" content="[toc]  一、概述 本文将介绍如何使用 MDK 创建 STM32F407 的 SPI Flash 下载算法。  其中，SPI Flash 芯片使用的是 W25Q128，其相关操作源码可以参考 STM32 通过 SPI 驱动 W25Q128，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。  单片机的 Flash 下载算法是一个 FLM 文件，FLM 通过编译链接得到，其内部包">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/1.png">
 <meta property="og:image" content="http://example.com/2024/10/06/%E8%87%AA%E5%88%B6SPI-Flash%E4%B8%8B%E8%BD%BD%E7%AE%97%E6%B3%95/2.png">
@@ -296,7 +296,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p>本文将介绍如何使用 MDK 创建 <code>STM32F407</code> 的 <code>SPI Flash</code> 下载算法。</p>
 <blockquote>
 <p>其中，<code>SPI Flash</code> 芯片使用的是 <code>W25Q128</code>，其相关操作源码可以参考 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142412023">STM32 通过 SPI 驱动 W25Q128</a>，本文所使用的驱动 SPI Flash 的 API 和里面是一样的。</p>
@@ -308,23 +308,23 @@
 <li>然后 <code>JLINK</code> 提取 FLM 文件的信息，将其传输到单片机的内部 SRAM</li>
 <li>下载算法开始在 SRAM 中运行，由于下载算法包含了一系列对 Flash 的操作，那么下载工具通过下发初始化、擦除、写入、校验等指令给单片机，单片机去执行这些指令操作，实现对单片机 Flash 的下载。</li>
 </ol>
-<h1 id="二-自制-flm-文件"><a class="markdownIt-Anchor" href="#二-自制-flm-文件"></a> 二、自制 FLM 文件</h1>
+<h1>二、自制 FLM 文件</h1>
 <p>我参照的是 MDK 给的程序模板来完成 Flash 下载程序，然后在模板的基础上加上自己的代码。</p>
 <p>模板路径如下：<code>D:\Keil_v5\ARM\Packs\ARM\CMSIS\5.8.0\Device\_Template_Flash</code>，不同的 MDK 版本可能路径不一样。</p>
 <p>然后将项目拷贝到你的工作目录下，并取消该工程项目的只读属性。</p>
 <p>打开项目如下：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt><br>
 然后开始我们的工作。</p>
-<h2 id="1-修改使用的芯片"><a class="markdownIt-Anchor" href="#1-修改使用的芯片"></a> 1、修改使用的芯片</h2>
+<h2 id="1、修改使用的芯片">1、修改使用的芯片</h2>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>首先选择你的芯片类型和型号。</p>
-<h2 id="2-修改输出算法的名称"><a class="markdownIt-Anchor" href="#2-修改输出算法的名称"></a> 2、修改输出算法的名称</h2>
+<h2 id="2、修改输出算法的名称">2、修改输出算法的名称</h2>
 <p>这一步不是必须的，改个名称方便自己查看。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>注意这个名称只是项目最终生成输出的 FLM 文件的名称，和下面位置识别出的算法名（后面会介绍这个名称如何修改）无关。</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="3-其它设置"><a class="markdownIt-Anchor" href="#3-其它设置"></a> 3、其它设置</h2>
+<h2 id="3、其它设置">3、其它设置</h2>
 <blockquote>
 <p><font color="red" size="5px">注意</font>：</p>
 <p>这里的设置在模板文件中已经设置好了，这里主要是介绍一些，可以跳过</p>
@@ -346,7 +346,7 @@
 <p>我们这里的分散加载文件直接使用 MDK 模板工程里提供好的即可，无需任何修改。</p>
 <p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="4-修改配置文件-flashdevc"><a class="markdownIt-Anchor" href="#4-修改配置文件-flashdevc"></a> 4、修改配置文件 FlashDev.c</h2>
+<h2 id="4、修改配置文件-FlashDev-c">4、修改配置文件 FlashDev.c</h2>
 <p>模板工程里面提供简单的配置说明：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">FlashDevice</span> <span class="hljs-title">const</span> <span class="hljs-title">FlashDevice</span>  =</span>  &#123;<br>   FLASH_DRV_VERS,             <span class="hljs-comment">// Driver Version, do not modify!</span><br>   <span class="hljs-string">&quot;New Device 256kB Flash&quot;</span>,   <span class="hljs-comment">// Device Name </span><br>   ONCHIP,                     <span class="hljs-comment">// Device Type</span><br>   <span class="hljs-number">0x00000000</span>,                 <span class="hljs-comment">// Device Start Address</span><br>   <span class="hljs-number">0x00040000</span>,                 <span class="hljs-comment">// Device Size in Bytes (256kB)</span><br>   <span class="hljs-number">1024</span>,                       <span class="hljs-comment">// Programming Page Size</span><br>   <span class="hljs-number">0</span>,                          <span class="hljs-comment">// Reserved, must be 0</span><br>   <span class="hljs-number">0xFF</span>,                       <span class="hljs-comment">// Initial Content of Erased Memory</span><br>   <span class="hljs-number">100</span>,                        <span class="hljs-comment">// Program Page Timeout 100 mSec</span><br>   <span class="hljs-number">3000</span>,                       <span class="hljs-comment">// Erase Sector Timeout 3000 mSec</span><br><br><span class="hljs-comment">// Specify Size and Address of Sectors</span><br>   <span class="hljs-number">0x002000</span>, <span class="hljs-number">0x000000</span>,         <span class="hljs-comment">// Sector Size  8kB (8 Sectors)</span><br>   <span class="hljs-number">0x010000</span>, <span class="hljs-number">0x010000</span>,         <span class="hljs-comment">// Sector Size 64kB (2 Sectors) </span><br>   <span class="hljs-number">0x002000</span>, <span class="hljs-number">0x030000</span>,         <span class="hljs-comment">// Sector Size  8kB (8 Sectors)</span><br>   SECTOR_END<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>这里的注释已经说得很明白了，大家根据自己的芯片来进行修改即可，我使用的是 <code>W25Q128</code>，其存储大小为 16MB，一个扇区 4KB，所以修改如下：</p>
@@ -358,7 +358,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> SPI_FLASH_MEM_ADDR     0x00000000</span><br></code></pre></td></tr></table></figure>
 <p>这里的算法名称就体现在这里：</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="5-文件-flashprgc-的实现"><a class="markdownIt-Anchor" href="#5-文件-flashprgc-的实现"></a> 5、文件 FlashPrg.c 的实现</h2>
+<h2 id="5、文件-FlashPrg-c-的实现">5、文件 FlashPrg.c 的实现</h2>
 <p>模板文件中提供了这几个函数，也是我们完成 Flash 下载算法最关键的地方：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Flash 初始化</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">Init</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> adr, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> clk, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> fnc)</span> &#123;<br><br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br><br><span class="hljs-comment">// Flash 复位</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">UnInit</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> fnc)</span> &#123;<br><br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br><br><span class="hljs-comment">// 擦除整个 Flah 芯片</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EraseChip</span> <span class="hljs-params">(<span class="hljs-type">void</span>)</span> &#123;<br><br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br><br><span class="hljs-comment">// 擦除指定扇区</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">EraseSector</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> adr)</span> &#123;<br><br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br><br><span class="hljs-comment">// 页编程</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">ProgramPage</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> adr, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> sz, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buf)</span> &#123;<br><br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br><br><span class="hljs-comment">// 校验</span><br><span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> <span class="hljs-title function_">Verify</span> <span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> adr, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> sz, <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buf)</span><br>&#123;<br>  <span class="hljs-comment">/* Add your Code */</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>);                                  <span class="hljs-comment">// Finished without Errors</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>这里涉及到了对 <code>W25Q128</code> 的相关操作，详细内容参照： <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/142412023">STM32 通过 SPI 驱动 W25Q128</a>，这里主要是调用之前实现的函数。</p>
@@ -398,7 +398,7 @@
 <p>这里执行的擦除大小要前面 <code>FlashDev.c</code> 文件中配置的扇区大小一致，这里是执行的 4KB 为扇区进行擦除。</p>
 </blockquote>
 <p>现在编译之后就可以在项目目录下看见一个 FLM 文件。下面就来验证一下我们的下载算法是否正确。</p>
-<h1 id="三-验证算法"><a class="markdownIt-Anchor" href="#三-验证算法"></a> 三、验证算法</h1>
+<h1>三、验证算法</h1>
 <p>首先把我们的 FLM 文件放到如下目录中：<code>D:\Keil_v5\ARM\Flash</code>，可以看到这里有很多 FLM 和 FLX 文件。</p>
 <p>这里我随便找了一个项目，按如下方式添加自己的 Flash 下载算法：</p>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>

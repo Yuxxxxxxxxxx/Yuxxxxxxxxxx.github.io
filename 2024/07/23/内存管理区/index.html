@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[TOC]   前言 为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。  非一致内存访问（Non-Uniform MemoryAccess，NUMA）模型，是一种内存架构模型，用于多处理器系统中的内存访问。">
+    <meta name="description" content="[TOC]  前言 为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。  非一致内存访问（Non-Uniform MemoryAccess，NUMA）模型，是一种内存架构模型，用于多处理器系统中的内存访问。在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内存管理（六）之内存管理区">
 <meta property="og:url" content="http://example.com/2024/07/23/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8C%BA/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[TOC]   前言 为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。  非一致内存访问（Non-Uniform MemoryAccess，NUMA）模型，是一种内存架构模型，用于多处理器系统中的内存访问。">
+<meta property="og:description" content="[TOC]  前言 为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。  非一致内存访问（Non-Uniform MemoryAccess，NUMA）模型，是一种内存架构模型，用于多处理器系统中的内存访问。在">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/07/23/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8C%BA/1.png">
 <meta property="og:image" content="http://example.com/2024/07/23/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8C%BA/2.png">
@@ -228,7 +228,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          3.3k 字
         
       </span>
     
@@ -239,7 +239,7 @@
         
         
         
-          25 分钟
+          28 分钟
         
       </span>
     
@@ -283,12 +283,12 @@
                 
                 <p>[TOC]</p>
 <hr>
-<h1 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h1>
+<h1>前言</h1>
 <p>为了支持 NUMA 模型，也即 CPU 对不同内存单元的访问时间可能不同，此时系统的物理内存被划分为几个节点，一个节点对应一个内存簇 bank，即每个内存簇被认为是一个节点。接着各个节点又被划分为内存管理区域，接下来将对内存管理区域进行讨论。</p>
 <blockquote>
 <p>非一致内存访问（<em><strong>Non-Uniform MemoryAccess</strong></em>，<em><strong>NUMA</strong></em>）模型，是一种内存架构模型，用于多处理器系统中的内存访问。在 NUMA 系统中，每个处理器或处理器组件（如核心）都有自己的本地内存，并且可以访问其他处理器的远程内存。</p>
 </blockquote>
-<h1 id="一-x86-上的内存区域划分"><a class="markdownIt-Anchor" href="#一-x86-上的内存区域划分"></a> 一、x86 上的内存区域划分</h1>
+<h1>一、x86 上的内存区域划分</h1>
 <p>在一个理想的计算机体系结构中，一个页框就是一个内存存储单元，可用于任何事情：存放内核数据和用户数据、缓冲磁盘数据等等。任何种类的数据页都可以存放在任何页框中，没有什么限制。</p>
 <p>但是，实际的计算机体系结构有硬件的制约，这限制了页框可以使用的方式。尤其是 Linux 内核必须处理 80x86 体系结构的两种硬件约束：</p>
 <ul>
@@ -305,8 +305,8 @@
 <p>内存区域类型结构定义在 <code>include/linux/mmzone.h</code>，其基本信息如下所示：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZONE_DMA		0</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZONE_NORMAL		1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ZONE_HIGHMEM 	2</span><br></code></pre></td></tr></table></figure>
 <p>不同的管理区的用途是不一样的，<code>ZONE_DMA</code> 类型的内存区域在物理内存的低端，主要是 ISA 设备只能用低端的地址做 DMA 操作。<code>ZONE_NORMAL</code> 类型的内存区域直接被内核映射到线性地址空间上面的区域，<code>ZONE_HIGHMEM</code> 将保留给系统使用，是系统中预留的可用内存空间，不能被内核直接映射。</p>
-<h1 id="二-管理区结构"><a class="markdownIt-Anchor" href="#二-管理区结构"></a> 二、管理区结构</h1>
-<h2 id="1-struct-zone"><a class="markdownIt-Anchor" href="#1-struct-zone"></a> 1、struct zone</h2>
+<h1>二、管理区结构</h1>
+<h2 id="1、struct-zone">1、struct zone</h2>
 <p>一个管理区（<em><strong>zone</strong></em>）由 <code>struct zone</code> 结构体来描述，zone 对象用于跟踪诸如页面使用情况的统计数、空闲区域信息和锁信息。里面保存着内存使用状态信息，如 page 使用统计，未使用的内存区域，互斥访问的锁等。</p>
 <p>该结构体定义在 <code>include/linux/mmzone.h</code> 中，而其中各个字段的含义如下：</p>
 <ul>
@@ -331,7 +331,168 @@
 <li><strong>prev_priority</strong>：管理区优先级，范围在 12 和 0 之间。</li>
 <li><strong>wait_table</strong>：进程等待队列的散列表，这些进程正在等待管理区中的某页。</li>
 <li><strong>wait_table_size</strong>：等待队列散列表的大小。</li>
-<li><strong>wait_table_bits</strong>：等待队列散列表数组大小，值为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>o</mi><mi>r</mi><mi>d</mi><mi>e</mi><mi>r</mi></mrow></msup></mrow><annotation encoding="application/x-tex">2^{order}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.849108em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.02778em;">r</span></span></span></span></span></span></span></span></span></span></span></span>。</li>
+<li><strong>wait_table_bits</strong>：等待队列散列表数组大小，值为 
+    <span id="mjx-556b329">
+      <style>
+      #mjx-556b329{
+        display:contents;
+        mjx-assistive-mml {
+          user-select: text !important;
+          clip: auto !important;
+          color: rgba(0,0,0,0);
+        }
+        
+mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+  min-height: 1px;
+  min-width: 1px;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line], svg[data-table] > g > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame], svg[data-table] > g > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed, svg[data-table] > g > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted, svg[data-table] > g > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > g > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] path[data-c], mjx-container[jax="SVG"] use[data-c] {
+  stroke-width: 3;
+}
+
+g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+.MathJax g[data-mml-node="xypic"] path {
+  stroke-width: inherit;
+}
+
+      }
+      </style>
+      <mjx-container class="MathJax" jax="SVG" style="position: relative;"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="5.115ex" height="1.932ex" role="img" focusable="false" viewbox="0 -853.7 2261 853.7" aria-hidden="true"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D45C" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/></g><g data-mml-node="mi" transform="translate(485,0)"><path data-c="1D45F" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mi" transform="translate(936,0)"><path data-c="1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"/></g><g data-mml-node="mi" transform="translate(1456,0)"><path data-c="1D452" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/></g><g data-mml-node="mi" transform="translate(1922,0)"><path data-c="1D45F" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/></g></g></g></g></g></svg><mjx-assistive-mml unselectable="on" display="inline"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mn>2</mn><mrow data-mjx-texclass="ORD"><mi>o</mi><mi>r</mi><mi>d</mi><mi>e</mi><mi>r</mi></mrow></msup></math></mjx-assistive-mml></mjx-container>
+    </span>
+  。</li>
 <li><strong>zone_pgdat</strong>：内存节点。</li>
 <li><strong>zone_mem_map</strong>：指向管理区的第一个页描述符的指针。</li>
 <li><strong>zone_start_pfn</strong>：管理区第一个页框的下标。</li>
@@ -339,7 +500,7 @@
 <li><strong>present_pages</strong>：以页为单位的管理区的总大小，不包括洞。</li>
 <li><strong>name</strong>：指针指向管理区的传统名称：“DMA&quot;，“NORMAL&quot; 或 “HighMem&quot;。</li>
 </ul>
-<h2 id="2-zone_padding"><a class="markdownIt-Anchor" href="#2-zone_padding"></a> 2、ZONE_PADDING</h2>
+<h2 id="2、ZONE-PADDING">2、ZONE_PADDING</h2>
 <p><code>ZONE_PADDING</code> 用于将数据保存在高速缓冲行。</p>
 <p><code>zone</code> 比较特殊的地方是它由 <code>ZONE_PADDING</code> 分隔的几个部分。这是因为堆 <code>zone</code> 结构的访问非常频繁。在多处理器系统中，通常会有不同的 CPU 试图同时访问结构成员。因此使用锁可以防止他们彼此干扰，避免错误和不一致的问题。由于内核堆该结构的访问非常频繁，因此会经常性地获取该结构的两个自旋锁：<code>zone-&gt;lock</code> 和 <code>zone-&gt;lru_lock</code>。</p>
 <p>那么数据保存在 CPU 高速缓存中，就会处理得更快速。高速缓冲分为行，每一行负责不同的内存区。内核使用<code>ZONE_PADDING</code> 宏生成”填充”字段添加到结构中，以确保每个自旋锁处于自身的缓存行中。</p>
@@ -347,8 +508,8 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_SMP)</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zone_padding</span></span><br><span class="hljs-class">    &#123;</span><br>            <span class="hljs-type">char</span> x[<span class="hljs-number">0</span>];<br>    &#125; ____cacheline_internodealigned_in_smp;<br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> ZONE_PADDING(name)      struct zone_padding name;</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-meta">#<span class="hljs-keyword">define</span> ZONE_PADDING(name)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 <p>内核还用了 <code>____cacheline_internodealigned_in_smp</code>，来实现最优的高速缓存行对其方式。该宏定义在 <code>include/linux/cache.h</code>：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> !defined(____cacheline_internodealigned_in_smp)</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(CONFIG_SMP)</span><br>        <span class="hljs-meta">#<span class="hljs-keyword">define</span> ____cacheline_internodealigned_in_smp \</span><br><span class="hljs-meta">        __attribute__((__aligned__(1 &lt;&lt; (INTERNODE_CACHE_SHIFT))))</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>        <span class="hljs-meta">#<span class="hljs-keyword">define</span> ____cacheline_internodealigned_in_smp</span><br>    <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
-<h1 id="三-高端内存"><a class="markdownIt-Anchor" href="#三-高端内存"></a> 三、高端内存</h1>
-<h2 id="1-高端内存的由来"><a class="markdownIt-Anchor" href="#1-高端内存的由来"></a> 1、高端内存的由来</h2>
+<h1>三、高端内存</h1>
+<h2 id="1、高端内存的由来">1、高端内存的由来</h2>
 <blockquote>
 <p>有关 Linux 分段机制和分页机制的介绍可以参考：<br><br>
 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/140531630">Linux 内存管理（一）之分段机制</a><br>
@@ -358,7 +519,7 @@
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">物理地址 <span class="hljs-operator">=</span> 逻辑地址 – <span class="hljs-number">0</span>xC0000000<br></code></pre></td></tr></table></figure>
 <p>假设按照上述简单的地址映射关系，那么内核逻辑地址空间访问为 0xc0000000 ~ 0xffffffff，那么对应的物理内存范围就为 0×0~0×40000000，即只能访问 1G 物理内存。若机器中安装 4G 物理内存，那么内核就只能访问前 1G 物理内存，后面 3G 物理内存将会无法访问。而这无法访问到的 3G 内存就是高端内存，也就是前面所讲的 <code>ZONE HIGHMEM</code>。</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-高端内存的访问"><a class="markdownIt-Anchor" href="#2-高端内存的访问"></a> 2、高端内存的访问</h2>
+<h2 id="2、高端内存的访问">2、高端内存的访问</h2>
 <p>高端内存 <code>HIGH_MEM</code> 地址空间范围为 0xF8000000~0xFFFFFFFF（896MB～1024MB）。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>当内核想访问高于 896MB 物理地址内存时，从 0xF8000000~0xFFFFFFFF 地址空间范围内找一段相应大小空闲的逻辑地址空间。借用这段逻辑地址空间，建立映射到想访问的那段物理内存（即填充内核 PTE 页面表），临时用一会，用完后归还。这样别人也可以借用这段地址空间访问其他物理内存，实现了使用有限的地址空间，访问所有所有物理内存。</p>
@@ -387,7 +548,7 @@
 </tbody>
 </table>
 <p>当内核访问完 0x80000000~0x800FFFFF 物理内存后，就将 0xF8700000~0xF87FFFFF 内核线性空间释放。这样其他进程或代码也可以使用 0xF8700000~0xF87FFFFF 这段地址访问其他物理内存。</p>
-<h2 id="3-高端内存的划分"><a class="markdownIt-Anchor" href="#3-高端内存的划分"></a> 3、高端内存的划分</h2>
+<h2 id="3、高端内存的划分">3、高端内存的划分</h2>
 <p>Linux 内核将高端内存划分为 3 部分：</p>
 <ul>
 <li><code>VMALLOC_START</code> ~ <code>VMALLOC_END</code></li>
@@ -412,7 +573,7 @@
 <p>在高端内存的任一页框都可以通过一个“窗口”（为此而保留的一个页表项）映射到内核地址空间。留给临时内核映射的窗口数是非常少的。</p>
 <p>每个 CPU 都有它自己的包含 13 个窗口的集合,它们用 <code>enum km_type</code> 数据结构表示。该数据结构中定义的每个符号，如 <code>KMBOUNCEREAD</code>、<code>KMUSERO</code> 或 <code>KMPTO</code>，标识了窗口的线性地址。</p>
 <p>内核必须确保同一窗口永不会被两个不同的控制路径同时使用。因此，<code>km_type</code> 结构中的每个符号只能由一种内核成分使用，并以该成分命名。最后一个符号 <code>KTYPENR</code> 本身并不表示一个线性地址，但由每个 <code>CPU</code> 用来产生不同的可用窗口数。</p>
-<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<h1>总结</h1>
 <p>一些体系结构其内存的物理寻址范围比虚拟寻址范围大的多。这样，就有一些内存不能永久地映射在内核空间上。为了解决这些制约条件，Linux 将内存划分为：<code>ZONE_DMA </code>、<code>ZONE_NOMAL </code>、<code>ZONE_HIGHEM </code>。</p>
 
                 

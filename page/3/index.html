@@ -229,15 +229,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/24/C++-std-initializer-list/" target="_self">
-          C++ std::initializer_list
+        <a href="/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/" target="_self">
+          CUDA 内存分配API
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/24/C++-std-initializer-list/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/17/CUDA-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8DAPI/" target="_self">
         <div>
-          std::initializer_list 是 C11 引入的语法糖与核心库设施的桥梁，它让统一初始化（Uniform Initialization）成为可能，理解其只读代理的本质和生命周期限制，是编写现代 C 库的关键。   一、核心本质 std::initializer_list 是 C++11 引入的轻量级模板类，用于表示同类型对象的数组视图。其主要目的是支持列表初始化语法（使用花括号&#
+          一、cudaMalloc 这是CUDA里最基础的内存分配方式，核心作用很简单，就是专门分配显存的。  访问权限：只能 GPU 使用，CPU 访问将会出现 SegmentFault，必须用 cudaMemcpy 手动搬数据（CPU和GPU之间来回传）。 适用场景：纯 GPU 计算、数据不用 CPU 频繁访问的场景，比如批量处理数据，全程靠 GPU 干活，数据只进不出。 核心优势：简洁直观  1234
         </div>
       </a>
 
@@ -245,8 +245,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-24 07:03" pubdate>
-              2026-05-24
+            <time datetime="2026-07-17 09:04" pubdate>
+              2026-07-17
             </time>
           </div>
         
@@ -266,86 +266,7 @@
   
     <span>></span>
     
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/23/C++-std-integral-constant-%E5%9C%A8%E6%A8%A1%E6%9D%BF%E5%85%83%E7%BC%96%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" target="_self">
-          C++ std::integral_constant 在模板元编程中的应用
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/23/C++-std-integral-constant-%E5%9C%A8%E6%A8%A1%E6%9D%BF%E5%85%83%E7%BC%96%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" target="_self">
-        <div>
-          一、模板元编程 模板元编程（Template Metaprogramming）是一种 C++ 编程技术，其主要手段是利用模板来实现在编译时执行计算。这种方法的优点是，通过在编译阶段完成部分工作，可以提高运行时的效率。 在模板元编程中，我们常常使用类型（type）来表示值（value），并通过模板特化或者模板函数的重载来实现不同的操作。 比如说，我们可以定义一个模板类 Factorial&lt;3
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-23 16:09" pubdate>
-              2026-05-23
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
   
   
 
@@ -364,7 +285,7 @@
             
               <a href="/tags/C/">#C++</a>
             
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+              <a href="/tags/CUDA/">#CUDA</a>
             
           </div>
         
@@ -378,15 +299,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/22/C++-constexpr-consetval-constinit/" target="_self">
-          C++ constexpr、consteval、constinit
+        <a href="/2026/07/15/C-std-clamp/" target="_self">
+          C++ std::clamp
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/22/C++-constexpr-consetval-constinit/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/15/C-std-clamp/" target="_self">
         <div>
-          标准版本 特点     C++11 引入 constexpr 变量和函数；函数体限单条 return 语句   C++14 放宽 constexpr 函数限制：允许局部变量、多个 return、循环等   C++17 引入 if constexpr；constexpr static 成员变量可内联初始化；允许 constexpr Lambda   C++20 允许 constexpr 虚函数
+          一、基本概念 std::clamp 是 C++17 在 &lt;algorithm&gt; 头文件中引入的一个函数模板。它的作用是将一个值限制在指定的范围内。 函数原型： 12345template&lt; class T &gt;constexpr const T&amp; clamp( const T&amp; v, const T&amp; lo, const T&amp; hi );tem
         </div>
       </a>
 
@@ -394,8 +315,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-22 13:51" pubdate>
-              2026-05-22
+            <time datetime="2026-07-15 16:32" pubdate>
+              2026-07-15
             </time>
           </div>
         
@@ -440,308 +361,6 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/21/C++-STL%E4%B8%AD%E7%9A%84iterator-traits/" target="_self">
-          C++ STL中的 iterator_traits
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/21/C++-STL%E4%B8%AD%E7%9A%84iterator-traits/" target="_self">
-        <div>
-          一、基本概念 iterator_traits 是 C++ 标准库中的一个模板类，位于 &lt;iterator&gt; 头文件中。它的主要作用是为迭代器提供统一的接口，允许算法以一致的方式访问迭代器的相关类型信息，而不用关心迭代器的具体类型。 在 STL 标准库提供的算法一般有以下特征：  参数一般包括 iterator 要根据 iterator 的种类，和 iterator 包装的元素的类型等
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-21 07:47" pubdate>
-              2026-05-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
-            
-              <a href="/tags/STL/">#STL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/20/C++-%E6%A0%87%E7%AD%BE%E6%B4%BE%E5%8F%91/" target="_self">
-          C++标签派发(Tag Dispatching)
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/20/C++-%E6%A0%87%E7%AD%BE%E6%B4%BE%E5%8F%91/" target="_self">
-        <div>
-          标签派发是在 C++ 20 引入 concept 之前模板编程的一个手段：由于 C++ 不支持函数模板的偏特化，所以为例实现偏特化而产生的一个技巧   一、引入 一般重载函数的设计是根据不同的参数决定具体做什么事情，编译器会根据参数匹配的原则确定正确的重载版本。但是对于函数模板，其参数类 型是泛化的模板参数，此时又如何让编译器选择我们希望的那个函数模板的实例呢？ 提供特化版本是一个方法，但是如果
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-20 22:50" pubdate>
-              2026-05-20
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/19/C++-std-function/" target="_self">
-          C++ std::function
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/19/C++-std-function/" target="_self">
-        <div>
-          在现代 C++ 中，std::function（定义在 &lt;functional&gt; 头文件中）是一个通用的多态函数封装器，能够存储、复制和调用任何可调用对象 。你可以把它理解为一个“能够持有任何可调用对象”的容器。 在 std::function 出现之前，我们无法在一个容器或变量中存储不同类型的“可调用对象”。  普通函数指针只能存函数指针 Lambda 的类型在编译期是唯一的匿名类型
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-19 22:04" pubdate>
-              2026-05-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-              <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/">#语言特性</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2026/05/18/C++-std-result-of%E5%92%8Cstd-invoke-result/" target="_self">
-          C++ std::result_of和std::invoke_result
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/18/C++-std-result-of%E5%92%8Cstd-invoke-result/" target="_self">
-        <div>
-          在 C++ 中，有时我们需要获取函数或可调用对象的返回值类型，以便进行后续的操作，在泛型编程中很常用，特别是当不同的参数集的结果类型不同时。 在早期的 C++ 版本中，我们需要手动推导函数返回值类型，这个过程非常复杂，也容易出错。为了解决这个问题，C11 引入了 std::result_of 和 std::result_of_t（C14），这两个模板可以方便地获取函数或可调用对象的返回值类型。而在
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-18 16:16" pubdate>
-              2026-05-18
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C/" class="category-chain-item">C++</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-17/" class="category-chain-item">C++17</a>
-  
-  
-
-  
-
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-              <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/">#语言特性</a>
             
               <a href="/tags/C-17/">#C++17</a>
             
@@ -757,15 +376,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/17/C++%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E8%BF%90%E7%AE%97%E7%AC%A6/" target="_self">
-          C++ 强制类型转换运算符
+        <a href="/2026/07/12/CUDA-%E8%A7%84%E7%BA%A6%E4%BC%98%E5%8C%96%E5%AE%9E%E7%8E%B0/" target="_self">
+          CUDA 规约优化实现
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/17/C++%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E8%BF%90%E7%AE%97%E7%AC%A6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/12/CUDA-%E8%A7%84%E7%BA%A6%E4%BC%98%E5%8C%96%E5%AE%9E%E7%8E%B0/" target="_self">
         <div>
-          将类型名作为强制类型转换运算符的做法是 C 语言的老式做法，C++ 为保持兼容而予以保留。 C++ 引入了四种功能不同的强制类型转换运算符以进行强制类型转换：static_cast、reinterpret_cast、const_cast 和 dynamic_cast。 强制类型转换是有一定风险的，有的转换并不一定安全，如把整型数值转换成指针，把基类指针转换成派生类指针，把一种函数指针转换成另一种函
+          归约（Reduction）是并行计算中的经典操作，例如对数组求和。在 CUDA 中，由于 GPU 的 SIMT 架构，实现高效的归约需要充分考虑线程协作、内存层次和同步开销。本文将基于一份示例代码，逐步实现 CUDA 归约的优化。 问题：把 N=256M 个 float 加在一起。理想带宽利用 = N×4 字节 / 时间 / peak。 一、实现一：divergent 版 1234for (int
         </div>
       </a>
 
@@ -773,8 +392,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-17 22:48" pubdate>
-              2026-05-17
+            <time datetime="2026-07-12 16:33" pubdate>
+              2026-07-12
             </time>
           </div>
         
@@ -792,6 +411,13 @@
   <a href="/categories/C/" class="category-chain-item">C++</a>
   
   
+    <span>></span>
+    
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
+  
+  
+
+  
 
       </span>
     
@@ -805,6 +431,8 @@
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/C/">#C++</a>
+            
+              <a href="/tags/CUDA/">#CUDA</a>
             
           </div>
         
@@ -818,15 +446,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/17/C++-decay-decltype-declval/" target="_self">
-          C++ decay/decltype/declval
+        <a href="/2026/07/11/CUDA%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
+          CUDA（二）：内存模型
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/17/C++-decay-decltype-declval/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/11/CUDA%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/" target="_self">
         <div>
-          一、decay  在 C++ 14 后，可使用别名 std::decay_t 在 C++ 中，Decay（退化）是指将一种类型转换为另一种更简单、更“原始”的类型的过程。这通常发生在将表达式传递给函数参数或进行模板推导时。  在 C++11 中，标准库提供了 std::decay（定义在 `` 头文件中） ，它精确地实现了上述规则。它是模板元编程中非常重要的工具。 Decay-copy（“衰变复
+          一、概述 GPU 的计算能力极强——一块 A100 的峰值算力为 312 TFLOPS（FP16，Tensor Core 含稀疏加速），但它的显存带宽只有约 2 TB/s。做一道简单的算术：一次浮点乘加（FMA）需要读 2 个 float（8 Bytes）产生 2 个 FLOP，那么 2 TB/s 带宽最多喂饱 500 GFLOPS 的计算——不到峰值算力的 0.2%。 这意味着：绝大多数 Ker
         </div>
       </a>
 
@@ -834,8 +462,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-17 10:42" pubdate>
-              2026-05-17
+            <time datetime="2026-07-11 09:49" pubdate>
+              2026-07-11
             </time>
           </div>
         
@@ -855,15 +483,8 @@
   
     <span>></span>
     
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" class="category-chain-item">语言特性</a>
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
   
-  
-    <span>></span>
-    
-  <a href="/categories/C/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/C-11/" class="category-chain-item">C++11</a>
-  
-  
-
   
 
   
@@ -881,11 +502,7 @@
             
               <a href="/tags/C/">#C++</a>
             
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
-            
-              <a href="/tags/C-11/">#C++11</a>
-            
-              <a href="/tags/%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/">#语言特性</a>
+              <a href="/tags/CUDA/">#CUDA</a>
             
           </div>
         
@@ -899,15 +516,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
-        <a href="/2026/05/17/C++-SFINAE%E6%9C%BA%E5%88%B6/" target="_self">
-          C++ SFINAE机制
+        <a href="/2026/07/09/CUDA%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B/" target="_self">
+          CUDA（一）：编程模型
         </a>
       </h2>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2026/05/17/C++-SFINAE%E6%9C%BA%E5%88%B6/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/09/CUDA%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B/" target="_self">
         <div>
-          使用情景： 在 C++11 之前，SFINAE 是实现类型检查的唯一手段。例如，你想编写一个函数，它只接受数字类型，而不接受字符串或自定义类，这时就需要 SFINAE  SFINAE(Substitution Failure Is Not An Error) 是 C++ 模板元编程的基石之一，字面意思是：“替换失败并非错误”。 简单来说，当编译器在模板实例化过程中，如果在替换模板参数时发生失败（
+          一、CUDA：用于异构计算的平台 CUDA 是一种通用的并行计算平台和编程模型，它利用 NVIDIA GPU 上的并行计算能力，以更高效的方式解决复杂的计算问题。通过使用 CUDA，你可以像使用中央处理器那样，直接对 GPU 进行计算操作。  CUDA 提供了两种用于管理 GPU 设备以及组织线程的 API 级别，如下图所示：  CUDA Driver API CUDA Runtime API
         </div>
       </a>
 
@@ -915,8 +532,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2026-05-17 07:51" pubdate>
-              2026-05-17
+            <time datetime="2026-07-09 15:01" pubdate>
+              2026-07-09
             </time>
           </div>
         
@@ -936,7 +553,7 @@
   
     <span>></span>
     
-  <a href="/categories/C/%E6%A8%A1%E6%9D%BF/" class="category-chain-item">模板</a>
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
   
   
 
@@ -955,7 +572,332 @@
             
               <a href="/tags/C/">#C++</a>
             
-              <a href="/tags/%E6%A8%A1%E6%9D%BF/">#模板</a>
+              <a href="/tags/CUDA/">#CUDA</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/07/05/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-5-%EF%BC%9A%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%B1%82%E5%BD%92%E4%B8%80%E5%8C%96/" target="_self">
+          Transformer架构详解(5)：残差连接与层归一化
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/05/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-5-%EF%BC%9A%E6%AE%8B%E5%B7%AE%E8%BF%9E%E6%8E%A5%E4%B8%8E%E5%B1%82%E5%BD%92%E4%B8%80%E5%8C%96/" target="_self">
+        <div>
+          一、为什么需要残差连接和层归一化 神经网络的训练依赖反向传播（Backpropagation），其本质是链式法则（Chain Rule）的递归应用。假设一个 L 层的网络，每层的变换为                    #mjx-726d1b{         display:contents;         mjx-assistive-mml {           user-select
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-07-05 13:33" pubdate>
+              2026-07-05
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Transformer/" class="category-chain-item">Transformer</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+            
+              <a href="/tags/Transformer/">#Transformer</a>
+            
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/07/03/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-4-%EF%BC%9A%E5%89%8D%E9%A6%88%E7%BD%91%E7%BB%9CFFN%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+          Transformer架构详解(4)：前馈网络FFN深入理解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/07/03/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-4-%EF%BC%9A%E5%89%8D%E9%A6%88%E7%BD%91%E7%BB%9CFFN%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+        <div>
+          前馈网络（FFN）是 Transformer 中参数量最大的模块，占据单个 Block 约 2/3 的参数。它负责对每个 token 进行独立的非线性变换，是模型”记忆知识”和”深度推理”的核心载体。本文从 FFN 的结构设计出发，深入剖析激活函数演进、参数量计算、SwiGLU 门控机制，并延伸到张量并行切分、MoE 专家并行和 CUDA kernel 融合等 AI Infra 工程实践。 一、F
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-07-03 17:10" pubdate>
+              2026-07-03
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Transformer/" class="category-chain-item">Transformer</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+            
+              <a href="/tags/Transformer/">#Transformer</a>
+            
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/30/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-3-%EF%BC%9A%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+          Transformer架构详解(3)：自注意力机制深入理解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/30/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-3-%EF%BC%9A%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+        <div>
+          一、引入：Self-Attention 1.1 Attention 的作用 Attention 中最核心的三个概念是 Query（Q）、Key（K）和 Value（V）。这三个词直接借鉴了信息检索领域的术语，下面先从一个真实的语言难题出发：  句子 A：The bank of the river.（河边） 句子 B：Money in the bank.（银行）  同一个词 “bank” 在两句话里
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-30 23:10" pubdate>
+              2026-06-30
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Transformer/" class="category-chain-item">Transformer</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+            
+              <a href="/tags/Transformer/">#Transformer</a>
+            
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/28/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-2-%EF%BC%9A%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+          Transformer架构详解(2)：位置编码深入理解
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/28/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-2-%EF%BC%9A%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3/" target="_self">
+        <div>
+          一、位置编码的作用  自然语言是一种高度依赖顺序的符号系统。同样的几个词，仅仅调换顺序就可能产生截然不同的含义。  Transformer 的自注意力机制是排列不变的：它仅基于 token 之间的内容相似度计算权重，完全不依赖 token 在序列中的位置。这意味着，如果不加位置信息，模型会将输入序列视为一个无序集合，比如：  序列 A：我 打 你 序列 B：你 打 我  这两个序列的词表相同（均为
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-28 14:07" pubdate>
+              2026-06-28
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Transformer/" class="category-chain-item">Transformer</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+            
+              <a href="/tags/Transformer/">#Transformer</a>
+            
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2026/06/24/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-1-%EF%BC%9Atransformer%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88/" target="_self">
+          Transformer架构详解(1)：transformer架构总览
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2026/06/24/Transformer%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3-1-%EF%BC%9Atransformer%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88/" target="_self">
+        <div>
+          一、从 RNN 到 Transformer 在 Transformer 成为自然语言处理、语音识别、多模态建模等序列任务的通用基础架构之前，循环神经网络(RNN) 及其进阶变体 LSTM、GRU，长期主导序列建模领域。Transformer 的诞生并非无迹可寻的创新，而是为了系统性解决 RNN 系列架构的固有缺陷，打破传统序列模型的性能上限与算力瓶颈。 1.1 RNN 的缺陷 文本、语音、时间序列
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2026-06-24 15:36" pubdate>
+              2026-06-24
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Transformer/" class="category-chain-item">Transformer</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">#深度学习</a>
+            
+              <a href="/tags/Transformer/">#Transformer</a>
+            
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">#大模型</a>
             
           </div>
         
@@ -967,7 +909,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#board">4</a><a class="page-number" href="/page/5/#board">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/#board">14</a><a class="extend next" rel="next" href="/page/4/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#board">4</a><a class="page-number" href="/page/5/#board">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/#board">17</a><a class="extend next" rel="next" href="/page/4/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 

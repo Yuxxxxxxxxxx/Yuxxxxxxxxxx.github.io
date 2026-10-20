@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_gpio&#x2F;include&#x2F;driver&#x2F;gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些">
+    <meta name="description" content="[toc]  一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_gpio&#x2F;include&#x2F;driver&#x2F;gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ESP32-IDF GPIO 专题">
 <meta property="og:url" content="http://example.com/2024/10/17/ESP32-IDF-GPIO/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_gpio&#x2F;include&#x2F;driver&#x2F;gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些">
+<meta property="og:description" content="[toc]  一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_gpio&#x2F;include&#x2F;driver&#x2F;gpio.h。  ESP-IDF 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，ESP-IDF 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 ESP-IDF 其他功能的兼容性。某些情">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/17/ESP32-IDF-GPIO/1.png">
 <meta property="article:published_time" content="2024-10-17T00:58:05.000Z">
@@ -281,12 +281,12 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-基本介绍"><a class="markdownIt-Anchor" href="#一-基本介绍"></a> 一、基本介绍</h1>
+<h1>一、基本介绍</h1>
 <blockquote>
 <p>API 参考路径 <code>esp-idf/components/esp_driver_gpio/include/driver/gpio.h</code>。</p>
 </blockquote>
 <p><code>ESP-IDF</code> 由多个组件组成，组件中包含专门为 ESP 芯片编写的代码或第三方库（即第三方组件）。对于某些第三方库，<code>ESP-IDF</code> 提供专用的包装器和接口，以简化对第三方库的使用，或提高其与 <code>ESP-IDF</code> 其他功能的兼容性。某些情况下，第三方组件将直接呈现底层库的原始 API。</p>
-<h2 id="1-配置结构体"><a class="markdownIt-Anchor" href="#1-配置结构体"></a> 1、配置结构体</h2>
+<h2 id="1、配置结构体">1、配置结构体</h2>
 <blockquote>
 <p>为确保应用程序与未来 <code>ESP-IDF</code> 版本的兼容性，请正确初始化配置结构体。</p>
 </blockquote>
@@ -309,10 +309,10 @@
 <blockquote>
 <p>有关这几个类型的定义在本文第三小节可以找到</p>
 </blockquote>
-<h2 id="2-常用-api"><a class="markdownIt-Anchor" href="#2-常用-api"></a> 2、常用 API</h2>
+<h2 id="2、常用-API">2、常用 API</h2>
 <p>在使用 GPIO 相关的 API 时，要加上头文件：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;driver/gpio.h&quot;</span></span><br></code></pre></td></tr></table></figure>
-<h3 id="21-gpio_config"><a class="markdownIt-Anchor" href="#21-gpio_config"></a> 2.1 gpio_config</h3>
+<h3 id="2-1-gpio-config">2.1 gpio_config</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_config</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">gpio_config_t</span> *pGPIOConfig)</span>;<br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -332,7 +332,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="22-gpio_reset_pin"><a class="markdownIt-Anchor" href="#22-gpio_reset_pin"></a> 2.2 gpio_reset_pin</h3>
+<h3 id="2-2-gpio-reset-pin">2.2 gpio_reset_pin</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_reset_pin</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数：
@@ -351,7 +351,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="23-gpio_set_intr_type"><a class="markdownIt-Anchor" href="#23-gpio_set_intr_type"></a> 2.3 gpio_set_intr_type</h3>
+<h3 id="2-3-gpio-set-intr-type">2.3 gpio_set_intr_type</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_set_intr_type</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num, <span class="hljs-type">gpio_int_type_t</span> intr_type)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -372,7 +372,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="24-gpio_intr_enable"><a class="markdownIt-Anchor" href="#24-gpio_intr_enable"></a> 2.4 gpio_intr_enable</h3>
+<h3 id="2-4-gpio-intr-enable">2.4 gpio_intr_enable</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_intr_enable</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -392,7 +392,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="25-gpio_intr_disable"><a class="markdownIt-Anchor" href="#25-gpio_intr_disable"></a> 2.5 gpio_intr_disable</h3>
+<h3 id="2-5-gpio-intr-disable">2.5 gpio_intr_disable</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_intr_disable</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -412,7 +412,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="26-gpio_set_level"><a class="markdownIt-Anchor" href="#26-gpio_set_level"></a> 2.6 gpio_set_level</h3>
+<h3 id="2-6-gpio-set-level">2.6 gpio_set_level</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_set_level</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num, <span class="hljs-type">uint32_t</span> level)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -436,7 +436,7 @@
 <blockquote>
 <p>通过启用 <code>CONFIG_GPIO_CTRL_FUNC_IN_IRAM</code>，此函数允许在 ISR 上下文中禁用缓存的情况下执行。</p>
 </blockquote>
-<h3 id="27-gpio_get_level"><a class="markdownIt-Anchor" href="#27-gpio_get_level"></a> 2.7 gpio_get_level</h3>
+<h3 id="2-7-gpio-get-level">2.7 gpio_get_level</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">gpio_get_level</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -458,7 +458,7 @@
 <blockquote>
 <p>如果引脚未配置为输入（或输入和输出），返回的值始终为 0。</p>
 </blockquote>
-<h3 id="28-gpio_set_direction"><a class="markdownIt-Anchor" href="#28-gpio_set_direction"></a> 2.8 gpio_set_direction</h3>
+<h3 id="2-8-gpio-set-direction">2.8 gpio_set_direction</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_set_direction</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num, <span class="hljs-type">gpio_mode_t</span> mode)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -479,7 +479,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="29-gpio_set_pull_mode"><a class="markdownIt-Anchor" href="#29-gpio_set_pull_mode"></a> 2.9 gpio_set_pull_mode</h3>
+<h3 id="2-9-gpio-set-pull-mode">2.9 gpio_set_pull_mode</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_set_pull_mode</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num, <span class="hljs-type">gpio_pull_mode_t</span> pull_mode)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -500,7 +500,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="210-gpio_isr_register"><a class="markdownIt-Anchor" href="#210-gpio_isr_register"></a> 2.10 gpio_isr_register</h3>
+<h3 id="2-10-gpio-isr-register">2.10 gpio_isr_register</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_isr_register</span><span class="hljs-params">(<span class="hljs-type">void</span> (*fn)(<span class="hljs-type">void</span>*), <span class="hljs-type">void</span> *arg, <span class="hljs-type">int</span> intr_alloc_flags, <span class="hljs-type">gpio_isr_handle_t</span> *handle)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -528,7 +528,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="211-gpio_install_isr_service"><a class="markdownIt-Anchor" href="#211-gpio_install_isr_service"></a> 2.11 gpio_install_isr_service</h3>
+<h3 id="2-11-gpio-install-isr-service">2.11 gpio_install_isr_service</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_install_isr_service</span><span class="hljs-params">(<span class="hljs-type">int</span> intr_alloc_flags)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -553,10 +553,10 @@
 <blockquote>
 <p>此功能与 <code>gpio_isr_register()</code> 不兼容 - 如果使用该功能，将为所有 GPIO 中断注册一个全局中断服务程序（ISR）。如果使用此功能，中断服务提供了一个全局 GPIO ISR，通过 <code>gpio_isr_handler_add()</code> 函数注册单个引脚处理器。</p>
 </blockquote>
-<h3 id="212-gpio_uninstall_isr_service"><a class="markdownIt-Anchor" href="#212-gpio_uninstall_isr_service"></a> 2.12 gpio_uninstall_isr_service</h3>
+<h3 id="2-12-gpio-uninstall-isr-service">2.12 gpio_uninstall_isr_service</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">gpio_uninstall_isr_service</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br></code></pre></td></tr></table></figure>
 <p>卸载驱动的 GPIO ISR 服务，释放相关资源。</p>
-<h3 id="213-gpio_isr_handler_add"><a class="markdownIt-Anchor" href="#213-gpio_isr_handler_add"></a> 2.13 gpio_isr_handler_add</h3>
+<h3 id="2-13-gpio-isr-handler-add">2.13 gpio_isr_handler_add</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_isr_handler_add</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num, <span class="hljs-type">gpio_isr_t</span> isr_handler, <span class="hljs-type">void</span>* args)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -583,7 +583,7 @@
 <p>中断服务例行程序（ISR）处理器不再需要使用 <code>IRAM_ATTR</code> 进行声明，除非在为中断服务程序（ISR）分配 <code>gpio_install_isr_service()</code> 时传递 <code>ESP_INTR_FLAG_IRAM</code> 标志。<br><br>
 此 ISR 处理器将从 ISR 中调用。因此有一个堆栈大小限制（在 <code>menuconfig</code> 中可配置为“ISR 堆栈大小”）。与全局 GPIO 中断处理器相比，这个限制较小，因为多了一层间接性。</p>
 </blockquote>
-<h3 id="214-gpio_isr_handler_remove"><a class="markdownIt-Anchor" href="#214-gpio_isr_handler_remove"></a> 2.14 gpio_isr_handler_remove</h3>
+<h3 id="2-14-gpio-isr-handler-remove">2.14 gpio_isr_handler_remove</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">gpio_isr_handler_remove</span><span class="hljs-params">(<span class="hljs-type">gpio_num_t</span> gpio_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -604,45 +604,45 @@
 </ul>
 </li>
 </ul>
-<h2 id="3-枚举类型"><a class="markdownIt-Anchor" href="#3-枚举类型"></a> 3、枚举类型</h2>
+<h2 id="3、枚举类型">3、枚举类型</h2>
 <p>选自文件：<code>esp32_idf/esp-idf/components/hal/include/hal/gpio_types.h</code></p>
-<h3 id="31-gpio_mode_t"><a class="markdownIt-Anchor" href="#31-gpio_mode_t"></a> 3.1 gpio_mode_t</h3>
+<h3 id="3-1-gpio-mode-t">3.1 gpio_mode_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPIO_MODE_DISABLE = GPIO_MODE_DEF_DISABLE,                                                         <span class="hljs-comment">/* 禁用GPIO端口的输入和输出功能 */</span><br>    GPIO_MODE_INPUT = GPIO_MODE_DEF_INPUT,                                                             <span class="hljs-comment">/* 输入模式 */</span><br>    GPIO_MODE_OUTPUT = GPIO_MODE_DEF_OUTPUT,                                                           <span class="hljs-comment">/* 输出模式 */</span><br>    GPIO_MODE_OUTPUT_OD = ((GPIO_MODE_DEF_OUTPUT) | (GPIO_MODE_DEF_OD)),                               <span class="hljs-comment">/* 开漏模式，常用于与其他设备共享信号线的场景 */</span><br>    GPIO_MODE_INPUT_OUTPUT_OD = ((GPIO_MODE_DEF_INPUT) | (GPIO_MODE_DEF_OUTPUT) | (GPIO_MODE_DEF_OD)), <span class="hljs-comment">/* 同时作为输入和输出，并且具有开漏特性。这种组合模式常用于复杂的需求，如与外部设备双向通信 */</span><br>    GPIO_MODE_INPUT_OUTPUT = ((GPIO_MODE_DEF_INPUT) | (GPIO_MODE_DEF_OUTPUT)),                         <span class="hljs-comment">/*同时作为输入和输出 */</span><br>&#125; <span class="hljs-type">gpio_mode_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="32-gpio_pullup_t"><a class="markdownIt-Anchor" href="#32-gpio_pullup_t"></a> 3.2 gpio_pullup_t</h3>
+<h3 id="3-2-gpio-pullup-t">3.2 gpio_pullup_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPIO_PULLUP_DISABLE = <span class="hljs-number">0x0</span>,     <span class="hljs-comment">/* 无上拉 */</span><br>    GPIO_PULLUP_ENABLE = <span class="hljs-number">0x1</span>,      <span class="hljs-comment">/* 设置为上拉 */</span><br>&#125; <span class="hljs-type">gpio_pullup_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="33-gpio_pulldown_t"><a class="markdownIt-Anchor" href="#33-gpio_pulldown_t"></a> 3.3 gpio_pulldown_t</h3>
+<h3 id="3-3-gpio-pulldown-t">3.3 gpio_pulldown_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPIO_PULLDOWN_DISABLE = <span class="hljs-number">0x0</span>,   <span class="hljs-comment">/* 无下拉 */</span><br>    GPIO_PULLDOWN_ENABLE = <span class="hljs-number">0x1</span>,    <span class="hljs-comment">/* 设置为下拉 */</span><br>&#125; <span class="hljs-type">gpio_pulldown_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="34-gpio_pull_mode_t"><a class="markdownIt-Anchor" href="#34-gpio_pull_mode_t"></a> 3.4 gpio_pull_mode_t</h3>
+<h3 id="3-4-gpio-pull-mode-t">3.4 gpio_pull_mode_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPIO_PULLUP_ONLY,               <span class="hljs-comment">/* 仅上拉 */</span><br>    GPIO_PULLDOWN_ONLY,             <span class="hljs-comment">/* 仅下拉 */</span><br>    GPIO_PULLUP_PULLDOWN,           <span class="hljs-comment">/* 同时配置为上拉和下拉 */</span><br>    GPIO_FLOATING,                  <span class="hljs-comment">/* 浮动模式，即不施加任何上拉或下拉。</span><br><span class="hljs-comment">    								   引脚的电平状态是不确定的，通常用于测量或读取外部信号 */</span><br>&#125; <span class="hljs-type">gpio_pull_mode_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="35-gpio_int_type_t"><a class="markdownIt-Anchor" href="#35-gpio_int_type_t"></a> 3.5 gpio_int_type_t</h3>
+<h3 id="3-5-gpio-int-type-t">3.5 gpio_int_type_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    GPIO_INTR_DISABLE = <span class="hljs-number">0</span>,     <span class="hljs-comment">/* 禁用中断 */</span><br>    GPIO_INTR_POSEDGE = <span class="hljs-number">1</span>,     <span class="hljs-comment">/* 上升沿触发 */</span><br>    GPIO_INTR_NEGEDGE = <span class="hljs-number">2</span>,     <span class="hljs-comment">/* 下降沿触发 */</span><br>    GPIO_INTR_ANYEDGE = <span class="hljs-number">3</span>,     <span class="hljs-comment">/* 上升沿和下降沿同时触发中断 */</span><br>    GPIO_INTR_LOW_LEVEL = <span class="hljs-number">4</span>,   <span class="hljs-comment">/* 引脚低电平时触发 */</span><br>    GPIO_INTR_HIGH_LEVEL = <span class="hljs-number">5</span>,  <span class="hljs-comment">/* 引脚高电平时触发 */</span><br>    GPIO_INTR_MAX,			   <span class="hljs-comment">/* 通常用于循环或者判断是否超出范围而定义的最大值 */</span><br>&#125; <span class="hljs-type">gpio_int_type_t</span>;<br></code></pre></td></tr></table></figure>
-<h2 id="4-宏定义"><a class="markdownIt-Anchor" href="#4-宏定义"></a> 4、宏定义</h2>
-<h3 id="41-gpio_pin_count"><a class="markdownIt-Anchor" href="#41-gpio_pin_count"></a> 4.1 GPIO_PIN_COUNT</h3>
+<h2 id="4、宏定义">4、宏定义</h2>
+<h3 id="4-1-GPIO-PIN-COUNT">4.1 GPIO_PIN_COUNT</h3>
 <p>用来表示 GPIO 引脚个数。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_PIN_COUNT                      (SOC_GPIO_PIN_COUNT)</span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_GPIO_PIN_COUNT              40</span><br></code></pre></td></tr></table></figure>
-<h3 id="42-gpio_is_valid_gpio"><a class="markdownIt-Anchor" href="#42-gpio_is_valid_gpio"></a> 4.2 GPIO_IS_VALID_GPIO</h3>
+<h3 id="4-2-GPIO-IS-VALID-GPIO">4.2 GPIO_IS_VALID_GPIO</h3>
 <p>检查 GPIO 引脚号是否有效。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/// Check whether it is a valid GPIO number</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_IS_VALID_GPIO(gpio_num)        ((gpio_num &gt;= 0) &amp;&amp; \</span><br><span class="hljs-meta">                                              (((1ULL &lt;&lt; (gpio_num)) &amp; SOC_GPIO_VALID_GPIO_MASK) != 0))</span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_GPIO_VALID_GPIO_MASK        (0xFFFFFFFFFFULL &amp; ~(0ULL | BIT24 | BIT28 | BIT29 | BIT30 | BIT31))</span><br></code></pre></td></tr></table></figure>
-<h3 id="43-gpio_is_valid_output_gpio"><a class="markdownIt-Anchor" href="#43-gpio_is_valid_output_gpio"></a> 4.3 GPIO_IS_VALID_OUTPUT_GPIO</h3>
+<h3 id="4-3-GPIO-IS-VALID-OUTPUT-GPIO">4.3 GPIO_IS_VALID_OUTPUT_GPIO</h3>
 <p>检查引脚号是否是有效的 GPIO 输出模式</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/// Check whether it can be a valid GPIO number of output mode</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_IS_VALID_OUTPUT_GPIO(gpio_num) ((gpio_num &gt;= 0) &amp;&amp; \</span><br><span class="hljs-meta">                                              (((1ULL &lt;&lt; (gpio_num)) &amp; SOC_GPIO_VALID_OUTPUT_GPIO_MASK) != 0))</span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_GPIO_VALID_OUTPUT_GPIO_MASK (SOC_GPIO_VALID_GPIO_MASK &amp; ~(0ULL | BIT34 | BIT35 | BIT36 | BIT37 | BIT38 | BIT39))</span><br></code></pre></td></tr></table></figure>
-<h3 id="44-gpio_is_valid_digital_io_pad"><a class="markdownIt-Anchor" href="#44-gpio_is_valid_digital_io_pad"></a> 4.4 GPIO_IS_VALID_DIGITAL_IO_PAD</h3>
+<h3 id="4-4-GPIO-IS-VALID-DIGITAL-IO-PAD">4.4 GPIO_IS_VALID_DIGITAL_IO_PAD</h3>
 <p>检查引脚号是否是有效的 I/O pad。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/// Check whether it can be a valid digital I/O pad</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_IS_VALID_DIGITAL_IO_PAD(gpio_num) ((gpio_num &gt;= 0) &amp;&amp; \</span><br><span class="hljs-meta">                                                 (((1ULL &lt;&lt; (gpio_num)) &amp; SOC_GPIO_VALID_DIGITAL_IO_PAD_MASK) != 0))</span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_GPIO_VALID_DIGITAL_IO_PAD_MASK 0xEF0FEAULL</span><br></code></pre></td></tr></table></figure>
-<h1 id="三-实例操作"><a class="markdownIt-Anchor" href="#三-实例操作"></a> 三、实例操作</h1>
-<h2 id="1-例一简单的点灯程序"><a class="markdownIt-Anchor" href="#1-例一简单的点灯程序"></a> 1、例一——简单的点灯程序</h2>
+<h1>三、实例操作</h1>
+<h2 id="1、例一——简单的点灯程序">1、例一——简单的点灯程序</h2>
 <p>这一小节，以一个简单的点灯程序为例，来熟悉一下 ESP32-IDF GPIO 的使用。</p>
 <blockquote>
 <p>创建程序相关见前：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Teminator_/article/details/141473203">ESP32-IDF 在 Ubuntu 下的配置</a></p>
 </blockquote>
 <p>例程代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> LED1_GPIO GPIO_NUM_12</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">led1_run_task</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-type">int</span> gpio_level = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>	&#123;<br>		gpio_level = !gpio_level;<br>		gpio_set_level(LED1_GPIO, gpio_level);<br>		vTaskDelay(pdMS_TO_TICKS(<span class="hljs-number">500</span>));<br>	&#125;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-type">gpio_config_t</span> led_conf = &#123;<br>		.pin_bit_mask = (<span class="hljs-number">1</span> &lt;&lt; LED1_GPIO),<br>		.pull_up_en   = <span class="hljs-number">1</span>,<br>		.pull_down_en = GPIO_PULLDOWN_DISABLE,<br>		.mode         = GPIO_MODE_OUTPUT,<br>		.intr_type    = GPIO_INTR_DISABLE,<br>	&#125;;<br>	gpio_config(&amp;led_conf);<br><br>	xTaskCreate((<span class="hljs-type">void</span> *)led1_run_task, <span class="hljs-string">&quot;led1&quot;</span>, <span class="hljs-number">1024</span> * <span class="hljs-number">2</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="2-例二添加中断"><a class="markdownIt-Anchor" href="#2-例二添加中断"></a> 2、例二——添加中断</h2>
+<h2 id="2、例二——添加中断">2、例二——添加中断</h2>
 <p>本例将读取外部按键 KEY 的状态，当按下 KEY 是窗口打印信息。</p>
-<h3 id="21-通过-gpio-读取实现"><a class="markdownIt-Anchor" href="#21-通过-gpio-读取实现"></a> 2.1 通过 GPIO 读取实现</h3>
+<h3 id="2-1-通过-GPIO-读取实现">2.1 通过 GPIO 读取实现</h3>
 <p>这里通过 GPIO 读取 KEY 引脚来实现“中断”：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> KEY_GPIO GPIO_NUM_9</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">gpio_config_t</span> key_conf = &#123;<br>        .pin_bit_mask = (<span class="hljs-number">1ULL</span> &lt;&lt; KEY_GPIO),<br>       .mode = GPIO_MODE_INPUT,<br>       .pull_up_en = GPIO_PULLUP_ENABLE,<br>       .pull_down_en = GPIO_PULLDOWN_DISABLE,<br>       .intr_type = GPIO_INTR_POSEDGE,<br>    &#125;;<br><br>    gpio_config(&amp;key_conf);<br><br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-keyword">if</span> (gpio_get_level(KEY_GPIO) == <span class="hljs-number">0</span>)<br>        &#123;<br>            vTaskDelay(pdMS_TO_TICKS(<span class="hljs-number">10</span>));<br>            <span class="hljs-keyword">while</span> (gpio_get_level(KEY_GPIO) == <span class="hljs-number">0</span>);<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;KEY PRESSED\n&quot;</span>);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="22-通过中断函数实现"><a class="markdownIt-Anchor" href="#22-通过中断函数实现"></a> 2.2 通过中断函数实现</h3>
+<h3 id="2-2-通过中断函数实现">2.2 通过中断函数实现</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_INPUT_IO         9</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> GPIO_INPUT_PIN_SEL    1ULL&lt;&lt;GPIO_INPUT_IO</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ESP_INTR_FLAG_DEFAULT 0</span><br><br><span class="hljs-type">static</span> QueueHandle_t gpio_evt_queue = <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> IRAM_ATTR <span class="hljs-title function_">gpio_isr_handler</span><span class="hljs-params">(<span class="hljs-type">void</span>* arg)</span><br>&#123;<br>    <span class="hljs-type">uint32_t</span> gpio_num = (<span class="hljs-type">uint32_t</span>) arg;<br>    xQueueSendFromISR(gpio_evt_queue, &amp;gpio_num, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">gpio_task_example</span><span class="hljs-params">(<span class="hljs-type">void</span>* arg)</span><br>&#123;<br>    <span class="hljs-type">uint32_t</span> io_num;<br>    <span class="hljs-keyword">for</span>(;;) &#123;<br>        <span class="hljs-keyword">if</span>(xQueueReceive(gpio_evt_queue, &amp;io_num, portMAX_DELAY)) &#123;<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;GPIO[%ld] intr, val: %d\n&quot;</span>, (<span class="hljs-type">uint32_t</span>)io_num, gpio_get_level(io_num));<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">gpio_config_t</span> gpio_conf = &#123;<br>        .intr_type = GPIO_INTR_ANYEDGE,      <span class="hljs-comment">// 上升、下降沿都产生中断</span><br>        .pin_bit_mask = GPIO_INPUT_PIN_SEL,  <span class="hljs-comment">// bit mask of the pins, use GPIO0 here</span><br>        .mode = GPIO_MODE_INPUT,             <span class="hljs-comment">// 设置输入模式</span><br>        .pull_up_en = <span class="hljs-number">1</span>,                     <span class="hljs-comment">// 使能上拉</span><br>    &#125;;<br>    gpio_config(&amp;gpio_conf);<br><br>    <span class="hljs-comment">//create a queue to handle gpio event from isr</span><br>    gpio_evt_queue = xQueueCreate(<span class="hljs-number">10</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">uint32_t</span>));<br>    <span class="hljs-comment">//start gpio task</span><br>    xTaskCreate(gpio_task_example, <span class="hljs-string">&quot;gpio_task_example&quot;</span>, <span class="hljs-number">2048</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">10</span>, <span class="hljs-literal">NULL</span>);<br><br>    <span class="hljs-comment">//install gpio isr service</span><br>    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);<br>    <br>    <span class="hljs-comment">//hook isr handler for specific gpio pin</span><br>    gpio_isr_handler_add(GPIO_INPUT_IO, gpio_isr_handler, (<span class="hljs-type">void</span>*) GPIO_INPUT_IO);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 

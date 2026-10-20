@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述  在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dum">
+    <meta name="description" content="[toc]  一、概述  在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dump">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 中 core dump 异常的分析">
 <meta property="og:url" content="http://example.com/2024/08/06/coredump/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述  在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dum">
+<meta property="og:description" content="[toc]  一、概述  在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。  Core dump">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/06/coredump/1.png">
 <meta property="og:image" content="http://example.com/2024/08/06/coredump/2.png">
@@ -294,7 +294,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <blockquote>
 <p>在 UNIX 系统中，常将“主内存称为核心（core），因为在使用半导体作为内存材料之前，便是使用核心（core）。而核心映像（core image）就是 “进程”（process）执行当时的内存内容。当进程发生错误或收到 “信号”（signal）而终止执行时，系统会将核心映像写入一个文件，以作为调试之用，这就是所谓的核心转储（core dump）。</p>
 </blockquote>
@@ -335,22 +335,22 @@
 </li>
 <li>硬件故障或操作系统错误：如内存损坏、内核崩溃等情况</li>
 </ul>
-<h1 id="二-发生-core-dump-的原因"><a class="markdownIt-Anchor" href="#二-发生-core-dump-的原因"></a> 二、发生 core dump 的原因</h1>
+<h1>二、发生 core dump 的原因</h1>
 <p>在 Linux 中，发生 <code>core dump</code> 是因为程序发生了严重错误，导致程序被强制终止。当程序遇到一个无法处理的错误时，操作系统为了进行调试和分析，会将程序的内存空间中的所有数据，包括堆栈和堆的内容等，以一种特殊的文件格式保存到一个称为 <code>core dump</code> 的文件中。</p>
 <p>当程序发生 <code>core dump</code> 时，可以使用调试工具（如 gdb）来分析 <code>core dump</code> 文件，找出导致程序崩溃的具体原因。调试工具可以提供堆栈跟踪、变量值查看等功能，帮助我们定位和解决问题。</p>
-<h2 id="1-空指针或非法指针"><a class="markdownIt-Anchor" href="#1-空指针或非法指针"></a> 1. 空指针或非法指针</h2>
+<h2 id="1-空指针或非法指针">1. 空指针或非法指针</h2>
 <p>空指针或非法指针（野指针、悬空指针）引起 <code>core dump</code> 是一种最常见的核心转储，大致可以有 3 种原因导致程序出现异常：</p>
 <ol>
 <li>对空指针进行解引用等操作；</li>
 <li>声明指针变量后未进行初始化，并直接进行操作，极大概率引发 <code>core dump</code>，此类未经初始化的指针，统称野指针；</li>
 <li>对某个指针，调用了 free 函数或者 delet 函数，该指针指向的空间已经被释放，但未将该指针重新指向 NULL，此类指针成为悬空指针。对悬空指针再次操作，也会引发 <code>core dump</code>。</li>
 </ol>
-<h2 id="2-数组越界或指针越界"><a class="markdownIt-Anchor" href="#2-数组越界或指针越界"></a> 2. 数组越界或指针越界</h2>
+<h2 id="2-数组越界或指针越界">2. 数组越界或指针越界</h2>
 <ul>
 <li>数组越界：当程序访问数组中超出其有效索引范围的元素时，会发生数组越界错误。例如，如果一个数组有 5 个元素，但程序尝试访问第 6 个元素，就会导致越界错误。</li>
 <li>指针越界：当程序使用指针来访问无效的内存地址时，会发生指针越界错误。例如，如果一个指针指向了一个已经释放或未分配的内存区域，或者指针超出了其有效范围，就会导致指针越界错误。</li>
 </ul>
-<h2 id="3-数据竞争"><a class="markdownIt-Anchor" href="#3-数据竞争"></a> 3. 数据竞争</h2>
+<h2 id="3-数据竞争">3. 数据竞争</h2>
 <p>数据竞争是指多个线程同时访问共享的数据，并且至少一个线程试图对该数据进行写操作。当发生数据竞争时，由于缺乏同步机制，可能会导致未定义行为，其中包括 <code>core dump</code>。</p>
 <p>数据竞争可能导致以下问题之一：</p>
 <ul>
@@ -358,8 +358,8 @@
 <li><strong>竞争条件</strong>：当多个线程操作共享数据而没有正确的同步时，可能会导致竞争条件的出现。例如，线程 A 读取共享数据，线程 B 写入共享数据，并且线程 A 使用了未正确同步的数据，从而导致 <code>core dump</code>。</li>
 <li><strong>死锁</strong>：当多个线程同时请求锁资源，并且循环等待对方释放锁资源时，就会发生死锁。这可能导致线程无法继续执行，最终导致 <code>core dump</code>。</li>
 </ul>
-<h1 id="三-分析-core-dump-的方法"><a class="markdownIt-Anchor" href="#三-分析-core-dump-的方法"></a> 三、分析 core dump 的方法</h1>
-<h2 id="1-启用-core-dump"><a class="markdownIt-Anchor" href="#1-启用-core-dump"></a> 1. 启用 core dump</h2>
+<h1>三、分析 core dump 的方法</h1>
+<h2 id="1-启用-core-dump">1. 启用 core dump</h2>
 <p>默认情况下，程序运行崩溃导致 <code>core dump</code>，是不会生成 core 文件的，因为系统的 <code>RLIMIT_CORE</code>（核心文件大小）资源限制，默认情况下设置为 0。</p>
 <p>先查看系統默认：<code>ulimit -c</code> 命令用于显示当前用户的 <code>core dump</code> 文件的大小限制。输出结果的含义如下：</p>
 <ul>
@@ -367,7 +367,7 @@
 <li><strong>unlimited</strong>，表示当前用户允许生成任意大小的 <code>core dump</code> 文件</li>
 <li><strong>0</strong>，表示当前用户不允许生成 <code>core dump</code> 文件</li>
 </ul>
-<p>通过以下命令可在用户进程触发信号时启用 <code>core dump</code> 生成，并使用合理的名称将核心文件位置设置为 <code>/tmp/</code>。<mark>请注意，这些设置不会永久存储，重启或者重新登录就会失效</mark>。</p>
+<p>通过以下命令可在用户进程触发信号时启用 <code>core dump</code> 生成，并使用合理的名称将核心文件位置设置为 <code>/tmp/</code>。==请注意，这些设置不会永久存储，重启或者重新登录就会失效==。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">ulimit</span> -c unlimited<br>$ <span class="hljs-built_in">echo</span> 1 | <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">tee</span> /proc/sys/kernel/core_uses_pid<br>$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;/tmp/core-%e-%s-%u-%g-%p-%t&quot;</span> | <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">tee</span> /proc/sys/kernel/core_pattern<br></code></pre></td></tr></table></figure>
 <p>使 core 文件名称是否带有 pid，配置文件 <code>/proc/sys/kernel/core_uses_pid</code> 的内容为 1，添加 pid；0为不添加 pid；</p>
 <p>下面是 <code>/tmp/core-%e-%s-%u-%g-%p-%t</code> 的各个参数的含义：</p>
@@ -384,16 +384,16 @@
 <p>登出重新连接即可生效</p>
 <p>通过如下命令可以查看详细显示信息：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">ulimit</span> -a<br>core file size          (blocks, -c) unlimited<br>data seg size           (kbytes, -d) unlimited<br>scheduling priority             (-e) 0<br>file size               (blocks, -f) unlimited<br>pending signals                 (-i) 15135<br>max locked memory       (kbytes, -l) 65536<br>max memory size         (kbytes, -m) unlimited<br>open files                      (-n) 1024<br>pipe size            (512 bytes, -p) 8<br>POSIX message queues     (bytes, -q) 819200<br>real-time priority              (-r) 0<br>stack size              (kbytes, -s) 8192<br>cpu time               (seconds, -t) unlimited<br>max user processes              (-u) 15135<br>virtual memory          (kbytes, -v) unlimited<br>file locks                      (-x) unlimited<br></code></pre></td></tr></table></figure>
-<h2 id="2-触发-core-dump"><a class="markdownIt-Anchor" href="#2-触发-core-dump"></a> 2. 触发 core dump</h2>
+<h2 id="2-触发-core-dump">2. 触发 core dump</h2>
 <p>下面使用两个简单的 C 程序作为示例。</p>
-<h3 id="21-因空指针解引用而崩溃"><a class="markdownIt-Anchor" href="#21-因空指针解引用而崩溃"></a> 2.1 因空指针解引用而崩溃</h3>
+<h3 id="2-1-因空指针解引用而崩溃">2.1 因空指针解引用而崩溃</h3>
 <p>文件名为 test.c：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">int</span> *ptr = <span class="hljs-literal">NULL</span>;  <span class="hljs-comment">// 声明一个空指针</span><br><br>    <span class="hljs-comment">// 尝试解引用空指针</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;尝试解引用空指针...\n&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;空指针的值为：%d\n&quot;</span>, *ptr);  <span class="hljs-comment">// 这里会引发未定义行为</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>编译并运行程序：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ gcc -g -o <span class="hljs-built_in">test</span> test.c<br>$ ./test<br></code></pre></td></tr></table></figure>
 <p>运行程序后，会在 <code>/tmp/</code> 文件夹下生成一个 core 文件。</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt="toc"></p>
-<h3 id="22-通过-信号触发-core-dump"><a class="markdownIt-Anchor" href="#22-通过-信号触发-core-dump"></a> 2.2 通过  信号触发 core dump</h3>
+<h3 id="2-2-通过-信号触发-core-dump">2.2 通过  信号触发 core dump</h3>
 <p><code>core dump</code> 文件一般是在收到某个信号的时候结束产生，如果不指定特定的信号，应用程序按默认方式处理，默认处理的信号如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">3) SIGQUIT      4) SIGILL     5) SIGTRAP   6) SIGABRT      7) SIGBUS       <br>8) SIGFPE      11) SIGSEGV   31) SIGSYS   24) SIGXCPU     25) SIGXFSZ    29) SIGIO<br></code></pre></td></tr></table></figure>
 <p>此例通过 SIGSEGV 信号触发 core dump，文件名为 test2.c：</p>
@@ -404,7 +404,7 @@
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt="toc"><br>
 这是，就会在 <code>/tmp/</code> 文件夹下生成一个 core 文件。</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt="toc"></p>
-<h2 id="3-利用-gdb-分析-core-dump"><a class="markdownIt-Anchor" href="#3-利用-gdb-分析-core-dump"></a> 3. 利用 gdb 分析 core dump</h2>
+<h2 id="3-利用-gdb-分析-core-dump">3. 利用 gdb 分析 core dump</h2>
 <p>两个例子都是段错误导致的 <code>core dump</code>，所以用 gdb 调试的方法也是一样的，命令格式如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gdb &lt;program_name&gt; &lt;core_dump_file&gt;</span><br></code></pre></td></tr></table></figure>
 <p>比如先调试第一个例子的 core 文件，则输入如下命令：</p>

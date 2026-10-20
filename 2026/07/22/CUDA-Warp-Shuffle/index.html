@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="束内洗牌函数（Warp Shuffle Functions）是设备端的内置函数，与束内表决函数一样，主要用于进行一些 warp 内数据交换操作。但有两个主要区别：没有数据的规约处理功能、交换的数据通常大于 1 bit。 一、函数描述 内部函数 __shfl_sync() 允许 warp 中的线程之间交换变量，而无需使用共享内存。交换同时发生在 warp 中的所有活动线程（使用 mask 指定），根">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA Warp Shuffle">
+<meta property="og:url" content="http://example.com/2026/07/22/CUDA-Warp-Shuffle/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="束内洗牌函数（Warp Shuffle Functions）是设备端的内置函数，与束内表决函数一样，主要用于进行一些 warp 内数据交换操作。但有两个主要区别：没有数据的规约处理功能、交换的数据通常大于 1 bit。 一、函数描述 内部函数 __shfl_sync() 允许 warp 中的线程之间交换变量，而无需使用共享内存。交换同时发生在 warp 中的所有活动线程（使用 mask 指定），根">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-22T08:34:37.000Z">
+<meta property="article:modified_time" content="2026-09-17T12:39:26.112Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="CUDA">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>CUDA Warp Shuffle - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CUDA Warp Shuffle"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-22 16:34" pubdate>
+          星期三, 七月 22日 2026, 4:34 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CUDA Warp Shuffle</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>束内洗牌函数（Warp Shuffle Functions）是设备端的内置函数，与束内表决函数一样，主要用于进行一些 warp 内数据交换操作。但有两个主要区别：没有数据的规约处理功能、交换的数据通常大于 1 bit。</p>
+<h1>一、函数描述</h1>
+<p>内部函数 <code>__shfl_sync()</code> 允许 warp 中的线程之间交换变量，而无需使用共享内存。交换同时发生在 warp 中的所有活动线程（使用 <code>mask</code> 指定），根据数据类型移动每个线程 或 个字节的数据。</p>
+<p>warp 中的线程称为通道（lanes），并且每个通道具有介于 <code>0</code> 和 <code>warpSize-1</code>（包括）之间的索引，称之为通道 ID。当前支持四种源通道（source-lane）寻址模式：</p>
+<ul>
+<li><code>__shfl_sync()</code>：从索引通道直接复制。</li>
+<li><code>__shfl_up_sync()</code>：从相对于调用者 ID 较低的通道复制。</li>
+<li><code>__shfl_down_sync()</code>：从相对于调用者 ID 较高的通道复制。</li>
+<li><code>__shfl_xor_sync()</code>：基于自身通道 ID 的按位异或（XOR）从通道复制。</li>
+</ul>
+<p>函数原型如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">T __shfl_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">int</span> srcLane, <span class="hljs-type">int</span> width=warpSize);<br>T __shfl_up_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> delta, <span class="hljs-type">int</span> width=warpSize);<br>T __shfl_down_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> delta, <span class="hljs-type">int</span> width=warpSize);<br>T __shfl_xor_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">int</span> laneMask, <span class="hljs-type">int</span> width=warpSize);<br></code></pre></td></tr></table></figure>
+<p><strong>mask</strong> 是参与的 lane 位掩码，几乎总传 <code>0xffffffff</code>（全 32 lane）。 <strong>关键好处</strong>：少一次 shared mem round trip，省 <code>__syncthreads</code>。</p>
+<h2 id="1-1-shfl-sync">1.1 __shfl_sync</h2>
+<p>这个函数主要用来把某一个或几个线程的值广播到其它线程。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">T __shfl_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">int</span> srcLane, <span class="hljs-type">int</span> width=warpSize);<br></code></pre></td></tr></table></figure>
+<ul>
+<li>mask：参与线程的 mask，要参与的线程对应的位置所在的比特为 1，否则为 0</li>
+<li>var：当前线程的var变量的值</li>
+<li>width：32 个线程中没 width 个线程为一组，同步操作发生在组内</li>
+</ul>
+<p>下面看一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__global__ <span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">test</span><span class="hljs-params">(<span class="hljs-type">int</span> id)</span> </span>&#123;<br>    <span class="hljs-type">int</span> tid = threadIdx.x;<br>    <span class="hljs-type">int</span> value = tid;<br><br>    <span class="hljs-type">int</span> ret = __shfl_sync(<span class="hljs-number">0xFFFFFFFF</span>, value, <span class="hljs-number">5</span>, <span class="hljs-number">32</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;thread id = %d, before shuffle value = %d, after shuffle value=%d\n&quot;</span>, tid, value, ret);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    test&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">32</span>&gt;&gt;&gt;(<span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp">thread id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">5</span><br></code></pre></td></tr></table></figure>
+<p>然后我们再来看一下 <code>width</code> 这个参数。这个参数其实是控制我们的一个 warp 里面 32 个线程如何分组。默认值为 32，也就是把 32 个线程当成一组。</p>
+<p>这里我们尝试把一个 warp 的线程分为 2 组，每组都通过广播得到该组里面 id 为 5 的线程的值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> ret = __shfl_sync(<span class="hljs-number">0xFFFFFFFF</span>, value, <span class="hljs-number">5</span>, <span class="hljs-number">16</span>);<br></code></pre></td></tr></table></figure>
+<p>结果如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp">thread id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">21</span><br></code></pre></td></tr></table></figure>
+<p>可以看到，因为 <code>width=16</code>，也就是 16 个线程为一组，那么一个 warp 里面 32 个线程就有两组。每组都被广播得到各自组里面的 id 为 5，也就是第 6 个线程(因为 id 从 0 开始)的值，所以 0 到 15 号线程得到的值都是 5，而 16 到 32 号线程得到值为 21，也就是第二组里面第六个线程的值。</p>
+<p>那如果我们指定的 <code>srcLane</code> 比 <code>width</code> 大的话如何处理？比如</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">int ret = __shfl_sync(0xFFFFFFFF, value, 17, 16);<br></code></pre></td></tr></table></figure>
+<p>实际上，真实的lane是<code>srcLane % width</code>。</p>
+<p>我们运行一下上面的代码，可以得到输出：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp">thread id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">17</span><br></code></pre></td></tr></table></figure>
+<h2 id="1-2-shfl-up-sync-shfl-down-sync">1.2 __shfl_up_sync &amp; __shfl_down_sync</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">T __shfl_up_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> delta, <span class="hljs-type">int</span> width=warpSize);<br>T __shfl_down_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> delta, <span class="hljs-type">int</span> width=warpSize);<br></code></pre></td></tr></table></figure>
+<p>函数作用：首先，按照<code>width</code>把一个warp的线程进行分组，每组有<code>width</code>个线程。然后，在每一组内部，0到delta-1的线程值保持不变，lane 为 delta 到 width-1 的线程的值为 lane - delta 的线程的值。</p>
+<p>换句话说，一个组内所有的值都往右移动delta位置，低delta个线程的值不变，大于等于delta的位置的值用新值覆盖。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__global__ <span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">test</span><span class="hljs-params">(<span class="hljs-type">int</span> lid)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> tid = threadIdx.x;<br>    <span class="hljs-type">int</span> value = tid;<br><br>    <span class="hljs-type">int</span> ret = __shfl_up_sync(<span class="hljs-number">0xFFFFFFFF</span>, value, <span class="hljs-number">5</span>, <span class="hljs-number">16</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;thread id = %d, before shuffle value = %d, after shuffle value=%d\n&quot;</span>, tid, value, ret);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    test&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">32</span>&gt;&gt;&gt;(<span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs CPP">thread id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">0</span><br>thread id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">2</span><br>thread id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">3</span><br>thread id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">4</span><br>thread id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">0</span><br>thread id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">1</span><br>thread id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">2</span><br>thread id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">3</span><br>thread id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">4</span><br>thread id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">6</span><br>thread id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">7</span><br>thread id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">8</span><br>thread id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">9</span><br>thread id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">10</span><br>thread id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">16</span><br>thread id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">18</span><br>thread id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">19</span><br>thread id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">20</span><br>thread id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">16</span><br>thread id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">17</span><br>thread id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">18</span><br>thread id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">19</span><br>thread id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">20</span><br>thread id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">22</span><br>thread id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">23</span><br>thread id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">24</span><br>thread id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">25</span><br>thread id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">26</span><br></code></pre></td></tr></table></figure>
+<p><code>__shfl_down_sync</code> 函数做的事情恰好相反，把所有位置的值都往低位移动 delta 个位置，高位的 delta 个值保持不变。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs CPP">T __shfl_down_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> delta, <span class="hljs-type">int</span> width=warpSize);<br><br><span class="hljs-type">int</span> ret = __shfl_down_sync(<span class="hljs-number">0xFFFFFFFF</span>, value, <span class="hljs-number">5</span>, <span class="hljs-number">16</span>);<br></code></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs CPP">thread id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">5</span><br>thread id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">6</span><br>thread id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">7</span><br>thread id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">8</span><br>thread id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">9</span><br>thread id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">10</span><br>thread id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">11</span><br>thread id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">12</span><br>thread id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">13</span><br>thread id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">14</span><br>thread id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">15</span><br>thread id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">11</span><br>thread id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">12</span><br>thread id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">13</span><br>thread id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">14</span><br>thread id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">15</span><br>thread id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">21</span><br>thread id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">22</span><br>thread id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">23</span><br>thread id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">24</span><br>thread id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">25</span><br>thread id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">26</span><br>thread id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">27</span><br>thread id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">28</span><br>thread id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">29</span><br>thread id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">30</span><br>thread id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">31</span><br>thread id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">27</span><br>thread id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">28</span><br>thread id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">29</span><br>thread id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">30</span><br>thread id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">31</span><br></code></pre></td></tr></table></figure>
+<h2 id="1-3-shfl-xor-sync">1.3 __shfl_xor_sync</h2>
+<p>这个函数是做 reduce 的关键。函数声明如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">T __shfl_xor_sync(<span class="hljs-type">unsigned</span> mask, T var, <span class="hljs-type">int</span> laneMask, <span class="hljs-type">int</span> width=warpSize);<br></code></pre></td></tr></table></figure>
+<p>同样的，一个 warp 里面 32 个线程根据 <code>width</code> 进行分组，每组有 <code>width</code> 个线程。一个组里面 id 为 lane 的线程的最终值是组里面原始线程 <code>(lane^laneMask)</code> 的值。</p>
+<p>当 width &lt; 32 的时候，那么连续的 width 个线程可以取比它们原始 id 小的线程的值，哪怕这些线程在其它的 group 里面。但是它们如果要取比它们原始id还要大的线程的值，那么它们的值保持不变。</p>
+<p>下面看一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs CPP"><span class="hljs-function">__global__ <span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">test</span><span class="hljs-params">(<span class="hljs-type">int</span> lid)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> tid = threadIdx.x;<br>    <span class="hljs-type">int</span> value = tid;<br><br>    <span class="hljs-type">int</span> ret = __shfl_xor_sync(<span class="hljs-number">0xFFFFFFFF</span>, value, <span class="hljs-number">16</span>, <span class="hljs-number">32</span>);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;thread id = %d, before shuffle value = %d, after shuffle value=%d\n&quot;</span>, tid, value, ret);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    test&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">32</span>&gt;&gt;&gt;(<span class="hljs-number">0</span>);<br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>也就是把一个 warp 里面的 32 个线程都当成一组，<code>laneMask</code> 设置为 16。这样做完异或之后，0 到 15 会变成 16 到 31，而 16 到 31 会变成 0 到 15。我们看一下输出：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">thread</span> id = <span class="hljs-number">0</span>, before shuffle value = <span class="hljs-number">0</span>, after shuffle value=<span class="hljs-number">16</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">1</span>, before shuffle value = <span class="hljs-number">1</span>, after shuffle value=<span class="hljs-number">17</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">2</span>, before shuffle value = <span class="hljs-number">2</span>, after shuffle value=<span class="hljs-number">18</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">3</span>, before shuffle value = <span class="hljs-number">3</span>, after shuffle value=<span class="hljs-number">19</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">4</span>, before shuffle value = <span class="hljs-number">4</span>, after shuffle value=<span class="hljs-number">20</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">5</span>, before shuffle value = <span class="hljs-number">5</span>, after shuffle value=<span class="hljs-number">21</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">6</span>, before shuffle value = <span class="hljs-number">6</span>, after shuffle value=<span class="hljs-number">22</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">7</span>, before shuffle value = <span class="hljs-number">7</span>, after shuffle value=<span class="hljs-number">23</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">8</span>, before shuffle value = <span class="hljs-number">8</span>, after shuffle value=<span class="hljs-number">24</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">9</span>, before shuffle value = <span class="hljs-number">9</span>, after shuffle value=<span class="hljs-number">25</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">10</span>, before shuffle value = <span class="hljs-number">10</span>, after shuffle value=<span class="hljs-number">26</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">11</span>, before shuffle value = <span class="hljs-number">11</span>, after shuffle value=<span class="hljs-number">27</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">12</span>, before shuffle value = <span class="hljs-number">12</span>, after shuffle value=<span class="hljs-number">28</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">13</span>, before shuffle value = <span class="hljs-number">13</span>, after shuffle value=<span class="hljs-number">29</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">14</span>, before shuffle value = <span class="hljs-number">14</span>, after shuffle value=<span class="hljs-number">30</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">15</span>, before shuffle value = <span class="hljs-number">15</span>, after shuffle value=<span class="hljs-number">31</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">16</span>, before shuffle value = <span class="hljs-number">16</span>, after shuffle value=<span class="hljs-number">0</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">17</span>, before shuffle value = <span class="hljs-number">17</span>, after shuffle value=<span class="hljs-number">1</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">18</span>, before shuffle value = <span class="hljs-number">18</span>, after shuffle value=<span class="hljs-number">2</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">19</span>, before shuffle value = <span class="hljs-number">19</span>, after shuffle value=<span class="hljs-number">3</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">20</span>, before shuffle value = <span class="hljs-number">20</span>, after shuffle value=<span class="hljs-number">4</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">21</span>, before shuffle value = <span class="hljs-number">21</span>, after shuffle value=<span class="hljs-number">5</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">22</span>, before shuffle value = <span class="hljs-number">22</span>, after shuffle value=<span class="hljs-number">6</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">23</span>, before shuffle value = <span class="hljs-number">23</span>, after shuffle value=<span class="hljs-number">7</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">24</span>, before shuffle value = <span class="hljs-number">24</span>, after shuffle value=<span class="hljs-number">8</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">25</span>, before shuffle value = <span class="hljs-number">25</span>, after shuffle value=<span class="hljs-number">9</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">26</span>, before shuffle value = <span class="hljs-number">26</span>, after shuffle value=<span class="hljs-number">10</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">27</span>, before shuffle value = <span class="hljs-number">27</span>, after shuffle value=<span class="hljs-number">11</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">28</span>, before shuffle value = <span class="hljs-number">28</span>, after shuffle value=<span class="hljs-number">12</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">29</span>, before shuffle value = <span class="hljs-number">29</span>, after shuffle value=<span class="hljs-number">13</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">30</span>, before shuffle value = <span class="hljs-number">30</span>, after shuffle value=<span class="hljs-number">14</span><br><span class="hljs-attribute">thread</span> id = <span class="hljs-number">31</span>, before shuffle value = <span class="hljs-number">31</span>, after shuffle value=<span class="hljs-number">15</span><br></code></pre></td></tr></table></figure>
+<p>这样，通过下面的代码就可以实现一个warp里面每个线程都得到全部线程的累加值</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">16</span>; i &gt;= <span class="hljs-number">1</span>; i &gt;&gt;= <span class="hljs-number">1</span>)<br>       value += __shfl_xor_sync(<span class="hljs-number">0xffffffff</span>, value, i, <span class="hljs-number">32</span>);<br></code></pre></td></tr></table></figure>
+<h1>二、应用</h1>
+<h2 id="2-1-warp-内广播单个变量的值">2.1 warp 内广播单个变量的值</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">bcast</span><span class="hljs-params">(<span class="hljs-type">int</span> arg)</span> </span>&#123;<br>    <span class="hljs-type">int</span> laneId = threadIdx.x &amp; <span class="hljs-number">0x1f</span>;<br>    <span class="hljs-type">int</span> value;<br>    <span class="hljs-comment">// Note unused variable for all threads except lane 0</span><br>    <span class="hljs-keyword">if</span> (laneId == <span class="hljs-number">0</span>)        <br>        value = arg;       <br>    <span class="hljs-comment">// Synchronize all threads in warp, and get &quot;value&quot; from lane 0</span><br>    value = __shfl_sync(<span class="hljs-number">0xffffffff</span>, value, <span class="hljs-number">0</span>);   <br>    <span class="hljs-keyword">if</span> (value != arg)<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Thread %d failed.\n&quot;</span>, threadIdx.x);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    bcast&lt;&lt;&lt; <span class="hljs-number">1</span>, <span class="hljs-number">32</span> &gt;&gt;&gt;(<span class="hljs-number">1234</span>);<br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>首先在寄存器内定义一个变量 <code>value</code>，随后在 warp 内通道 ID 为 的线程中将 <code>value</code> 赋值为 <code>arg</code>，此时其他 个线程的 <code>value</code> 还未进行初始化。然后每个线程中调用 <code>value = __shfl_sync(0xffffffff, value, 0)</code>，相当于把 ID 为 的线程中的 <code>value</code> 的值广播到其他 个线程并赋值给 <code>value</code>。</p>
+<h2 id="2-2-束内规约">2.2 束内规约</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">warpReduce</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> laneId = threadIdx.x &amp; <span class="hljs-number">0x1f</span>;<br>    <span class="hljs-comment">// Seed starting value as inverse lane ID</span><br>    <span class="hljs-type">int</span> value = <span class="hljs-number">31</span> - laneId;<br><br>    <span class="hljs-comment">// Use XOR mode to perform butterfly reduction</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">16</span>; i&gt;=<span class="hljs-number">1</span>; i/=<span class="hljs-number">2</span>)<br>        value += __shfl_xor_sync(<span class="hljs-number">0xffffffff</span>, value, i, <span class="hljs-number">32</span>);<br><br>    <span class="hljs-comment">// &quot;value&quot; now contains the sum across all threads</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Thread %d final value = %d\n&quot;</span>, threadIdx.x, value);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    warpReduce&lt;&lt;&lt; <span class="hljs-number">1</span>, <span class="hljs-number">32</span> &gt;&gt;&gt;();<br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>上述代码，基于折半规约的思想，调用 <code>__shfl_xor_sync(0xffffffff, value, i, 32)</code> 将 warp 内 <code>value</code> 的值规约求和到通道 ID 为 的线程中。</p>
+<h2 id="2-3-Prefix-Sum-Scan">2.3 Prefix Sum (Scan)</h2>
+<p>定义：<code>out[i] = in[0] + in[1] + ... + in[i]</code>（inclusive）。 在 LLM 里用于：top-p 采样（按 cumulative prob 找截断点）、PagedAttention 的页索引计算、稀疏 softmax。</p>
+<p>warp 内 inclusive scan（Hillis-Steele，5 步）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__device__ __forceinline__ <span class="hljs-type">float</span> <span class="hljs-title">warp_inclusive_scan</span><span class="hljs-params">(<span class="hljs-type">float</span> v)</span> </span>&#123;<br>    <span class="hljs-meta">#<span class="hljs-keyword">pragma</span> unroll</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> o = <span class="hljs-number">1</span>; o &lt; <span class="hljs-number">32</span>; o &lt;&lt;= <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-type">float</span> t = __shfl_up_sync(<span class="hljs-number">0xffffffff</span>, v, o);<br>        <span class="hljs-keyword">if</span> ((threadIdx.x &amp; <span class="hljs-number">31</span>) &gt;= o) v += t;<br>    &#125;<br>    <span class="hljs-keyword">return</span> v;<br>&#125;<br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">scan_block</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">float</span>* in, <span class="hljs-type">float</span>* out, <span class="hljs-type">int</span> n)</span> </span>&#123;<br>    <span class="hljs-type">int</span> tid = threadIdx.x;<br>    <span class="hljs-type">int</span> gid = blockIdx.x * blockDim.x + threadIdx.x;<br>    <span class="hljs-type">float</span> v = (gid &lt; n) ? in[gid] : <span class="hljs-number">0</span>;<br>    v = <span class="hljs-built_in">warp_inclusive_scan</span>(v);<br><br>    __shared__ <span class="hljs-type">float</span> warp_tails[<span class="hljs-number">32</span>];<br>    <span class="hljs-type">int</span> lane = tid &amp; <span class="hljs-number">31</span>, wid = tid &gt;&gt; <span class="hljs-number">5</span>;<br>    <span class="hljs-keyword">if</span> (lane == <span class="hljs-number">31</span>) warp_tails[wid] = v;<br>    __syncthreads();<br><br>    <span class="hljs-keyword">if</span> (wid == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-type">float</span> t = (tid &lt; BLOCK / <span class="hljs-number">32</span>) ? warp_tails[lane] : <span class="hljs-number">0</span>;<br>        t = <span class="hljs-built_in">warp_inclusive_scan</span>(t);<br>        <span class="hljs-keyword">if</span> (tid &lt; BLOCK / <span class="hljs-number">32</span>) warp_tails[tid] = t;<br>    &#125;<br>    __syncthreads();<br><br>    <span class="hljs-keyword">if</span> (wid &gt; <span class="hljs-number">0</span>) v += warp_tails[wid - <span class="hljs-number">1</span>];<br>    <span class="hljs-keyword">if</span> (gid &lt; n) out[gid] = v;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>block 内 scan：每 warp 算 partial，warp tail 收集到 shared，再用 1 个 warp 扫一次，最后把偏移加回去。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/CUDA/" class="print-no-link">#CUDA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CUDA Warp Shuffle</div>
+      <div>http://example.com/2026/07/22/CUDA-Warp-Shuffle/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/23/CUDA-Graphs/" title="CUDA Graphs">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CUDA Graphs</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/18/CUDA-tile/" title="CUDA tile">
+                        <span class="hidden-mobile">CUDA tile</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

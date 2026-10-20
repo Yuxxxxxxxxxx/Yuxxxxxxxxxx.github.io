@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、左值、右值  1.1 什么是左值、右值 1int a &#x3D; 5; 简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;">
+    <meta name="description" content="一、左值、右值 1.1 什么是左值、右值 1int a &#x3D; 5; 简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;    A">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C++右值引用">
 <meta property="og:url" content="http://example.com/2026/05/08/C++%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="一、左值、右值  1.1 什么是左值、右值 1int a &#x3D; 5; 简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;">
+<meta property="og:description" content="一、左值、右值 1.1 什么是左值、右值 1int a &#x3D; 5; 简单来说，左值就是等号左边的值，可以取地址，也就是这里的 a；右值就是等号右边的值，不能够取地址，也就是这里的 5。  a 可以通过 &amp; 取地址，位于等号左边，所以 a 是左值 5 位于等号右边，5 没法通过 &amp; 取地址，所以 5 是个右值  再看一个例子： 123456789struct A &#123;    A">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-05-08T14:50:17.000Z">
 <meta property="article:modified_time" content="2026-05-16T07:20:49.603Z">
@@ -276,8 +276,8 @@
             
               <div class="markdown-body">
                 
-                <h1 id="一-左值-右值"><a class="markdownIt-Anchor" href="#一-左值-右值"></a> 一、左值、右值</h1>
-<h2 id="11-什么是左值-右值"><a class="markdownIt-Anchor" href="#11-什么是左值-右值"></a> 1.1 什么是左值、右值</h2>
+                <h1>一、左值、右值</h1>
+<h2 id="1-1-什么是左值、右值">1.1 什么是左值、右值</h2>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-number">5</span>;<br></code></pre></td></tr></table></figure>
 <p>简单来说，左值就是等号左边的值，可以取地址，也就是这里的 <code>a</code>；右值就是等号右边的值，不能够取地址，也就是这里的 <code>5</code>。</p>
 <ul>
@@ -290,9 +290,9 @@
 <li>同样的，<code>a</code> 可以通过 <code>&amp;</code> 取地址，位于等号左边，所以 <code>a</code> 是左值</li>
 <li><code>A()</code> 是个临时值，没法通过 <code>&amp;</code> 取地址，位于等号右边，所以 <code>A()</code> 是个右值</li>
 </ul>
-<h2 id="12-什么是左值引用-右值引用"><a class="markdownIt-Anchor" href="#12-什么是左值引用-右值引用"></a> 1.2 什么是左值引用、右值引用</h2>
+<h2 id="1-2-什么是左值引用、右值引用">1.2 什么是左值引用、右值引用</h2>
 <p>引用本质是别名，可以通过引用修改变量的值，传参时传引用可以避免拷贝，其实现原理和指针类似。</p>
-<h3 id="121-左值引用"><a class="markdownIt-Anchor" href="#121-左值引用"></a> 1.2.1 左值引用</h3>
+<h3 id="1-2-1-左值引用">1.2.1 左值引用</h3>
 <p>左值引用能指向左值，不能指向右值的就是左值引用：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-number">5</span>;<br><span class="hljs-type">int</span> &amp;ref_a = a; <span class="hljs-comment">// 左值引用指向左值，编译通过</span><br><span class="hljs-type">int</span> &amp;ref_a = <span class="hljs-number">5</span>; <span class="hljs-comment">// 左值引用指向了右值，会编译失败</span><br></code></pre></td></tr></table></figure>
 <p><strong>引用是变量的别名，由于右值没有地址，没法被修改，所以左值引用无法指向右值。</strong></p>
@@ -301,10 +301,10 @@
 <p>const左值引用不会修改指向值，因此可以指向右值，这也是为什么要使用<code>const &amp;</code>作为函数参数的原因之一，如<code>std::vector</code>的<code>push_back</code>：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">push_back</span> <span class="hljs-params">(<span class="hljs-type">const</span> value_type&amp; val)</span></span>;<br></code></pre></td></tr></table></figure>
 <p>如果没有<code>const</code>，<code>vec.push_back(5)</code>这样的代码就无法编译通过了。</p>
-<h3 id="122-右值引用"><a class="markdownIt-Anchor" href="#122-右值引用"></a> 1.2.2 右值引用</h3>
+<h3 id="1-2-2-右值引用">1.2.2 右值引用</h3>
 <p>再看下右值引用，右值引用的标志是 <code>&amp;&amp;</code>，顾名思义，右值引用专门为右值而生，<strong>可以指向右值，不能指向左值</strong>：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> &amp;&amp;ref_a_right = <span class="hljs-number">5</span>; <span class="hljs-comment">// ok</span><br> <br><span class="hljs-type">int</span> a = <span class="hljs-number">5</span>;<br><span class="hljs-type">int</span> &amp;&amp;ref_a_left = a; <span class="hljs-comment">// 编译不过，右值引用不可以指向左值</span><br> <br>ref_a_right = <span class="hljs-number">6</span>; <span class="hljs-comment">// 右值引用的用途：可以修改右值</span><br></code></pre></td></tr></table></figure>
-<h3 id="123-让右值引用指向左值"><a class="markdownIt-Anchor" href="#123-让右值引用指向左值"></a> 1.2.3 让右值引用指向左值</h3>
+<h3 id="1-2-3-让右值引用指向左值">1.2.3 让右值引用指向左值</h3>
 <p>通过 <code>std::move</code> 可以使右值引用指向左值：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-number">5</span>; <span class="hljs-comment">// a是个左值</span><br><span class="hljs-type">int</span> &amp;ref_a_left = a; <span class="hljs-comment">// 左值引用指向左值</span><br><span class="hljs-type">int</span> &amp;&amp;ref_a_right = std::<span class="hljs-built_in">move</span>(a); <span class="hljs-comment">// 通过std::move将左值转化为右值，可以被右值引用指向</span><br> <br>cout &lt;&lt; a; <span class="hljs-comment">// output: 5</span><br></code></pre></td></tr></table></figure>
 <p>注意，<code>std::move</code> 的唯一作用是将左值强制转化为右值，源码如下：</p>
@@ -312,7 +312,7 @@
 <p>可见， 单纯的 <code>std::move(xxx)</code> 不会有性能提升。</p>
 <p>同样的，右值引用能指向右值，本质上也是把右值提升为一个左值，并定义一个右值引用通过 <code>std::move</code> 指向该左值：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> &amp;&amp;ref_a = <span class="hljs-number">5</span>;<br>ref_a = <span class="hljs-number">6</span>; <br> <br><span class="hljs-comment">// 等同于以下代码：</span><br> <br><span class="hljs-type">int</span> temp = <span class="hljs-number">5</span>;<br><span class="hljs-type">int</span> &amp;&amp;ref_a = std::<span class="hljs-built_in">move</span>(temp);<br>ref_a = <span class="hljs-number">6</span>;<br></code></pre></td></tr></table></figure>
-<h2 id="13-左值引用-右值引用本身是左值还是右值"><a class="markdownIt-Anchor" href="#13-左值引用-右值引用本身是左值还是右值"></a> 1.3 左值引用、右值引用本身是左值还是右值</h2>
+<h2 id="1-3-左值引用、右值引用本身是左值还是右值">1.3 左值引用、右值引用本身是左值还是右值</h2>
 <p>被声明出来的左、右值引用都是左值。 因为被声明出的左右值引用是有地址的，也位于等号左边。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 形参是个右值引用</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">change</span><span class="hljs-params">(<span class="hljs-type">int</span>&amp;&amp; right_value)</span> </span>&#123;<br>    right_value = <span class="hljs-number">8</span>;<br>&#125;<br> <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">5</span>; <span class="hljs-comment">// a是个左值</span><br>    <span class="hljs-type">int</span> &amp;ref_a_left = a; <span class="hljs-comment">// ref_a_left是个左值引用</span><br>    <span class="hljs-type">int</span> &amp;&amp;ref_a_right = std::<span class="hljs-built_in">move</span>(a); <span class="hljs-comment">// ref_a_right是个右值引用</span><br> <br>    <span class="hljs-built_in">change</span>(a); <span class="hljs-comment">// 编译不过，a是左值，change参数要求右值</span><br>    <span class="hljs-built_in">change</span>(ref_a_left); <span class="hljs-comment">// 编译不过，左值引用ref_a_left本身也是个左值</span><br>    <span class="hljs-built_in">change</span>(ref_a_right); <span class="hljs-comment">// 编译不过，右值引用ref_a_right本身也是个左值</span><br>     <br>    <span class="hljs-built_in">change</span>(std::<span class="hljs-built_in">move</span>(a)); <span class="hljs-comment">// 编译通过</span><br>    <span class="hljs-built_in">change</span>(std::<span class="hljs-built_in">move</span>(ref_a_right)); <span class="hljs-comment">// 编译通过</span><br>    <span class="hljs-built_in">change</span>(std::<span class="hljs-built_in">move</span>(ref_a_left)); <span class="hljs-comment">// 编译通过</span><br> <br>    <span class="hljs-built_in">change</span>(<span class="hljs-number">5</span>); <span class="hljs-comment">// 直接接右值，编译通过</span><br>     <br>    cout &lt;&lt; &amp;a &lt;&lt; <span class="hljs-string">&#x27; &#x27;</span>;<br>    cout &lt;&lt; &amp;ref_a_left &lt;&lt; <span class="hljs-string">&#x27; &#x27;</span>;<br>    cout &lt;&lt; &amp;ref_a_right;<br>    <span class="hljs-comment">// 打印这三个左值的地址，都是一样的</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <ol>
@@ -321,10 +321,10 @@
 <li>作为函数形参时，右值引用更灵活。虽然 const 左值引用也可以做到左右值都接受，但它无法修改，有一定局限性</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">int</span>&amp; n)</span> </span>&#123;<br>    n += <span class="hljs-number">1</span>; <span class="hljs-comment">// 编译失败，const左值引用不能修改指向变量</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">f2</span><span class="hljs-params">(<span class="hljs-type">int</span> &amp;&amp; n)</span> </span>&#123;<br>    n += <span class="hljs-number">1</span>; <span class="hljs-comment">// ok</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">f</span>(<span class="hljs-number">5</span>);<br>    <span class="hljs-built_in">f2</span>(<span class="hljs-number">5</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
-<h1 id="二-右值引用的应用"><a class="markdownIt-Anchor" href="#二-右值引用的应用"></a> 二、右值引用的应用</h1>
-<h2 id="21-实现移动语义"><a class="markdownIt-Anchor" href="#21-实现移动语义"></a> 2.1 实现移动语义</h2>
+<h1>二、右值引用的应用</h1>
+<h2 id="2-1-实现移动语义">2.1 实现移动语义</h2>
 <p>见 <a href="/2026/04/15/C++11%E6%96%B0%E7%89%B9%E6%80%A7(%E4%B8%80)/" title="C++11新特性(一)">C++11新特性(一)</a>。</p>
-<h2 id="22-完美转发"><a class="markdownIt-Anchor" href="#22-完美转发"></a> 2.2 完美转发</h2>
+<h2 id="2-2-完美转发">2.2 完美转发</h2>
 <p>见 <a href="/2026/05/06/C++%E6%A8%A1%E6%9D%BF%E6%8E%A8%E5%AF%BC/" title="C++模板参数推导">C++模板参数推导</a>。</p>
 
                 

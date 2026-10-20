@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1、ELF header 2、程序头表和程序头表条目 3、节头表和节头表条目 4、系统固定的 section     一、概述 ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。  二、种类 ELF文件主要有四种类型  可执行文件（Exe">
+    <meta name="description" content="@toc  一、概述 ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。 二、种类 ELF文件主要有四种类型  可执行文件（Executable File）：包含可执行的机器代码，可以直接在操作系统中运行。 可重定位文件（Relocatab">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ELF 文件格式">
 <meta property="og:url" content="http://example.com/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="1、ELF header 2、程序头表和程序头表条目 3、节头表和节头表条目 4、系统固定的 section     一、概述 ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。  二、种类 ELF文件主要有四种类型  可执行文件（Exe">
+<meta property="og:description" content="@toc  一、概述 ELF（Executable and Linkable Format）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。 二、种类 ELF文件主要有四种类型  可执行文件（Executable File）：包含可执行的机器代码，可以直接在操作系统中运行。 可重定位文件（Relocatab">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/1.jpeg">
 <meta property="og:image" content="http://example.com/2024/09/05/ELF%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/2.png">
@@ -282,17 +282,11 @@
             
               <div class="markdown-body">
                 
-                <p><ul class="markdownIt-TOC">
-<li><a href="#1-elf-header">1、ELF header</a></li>
-<li><a href="#2-%E7%A8%8B%E5%BA%8F%E5%A4%B4%E8%A1%A8%E5%92%8C%E7%A8%8B%E5%BA%8F%E5%A4%B4%E8%A1%A8%E6%9D%A1%E7%9B%AE">2、程序头表和程序头表条目</a></li>
-<li><a href="#3-%E8%8A%82%E5%A4%B4%E8%A1%A8%E5%92%8C%E8%8A%82%E5%A4%B4%E8%A1%A8%E6%9D%A1%E7%9B%AE">3、节头表和节头表条目</a></li>
-<li><a href="#4-%E7%B3%BB%E7%BB%9F%E5%9B%BA%E5%AE%9A%E7%9A%84-section">4、系统固定的 section</a></li>
-</ul>
-</p>
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p>ELF（<em><strong>Executable and Linkable Format</strong></em>）是一种常用的可执行文件和可链接库格式。它是一种通用的二进制文件格式，用于在 Unix 和类 Unix 系统上进行可执行文件和库的存储和传输。</p>
-<h1 id="二-种类"><a class="markdownIt-Anchor" href="#二-种类"></a> 二、种类</h1>
+<h1>二、种类</h1>
 <p>ELF文件主要有四种类型</p>
 <ol>
 <li>可执行文件（<em><strong>Executable File</strong></em>）：包含可执行的机器代码，可以直接在操作系统中运行。</li>
@@ -302,14 +296,14 @@
 </ol>
 <p>在内核中有如下定义（<code>/include/uapi/linux/elf.h</code>）：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span>  ET_REL   1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>  ET_EXEC  2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>  ET_DYN   3</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span>  ET_CORE  4</span><br></code></pre></td></tr></table></figure>
-<h1 id="三-布局"><a class="markdownIt-Anchor" href="#三-布局"></a> 三、布局</h1>
+<h1>三、布局</h1>
 <p><img src="1.jpeg" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面是ELF文件的组成格式的详细介绍：</p>
 <ul>
 <li><strong>ELF 头部</strong>（<em><strong>ELF Header</strong></em>）：ELF文件的开头是一个固定大小的ELF头部，它包含了文件的基本信息和属性，如ELF文件的类型、目标体系结构、入口点地址、程序头表和节头表的偏移和大小等。</li>
 <li><strong>程序头表</strong>（<em><strong>Program Header Table</strong></em>）：程序头表是一个包含多个程序头表条目（<em><strong>Program Header Entry</strong></em>）的表。每个程序头表条目描述了如何将文件中的段（<em><strong>Segment</strong></em>）加载到内存中的某个位置。段是一个逻辑上相关的一组节，如代码段、数据段等。程序头表主要用于可执行文件和共享对象，对于可重定位文件，它可能为空。</li>
 <li><strong>节头表</strong>（<em><strong>Section Header Table</strong></em>）：节头表是一个包含多个节头表条目（<em><strong>Section Header Entry</strong></em>）的表。每个节头表条目描述了一个节的属性和位置信息，如节的名称、类型、大小、在文件中的偏移等。节头表存储了 ELF 文件中所有的节，如代码节、数据节、符号表节等。</li>
-<li><strong>节区</strong>（<em><strong>Section</strong></em>）：节是 ELF 文件中的<mark>基本组成单位</mark>，它包含了特定类型的数据。ELF 文件的各种信息和数据都存储在不同的节中，如代码节存储了可执行代码，数据节存储了全局变量和静态数据等。节区可以包含额外的属性和标记，如只读、可执行等。</li>
+<li><strong>节区</strong>（<em><strong>Section</strong></em>）：节是 ELF 文件中的==基本组成单位==，它包含了特定类型的数据。ELF 文件的各种信息和数据都存储在不同的节中，如代码节存储了可执行代码，数据节存储了全局变量和静态数据等。节区可以包含额外的属性和标记，如只读、可执行等。</li>
 <li><strong>符号表</strong>（<em><strong>Symbol Table</strong></em>）：符号表是一个特殊的节，它包含了程序中定义和引用的符号（如变量、函数等）的信息，如符号的名称、类型、地址等。符号表在链接和调试过程中非常有用。</li>
 <li><strong>字符串表</strong>（<em><strong>String Table</strong></em>）：字符串表是一个特殊的节，它包含了各种节的名称、符号表的字符串等。它通过索引来引用其他节或符号的名称，提供了更方便的字符串访问方法。</li>
 </ul>
@@ -317,7 +311,7 @@
 <blockquote>
 <p>链接视图是以节（section）为单位，执行视图是以段（segment）为单位。链接视图就是在链接时用到的视图，而执行视图则是在执行时用到的视图。目标文件 <code>.o</code> 里的代码段 <code>.text</code> 是 section（汇编中 <code>.text</code> 同理），当多个可重定向文件最终要整合成一个可执行的文件的时候（链接过程），链接器把目标文件中相同的 section 整合成一个segment，在程序运行的时候，方便加载器的加载。</p>
 </blockquote>
-<h1 id="四-组成结构"><a class="markdownIt-Anchor" href="#四-组成结构"></a> 四、组成结构</h1>
+<h1>四、组成结构</h1>
 <p>下面是定义中的各个类型数据结构的大小：</p>
 <table>
 <thead>
@@ -362,7 +356,7 @@
 </tbody>
 </table>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-type">uint32_t</span> Elf32_Addr;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">uint32_t</span> Elf32_Off;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">uint16_t</span> Elf32_Half;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">uint32_t</span> Elf32_Word;<br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int32_t</span> Elf32_Sword;<br></code></pre></td></tr></table></figure>
-<h2 id="1-elf-header"><a class="markdownIt-Anchor" href="#1-elf-header"></a> 1、ELF header</h2>
+<h2 id="1、ELF-header">1、ELF header</h2>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> EI_NIDENT 16</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>&#123;</span><br>    <span class="hljs-comment">/*ELF的一些标识信息，固定值*/</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> e_ident[EI_NIDENT];<br>    Elf32_Half e_type;      <span class="hljs-comment">/* 目标文件类型：1-可重定位文件，2-可执行文件，3-共享目标文件等 */</span><br>    Elf32_Half e_machine;   <span class="hljs-comment">/* 文件的目标体系结构类型：3-intel 80386 */</span>    <br>    Elf32_Word e_version;   <span class="hljs-comment">/* 目标文件版本：1-当前版本 */</span>    <br>    Elf32_Addr e_entry;  	<span class="hljs-comment">/* 程序入口的虚拟地址，如果没有入口，可为0 */</span>    <br>    Elf32_Off e_phoff; 		<span class="hljs-comment">/* 程序头表(segment header table)的偏移量，如果没有，可为0 */</span>    <br>    Elf32_Off e_shoff; 		<span class="hljs-comment">/* 节区头表(section header table)的偏移量，没有可为0 */</span>    <br>    Elf32_Word e_flags; 	<span class="hljs-comment">/* 与文件相关的，特定于处理器的标志 */</span>    <br>    Elf32_Half e_ehsize; 	<span class="hljs-comment">/* ELF头部的大小，单位字节 */</span>    <br>    Elf32_Half e_phentsize; <span class="hljs-comment">/* 程序头表每个表项的大小，单位字节 */</span><br>    Elf32_Half e_phnum; 	<span class="hljs-comment">/* 程序头表表项的个数 */</span><br>    Elf32_Half e_shentsize; <span class="hljs-comment">/* 节区头表每个表项的大小，单位字节 */</span><br>    Elf32_Half e_shnum; 	<span class="hljs-comment">/* 节区头表表项的数目 */</span><br>    Elf32_Half e_shstrndx;  <span class="hljs-comment">/* 某些节区中包含固定大小的项目，如符号表。对于这类节区，此成员给出每个表项的长度字节数 */</span><br>&#125;Elf32_Ehdr;<br></code></pre></td></tr></table></figure>
 <p>下面是 test 的 <code>	ELF header</code> 结构各个数据成员对应的值：</p>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
@@ -524,7 +518,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-程序头表和程序头表条目"><a class="markdownIt-Anchor" href="#2-程序头表和程序头表条目"></a> 2、程序头表和程序头表条目</h2>
+<h2 id="2、程序头表和程序头表条目">2、程序头表和程序头表条目</h2>
 <p>程序头表是从加载的角度来看 ELF 文件的，目标文件没有该表，每一个表项提供了各段在虚拟地址空间和物理地址空间的大小、位置、标志、访问权限和对其方面的信息。从上面知道，test 中有 13 个 segment，如下图：</p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面对其中的一些进行简单的介绍。</p>
@@ -537,7 +531,7 @@
 </ul>
 <p>一个 entry 对应一个 segment，由如下的数据结构表示</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span></span><br><span class="hljs-class">&#123;</span>   <br>    Elf32_Word p_type;   <span class="hljs-comment">/* segment的类型：PT_LOAD= 1 可加载的段 */</span>    <br>    Elf32_Off p_offset;  <span class="hljs-comment">/* 从文件头到该段第一个字节的偏移 */</span><br>    Elf32_Addr p_vaddr;  <span class="hljs-comment">/* 该段第一个字节被放到内存中的虚拟地址 */</span>  <br>    Elf32_Addr p_paddr;  <span class="hljs-comment">/* 在linux中这个成员没有任何意义，值与p_vaddr相同 */</span><br>    Elf32_Word p_filesz; <span class="hljs-comment">/* 该段在文件映像中所占的字节数 */</span><br>    Elf32_Word p_memsz;  <span class="hljs-comment">/* 该段在内存映像中占用的字节数 */</span><br>    Elf32_Word p_flags;  <span class="hljs-comment">/* 段标志 */</span><br>    Elf32_Word p_align;  <span class="hljs-comment">/* p_vaddr是否对齐 */</span><br>&#125; Elf32_phdr;<br></code></pre></td></tr></table></figure>
-<h2 id="3-节头表和节头表条目"><a class="markdownIt-Anchor" href="#3-节头表和节头表条目"></a> 3、节头表和节头表条目</h2>
+<h2 id="3、节头表和节头表条目">3、节头表和节头表条目</h2>
 <p>节表头包含了文件中的各个节，每个节都指定了一个类型，定义了节数据的语义。各节都指定了大小和在二进制文件内部的偏移。从上面知道，test 中有 31 个 section，如下图：</p>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt><br>
 下面对其中的一些进行简单的介绍:</p>
@@ -550,7 +544,7 @@
 </ul>
 <p>section 的结构定义如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span>&#123;</span><br>	Elf32_Word sh_name;		  <span class="hljs-comment">/* 节区名称 */</span><br>    Elf32_Word sh_type;		  <span class="hljs-comment">/* 节区类型：PROGBITS-程序定义的信息，NOBITS-不占用文件空间(bss),REL-重定位表项 */</span><br>    Elf32_Word sh_flags;	  <span class="hljs-comment">/* 每一bit位代表一种信息，表示节区内的内容是否可以修改，是否可执行等信息 */</span>  <br>    Elf32_Addr sh_addr;	      <span class="hljs-comment">/* 如果节区将出现在进程的内存影响中，此成员给出节区的第一个字节应处的位置 */</span><br>    Elf32_Off sh_offset;	  <span class="hljs-comment">/* 节区的第一个字节与文件头之间的偏移 */</span> <br>    Elf32_Word sh_size;		  <span class="hljs-comment">/* 节区的长度，单位字节，NOBITS虽然这个值非0但不占文件中的空间 */</span><br>    Elf32_Word sh_link;    	  <span class="hljs-comment">/* 节区头部表索引链接 */</span><br>    Elf32_Word sh_info;       <span class="hljs-comment">/* 节区附加信息 */</span><br>    Elf32_Word sh_addralign;  <span class="hljs-comment">/* 节区带有地址对齐的约束 */</span><br>    Elf32_Word sh_entsize;    <span class="hljs-comment">/* 某些节区中包含固定大小的项目，如符号表，那么这个成员给出其固定大小 */</span><br>&#125;Elf32_Shdr;<br></code></pre></td></tr></table></figure>
-<h2 id="4-系统固定的-section"><a class="markdownIt-Anchor" href="#4-系统固定的-section"></a> 4、系统固定的 section</h2>
+<h2 id="4、系统固定的-section">4、系统固定的 section</h2>
 <table>
 <thead>
 <tr>

@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、概述 一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的">
+    <meta name="description" content="[toc]  一、概述 一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的代">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 中断机制（二）之中断子系统框架">
 <meta property="og:url" content="http://example.com/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、概述 一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的">
+<meta property="og:description" content="[toc]  一、概述 一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：  用户层：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。 通用层：通用层也可称为框架层，它是硬件无关的层次。 通用层的代">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/1.png">
 <meta property="og:image" content="http://example.com/2024/08/14/%E4%B8%AD%E6%96%AD%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%A1%86%E6%9E%B6/2.png">
@@ -286,7 +286,7 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-概述"><a class="markdownIt-Anchor" href="#一-概述"></a> 一、概述</h1>
+<h1>一、概述</h1>
 <p>一个完整的中断子系统框架可以分为四个层次， 由上到下分别为：用户层、 通用层、 硬件相关层和硬件层， 每个层相关的介绍如下所示：</p>
 <ul>
 <li><strong>用户层</strong>：用户层是中断的使用者，主要包括各类设备驱动。 这些驱动程序通过中断相关的接口进行中断的申请和注册。 当外设触发中断时， 用户层驱动程序会进行相应的回调处理，执行特定的操作。</li>
@@ -295,7 +295,7 @@
 <li><strong>硬件层</strong>：硬件层位于最底层， 与具体的硬件连接相关。 它包括外设与 SoC（系统片上芯片）的物理连接部分。 中断信号从外设传递到中断控制器， 由中断控制器统一管理和路由到处理器,硬件层的设计和实现决定了中断信号的传递方式和硬件的中断处理能力。</li>
 </ul>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="二-中断控制器-gic"><a class="markdownIt-Anchor" href="#二-中断控制器-gic"></a> 二、中断控制器 GIC</h1>
+<h1>二、中断控制器 GIC</h1>
 <p>中断控制器（<em><strong>Interrupt Controller</strong></em>）是中断子系统框架硬件中的一个关键组件，用于管理和分发系统中的中断信号。其中，GIC（<em><strong>Generic Interrupt Controller</strong></em>）是一种通用的中断控制器，常用于 ARM 架构的处理器系统中。</p>
 <blockquote>
 <p>不同的架构有不同的中断控制器，STM32 中的中断控制器叫做 NVIC，ARM 架构中的中断控制器一般为 GIC。</p>
@@ -338,7 +338,7 @@
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>GIC 中断控制器可以分为 <code>Distributor 接口</code>、<code>Redistributor 接口</code> 和 <code>CPU 接口</code>，下面是每个部分的说明：</p>
-<h2 id="1-distributor-接口"><a class="markdownIt-Anchor" href="#1-distributor-接口"></a> 1、Distributor 接口</h2>
+<h2 id="1、Distributor-接口">1、Distributor 接口</h2>
 <p><code>Distributor</code>（中断仲裁器）用于 SPI（<em><strong>Shared peripheral interrupts</strong></em>）中断的管理，具有仲裁和分发的作用，会将中断发送给 <code>Redistributor</code>。</p>
 <p><code>Distributor</code> 提供了一些编程接口或者说是寄存器，我们可以通过 <code>Distributor</code> 的编程接口实现如下操作。下面是<code>Distributor</code> 主要功能：</p>
 <ul>
@@ -349,7 +349,7 @@
 <li>控制 SPI 的活动和挂起状态。</li>
 <li>用于确定在每个安全状态中使用的程序员模型的控制（亲和性路由或遗留模型）。</li>
 </ul>
-<h2 id="2-redistributor-接口"><a class="markdownIt-Anchor" href="#2-redistributor-接口"></a> 2、Redistributor 接口</h2>
+<h2 id="2、Redistributor-接口">2、Redistributor 接口</h2>
 <p>GICv3 中，<code>Redistributor</code>（重新分配器） 管理 SGI，PPI，LPI 中断，然后将中断发送给 CPU 接口，包括下面功能：</p>
 <ul>
 <li>启用和禁用 SGI（软件生成的中断）和 PPI（处理器专用中断）设置 SGI 和 PPI 的优先级级别。</li>
@@ -359,7 +359,7 @@
 <li>对支持关联 LPI（低功耗中断）的中断属性和挂起状态的内存中的数据结构进行基址控制。</li>
 <li>支持与连接的处理器核心的电源管理。</li>
 </ul>
-<h2 id="3-cpu-接口"><a class="markdownIt-Anchor" href="#3-cpu-接口"></a> 3、CPU 接口</h2>
+<h2 id="3、CPU-接口">3、CPU 接口</h2>
 <p>CPU 接口为链接到 GIC 的处理器提供接口，与 Distributor 类似它也提供了一些编程接口，我们可以通过 CPU 接口实现以下功能：</p>
 <ul>
 <li>通用控制和配置，用于启用中断处理。</li>
@@ -369,7 +369,7 @@
 <li>定义处理器核心的抢占策略。</li>
 <li>确定处理器核心最高优先级的挂起中断。</li>
 </ul>
-<h1 id="三-中断类型"><a class="markdownIt-Anchor" href="#三-中断类型"></a> 三、中断类型</h1>
+<h1>三、中断类型</h1>
 <p>GIC-V3 支持四种类型的中断，分别是 <code>SGI</code>、<code>PPI</code>、<code>SPI</code> 和 <code>LPI</code>，每个中断类型的介绍如下：</p>
 <ul>
 <li><strong>SGI</strong>（<em><strong>Software Generated Interrupt</strong></em>，软件生成中断）: <code>SGI</code> 是通过向 <code>GIC</code> 中的 <code>SGI 寄存器</code> 写入来生成的中断。 该类型中断并没有实际的物理连线，而是由软件通过写寄存器方式触发，它只支持边沿触发。它通常用于处理器之间的通信， 允许一个 PE 发送中断给一个或多个指定的 PE， 中断号 ID0-ID15 用于 <code>SGI</code>。</li>
@@ -476,17 +476,17 @@
 </tr>
 </tbody>
 </table>
-<h1 id="四-中断号"><a class="markdownIt-Anchor" href="#四-中断号"></a> 四、中断号</h1>
+<h1>四、中断号</h1>
 <p>在 Linux 内核中， 我们使用 <code>IRQ number</code> 和 <code>HW interrupt ID</code> 两个 ID 来标识一个来自外设的中断：</p>
 <ul>
 <li><strong>IRQ number</strong>：CPU 需要为每一个外设中断编号，我们称之 <code>IRQ Number</code>。 这个 <code>IRQ number</code> 是一个虚拟的 <code>interrupt ID</code>，和硬件无关，仅仅是被 CPU 用来标识一个外设中断。</li>
 <li><strong>HW interrupt ID</strong>：对于 GIC 中断控制器而言，它收集了多个外设的 <code>interrupt request line</code> 并向上传递，因此， GIC 中断控制器需要对外设中断进行编码。 GIC 中断控制器用 <code>HW interrupt ID</code> 来标识外设的中断。 如果只有一个 GIC 中断控制器， 那 <code>IRQ number</code> 和 <code>HW interrupt ID</code> 是可以一一对应的，如下图所示:</li>
 </ul>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt><br>
-但如果是在 GIC 中断控制器级联的情况下， 仅仅用 <code>HW interrupt ID</code> 就不能唯一标识一个外设中断， 还需要知道该 <code>HW interrupt ID</code> 所属的 GIC 中断控制器（<mark><code>HW interrupt ID</code> 在不同的 <code>Interrupt controller</code> 上是会重复编码的</mark>）。</p>
+但如果是在 GIC 中断控制器级联的情况下， 仅仅用 <code>HW interrupt ID</code> 就不能唯一标识一个外设中断， 还需要知道该 <code>HW interrupt ID</code> 所属的 GIC 中断控制器（==<code>HW interrupt ID</code> 在不同的 <code>Interrupt controller</code> 上是会重复编码的==）。</p>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
-<h1 id="五-中断申请函数"><a class="markdownIt-Anchor" href="#五-中断申请函数"></a> 五、中断申请函数</h1>
-<h2 id="1-request_irq-函数"><a class="markdownIt-Anchor" href="#1-request_irq-函数"></a> 1、request_irq 函数</h2>
+<h1>五、中断申请函数</h1>
+<h2 id="1、request-irq-函数">1、request_irq 函数</h2>
 <p><code>request_irq</code> 函数是在 Linux 内核中用于注册中断处理程序的函数。 它用于请求一个中断号（<em><strong>IRQ number</strong></em>）并将一个中断处理程序与该中断关联起来。下面是对 <code>request_irq</code> 函数的详细介绍：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/interrput.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">request_irq</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> irq, </span><br><span class="hljs-params">				<span class="hljs-type">irq_handler_t</span> handler, </span><br><span class="hljs-params">				<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags, </span><br><span class="hljs-params">				<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name, </span><br><span class="hljs-params">				<span class="hljs-type">void</span> *dev)</span>;<br></code></pre></td></tr></table></figure>
 <ul>
@@ -545,11 +545,11 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-request_threaded_irq-函数"><a class="markdownIt-Anchor" href="#2-request_threaded_irq-函数"></a> 2、request_threaded_irq() 函数</h2>
+<h2 id="2、request-threaded-irq-函数">2、request_threaded_irq() 函数</h2>
 <p>中断线程化的作用与工作队列类似，先在中断处理函数中处理重要紧急的任务，然后使用线程来处理耗时复杂的任务。函数原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">request_threaded_irq(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> irq, <br>					 <span class="hljs-type">irq_handler_t</span> handler,<br>		     		 <span class="hljs-type">irq_handler_t</span> thread_fn,<br>		     		 <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> flags, <br>		     		 <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name, <br>		     		 <span class="hljs-type">void</span> *dev);<br></code></pre></td></tr></table></figure>
 <p>与 <code>request_irq()</code> 函数相比 <code>request_threaded_irq()</code> 函数仅多了一个入参 <code>thread_fn</code>，<code>thread_fn()</code> 为在线程中运行的函数。</p>
-<h2 id="3-gpio_to_irq-函数"><a class="markdownIt-Anchor" href="#3-gpio_to_irq-函数"></a> 3、gpio_to_irq 函数</h2>
+<h2 id="3、gpio-to-irq-函数">3、gpio_to_irq 函数</h2>
 <p><code>gpio_to_irq</code> 函数用于将 GPIO 引脚的编号（<em><strong>GPIO pin number</strong></em>）转换为对应的中断请求号（<em><strong>interrupt request<br>
 number</strong></em>）。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/gpio.h&gt;</span></span><br><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> <span class="hljs-title function_">gpio_to_irq</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> gpio)</span>;<br></code></pre></td></tr></table></figure>
@@ -566,7 +566,7 @@ number</strong></em>）。</p>
 </ul>
 </li>
 </ul>
-<h2 id="4-free_irq-函数"><a class="markdownIt-Anchor" href="#4-free_irq-函数"></a> 4、free_irq 函数</h2>
+<h2 id="4、free-irq-函数">4、free_irq 函数</h2>
 <p><code>free_irq</code> 函数用于释放之前通过 <code>request_irq</code> 函数注册的中断处理程序。 它的作用是取消对中断的注册并释放相关的系统资源。下面是关于该函数的详细解释：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/interrupt.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">free_irq</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> irq, <span class="hljs-type">void</span> *dev_id)</span><br></code></pre></td></tr></table></figure>
 <ul>
@@ -577,7 +577,7 @@ number</strong></em>）。</p>
 </ul>
 </li>
 </ul>
-<h1 id="六-中断服务函数"><a class="markdownIt-Anchor" href="#六-中断服务函数"></a> 六、中断服务函数</h1>
+<h1>六、中断服务函数</h1>
 <p>中断处理程序是在中断事件发生时自动调用的函数。 它负责处理与中断相关的操作， 例如读取数据、 清除中断标志、 更新状态等。</p>
 <p><code>irqreturn_t handler(int irq,void *dev_id)</code> 是一个典型的中断服务函数的函数原型。下面对该函数原型及其参数进行详细解释：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">irqreturn_t</span> <span class="hljs-title function_">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> irq,<span class="hljs-type">void</span> *dev_id)</span><br></code></pre></td></tr></table></figure>

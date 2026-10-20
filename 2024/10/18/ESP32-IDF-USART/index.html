@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="1、配置结构体  1.1 uart_config_t 1.2 uart_intr_config_t 1.3 uart_event_t   2、常用 API  2.1 驱动相关  2.1.1 uart_driver_install 2.1.2 uart_driver_delete 2.1.3 uart_is_driver_installed   2.2 中断相关  2.2.1 uart_clear">
+    <meta name="description" content="@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_uart&#x2F;include&#x2F;driver&#x2F;uart.h。  1、配置结构体 1.1 uart_config_t 1234567891011121314typedef st">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ESP32-IDF USART 专题">
 <meta property="og:url" content="http://example.com/2024/10/18/ESP32-IDF-USART/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="1、配置结构体  1.1 uart_config_t 1.2 uart_intr_config_t 1.3 uart_event_t   2、常用 API  2.1 驱动相关  2.1.1 uart_driver_install 2.1.2 uart_driver_delete 2.1.3 uart_is_driver_installed   2.2 中断相关  2.2.1 uart_clear">
+<meta property="og:description" content="@toc   第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。  一、基本介绍  API 参考路径 esp-idf&#x2F;components&#x2F;esp_driver_uart&#x2F;include&#x2F;driver&#x2F;uart.h。  1、配置结构体 1.1 uart_config_t 1234567891011121314typedef st">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/18/ESP32-IDF-USART/1.png">
 <meta property="og:image" content="http://example.com/2024/10/18/ESP32-IDF-USART/2.png">
@@ -229,7 +229,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.6k 字
+          5.4k 字
         
       </span>
     
@@ -240,7 +240,7 @@
         
         
         
-          47 分钟
+          45 分钟
         
       </span>
     
@@ -282,104 +282,17 @@
             
               <div class="markdown-body">
                 
-                <p><ul class="markdownIt-TOC">
-<li><a href="#1-%E9%85%8D%E7%BD%AE%E7%BB%93%E6%9E%84%E4%BD%93">1、配置结构体</a>
-<ul>
-<li><a href="#11-uart_config_t">1.1 uart_config_t</a></li>
-<li><a href="#12-uart_intr_config_t">1.2 uart_intr_config_t</a></li>
-<li><a href="#13-uart_event_t">1.3 uart_event_t</a></li>
-</ul>
-</li>
-<li><a href="#2-%E5%B8%B8%E7%94%A8-api">2、常用 API</a>
-<ul>
-<li><a href="#21-%E9%A9%B1%E5%8A%A8%E7%9B%B8%E5%85%B3">2.1 驱动相关</a>
-<ul>
-<li><a href="#211-uart_driver_install">2.1.1 uart_driver_install</a></li>
-<li><a href="#212-uart_driver_delete">2.1.2 uart_driver_delete</a></li>
-<li><a href="#213-uart_is_driver_installed">2.1.3 uart_is_driver_installed</a></li>
-</ul>
-</li>
-<li><a href="#22-%E4%B8%AD%E6%96%AD%E7%9B%B8%E5%85%B3">2.2 中断相关</a>
-<ul>
-<li><a href="#221-uart_clear_intr_status">2.2.1 uart_clear_intr_status</a></li>
-<li><a href="#222-uart_enable_intr_mask">2.2.2 uart_enable_intr_mask</a></li>
-<li><a href="#223-uart_enable_rx_intr">2.2.3 uart_enable_rx_intr</a></li>
-<li><a href="#225-uart_enable_tx_intr">2.2.5 uart_enable_tx_intr</a></li>
-<li><a href="#226-uart_intr_config">2.2.6 uart_intr_config</a></li>
-</ul>
-</li>
-<li><a href="#23-%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE">2.3 参数设置</a>
-<ul>
-<li><a href="#231-uart_set_word_length">2.3.1 uart_set_word_length</a></li>
-<li><a href="#232-uart_set_stop_bits">2.3.2 uart_set_stop_bits</a></li>
-<li><a href="#233-uart_set_parity">2.3.3 uart_set_parity</a></li>
-<li><a href="#234-uart_set_baudrate">2.3.4 uart_set_baudrate</a></li>
-<li><a href="#235-uart_set_pin">2.3.5 uart_set_pin</a></li>
-<li><a href="#236-uart_set_mode">2.3.6 uart_set_mode</a></li>
-<li><a href="#237-uart_param_config">2.3.7 uart_param_config</a></li>
-</ul>
-</li>
-<li><a href="#24-%E9%80%9A%E4%BF%A1">2.4 通信</a>
-<ul>
-<li><a href="#241-uart_wait_tx_done">2.4.1 uart_wait_tx_done</a></li>
-<li><a href="#242-uart_tx_chars">2.4.2 uart_tx_chars</a></li>
-<li><a href="#243-uart_write_bytes">2.4.3 uart_write_bytes</a></li>
-<li><a href="#244-uart_write_bytes_with_break">2.4.4 uart_write_bytes_with_break</a></li>
-<li><a href="#245-uart_read_bytes">2.4.5 uart_read_bytes</a></li>
-<li><a href="#246-uart_get_buffered_data_len">2.4.6 uart_get_buffered_data_len</a></li>
-<li><a href="#247-uart_get_tx_buffer_free_size">2.4.7 uart_get_tx_buffer_free_size</a></li>
-<li><a href="#248-uart_flush">2.4.8 uart_flush</a></li>
-<li><a href="#249-uart_flush_input">2.4.9 uart_flush_input</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#3-%E6%9E%9A%E4%B8%BE%E5%AE%9A%E4%B9%89">3、枚举定义</a>
-<ul>
-<li><a href="#31-uart_word_length_t">3.1 uart_word_length_t</a></li>
-<li><a href="#32-uart_parity_t">3.2 uart_parity_t</a></li>
-<li><a href="#33-uart_stop_bits_t">3.3 uart_stop_bits_t</a></li>
-<li><a href="#34-uart_hw_flowcontrol_t">3.4 uart_hw_flowcontrol_t</a></li>
-<li><a href="#35-uart_event_type_t">3.5 uart_event_type_t</a></li>
-<li><a href="#36-uart_mode_t">3.6 uart_mode_t</a></li>
-</ul>
-</li>
-<li><a href="#4-%E5%AE%8F%E5%AE%9A%E4%B9%89">4、宏定义</a>
-<ul>
-<li><a href="#41-uart_pin_no_change">4.1 UART_PIN_NO_CHANGE</a></li>
-<li><a href="#42-uart_fifo_len">4.2 UART_FIFO_LEN</a></li>
-<li><a href="#43-uart_hw_fifo_lenuart_num">4.3 UART_HW_FIFO_LEN(uart_num)</a></li>
-<li><a href="#44-uart_bitrate_max">4.4 UART_BITRATE_MAX</a></li>
-</ul>
-</li>
-<li><a href="#1-%E8%AE%BE%E7%BD%AE%E9%80%9A%E4%BF%A1%E5%8F%82%E6%95%B0">1、设置通信参数</a></li>
-<li><a href="#2-%E8%AE%BE%E7%BD%AE%E9%80%9A%E4%BF%A1%E5%BC%95%E8%84%9A">2、设置通信引脚</a></li>
-<li><a href="#3-%E5%AE%89%E8%A3%85%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F">3、安装驱动程序</a></li>
-<li><a href="#4-%E8%BF%90%E8%A1%8C-uart-%E9%80%9A%E4%BF%A1">4、运行 UART 通信</a>
-<ul>
-<li><a href="#41-%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE">4.1 发送数据</a></li>
-<li><a href="#42-%E6%8E%A5%E6%94%B6%E6%95%B0%E6%8D%AE">4.2 接收数据</a></li>
-<li><a href="#43-%E8%BD%AF%E4%BB%B6%E6%B5%81%E6%8E%A7">4.3 软件流控</a></li>
-<li><a href="#44-%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E9%80%89%E6%8B%A9">4.4 通信方式选择</a></li>
-</ul>
-</li>
-<li><a href="#5-%E4%BD%BF%E7%94%A8%E4%B8%AD%E6%96%AD">5、使用中断</a></li>
-<li><a href="#6-%E5%88%A0%E9%99%A4%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F">6、删除驱动程序</a></li>
-<li><a href="#1-%E4%BE%8B%E4%B8%80uart-%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E6%93%8D%E4%BD%9C">1、例一——UART 的初始化操作</a></li>
-<li><a href="#2-%E4%BE%8B%E4%BA%8Cuart-%E6%94%B6%E5%8F%91%E6%BC%94%E7%A4%BA">2、例二——UART 收发演示</a></li>
-<li><a href="#3-%E4%BE%8B%E4%B8%89%E6%A8%A1%E5%BC%8F%E6%A3%80%E6%B5%8B%E4%B8%AD%E6%96%AD">3、例三——模式检测中断</a></li>
-</ul>
-</p>
+                <p>@<a href="%E7%9B%AE%E5%BD%95">toc</a></p>
 <hr>
 <blockquote>
 <p>第一节主要介绍 ESP32-IDF 相关 API，在第二节介绍如何在 ESP32 上使用 USART，第三节为实例演示。</p>
 </blockquote>
-<h1 id="一-基本介绍"><a class="markdownIt-Anchor" href="#一-基本介绍"></a> 一、基本介绍</h1>
+<h1>一、基本介绍</h1>
 <blockquote>
 <p>API 参考路径 <code>esp-idf/components/esp_driver_uart/include/driver/uart.h</code>。</p>
 </blockquote>
-<h2 id="1-配置结构体"><a class="markdownIt-Anchor" href="#1-配置结构体"></a> 1、配置结构体</h2>
-<h3 id="11-uart_config_t"><a class="markdownIt-Anchor" href="#11-uart_config_t"></a> 1.1 uart_config_t</h3>
+<h2 id="1、配置结构体">1、配置结构体</h2>
+<h3 id="1-1-uart-config-t">1.1 uart_config_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">int</span> baud_rate;                      <span class="hljs-comment">/*!&lt; UART baud rate*/</span><br>    <span class="hljs-type">uart_word_length_t</span> data_bits;       <span class="hljs-comment">/*!&lt; UART byte size*/</span><br>    <span class="hljs-type">uart_parity_t</span> parity;               <span class="hljs-comment">/*!&lt; UART parity mode*/</span><br>    <span class="hljs-type">uart_stop_bits_t</span> stop_bits;         <span class="hljs-comment">/*!&lt; UART stop bits*/</span><br>    <span class="hljs-type">uart_hw_flowcontrol_t</span> flow_ctrl;    <span class="hljs-comment">/*!&lt; UART HW flow control mode (cts/rts)*/</span><br>    <span class="hljs-type">uint8_t</span> rx_flow_ctrl_thresh;        <span class="hljs-comment">/*!&lt; UART HW RTS threshold*/</span><br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>        <span class="hljs-type">uart_sclk_t</span> source_clk;             <span class="hljs-comment">/*!&lt; UART source clock selection */</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> (SOC_UART_LP_NUM &gt;= 1)</span><br>        <span class="hljs-type">lp_uart_sclk_t</span> lp_source_clk;       <span class="hljs-comment">/*!&lt; LP_UART source clock selection */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    &#125;;<br>&#125; <span class="hljs-type">uart_config_t</span>;<br></code></pre></td></tr></table></figure>
 <p>该结构体用于 USART 初始化设置。</p>
 <ul>
@@ -392,7 +305,7 @@
 <li><code>source_clk</code>：时钟源，见下：</li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_SCLK_APB = SOC_MOD_CLK_APB,           <span class="hljs-comment">/* 使用 APB 时钟 */</span><br>    UART_SCLK_REF_TICK = SOC_MOD_CLK_REF_TICK, <span class="hljs-comment">/* 使用外部时钟 */</span><br>    UART_SCLK_DEFAULT = SOC_MOD_CLK_APB,       <span class="hljs-comment">/* 默认使用 APB 时钟 */</span><br>&#125; <span class="hljs-type">soc_periph_uart_clk_src_legacy_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="12-uart_intr_config_t"><a class="markdownIt-Anchor" href="#12-uart_intr_config_t"></a> 1.2 uart_intr_config_t</h3>
+<h3 id="1-2-uart-intr-config-t">1.2 uart_intr_config_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uint32_t</span> intr_enable_mask;          <span class="hljs-comment">/*!&lt; UART interrupt enable mask, choose from UART_XXXX_INT_ENA_M under UART_INT_ENA_REG(i), connect with bit-or operator*/</span><br>    <span class="hljs-type">uint8_t</span>  rx_timeout_thresh;         <span class="hljs-comment">/*!&lt; UART timeout interrupt threshold (unit: time of sending one byte)*/</span><br>    <span class="hljs-type">uint8_t</span>  txfifo_empty_intr_thresh;  <span class="hljs-comment">/*!&lt; UART TX empty interrupt threshold.*/</span><br>    <span class="hljs-type">uint8_t</span>  rxfifo_full_thresh;        <span class="hljs-comment">/*!&lt; UART RX full interrupt threshold.*/</span><br>&#125; <span class="hljs-type">uart_intr_config_t</span>;<br></code></pre></td></tr></table></figure>
 <p>该结构体用于 USART 中断配置。</p>
 <ul>
@@ -401,7 +314,7 @@
 <li><code>txfifo_empty_intr_thresh</code>：发送 FIFO 空中断阈值，指定了 UART 发送 FIFO 缓冲区为空时触发的中断阈值。当 FIFO 中的数据量低于此阈值时，将触发与发送操作相关的中断，可以用于确认数据是否成功发送。</li>
 <li><code>rxfifo_full_thresh</code>：接收 FIFO 满中断阈值，在 FIFO 满的情况下，如果再次接收到数据，将触发接收满中断，用于处理接收数据缓冲区可能溢出的情况。</li>
 </ul>
-<h3 id="13-uart_event_t"><a class="markdownIt-Anchor" href="#13-uart_event_t"></a> 1.3 uart_event_t</h3>
+<h3 id="1-3-uart-event-t">1.3 uart_event_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">uart_event_type_t</span> type; <span class="hljs-comment">/*!&lt; UART event type */</span><br>    <span class="hljs-type">size_t</span> size;            <span class="hljs-comment">/*!&lt; UART data size for UART_DATA event*/</span><br>    <span class="hljs-type">bool</span> timeout_flag;      <span class="hljs-comment">/*!&lt; UART data read timeout flag for UART_DATA event (no new data received during configured RX TOUT)*/</span><br>    <span class="hljs-comment">/*!&lt; If the event is caused by FIFO-full interrupt, then there will be no event with the timeout flag before the next byte coming.*/</span><br>&#125; <span class="hljs-type">uart_event_t</span>;<br></code></pre></td></tr></table></figure>
 <p>该结构体用于表示 UART 事件的相关信息。</p>
 <ul>
@@ -409,9 +322,9 @@
 <li><code>size</code>：存放 <code>UART_DATA</code> 事件的有效数据大小</li>
 <li><code>timeout_flag</code>：指示 UART 数据读取是否超时。当接收过程中没有在配置的接收超时时间内接收到新的数据时，这个标志会被设置为 true。如果事件是由 FIFO满中断引起的，则在接下来的字节到达之前不会有带超时标志的事件。</li>
 </ul>
-<h2 id="2-常用-api"><a class="markdownIt-Anchor" href="#2-常用-api"></a> 2、常用 API</h2>
-<h3 id="21-驱动相关"><a class="markdownIt-Anchor" href="#21-驱动相关"></a> 2.1 驱动相关</h3>
-<h4 id="211-uart_driver_install"><a class="markdownIt-Anchor" href="#211-uart_driver_install"></a> 2.1.1 uart_driver_install</h4>
+<h2 id="2、常用-API">2、常用 API</h2>
+<h3 id="2-1-驱动相关">2.1 驱动相关</h3>
+<h4 id="2-1-1-uart-driver-install">2.1.1 uart_driver_install</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_driver_install</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">int</span> rx_buffer_size, <span class="hljs-type">int</span> tx_buffer_size, <span class="hljs-type">int</span> queue_size, 	</span><br><span class="hljs-params">							  QueueHandle_t *uart_queue, <span class="hljs-type">int</span> intr_alloc_flags)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -436,7 +349,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="212-uart_driver_delete"><a class="markdownIt-Anchor" href="#212-uart_driver_delete"></a> 2.1.2 uart_driver_delete</h4>
+<h4 id="2-1-2-uart-driver-delete">2.1.2 uart_driver_delete</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_driver_delete</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -456,7 +369,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="213-uart_is_driver_installed"><a class="markdownIt-Anchor" href="#213-uart_is_driver_installed"></a> 2.1.3 uart_is_driver_installed</h4>
+<h4 id="2-1-3-uart-is-driver-installed">2.1.3 uart_is_driver_installed</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">uart_is_driver_installed</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -476,8 +389,8 @@
 </ul>
 </li>
 </ul>
-<h3 id="22-中断相关"><a class="markdownIt-Anchor" href="#22-中断相关"></a> 2.2 中断相关</h3>
-<h4 id="221-uart_clear_intr_status"><a class="markdownIt-Anchor" href="#221-uart_clear_intr_status"></a> 2.2.1 uart_clear_intr_status</h4>
+<h3 id="2-2-中断相关">2.2 中断相关</h3>
+<h4 id="2-2-1-uart-clear-intr-status">2.2.1 uart_clear_intr_status</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_clear_intr_status</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uint32_t</span> clr_mask)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -498,7 +411,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="222-uart_enable_intr_mask"><a class="markdownIt-Anchor" href="#222-uart_enable_intr_mask"></a> 2.2.2 uart_enable_intr_mask</h4>
+<h4 id="2-2-2-uart-enable-intr-mask">2.2.2 uart_enable_intr_mask</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_enable_intr_mask</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uint32_t</span> enable_mask)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -522,7 +435,7 @@
 <blockquote>
 <p>同理，禁用为：<code>esp_err_t uart_disable_intr_mask(uart_port_t uart_num, uint32_t disable_mask)</code></p>
 </blockquote>
-<h4 id="223-uart_enable_rx_intr"><a class="markdownIt-Anchor" href="#223-uart_enable_rx_intr"></a> 2.2.3 uart_enable_rx_intr</h4>
+<h4 id="2-2-3-uart-enable-rx-intr">2.2.3 uart_enable_rx_intr</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_enable_rx_intr</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -545,7 +458,7 @@
 <blockquote>
 <p>禁用为：<code>esp_err_t uart_disable_rx_intr(uart_port_t uart_num)</code></p>
 </blockquote>
-<h4 id="225-uart_enable_tx_intr"><a class="markdownIt-Anchor" href="#225-uart_enable_tx_intr"></a> 2.2.5 uart_enable_tx_intr</h4>
+<h4 id="2-2-5-uart-enable-tx-intr">2.2.5 uart_enable_tx_intr</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_enable_tx_intr</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">int</span> enable, <span class="hljs-type">int</span> thresh)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -567,7 +480,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="226-uart_intr_config"><a class="markdownIt-Anchor" href="#226-uart_intr_config"></a> 2.2.6 uart_intr_config</h4>
+<h4 id="2-2-6-uart-intr-config">2.2.6 uart_intr_config</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_intr_config</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">const</span> <span class="hljs-type">uart_intr_config_t</span> *intr_conf)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -588,8 +501,8 @@
 </ul>
 </li>
 </ul>
-<h3 id="23-参数设置"><a class="markdownIt-Anchor" href="#23-参数设置"></a> 2.3 参数设置</h3>
-<h4 id="231-uart_set_word_length"><a class="markdownIt-Anchor" href="#231-uart_set_word_length"></a> 2.3.1 uart_set_word_length</h4>
+<h3 id="2-3-参数设置">2.3 参数设置</h3>
+<h4 id="2-3-1-uart-set-word-length">2.3.1 uart_set_word_length</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_word_length</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uart_word_length_t</span> data_bit)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -613,7 +526,7 @@
 <blockquote>
 <p>读取使用函数：<code>esp_err_t uart_get_word_length(uart_port_t uart_num, uart_word_length_t *data_bit)</code></p>
 </blockquote>
-<h4 id="232-uart_set_stop_bits"><a class="markdownIt-Anchor" href="#232-uart_set_stop_bits"></a> 2.3.2 uart_set_stop_bits</h4>
+<h4 id="2-3-2-uart-set-stop-bits">2.3.2 uart_set_stop_bits</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_stop_bits</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uart_stop_bits_t</span> stop_bits)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -637,7 +550,7 @@
 <blockquote>
 <p>读取使用函数：<code>esp_err_t uart_get_stop_bits(uart_port_t uart_num, uart_stop_bits_t* stop_bits)</code></p>
 </blockquote>
-<h4 id="233-uart_set_parity"><a class="markdownIt-Anchor" href="#233-uart_set_parity"></a> 2.3.3 uart_set_parity</h4>
+<h4 id="2-3-3-uart-set-parity">2.3.3 uart_set_parity</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_parity</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uart_parity_t</span> parity_mode)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -661,7 +574,7 @@
 <blockquote>
 <p>读取使用函数：<code>esp_err_t uart_get_parity, uart_port_t uart_num, uart_parity_t* parity_mode</code></p>
 </blockquote>
-<h4 id="234-uart_set_baudrate"><a class="markdownIt-Anchor" href="#234-uart_set_baudrate"></a> 2.3.4 uart_set_baudrate</h4>
+<h4 id="2-3-4-uart-set-baudrate">2.3.4 uart_set_baudrate</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_baudrate</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uint32_t</span> baudrate)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -685,7 +598,7 @@
 <blockquote>
 <p>读取使用函数：<code>esp_err_t uart_get_baudrate(uart_port_t uart_num, uint32_t *baudrate)</code></p>
 </blockquote>
-<h4 id="235-uart_set_pin"><a class="markdownIt-Anchor" href="#235-uart_set_pin"></a> 2.3.5 uart_set_pin</h4>
+<h4 id="2-3-5-uart-set-pin">2.3.5 uart_set_pin</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_pin</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">int</span> tx_io_num, <span class="hljs-type">int</span> rx_io_num, <span class="hljs-type">int</span> rts_io_num, <span class="hljs-type">int</span> cts_io_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -712,7 +625,7 @@
 <blockquote>
 <p>内部信号可以输出到多个 GPIO 引脚。只能有一个 GPIO 引脚连接输入信号。</p>
 </blockquote>
-<h4 id="236-uart_set_mode"><a class="markdownIt-Anchor" href="#236-uart_set_mode"></a> 2.3.6 uart_set_mode</h4>
+<h4 id="2-3-6-uart-set-mode">2.3.6 uart_set_mode</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_set_mode</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">uart_mode_t</span> mode)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -733,7 +646,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="237-uart_param_config"><a class="markdownIt-Anchor" href="#237-uart_param_config"></a> 2.3.7 uart_param_config</h4>
+<h4 id="2-3-7-uart-param-config">2.3.7 uart_param_config</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_param_config</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">const</span> <span class="hljs-type">uart_config_t</span> *uart_config)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -754,8 +667,8 @@
 </ul>
 </li>
 </ul>
-<h3 id="24-通信"><a class="markdownIt-Anchor" href="#24-通信"></a> 2.4 通信</h3>
-<h4 id="241-uart_wait_tx_done"><a class="markdownIt-Anchor" href="#241-uart_wait_tx_done"></a> 2.4.1 uart_wait_tx_done</h4>
+<h3 id="2-4-通信">2.4 通信</h3>
+<h4 id="2-4-1-uart-wait-tx-done">2.4.1 uart_wait_tx_done</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_wait_tx_done</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, TickType_t ticks_to_wait)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -777,7 +690,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="242-uart_tx_chars"><a class="markdownIt-Anchor" href="#242-uart_tx_chars"></a> 2.4.2 uart_tx_chars</h4>
+<h4 id="2-4-2-uart-tx-chars">2.4.2 uart_tx_chars</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">uart_tx_chars</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *buffer, <span class="hljs-type">uint32_t</span> len)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -799,7 +712,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="243-uart_write_bytes"><a class="markdownIt-Anchor" href="#243-uart_write_bytes"></a> 2.4.3 uart_write_bytes</h4>
+<h4 id="2-4-3-uart-write-bytes">2.4.3 uart_write_bytes</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">uart_write_bytes</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *src, <span class="hljs-type">size_t</span> size)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -824,7 +737,7 @@
 <blockquote>
 <p>如果 UART 驱动程序的参数 <code>tx_buffer_size</code> 设置为零：在所有数据都发送出去或至少推送到 TX FIFO 之前，此函数不会返回。否则，如果 <code>tx_buffer_size</code> &gt; 0，则此函数将在将所有数据复制到 tx ring buffer 后返回，然后 UART ISR 将逐渐将数据从 ring buffer 移动到 TX FIFO。</p>
 </blockquote>
-<h4 id="244-uart_write_bytes_with_break"><a class="markdownIt-Anchor" href="#244-uart_write_bytes_with_break"></a> 2.4.4 uart_write_bytes_with_break</h4>
+<h4 id="2-4-4-uart-write-bytes-with-break">2.4.4 uart_write_bytes_with_break</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">uart_write_bytes_with_break</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *src, <span class="hljs-type">size_t</span> size, <span class="hljs-type">int</span> brk_len)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -850,7 +763,7 @@
 <blockquote>
 <p>如果 UART 驱动程序的参数 <code>tx_buffer_size</code> 设置为零：在所有数据和中断信号都发出之前，此函数不会返回。所有数据都发出后，发送 break 信号。否则，如果 <code>tx_buffer_size</code> &gt; 0，则此函数将在将所有数据复制到 tx ring buffer 后返回，然后 UART ISR 将逐渐将数据从 ring buffer 移动到 TX FIFO。发送所有数据后，发送中断信号。</p>
 </blockquote>
-<h4 id="245-uart_read_bytes"><a class="markdownIt-Anchor" href="#245-uart_read_bytes"></a> 2.4.5 uart_read_bytes</h4>
+<h4 id="2-4-5-uart-read-bytes">2.4.5 uart_read_bytes</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">uart_read_bytes</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">void</span> *buf, <span class="hljs-type">uint32_t</span> length, TickType_t ticks_to_wait)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -873,7 +786,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="246-uart_get_buffered_data_len"><a class="markdownIt-Anchor" href="#246-uart_get_buffered_data_len"></a> 2.4.6 uart_get_buffered_data_len</h4>
+<h4 id="2-4-6-uart-get-buffered-data-len">2.4.6 uart_get_buffered_data_len</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_get_buffered_data_len</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">size_t</span> *size)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -894,7 +807,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="247-uart_get_tx_buffer_free_size"><a class="markdownIt-Anchor" href="#247-uart_get_tx_buffer_free_size"></a> 2.4.7 uart_get_tx_buffer_free_size</h4>
+<h4 id="2-4-7-uart-get-tx-buffer-free-size">2.4.7 uart_get_tx_buffer_free_size</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_get_tx_buffer_free_size</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num, <span class="hljs-type">size_t</span> *size)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -915,7 +828,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="248-uart_flush"><a class="markdownIt-Anchor" href="#248-uart_flush"></a> 2.4.8 uart_flush</h4>
+<h4 id="2-4-8-uart-flush">2.4.8 uart_flush</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_flush</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -935,7 +848,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="249-uart_flush_input"><a class="markdownIt-Anchor" href="#249-uart_flush_input"></a> 2.4.9 uart_flush_input</h4>
+<h4 id="2-4-9-uart-flush-input">2.4.9 uart_flush_input</h4>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">esp_err_t</span> <span class="hljs-title function_">uart_flush_input</span><span class="hljs-params">(<span class="hljs-type">uart_port_t</span> uart_num)</span><br></code></pre></td></tr></table></figure>
 <ul>
 <li>参数
@@ -955,39 +868,39 @@
 </ul>
 </li>
 </ul>
-<h2 id="3-枚举定义"><a class="markdownIt-Anchor" href="#3-枚举定义"></a> 3、枚举定义</h2>
+<h2 id="3、枚举定义">3、枚举定义</h2>
 <p>参考 <code>esp-idf/components/hal/include/hal/uart_types.h</code>：</p>
-<h3 id="31-uart_word_length_t"><a class="markdownIt-Anchor" href="#31-uart_word_length_t"></a> 3.1 uart_word_length_t</h3>
+<h3 id="3-1-uart-word-length-t">3.1 uart_word_length_t</h3>
 <p>设置 USART 通信时数据位长度：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_DATA_5_BITS   = <span class="hljs-number">0x0</span>,    <span class="hljs-comment">/*!&lt; word length: 5bits*/</span><br>    UART_DATA_6_BITS   = <span class="hljs-number">0x1</span>,    <span class="hljs-comment">/*!&lt; word length: 6bits*/</span><br>    UART_DATA_7_BITS   = <span class="hljs-number">0x2</span>,    <span class="hljs-comment">/*!&lt; word length: 7bits*/</span><br>    UART_DATA_8_BITS   = <span class="hljs-number">0x3</span>,    <span class="hljs-comment">/*!&lt; word length: 8bits*/</span><br>    UART_DATA_BITS_MAX = <span class="hljs-number">0x4</span>,<br>&#125; <span class="hljs-type">uart_word_length_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="32-uart_parity_t"><a class="markdownIt-Anchor" href="#32-uart_parity_t"></a> 3.2 uart_parity_t</h3>
+<h3 id="3-2-uart-parity-t">3.2 uart_parity_t</h3>
 <p>USART 校验位设置：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_PARITY_DISABLE  = <span class="hljs-number">0x0</span>,  <span class="hljs-comment">/* 不使用校验位 */</span><br>    UART_PARITY_EVEN     = <span class="hljs-number">0x2</span>,  <span class="hljs-comment">/* 偶校验 */</span><br>    UART_PARITY_ODD      = <span class="hljs-number">0x3</span>   <span class="hljs-comment">/* 奇校验 */</span><br>&#125; <span class="hljs-type">uart_parity_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="33-uart_stop_bits_t"><a class="markdownIt-Anchor" href="#33-uart_stop_bits_t"></a> 3.3 uart_stop_bits_t</h3>
+<h3 id="3-3-uart-stop-bits-t">3.3 uart_stop_bits_t</h3>
 <p>USART 停止位设置：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_STOP_BITS_1   = <span class="hljs-number">0x1</span>,  <span class="hljs-comment">/* 1位停止位 */</span><br>    UART_STOP_BITS_1_5 = <span class="hljs-number">0x2</span>,  <span class="hljs-comment">/* 1.5位停止位 */</span><br>    UART_STOP_BITS_2   = <span class="hljs-number">0x3</span>,  <span class="hljs-comment">/* 2位停止位*/</span><br>    UART_STOP_BITS_MAX = <span class="hljs-number">0x4</span>,<br>&#125; <span class="hljs-type">uart_stop_bits_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="34-uart_hw_flowcontrol_t"><a class="markdownIt-Anchor" href="#34-uart_hw_flowcontrol_t"></a> 3.4 uart_hw_flowcontrol_t</h3>
+<h3 id="3-4-uart-hw-flowcontrol-t">3.4 uart_hw_flowcontrol_t</h3>
 <p>表示 USART 硬件流控相关的设置：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_HW_FLOWCTRL_DISABLE = <span class="hljs-number">0x0</span>,   <span class="hljs-comment">/* 不使用硬件流控制 */</span><br>    UART_HW_FLOWCTRL_RTS     = <span class="hljs-number">0x1</span>,   <span class="hljs-comment">/* 使用 RTS */</span><br>    UART_HW_FLOWCTRL_CTS     = <span class="hljs-number">0x2</span>,   <span class="hljs-comment">/* 使用 CTS */</span><br>    UART_HW_FLOWCTRL_CTS_RTS = <span class="hljs-number">0x3</span>,   <span class="hljs-comment">/* 同时使用 RTS 和 CTS */</span><br>    UART_HW_FLOWCTRL_MAX     = <span class="hljs-number">0x4</span>,<br>&#125; <span class="hljs-type">uart_hw_flowcontrol_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="35-uart_event_type_t"><a class="markdownIt-Anchor" href="#35-uart_event_type_t"></a> 3.5 uart_event_type_t</h3>
+<h3 id="3-5-uart-event-type-t">3.5 uart_event_type_t</h3>
 <p>用于 ringbuffer 的 USART 事件类型</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_DATA,              <span class="hljs-comment">/*!&lt; UART data event*/</span><br>    UART_BREAK,             <span class="hljs-comment">/*!&lt; UART break event*/</span><br>    UART_BUFFER_FULL,       <span class="hljs-comment">/*!&lt; UART RX buffer full event*/</span><br>    UART_FIFO_OVF,          <span class="hljs-comment">/*!&lt; UART FIFO overflow event*/</span><br>    UART_FRAME_ERR,         <span class="hljs-comment">/*!&lt; UART RX frame error event*/</span><br>    UART_PARITY_ERR,        <span class="hljs-comment">/*!&lt; UART RX parity event*/</span><br>    UART_DATA_BREAK,        <span class="hljs-comment">/*!&lt; UART TX data and break event*/</span><br>    UART_PATTERN_DET,       <span class="hljs-comment">/*!&lt; UART pattern detected */</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> SOC_UART_SUPPORT_WAKEUP_INT</span><br>    UART_WAKEUP,            <span class="hljs-comment">/*!&lt; UART wakeup event */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    UART_EVENT_MAX,         <span class="hljs-comment">/*!&lt; UART event max index*/</span><br>&#125; <span class="hljs-type">uart_event_type_t</span>;<br></code></pre></td></tr></table></figure>
-<h3 id="36-uart_mode_t"><a class="markdownIt-Anchor" href="#36-uart_mode_t"></a> 3.6 uart_mode_t</h3>
+<h3 id="3-6-uart-mode-t">3.6 uart_mode_t</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    UART_MODE_UART = <span class="hljs-number">0x00</span>,                      <span class="hljs-comment">/* 正常UART模式 */</span><br>    UART_MODE_RS485_HALF_DUPLEX = <span class="hljs-number">0x01</span>,         <span class="hljs-comment">/* 使用RTS引脚控制的半双工RS485模式 */</span><br>    UART_MODE_IRDA = <span class="hljs-number">0x02</span>,                      <span class="hljs-comment">/* 红外线通信（IRDA）模式。这种模式用于红外线数据传输 */</span><br>    UART_MODE_RS485_COLLISION_DETECT = <span class="hljs-number">0x03</span>,    <span class="hljs-comment">/* RS485冲突检测模式，主要用于测试目的，可以检测通信过程中的数据冲突 */</span><br>    UART_MODE_RS485_APP_CTRL = <span class="hljs-number">0x04</span>,            <span class="hljs-comment">/* 应用控制的RS485模式，这同样是用于测试的目的，允许特定的应用程序进行RS485通信控制 */</span><br>&#125; <span class="hljs-type">uart_mode_t</span>;<br></code></pre></td></tr></table></figure>
-<h2 id="4-宏定义"><a class="markdownIt-Anchor" href="#4-宏定义"></a> 4、宏定义</h2>
-<h3 id="41-uart_pin_no_change"><a class="markdownIt-Anchor" href="#41-uart_pin_no_change"></a> 4.1 UART_PIN_NO_CHANGE</h3>
+<h2 id="4、宏定义">4、宏定义</h2>
+<h3 id="4-1-UART-PIN-NO-CHANGE">4.1 UART_PIN_NO_CHANGE</h3>
 <p>在调用 <code>uart_set_pin</code> 时，可以提供 <code>UART_PIN_NO_CHANGE</code> 来保持当前分配的引脚</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_PIN_NO_CHANGE      (-1)</span><br></code></pre></td></tr></table></figure>
-<h3 id="42-uart_fifo_len"><a class="markdownIt-Anchor" href="#42-uart_fifo_len"></a> 4.2 UART_FIFO_LEN</h3>
+<h3 id="4-2-UART-FIFO-LEN">4.2 UART_FIFO_LEN</h3>
 <p>UART 环形缓冲区长度</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_FIFO_LEN <span class="hljs-keyword">_Pragma</span> (<span class="hljs-string">&quot;GCC warning \&quot;&#x27;UART_FIFO_LEN&#x27; macro is deprecated, please use &#x27;UART_HW_FIFO_LEN&#x27; instead\&quot;&quot;</span>) SOC_UART_FIFO_LEN <span class="hljs-comment">///&lt; Length of the HP UART HW FIFO</span></span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_UART_FIFO_LEN           (128) </span><br></code></pre></td></tr></table></figure>
-<h3 id="43-uart_hw_fifo_lenuart_num"><a class="markdownIt-Anchor" href="#43-uart_hw_fifo_lenuart_num"></a> 4.3 UART_HW_FIFO_LEN(uart_num)</h3>
+<h3 id="4-3-UART-HW-FIFO-LEN-uart-num">4.3 UART_HW_FIFO_LEN(uart_num)</h3>
 <p>UART 硬件流控环形缓冲区长度</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_HW_FIFO_LEN(uart_num) SOC_UART_FIFO_LEN    </span><br></code></pre></td></tr></table></figure>
-<h3 id="44-uart_bitrate_max"><a class="markdownIt-Anchor" href="#44-uart_bitrate_max"></a> 4.4 UART_BITRATE_MAX</h3>
+<h3 id="4-4-UART-BITRATE-MAX">4.4 UART_BITRATE_MAX</h3>
 <p>最大可配置波特率。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART_BITRATE_MAX        SOC_UART_BITRATE_MAX</span><br><br>...<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SOC_UART_BITRATE_MAX        (5000000)</span><br></code></pre></td></tr></table></figure>
-<h1 id="二-uart-配置"><a class="markdownIt-Anchor" href="#二-uart-配置"></a> 二、UART 配置</h1>
+<h1>二、UART 配置</h1>
 <p>本节将介绍如何使用 UART 驱动程序的函数和数据类型在 ESP32 和其他 UART 设备之间建立通信。基本编程流程分为以下几个步骤：</p>
 <ol>
 <li>设置通信参数 <code>uart_param_config</code> - 设置波特率、数据位、停止位等</li>
@@ -998,7 +911,7 @@
 <li>删除驱动程序 <code>uart_driver_delete()</code>- 如无需 UART 通信，则释放已分配的资源</li>
 </ol>
 <p>其中，步骤 1 到 3 为配置阶段，步骤 4 为 UART 运行阶段，步骤 5 和 6 为可选步骤。</p>
-<h2 id="1-设置通信参数"><a class="markdownIt-Anchor" href="#1-设置通信参数"></a> 1、设置通信参数</h2>
+<h2 id="1、设置通信参数">1、设置通信参数</h2>
 <p>调用函数 <code>uart_param_config()</code> 并向其传递 <code>uart_config_t</code> 结构体，<code>uart_config_t</code> 结构体应包含所有必要的参数。请参考以下示例。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">const</span> <span class="hljs-type">uart_port_t</span> uart_num = UART_NUM_2;<br><span class="hljs-type">uart_config_t</span> uart_config = &#123;<br>    .baud_rate = <span class="hljs-number">115200</span>,<br>    .data_bits = UART_DATA_8_BITS,<br>    .parity = UART_PARITY_DISABLE,<br>    .stop_bits = UART_STOP_BITS_1,<br>    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,<br>    .rx_flow_ctrl_thresh = <span class="hljs-number">122</span>,<br>&#125;;<br><br><span class="hljs-comment">// Configure UART parameters</span><br>ESP_ERROR_CHECK(uart_param_config(uart_num, &amp;uart_config));<br></code></pre></td></tr></table></figure>
 <p>或者调用下表中的专用函数，能够单独配置特定参数。如需重新配置某个参数，也可使用这些函数。</p>
@@ -1036,13 +949,13 @@
 </tr>
 </tbody>
 </table>
-<h2 id="2-设置通信引脚"><a class="markdownIt-Anchor" href="#2-设置通信引脚"></a> 2、设置通信引脚</h2>
+<h2 id="2、设置通信引脚">2、设置通信引脚</h2>
 <p>通信参数设置完成后，可以配置其他 UART 设备连接的 GPIO 管脚。调用函数 <code>uart_set_pin()</code>，指定配置 Tx、Rx、RTS 和 CTS 信号的 GPIO 管脚编号。如要为特定信号保留当前分配的管脚编号，可传递宏 <code>UART_PIN_NO_CHANGE</code>。</p>
 <blockquote>
 <p>不使用的管脚都指定为宏 <code>UART_PIN_NO_CHANGE</code>。</p>
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Set UART pins(TX: IO4, RX: IO5, RTS: 无, CTS: 无)</span><br>ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));<br></code></pre></td></tr></table></figure>
-<h2 id="3-安装驱动程序"><a class="markdownIt-Anchor" href="#3-安装驱动程序"></a> 3、安装驱动程序</h2>
+<h2 id="3、安装驱动程序">3、安装驱动程序</h2>
 <p>通信管脚设置完成后，调用 <code>uart_driver_install()</code> 安装驱动程序并指定以下参数：</p>
 <ul>
 <li>Tx 环形缓冲区的大小</li>
@@ -1055,7 +968,7 @@
 <p>此步骤完成后，可连接外部 UART 设备检查通信。</p>
 <p>汇总如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">uart_config_t</span> uart_config = &#123;<br>    .baud_rate = <span class="hljs-number">115200</span>,<br>    .data_bits = UART_DATA_8_BITS,<br>    .parity = UART_PARITY_DISABLE,<br>    .stop_bits = UART_STOP_BITS_1,<br>    .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,<br>    .source_clk = UART_SCLK_DEFAULT,<br>&#125;;<br><br>uart_driver_install(UART1_PORT_NUM, RX_BUF_SIZE * <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>);<br>uart_param_config(UART1_PORT_NUM, &amp;uart_config);<br><br>uart_set_pin(UART1_PORT_NUM, UART1_TX_PIN, UART1_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);<br><br></code></pre></td></tr></table></figure>
-<h2 id="4-运行-uart-通信"><a class="markdownIt-Anchor" href="#4-运行-uart-通信"></a> 4、运行 UART 通信</h2>
+<h2 id="4、运行-UART-通信">4、运行 UART 通信</h2>
 <p>串行通信由每个 UART 控制器的有限状态机 (FSM) 控制。</p>
 <p>发送数据的过程分为以下步骤：</p>
 <ol>
@@ -1070,7 +983,7 @@
 <li>从 Rx FIFO 缓冲区读取数据</li>
 </ol>
 <p>因此，应用程序仅会通过 <code>uart_write_bytes()</code> 和 <code>uart_read_bytes()</code> 从特定缓冲区写入或读取数据，其余工作由 FSM 完成。</p>
-<h3 id="41-发送数据"><a class="markdownIt-Anchor" href="#41-发送数据"></a> 4.1 发送数据</h3>
+<h3 id="4-1-发送数据">4.1 发送数据</h3>
 <p>发送数据准备好后，调用函数 <code>uart_write_bytes()</code>，并向其传递数据缓冲区的地址和数据长度。该函数会立即或在有足够可用空间时将数据复制到 Tx 环形缓冲区，随后退出。当 Tx FIFO 缓冲区中有可用空间时，中断服务例程 (ISR) 会在后台将数据从 Tx 环形缓冲区移动到 Tx FIFO 缓冲区。调用函数请参考以下代码。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Write data to UART.</span><br><span class="hljs-type">char</span>* test_str = <span class="hljs-string">&quot;This is a test string.\n&quot;</span>;<br>uart_write_bytes(uart_num, (<span class="hljs-type">const</span> <span class="hljs-type">char</span>*)test_str, <span class="hljs-built_in">strlen</span>(test_str));<br></code></pre></td></tr></table></figure>
 <p>函数 <code>uart_write_bytes_with_break()</code> 与 <code>uart_write_bytes()</code> 类似，但在传输结束时会添加串行中断信号。“串行中断信号”意味着 Tx 线保持低电平的时间长于一个数据帧。</p>
@@ -1078,16 +991,16 @@
 <p>能够将数据写入 Tx FIFO 缓冲区的另一函数是 <code>uart_tx_chars()</code>。 与 <code>uart_write_bytes()</code> 不同，此函数在没有可用空间之前不会阻塞。相反，它将写入所有可以立即放入硬件 Tx FIFO 的数据，然后返回写入的字节数。</p>
 <p>“配套”函数 <code>uart_wait_tx_done()</code> 用于监听 Tx FIFO 缓冲区的状态，并在缓冲区为空时返回。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Wait for packet to be sent</span><br><span class="hljs-type">const</span> <span class="hljs-type">uart_port_t</span> uart_num = UART_NUM_2;<br>ESP_ERROR_CHECK(uart_wait_tx_done(uart_num, <span class="hljs-number">100</span>)); <span class="hljs-comment">// wait timeout is 100 RTOS ticks (TickType_t)</span><br></code></pre></td></tr></table></figure>
-<h3 id="42-接收数据"><a class="markdownIt-Anchor" href="#42-接收数据"></a> 4.2 接收数据</h3>
+<h3 id="4-2-接收数据">4.2 接收数据</h3>
 <p>一旦 UART 接收了数据，并将其保存在 Rx FIFO 缓冲区中，就需要使用函数 <code>uart_read_bytes()</code> 检索数据。读取数据之前，调用 <code>uart_get_buffered_data_len()</code> 能够查看 Rx FIFO 缓冲区中可用的字节数。请参考以下示例。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Read data from UART.</span><br><span class="hljs-type">const</span> <span class="hljs-type">uart_port_t</span> uart_num = UART_NUM_2;<br><span class="hljs-type">uint8_t</span> data[<span class="hljs-number">128</span>];<br><span class="hljs-type">int</span> length = <span class="hljs-number">0</span>;<br><br>ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_num, (<span class="hljs-type">size_t</span>*)&amp;length));<br>length = uart_read_bytes(uart_num, data, length, <span class="hljs-number">100</span>);<br></code></pre></td></tr></table></figure>
 <p>如果不再需要 Rx FIFO 缓冲区中的数据，可以调用 <code>uart_flush()</code> 清空缓冲区。</p>
-<h3 id="43-软件流控"><a class="markdownIt-Anchor" href="#43-软件流控"></a> 4.3 软件流控</h3>
+<h3 id="4-3-软件流控">4.3 软件流控</h3>
 <p>如果硬件流控处于禁用状态，可使用函数 <code>uart_set_rts()</code> 和 <code>uart_set_dtr()</code> 分别手动设置 RTS 和 DTR 信号电平。</p>
-<h3 id="44-通信方式选择"><a class="markdownIt-Anchor" href="#44-通信方式选择"></a> 4.4 通信方式选择</h3>
+<h3 id="4-4-通信方式选择">4.4 通信方式选择</h3>
 <p>UART 控制器支持多种通信模式，使用函数 <code>uart_set_mode()</code> 可以选择模式。选择特定模式后，UART 驱动程序将处理已连接 UART 设备的相应行为。例如，使用 RTS 线控制 RS485 驱动芯片，能够实现半双工 RS485 通信。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Setup UART in rs485 half duplex mode</span><br>ESP_ERROR_CHECK(uart_set_mode(uart_num, UART_MODE_RS485_HALF_DUPLEX));<br></code></pre></td></tr></table></figure>
-<h2 id="5-使用中断"><a class="markdownIt-Anchor" href="#5-使用中断"></a> 5、使用中断</h2>
+<h2 id="5、使用中断">5、使用中断</h2>
 <p>根据特定的 UART 状态或检测到的错误，可以生成许多不同的中断。调用 <code>uart_enable_intr_mask()</code> 或 <code>uart_disable_intr_mask()</code> 能够分别启用或禁用特定中断。</p>
 <p>调用 <code>uart_driver_install()</code> 函数可以安装驱动程序的内部中断处理程序，用以管理 Tx 和 Rx 环形缓冲区，并提供事件等高级 API 函数（见下文）。</p>
 <p>API 提供了一种便利的方法来处理本文所讨论的特定中断，即用专用函数包装中断：</p>
@@ -1107,17 +1020,17 @@
 </ul>
 </li>
 </ul>
-<h2 id="6-删除驱动程序"><a class="markdownIt-Anchor" href="#6-删除驱动程序"></a> 6、删除驱动程序</h2>
+<h2 id="6、删除驱动程序">6、删除驱动程序</h2>
 <p>如不再需要与 <code>uart_driver_install()</code> 建立通信，则可调用 <code>uart_driver_delete()</code> 删除驱动程序，释放已分配的资源。</p>
-<h1 id="三-实例操作"><a class="markdownIt-Anchor" href="#三-实例操作"></a> 三、实例操作</h1>
-<h2 id="1-例一uart-的初始化操作"><a class="markdownIt-Anchor" href="#1-例一uart-的初始化操作"></a> 1、例一——UART 的初始化操作</h2>
+<h1>三、实例操作</h1>
+<h2 id="1、例一——UART-的初始化操作">1、例一——UART 的初始化操作</h2>
 <p>本例主要演示如何配置使用 UART，并通过它来实现一个简答的回射程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_TX_PIN   (GPIO_NUM_4)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RX_PIN   (GPIO_NUM_5)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RTS_PIN  (UART_PIN_NO_CHANGE)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_CTS_PIN  (UART_PIN_NO_CHANGE)</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_PORT_NUM (UART_NUM_1)</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> RX_BUF_SIZE = <span class="hljs-number">1024</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">uart_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">uart_config_t</span> uart_config = &#123;<br>        .baud_rate = <span class="hljs-number">115200</span>,<br>        .data_bits = UART_DATA_8_BITS,<br>        .stop_bits = UART_STOP_BITS_1,<br>        .parity = UART_PARITY_DISABLE,<br>        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,<br>        .source_clk = UART_SCLK_DEFAULT,<br>    &#125;;<br><br>    ESP_ERROR_CHECK(uart_driver_install(UART1_PORT_NUM, RX_BUF_SIZE * <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>));<br>    ESP_ERROR_CHECK(uart_param_config(UART1_PORT_NUM, &amp;uart_config));<br>    ESP_ERROR_CHECK(uart_set_pin(UART1_PORT_NUM, UART1_TX_PIN, UART1_RX_PIN, UART1_RTS_PIN, UART1_CTS_PIN));<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    uart_init();<br><br>    <span class="hljs-type">uint8_t</span> *data = (<span class="hljs-type">uint8_t</span> *) <span class="hljs-built_in">malloc</span>(RX_BUF_SIZE);<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *TAG = <span class="hljs-string">&quot;UART1_EXAMPLE&quot;</span>;<br><br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>    &#123;<br>        <span class="hljs-type">int</span> len = uart_read_bytes(UART1_PORT_NUM, data, RX_BUF_SIZE, <span class="hljs-number">20</span> / portTICK_PERIOD_MS);<br>        uart_write_bytes(UART1_PORT_NUM, (<span class="hljs-type">const</span> <span class="hljs-type">char</span> *)data, len);<br>        <span class="hljs-keyword">if</span> (len) &#123;<br>            data[len] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>            ESP_LOGI(TAG, <span class="hljs-string">&quot;Recv str: %s&quot;</span>, (<span class="hljs-type">char</span> *)data);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-例二uart-收发演示"><a class="markdownIt-Anchor" href="#2-例二uart-收发演示"></a> 2、例二——UART 收发演示</h2>
+<h2 id="2、例二——UART-收发演示">2、例二——UART 收发演示</h2>
 <p>本例通过同一 UART 在两个独立的 FreeRTOS 任务中发送和接收数据。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_TX_PIN   (GPIO_NUM_4)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RX_PIN   (GPIO_NUM_5)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RTS_PIN  (UART_PIN_NO_CHANGE)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_CTS_PIN  (UART_PIN_NO_CHANGE)</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_PORT_NUM (UART_NUM_1)</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> RX_BUF_SIZE = <span class="hljs-number">1024</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">uart_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">uart_config_t</span> uart_config = &#123;<br>        .baud_rate = <span class="hljs-number">115200</span>,<br>        .data_bits = UART_DATA_8_BITS,<br>        .stop_bits = UART_STOP_BITS_1,<br>        .parity = UART_PARITY_DISABLE,<br>        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,<br>        .source_clk = UART_SCLK_DEFAULT,<br>    &#125;;<br><br>    ESP_ERROR_CHECK(uart_driver_install(UART1_PORT_NUM, RX_BUF_SIZE * <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>));<br>    ESP_ERROR_CHECK(uart_param_config(UART1_PORT_NUM, &amp;uart_config));<br>    ESP_ERROR_CHECK(uart_set_pin(UART1_PORT_NUM, UART1_TX_PIN, UART1_RX_PIN, UART1_RTS_PIN, UART1_CTS_PIN));<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">send_data</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *log_name, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *data)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> len = <span class="hljs-built_in">strlen</span>(data);<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> tx_bytes = uart_write_bytes(UART_NUM_1, data, len);<br>    ESP_LOGI(log_name, <span class="hljs-string">&quot;Wrote %d bytes&quot;</span>, tx_bytes);<br><br>    <span class="hljs-keyword">return</span> tx_bytes;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">tx_task</span><span class="hljs-params">(<span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *TX_TASK_TAG = <span class="hljs-string">&quot;TX_TASK&quot;</span>;<br>    esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);<br><br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        send_data(TX_TASK_TAG, <span class="hljs-string">&quot;Hello World!&quot;</span>);<br>        vTaskDelay(<span class="hljs-number">2000</span> / portTICK_PERIOD_MS);<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">rx_task</span><span class="hljs-params">(<span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *RX_TASK_TAG = <span class="hljs-string">&quot;RX_TASK&quot;</span>;<br>    esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);<br><br>    <span class="hljs-type">uint8_t</span> *data = (<span class="hljs-type">uint8_t</span> *)<span class="hljs-built_in">malloc</span>(RX_BUF_SIZE + <span class="hljs-number">1</span>);<br>    <br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-type">const</span> <span class="hljs-type">int</span> rx_bytes = uart_read_bytes(UART_NUM_1, data, RX_BUF_SIZE, <span class="hljs-number">1000</span> / portTICK_PERIOD_MS);<br>        <span class="hljs-keyword">if</span> (rx_bytes &gt; <span class="hljs-number">0</span>) &#123;<br>            data[rx_bytes] = <span class="hljs-number">0</span>;<br>            ESP_LOGI(RX_TASK_TAG, <span class="hljs-string">&quot;Read %d bytes: &#x27;%s&#x27;&quot;</span>, rx_bytes, data);<br>            ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rx_bytes, ESP_LOG_INFO);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">free</span>(data);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    uart_init();<br><br>    xTaskCreate(rx_task, <span class="hljs-string">&quot;uart_rx_task&quot;</span>, <span class="hljs-number">2048</span>, <span class="hljs-literal">NULL</span>, configMAX_PRIORITIES - <span class="hljs-number">1</span>, <span class="hljs-literal">NULL</span>);<br>    xTaskCreate(tx_task, <span class="hljs-string">&quot;uart_tx_task&quot;</span>, <span class="hljs-number">2048</span>, <span class="hljs-literal">NULL</span>, configMAX_PRIORITIES - <span class="hljs-number">1</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
-<h2 id="3-例三模式检测中断"><a class="markdownIt-Anchor" href="#3-例三模式检测中断"></a> 3、例三——模式检测中断</h2>
+<h2 id="3、例三——模式检测中断">3、例三——模式检测中断</h2>
 <p>本例演示了 UART 各种通信事件，并使用了模式检测中断。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_TX_PIN   (GPIO_NUM_4)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RX_PIN   (GPIO_NUM_5)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_RTS_PIN  (UART_PIN_NO_CHANGE)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_CTS_PIN  (UART_PIN_NO_CHANGE)</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> UART1_PORT_NUM (UART_NUM_1)</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> RX_BUF_SIZE = <span class="hljs-number">1024</span>;<br><span class="hljs-type">static</span> QueueHandle_t uart0_queue;<br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">char</span> *TAG = <span class="hljs-string">&quot;UART1_EXAMPLE&quot;</span>;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PATTERN_CHR_NUM    (3) </span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">uart_event_task</span><span class="hljs-params">(<span class="hljs-type">void</span> *pvParameters)</span><br>&#123;<br>    <span class="hljs-type">uart_event_t</span> event;<br>    <span class="hljs-type">size_t</span> buffered_size;<br>    <span class="hljs-type">uint8_t</span>* dtmp = (<span class="hljs-type">uint8_t</span>*) <span class="hljs-built_in">malloc</span>(RX_BUF_SIZE);<br><br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        <span class="hljs-comment">// 等待 UART 事件</span><br>        <span class="hljs-keyword">if</span> (xQueueReceive(uart0_queue, (<span class="hljs-type">void</span> *)&amp;event, (TickType_t)portMAX_DELAY)) &#123;<br>            bzero(dtmp, RX_BUF_SIZE);<br>            ESP_LOGI(TAG, <span class="hljs-string">&quot;uart[%d] event:&quot;</span>, UART1_PORT_NUM);<br>            <span class="hljs-keyword">switch</span> (event.type) &#123;<br>            <span class="hljs-comment">// UART 接收数据事件</span><br>            <span class="hljs-comment">/* 我们最好快速处理数据事件，因为数据事件的数量会远超过其他类型的事件。</span><br><span class="hljs-comment">               如果我们在数据事件上花费太多时间，队列可能会满。 */</span><br>            <span class="hljs-keyword">case</span> UART_DATA:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;[UART DATA]: %d&quot;</span>, event.size);<br>                uart_read_bytes(UART1_PORT_NUM, dtmp, event.size, portMAX_DELAY);<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;[DATA EVT]:&quot;</span>);<br>                uart_write_bytes(UART1_PORT_NUM, (<span class="hljs-type">const</span> <span class="hljs-type">char</span>*) dtmp, event.size);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 检测到硬件 FIFO 溢出事件。</span><br>            <span class="hljs-keyword">case</span> UART_FIFO_OVF:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;hw fifo overflow&quot;</span>);<br>                <span class="hljs-comment">/* 如果发生 FIFO 溢出，您应该考虑为您的应用程序增加流量控制。 </span><br><span class="hljs-comment">                   中断服务例程（ISR）已经重置了接收 FIFO，</span><br><span class="hljs-comment">                   作为示例，我们直接刷新接收缓冲区，以便读取更多数据。 */</span><br>                uart_flush_input(UART1_PORT_NUM);<br>                xQueueReset(uart0_queue);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// UART 环形缓冲区满</span><br>            <span class="hljs-keyword">case</span> UART_BUFFER_FULL:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;ring buffer full&quot;</span>);<br>                <span class="hljs-comment">/* 如果缓冲区满了，您应该考虑增加缓冲区大小。</span><br><span class="hljs-comment">                   作为示例，我们直接刷新接收缓冲区，以便读取更多数据。 */</span><br>                uart_flush_input(UART1_PORT_NUM);<br>                xQueueReset(uart0_queue);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 检测到 UART 接收中断事件</span><br>            <span class="hljs-keyword">case</span> UART_BREAK:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;uart rx break&quot;</span>);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 检测到 UART 奇偶校验错误事件</span><br>            <span class="hljs-keyword">case</span> UART_PARITY_ERR:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;uart parity error&quot;</span>);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 检测到 UART 帧错误事件</span><br>            <span class="hljs-keyword">case</span> UART_FRAME_ERR:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;uart frame error&quot;</span>);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 模式匹配事件</span><br>            <span class="hljs-keyword">case</span> UART_PATTERN_DET:<br>                uart_get_buffered_data_len(UART1_PORT_NUM, &amp;buffered_size);<br>                <span class="hljs-type">int</span> pos = uart_pattern_pop_pos(UART1_PORT_NUM);<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;[UART PATTERN DETECTED] pos: %d, buffered size: %d&quot;</span>, pos, buffered_size);<br>                <span class="hljs-keyword">if</span> (pos == <span class="hljs-number">-1</span>) &#123;<br>                    <span class="hljs-comment">/* 之前曾发生过 UART_PATTERN_DET 事件，但模式位置队列已满，因此无法记录位置。</span><br><span class="hljs-comment">                       我们应该设置一个更大的队列大小。作为示例，我们在这里直接刷新接收缓冲区。 */</span><br>                    uart_flush_input(UART1_PORT_NUM);<br>                &#125; <span class="hljs-keyword">else</span> &#123; <br>                    uart_read_bytes(UART1_PORT_NUM, dtmp, pos, <span class="hljs-number">100</span> / portTICK_PERIOD_MS);<br>                    <span class="hljs-type">uint8_t</span> pat[PATTERN_CHR_NUM + <span class="hljs-number">1</span>];<br>                    <span class="hljs-built_in">memset</span>(pat, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(pat));<br>                    uart_read_bytes(UART1_PORT_NUM, pat, PATTERN_CHR_NUM, <span class="hljs-number">100</span> / portTICK_PERIOD_MS);<br>                    ESP_LOGI(TAG, <span class="hljs-string">&quot;read data: %s&quot;</span>, dtmp);<br>                    ESP_LOGI(TAG, <span class="hljs-string">&quot;read pat : %s&quot;</span>, pat);<br>                &#125;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-comment">// 其它事件</span><br>            <span class="hljs-keyword">default</span>:<br>                ESP_LOGI(TAG, <span class="hljs-string">&quot;uart event type: %d&quot;</span>, event.type);<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-built_in">free</span>(dtmp);<br>    dtmp = <span class="hljs-literal">NULL</span>;<br>    vTaskDelete(<span class="hljs-literal">NULL</span>);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">app_main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    esp_log_level_set(TAG, ESP_LOG_INFO);<br><br>    <span class="hljs-type">uart_config_t</span> uart_config = &#123;<br>        .baud_rate = <span class="hljs-number">115200</span>,<br>        .data_bits = UART_DATA_8_BITS,<br>        .parity = UART_PARITY_DISABLE,<br>        .stop_bits = UART_STOP_BITS_1,<br>        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,<br>        .source_clk = UART_SCLK_DEFAULT,<br>    &#125;;<br>    uart_driver_install(UART1_PORT_NUM, RX_BUF_SIZE * <span class="hljs-number">2</span>, RX_BUF_SIZE * <span class="hljs-number">2</span>, <span class="hljs-number">20</span>, &amp;uart0_queue, <span class="hljs-number">0</span>);<br>    uart_param_config(UART1_PORT_NUM, &amp;uart_config);<br><br>    esp_log_level_set(TAG, ESP_LOG_INFO);<br>    uart_set_pin(UART1_PORT_NUM, UART1_TX_PIN, UART1_RX_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);<br><br>    <span class="hljs-comment">// 匹配模式 &#x27;+++&#x27;</span><br>    uart_enable_pattern_det_baud_intr(UART1_PORT_NUM, <span class="hljs-string">&#x27;+&#x27;</span>, PATTERN_CHR_NUM, <span class="hljs-number">9</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>    <span class="hljs-comment">//Reset the pattern queue length to record at most 20 pattern positions.</span><br>    uart_pattern_queue_reset(UART1_PORT_NUM, <span class="hljs-number">20</span>);<br><br>    xTaskCreate(uart_event_task, <span class="hljs-string">&quot;uart_event_task&quot;</span>, <span class="hljs-number">2048</span>, <span class="hljs-literal">NULL</span>, <span class="hljs-number">12</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>正常发送数据：</p>

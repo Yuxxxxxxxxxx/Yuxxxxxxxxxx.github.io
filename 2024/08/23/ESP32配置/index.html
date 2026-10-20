@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。  一、安装准备 参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev l">
+    <meta name="description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。 一、安装准备 参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev li">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ESP32-IDF 在 Ubuntu 下的配置">
 <meta property="og:url" content="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。  一、安装准备 参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev l">
+<meta property="og:description" content="[toc]  参考资料：官方文档：Linux 和 macOS 平台工具链的标准设置。 一、安装准备 参照官方文档，首先下载编译 ESP-IDF 所需要的软件包： 1sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev li">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/1.png">
 <meta property="og:image" content="http://example.com/2024/08/23/ESP32%E9%85%8D%E7%BD%AE/2.png">
@@ -290,10 +290,10 @@
                 <p>[toc]</p>
 <hr>
 <p>参考资料：<a target="_blank" rel="noopener" href="https://docs.espressif.com/projects/esp-idf/zh_CN/stable/esp32/get-started/linux-macos-setup.html">官方文档：Linux 和 macOS 平台工具链的标准设置</a>。</p>
-<h1 id="一-安装准备"><a class="markdownIt-Anchor" href="#一-安装准备"></a> 一、安装准备</h1>
+<h1>一、安装准备</h1>
 <p>参照官方文档，首先下载编译 <code>ESP-IDF</code> 所需要的软件包：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo apt-get install git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0<br></code></pre></td></tr></table></figure>
-<h1 id="二-获取-esp-idf"><a class="markdownIt-Anchor" href="#二-获取-esp-idf"></a> 二、获取 ESP-IDF</h1>
+<h1>二、获取 ESP-IDF</h1>
 <p>首先创建一个目录用来作为 esp32 的工作目录：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[projectsauron]:~$ mkdir esp32_idf<br>[projectsauron]:~$ cd esp32_idf/<br></code></pre></td></tr></table></figure>
 <p>为了解决国内开发者从 Github 克隆 esp 相关仓库慢的问题，官方已将 esp-idf 和部分重要仓库及其关联的子模块镜像到了 jihu，这些仓库将自动从原始仓库进行同步。</p>
@@ -303,7 +303,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[projectsauron]:~/esp32_idf$ . ./esp-gitee-tools/jihu-mirror.sh set <br></code></pre></td></tr></table></figure>
 <p>然后就可以克隆远程仓库了：（经过上面的设置后，很快就可以下好了）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[projectsauron]:~/esp32_idf$ git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git<br></code></pre></td></tr></table></figure>
-<h1 id="三-设置工具"><a class="markdownIt-Anchor" href="#三-设置工具"></a> 三、设置工具</h1>
+<h1>三、设置工具</h1>
 <p>首先，如果 python 没有换国内源的话，下载速度会非常慢，而且很容易下载失败，所以先给 pip 换国内源：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">pip config <span class="hljs-built_in">set</span> <span class="hljs-keyword">global</span>.index-url http://mirrors.aliyun.com/pypi/simple<br>pip config <span class="hljs-built_in">set</span> <span class="hljs-keyword">global</span>.trusted-host mirrors.aliyun.com<br></code></pre></td></tr></table></figure>
 <p>除了 <code>ESP-IDF</code> 本身，还需要为支持 ESP32 的项目安装 <code>ESP-IDF</code> 使用的各种工具，比如编译器、调试器、Python 包等。</p>
@@ -319,7 +319,7 @@
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>注意，在每次刚打开终端是，先执行如下命令才能就行编译：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[projectsauron]:~/esp32_idf/esp-idf$ . ./export.sh<br></code></pre></td></tr></table></figure>
-<h1 id="四-使用案例"><a class="markdownIt-Anchor" href="#四-使用案例"></a> 四、使用案例</h1>
+<h1>四、使用案例</h1>
 <p>我这里先直接使用官方的例程进行编译运行：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[projectsauron]:~/esp32_idf$ cp -r ./esp-idf/examples/get-started/hello_world/ .<br>[projectsauron]:~/esp32_idf$ cd hello_world/<br></code></pre></td></tr></table></figure>
 <blockquote>

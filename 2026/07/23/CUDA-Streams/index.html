@@ -1,0 +1,728 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Yu xin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、流的基本概念 用到 CUDA 的程序一般需要处理海量的数据，内存带宽经常会成为主要的瓶颈。在 Streams 的帮助下，CUDA 程序可以有效地将内存读取和数值运算并行，从而提升数据的吞吐量。 应用程序通过流来管理并发操作，流是一系列按顺序执行的命令。不同的流可能无序或并发地执行命令，但此行为并不保证。流上的命令在依赖关系满足时执行，这些依赖可能来自同一流或其他流。同步调用（synchroni">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA Streams">
+<meta property="og:url" content="http://example.com/2026/07/23/CUDA-Streams/index.html">
+<meta property="og:site_name" content="Yuxxxxxxxxxx">
+<meta property="og:description" content="一、流的基本概念 用到 CUDA 的程序一般需要处理海量的数据，内存带宽经常会成为主要的瓶颈。在 Streams 的帮助下，CUDA 程序可以有效地将内存读取和数值运算并行，从而提升数据的吞吐量。 应用程序通过流来管理并发操作，流是一系列按顺序执行的命令。不同的流可能无序或并发地执行命令，但此行为并不保证。流上的命令在依赖关系满足时执行，这些依赖可能来自同一流或其他流。同步调用（synchroni">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/07/23/CUDA-Streams/1.jpg">
+<meta property="og:image" content="http://example.com/2026/07/23/CUDA-Streams/2.png">
+<meta property="og:image" content="http://example.com/2026/07/23/CUDA-Streams/3.png">
+<meta property="og:image" content="http://example.com/2026/07/23/CUDA-Streams/4.png">
+<meta property="article:published_time" content="2026-07-23T13:24:53.000Z">
+<meta property="article:modified_time" content="2026-09-18T02:39:03.410Z">
+<meta property="article:author" content="Yu xin">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="CUDA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2026/07/23/CUDA-Streams/1.jpg">
+  
+  
+  
+  <title>CUDA Streams - Yuxxxxxxxxxx</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Yuxxxxxxxxxx&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CUDA Streams"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-07-23 21:24" pubdate>
+          星期四, 七月 23日 2026, 9:24 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CUDA Streams</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>一、流的基本概念</h1>
+<p>用到 CUDA 的程序一般需要处理海量的数据，内存带宽经常会成为主要的瓶颈。在 Streams 的帮助下，CUDA 程序可以有效地将内存读取和数值运算并行，从而提升数据的吞吐量。</p>
+<p>应用程序通过流来管理并发操作，流是一系列按顺序执行的命令。不同的流可能无序或并发地执行命令，但此行为并不保证。流上的命令在依赖关系满足时执行，这些依赖可能来自同一流或其他流。同步调用（synchronize call）可以确保所有启动的命令已完成。</p>
+<p>任何 CUDA 操作都存在于某个 CUDA 流中，要么是默认流（default stream），也称为空流（null stream），要么是明确指定的非空流。</p>
+<h2 id="1-1-流的创建与销毁">1.1 流的创建与销毁</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">cudaStream_t stream_1;<br><span class="hljs-built_in">cudaStreamCreate</span>(&amp;stream_1); <span class="hljs-comment">// 注意要传流的地址</span><br><span class="hljs-built_in">cudaStreamDestroy</span>(stream_1);<br></code></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp">cudaStream_t stream[<span class="hljs-number">2</span>];<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">2</span>; ++i)<br>    <span class="hljs-built_in">cudaStreamCreate</span>(&amp;stream[i]);<br><span class="hljs-type">float</span>* hostPtr;<br><span class="hljs-built_in">cudaMallocHost</span>(&amp;hostPtr, <span class="hljs-number">2</span> * size);<br><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">2</span>; ++i) &#123;<br>    <span class="hljs-built_in">cudaMemcpyAsync</span>(inputDevPtr + i * size, hostPtr + i * size,<br>                    size, cudaMemcpyHostToDevice, stream[i]);<br>    MyKernel &lt;&lt;&lt;<span class="hljs-number">100</span>, <span class="hljs-number">512</span>, <span class="hljs-number">0</span>, stream[i]&gt;&gt;&gt;<br>          (outputDevPtr + i * size, inputDevPtr + i * size, size);<br>    <span class="hljs-built_in">cudaMemcpyAsync</span>(hostPtr + i * size, outputDevPtr + i * size,<br>                    size, cudaMemcpyDeviceToHost, stream[i]);<br>&#125;<br><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">2</span>; ++i)<br>    <span class="hljs-built_in">cudaStreamDestroy</span>(stream[i]);<br></code></pre></td></tr></table></figure>
+<h2 id="1-2-默认流">1.2 默认流</h2>
+<p>又叫隐式流，NULL 流。</p>
+<p>所有的 CUDA 操作默认运行在隐式流里。隐式流里的 GPU task 和 CPU 端计算是同步的。例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">cudaMemcpy</span>(..., cudaMemcpuHostToDevice);<br>kernel&lt;&lt;&lt;grid, block&gt;&gt;&gt;(...);<br><span class="hljs-built_in">cudaMemcpy</span>(..., cudaMemcpyDeviceToHost);<br><span class="hljs-type">int</span> n = <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+<p>在执行 <code>int n = 1</code> 之前，必须等前面三行执行完才会执行它。</p>
+<h2 id="1-3-显式流">1.3 显式流</h2>
+<p>显式流里的 GPU task 和 CPU 端计算<strong>是异步的</strong>。<strong>不同显式流内的 GPU task执行也是异步的</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">my_kernel&lt;&lt;&lt;N_grid, N_block&gt;&gt;&gt;(函数参数);<br>my_kernel&lt;&lt;&lt;N_grid, N_block, N_shared&gt;&gt;&gt;(函数参数);<br>my_kernel&lt;&lt;&lt;N_grid, N_block, N_shared, stream_id&gt;&gt;&gt;(函数参数);<br></code></pre></td></tr></table></figure>
+<p>如果用第一种调用方式，说明核函数没有使用动态共享内存，而且在默认流中执行；<br>
+如果用第二种调用方式，说明核函数在默认流中执行，但使用了 N_shared 字节的动态共享内存；<br>
+如果用第三种调用方式，则说明核函数在编号为 stream_id 的 CUDA 流中执行，而且使用了 N_shared 字节的动态共享内存。</p>
+<p>在使用非空流但不使用动态共享内存的情况下，必须使用上述第三种调用方式，并将 N_shared 设置为零：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">my_kernel&lt;&lt;&lt;N_grid, N_block, <span class="hljs-number">0</span>, stream_id&gt;&gt;&gt;(函数参数); <span class="hljs-comment">// 正确</span><br></code></pre></td></tr></table></figure>
+<h2 id="1-4-流状态查询">1.4 流状态查询</h2>
+<p>为了实现不同 CUDA 流之间的并发，主机在向某个 CUDA 流中发布一系列命令之后必须马上获得程序的控制权，不用等待该 CUDA 流中的命令在设备中执行完毕。这样，就可以通过主机产生多个相互独立的 CUDA 流。</p>
+<p>为了检查一个 CUDA 流中的所有操作是否都在设备中执行完毕， CUDA 运行时 API 提供了如下函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__host__cudaError_t <span class="hljs-title">cudaLaunchHostFunc</span><span class="hljs-params">(cudaStream_t stream, cudaHostFn_t fn, <span class="hljs-type">void</span> *userData)</span></span><br></code></pre></td></tr></table></figure>
+<p><code>cudaDeviceSynchronize()</code> 会等待直到所有主机线程的所有流中的所有前面命令都已完成。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__host__cudaError_t <span class="hljs-title">cudaDeviceSynchronize</span><span class="hljs-params">(cudaStream_t stream)</span></span><br></code></pre></td></tr></table></figure>
+<p><code>cudaStreamSynchronize()</code> 接受一个流作为参数，并等待直到给定流中的所有前面命令都已完成。它可用于同步主机与特定流，同时允许其他流继续在设备上执行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__host__cudaError_t <span class="hljs-title">cudaStreamSynchronize</span><span class="hljs-params">(cudaStream_t stream)</span></span><br></code></pre></td></tr></table></figure>
+<p><code>cudaStreamWaitEvent()</code> 接受一个流和一个事件作为参数，并使得所有在调用 <code>cudaStreamWaitEvent()</code> 之后添加到给定流的命令延迟其执行，直到给定事件已完成。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">__host____device__cudaError_t <span class="hljs-title">cudaStreamWaitEvent</span> <span class="hljs-params">(cudaStream_t stream, cudaEvent_t event, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> flags)</span></span><br></code></pre></td></tr></table></figure>
+<p><code>cudaStreamQuery</code> 不会阻塞主机，只是检查 CUDA 流 stream 中的所有操作是否都执行完毕。若是，返回 <code>cudaSuccess</code>，否则返回 <code>cudaErrorNotReady</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">cudaError_t <span class="hljs-title">cudaStreamQuery</span><span class="hljs-params">(cudaStream_t stream)</span></span>;<br></code></pre></td></tr></table></figure>
+<h1>二、Stream 为什么有效？</h1>
+<ol>
+<li>PCIe 总线传输速度慢，是瓶颈，会导致传输数据的时候 GPU 处于空闲等待状态。多流可以实现数据传输与 kernel 计算的并行。</li>
+<li>一个 kernel 往往用不了整个 GPU 的算力。多流可以让多个 kernel 同时计算，充分利用 GPU 算力。</li>
+</ol>
+<h2 id="2-1-默认流的表现">2.1 默认流的表现</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> N = <span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">20</span>;<br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">kernel</span><span class="hljs-params">(<span class="hljs-type">float</span>* x, <span class="hljs-type">int</span> n)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> tid = threadIdx.x + blockIdx.x * blockDim.x;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = tid; i &lt; n; i += blockDim.x * gridDim.x) &#123;<br>		x[i] = <span class="hljs-built_in">sqrt</span>(<span class="hljs-built_in">pow</span>(<span class="hljs-number">3.14159</span>, i));<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">const</span> <span class="hljs-type">int</span> num_streams = <span class="hljs-number">8</span>;<br><br>	cudaStream_t streams[num_streams];<br>	<span class="hljs-type">float</span>* data[num_streams];<br><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num_streams; i++) &#123;<br>		<span class="hljs-built_in">cudaStreamCreate</span>(&amp;streams[i]);<br><br>		<span class="hljs-built_in">cudaMalloc</span>(&amp;data[i], N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>));<br><br>		<span class="hljs-comment">// launch one worker kernel per stream</span><br>		kernel &lt;&lt; &lt;<span class="hljs-number">1</span>, <span class="hljs-number">64</span>, <span class="hljs-number">0</span>, streams[i] &gt;&gt; &gt; (data[i], N);<br><br>		<span class="hljs-comment">// launch a dummy kernel on the default stream</span><br>		kernel &lt;&lt; &lt;<span class="hljs-number">1</span>, <span class="hljs-number">1</span> &gt;&gt; &gt; (<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>	&#125;<br><br>	<span class="hljs-built_in">cudaDeviceReset</span>();<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><img src="1.jpg" srcset="/img/loading.gif" lazyload alt></p>
+<p>单线程内，默认流的工作方式是同步的，显示流的工作方式是异步的。</p>
+<p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>单线程内，编译加上<code>--default-stream per-thread</code> 后，默认流的执行是异步的，显式流的执行是异步的，符合预期。并且会将 default 默认流转换成显示流，才会和其他 8 个显示流进行异步执行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// nvcc ./pthread_test.cu -o pthreads_legacy</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> N = <span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">20</span>;<br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">kernel</span><span class="hljs-params">(<span class="hljs-type">float</span> *x, <span class="hljs-type">int</span> n)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> tid = threadIdx.x + blockIdx.x * blockDim.x;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = tid; i &lt; n; i += blockDim.x * gridDim.x) &#123;<br>        x[i] = <span class="hljs-built_in">sqrt</span>(<span class="hljs-built_in">pow</span>(<span class="hljs-number">3.14159</span>,i));<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">launch_kernel</span><span class="hljs-params">(<span class="hljs-type">void</span> *dummy)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">float</span> *data;<br>    <span class="hljs-built_in">cudaMalloc</span>(&amp;data, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>));<br><br>    kernel&lt;&lt;&lt;<span class="hljs-number">1</span>, <span class="hljs-number">64</span>&gt;&gt;&gt;(data, N);<br><br>    <span class="hljs-built_in">cudaStreamSynchronize</span>(<span class="hljs-number">0</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> num_threads = <span class="hljs-number">8</span>;<br><br>    <span class="hljs-type">pthread_t</span> threads[num_threads];<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num_threads; i++) &#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">pthread_create</span>(&amp;threads[i], <span class="hljs-literal">NULL</span>, launch_kernel, <span class="hljs-number">0</span>)) &#123;<br>            <span class="hljs-built_in">fprintf</span>(stderr, <span class="hljs-string">&quot;Error creating threadn&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num_threads; i++) &#123;<br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">pthread_join</span>(threads[i], <span class="hljs-literal">NULL</span>)) &#123;<br>            <span class="hljs-built_in">fprintf</span>(stderr, <span class="hljs-string">&quot;Error joining threadn&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">2</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">cudaDeviceReset</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>正常编译的话，默认多线程共享一个默认流：</p>
+<p><img src="3.png" srcset="/img/loading.gif" lazyload alt></p>
+<p>加上<code>--default-stream per-thread</code>之后，编译，每个线程都有一个默认流</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">nvcc <span class="hljs-literal">--default-stream</span> per<span class="hljs-literal">-thread</span> ./pthread_test.cu <span class="hljs-literal">-o</span> pthreads_per_thread<br></code></pre></td></tr></table></figure>
+<p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
+<h2 id="2-2-streams-的使用">2.2 streams 的使用</h2>
+<p>下面看一个例子：计算两个数组对应元素之和并输出到第三个数组中。</p>
+<ol>
+<li>
+<p>默认 stream 串行执行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;cuda_runtime.h&quot;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;math.h&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> N (1024*1024)  <span class="hljs-comment">//每次从CPU传输到GPU的数据块大小</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FULL_DATA_SIZE N*20  <span class="hljs-comment">//总数据量</span></span><br> <br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">kernel</span><span class="hljs-params">(<span class="hljs-type">int</span>* a, <span class="hljs-type">int</span> *b, <span class="hljs-type">int</span>*c)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> threadID = blockIdx.x * blockDim.x + threadIdx.x;<br>	<span class="hljs-comment">//这里线程号应该小于FULL_DATA_SIZE</span><br>	<span class="hljs-keyword">if</span> (threadID &lt; FULL_DATA_SIZE)<br>	&#123;<br>		c[threadID] = (a[threadID] + b[threadID]) / <span class="hljs-number">2</span>;<br>	&#125;<br>&#125;<br><span class="hljs-comment">//目的：计算两个数组，数组大小均为FULL_DATA_SIZE，的和</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br>	<span class="hljs-type">int</span> *host_a, *host_b, *host_c;<br>	<span class="hljs-type">int</span> *dev_a, *dev_b, *dev_c;<br><br>	<span class="hljs-comment">//在GPU上分配内存</span><br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_a, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_b, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_c, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br><br>	<span class="hljs-comment">//在CPU上分配：可分页内存</span><br>	<span class="hljs-comment">//数组大小FULL_DATA_SIZE</span><br>	host_a = (<span class="hljs-type">int</span>*)<span class="hljs-built_in">malloc</span>(FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	host_b = (<span class="hljs-type">int</span>*)<span class="hljs-built_in">malloc</span>(FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	host_c = (<span class="hljs-type">int</span>*)<span class="hljs-built_in">malloc</span>(FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br> <br>	<span class="hljs-comment">//主机上的两个数组随机赋值</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; FULL_DATA_SIZE; i++) &#123;<br>		host_a[i] = i;<br>		host_b[i] = FULL_DATA_SIZE - i;<br>	&#125;<br> <br>	<span class="hljs-comment">//copy host to device</span><br>	<span class="hljs-built_in">cudaMemcpy</span>(dev_a, host_a, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyHostToDevice);<br>	<span class="hljs-built_in">cudaMemcpy</span>(dev_b, host_b, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyHostToDevice);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;启动 &quot;</span>&lt;&lt; std::endl;<br><br>    <span class="hljs-built_in">cudaDeviceSynchronize</span>();<br>	<span class="hljs-comment">//启动计时器</span><br>	cudaEvent_t start, stop;<br>	<span class="hljs-type">float</span> elapsedTime;<br><br>	<span class="hljs-built_in">cudaEventCreate</span>(&amp;start);<br>	<span class="hljs-built_in">cudaEventCreate</span>(&amp;stop);<br>    <span class="hljs-built_in">cudaEventRecord</span>(start, <span class="hljs-number">0</span>);<br><br>    <span class="hljs-comment">//启动函数，做数值加法</span><br>	kernel &lt;&lt;&lt;FULL_DATA_SIZE / <span class="hljs-number">1024</span>, <span class="hljs-number">1024</span> &gt;&gt;&gt; (dev_a, dev_b, dev_c);<br> <br>	<span class="hljs-comment">//数据拷贝回主机</span><br>	<span class="hljs-built_in">cudaMemcpy</span>(host_c, dev_c, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyDeviceToHost);<br><br>	<span class="hljs-built_in">cudaEventRecord</span>(stop, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">cudaEventSynchronize</span>(stop);<br>	<span class="hljs-built_in">cudaEventElapsedTime</span>(&amp;elapsedTime, start, stop);<br>	<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;event计时： &quot;</span> &lt;&lt; elapsedTime &lt;&lt;<span class="hljs-string">&quot;ms&quot;</span>&lt;&lt; std::endl;<br><br><br>	<span class="hljs-built_in">cudaFreeHost</span>(host_a);<br>	<span class="hljs-built_in">cudaFreeHost</span>(host_b);<br>	<span class="hljs-built_in">cudaFreeHost</span>(host_c);<br>	<span class="hljs-built_in">cudaFree</span>(dev_a);<br>	<span class="hljs-built_in">cudaFree</span>(dev_b);<br>	<span class="hljs-built_in">cudaFree</span>(dev_c);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">output:</span><br><span class="hljs-comment">event计时： 88.3917ms</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>使用一个 stream 异步传输</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><code class="hljs CPP"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;cuda_runtime.h&quot;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;math.h&gt;</span>  </span><br> <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> N (1024*1024)  <span class="hljs-comment">//每次从CPU传输到GPU的数据块大小</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FULL_DATA_SIZE N*20  <span class="hljs-comment">//总数据量</span></span><br> <br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">kernel</span><span class="hljs-params">(<span class="hljs-type">int</span>* a, <span class="hljs-type">int</span> *b, <span class="hljs-type">int</span>*c)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> threadID = blockIdx.x * blockDim.x + threadIdx.x;<br>	<span class="hljs-comment">//这里每次计算N个数组</span><br>	<span class="hljs-keyword">if</span> (threadID &lt; N)<br>	&#123;<br>		c[threadID] = (a[threadID] + b[threadID]) / <span class="hljs-number">2</span>;<br>	&#125;<br>&#125;<br><span class="hljs-comment">//使用单流：目的：计算两个数组，数组大小均为FULL_DATA_SIZE，的和</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">//获取设备属性</span><br>	cudaDeviceProp prop;<br>	<span class="hljs-type">int</span> deviceID;<br>	<span class="hljs-built_in">cudaGetDevice</span>(&amp;deviceID);<br>	<span class="hljs-built_in">cudaGetDeviceProperties</span>(&amp;prop, deviceID);<br>	<span class="hljs-comment">//检查设备是否支持重叠功能，不支持则不能使用多流加速</span><br>	<span class="hljs-keyword">if</span> (!prop.deviceOverlap)<br>	&#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;No device will handle overlaps. so no speed up from stream.\n&quot;</span>);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>	&#125;<br>	<span class="hljs-comment">//创建一个CUDA stream</span><br>	cudaStream_t stream;<br>	<span class="hljs-built_in">cudaStreamCreate</span>(&amp;stream);<br> <br>	<span class="hljs-type">int</span> *host_a, *host_b, *host_c;<br>	<span class="hljs-type">int</span> *dev_a, *dev_b, *dev_c;<br> <br>	<span class="hljs-comment">//在GPU上分配内存： GPU上分配的内存大小是N</span><br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_a, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_b, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span>**)&amp;dev_c, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br> <br>	<span class="hljs-comment">//在CPU上分配：页锁定内存，使用流的时候，要使用页锁定内存</span><br>	<span class="hljs-built_in">cudaMallocHost</span>((<span class="hljs-type">void</span>**)&amp;host_a, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMallocHost</span>((<span class="hljs-type">void</span>**)&amp;host_b, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>	<span class="hljs-built_in">cudaMallocHost</span>((<span class="hljs-type">void</span>**)&amp;host_c, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br> <br>	<span class="hljs-comment">//主机上的内存赋值</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; FULL_DATA_SIZE; i++) &#123;<br>		host_a[i] = i;<br>		host_b[i] = FULL_DATA_SIZE - i;<br>	&#125;<br>	<span class="hljs-comment">//启动计时器</span><br>	cudaEvent_t start, stop;<br>	<span class="hljs-type">float</span> elapsedTime;<br>	<span class="hljs-built_in">cudaEventCreate</span>(&amp;start);<br>	<span class="hljs-built_in">cudaEventCreate</span>(&amp;stop);<br>	<span class="hljs-built_in">cudaEventRecord</span>(start, <span class="hljs-number">0</span>);<br>	<span class="hljs-comment">// 内存数据能够在分块传输的同时，GPU也在执行核函数运算，这样的异步操作，可以提升性能</span><br>	<span class="hljs-comment">// 将输入缓冲区划分为更小的块，每次向GPU copy N块数据，在stream上执行。并在每个块上执行“数据传输到GPU”，“计算”，“数据传输回CPU”三个步骤</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; FULL_DATA_SIZE; i += N) &#123;<br>		<span class="hljs-comment">//异步将host数据copy到device并执行kernel函数</span><br>		<span class="hljs-comment">//因为这个操作是异步的，所以在copy数据的时候，kernel函数就可以开始执行。也就是边copy边执行计算</span><br>		<span class="hljs-comment">//比如第一个N块数据拷贝完了，kernel函数就计算，这时第二个N块数据同时进行拷贝。但是如果是没有stream，</span><br>		<span class="hljs-comment">//就必须要等到所有数据全部拷贝完再执行计算，这么做可以提高性能</span><br>		<span class="hljs-built_in">cudaMemcpyAsync</span>(dev_a, host_a + i, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyHostToDevice, stream);<br>		<span class="hljs-built_in">cudaMemcpyAsync</span>(dev_b, host_b + i, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyHostToDevice, stream);<br>		<span class="hljs-comment">//注意这里开启线程数是N, 第三个参数是shared_memory大小，第四个参数是指定运行kernel的stream</span><br>		<span class="hljs-comment">//如果不指定stream则运行在默认stream上</span><br>		kernel &lt;&lt;&lt;N / <span class="hljs-number">1024</span>, <span class="hljs-number">1024</span>, <span class="hljs-number">0</span>, stream &gt;&gt;&gt; (dev_a, dev_b, dev_c);<br> <br>		<span class="hljs-built_in">cudaMemcpyAsync</span>(host_c + i, dev_c, N * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>), cudaMemcpyDeviceToHost, stream);<br>	&#125;<br> <br>	<span class="hljs-built_in">cudaEventRecord</span>(stop, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">cudaEventSynchronize</span>(stop);<br>	<span class="hljs-built_in">cudaEventElapsedTime</span>(&amp;elapsedTime, start, stop);<br> <br>	std::cout &lt;&lt; <span class="hljs-string">&quot;消耗时间GPU： &quot;</span> &lt;&lt; elapsedTime &lt;&lt;<span class="hljs-string">&quot;ms&quot;</span>&lt;&lt; std::endl;<br><br> <br>	<span class="hljs-built_in">cudaStreamDestroy</span>(stream);<br>	<span class="hljs-comment">// free stream and mem  </span><br>	<span class="hljs-built_in">cudaFreeHost</span>(host_a);<br>	<span class="hljs-built_in">cudaFreeHost</span>(host_b);<br>	<span class="hljs-built_in">cudaFreeHost</span>(host_c);<br>	<span class="hljs-built_in">cudaFree</span>(dev_a);<br>	<span class="hljs-built_in">cudaFree</span>(dev_b);<br>	<span class="hljs-built_in">cudaFree</span>(dev_c);<br> <br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">output:</span><br><span class="hljs-comment">消耗时间GPU： 44.6915ms</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p>使用 20 个streams</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cuda_runtime.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;device_launch_parameters.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> N_STREAM 20</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> N (1024*1024)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FULL_DATA_SIZE (N * N_STREAM)</span><br><br><br><span class="hljs-function">__global__ <span class="hljs-type">void</span> <span class="hljs-title">MyKernel</span><span class="hljs-params">(<span class="hljs-type">int</span> *a, <span class="hljs-type">int</span> *b, <span class="hljs-type">int</span> *c)</span></span>&#123;<br>    <span class="hljs-type">int</span> threadID = threadIdx.x + blockIdx.x * blockDim.x;<br>    <span class="hljs-keyword">if</span> (threadID &lt; FULL_DATA_SIZE)&#123;<br>       c[threadID] = (a[threadID] + b[threadID]) / <span class="hljs-number">2</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span>&#123;<br>    cudaDeviceProp prop;<br>    <span class="hljs-type">int</span> whichDevice;<br>    <span class="hljs-built_in">cudaGetDevice</span>(&amp;whichDevice);<br>    <span class="hljs-built_in">cudaGetDeviceProperties</span>(&amp;prop, whichDevice);<br>    <span class="hljs-keyword">if</span> (!prop.deviceOverlap)&#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Device will not handle overlaps, so no speed up from streams\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    cudaEvent_t start, stop;<br>    <span class="hljs-type">float</span> elapsedTime;<br><br>    <span class="hljs-comment">//启动计时器</span><br>    <span class="hljs-built_in">cudaEventCreate</span>(&amp;start);<br>    <span class="hljs-built_in">cudaEventCreate</span>(&amp;stop);<br>    <span class="hljs-built_in">cudaEventRecord</span>(start, <span class="hljs-number">0</span>); <span class="hljs-comment">//在stream0中插入start事件</span><br><br>    <span class="hljs-comment">//初始化N_STREAM个流</span><br>    cudaStream_t stream[N_STREAM];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; N_STREAM; ++i)<br>        <span class="hljs-built_in">cudaStreamCreate</span>(&amp;stream[i]);<br><br>    <span class="hljs-type">int</span> *host_a, *host_b, *host_c;<br>    <span class="hljs-type">int</span> *dev_a0, *dev_b0, *dev_c0;<br><br><br>    <span class="hljs-comment">//在GPU上分配内存： GPU上分配的内存大小是N</span><br>    <span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span> **)&amp;dev_a0, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>    <span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span> **)&amp;dev_b0, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br>    <span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span> **)&amp;dev_c0, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));<br><br><br>    <span class="hljs-comment">//在CPU上分配：页锁定内存，使用流的时候，要使用页锁定内存</span><br>    <span class="hljs-built_in">cudaHostAlloc</span>((<span class="hljs-type">void</span> **)&amp;host_a, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>),<br>        cudaHostAllocDefault);<br>    <span class="hljs-built_in">cudaHostAlloc</span>((<span class="hljs-type">void</span> **)&amp;host_b, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>),<br>        cudaHostAllocDefault);<br>    <span class="hljs-built_in">cudaHostAlloc</span>((<span class="hljs-type">void</span> **)&amp;host_c, FULL_DATA_SIZE * <span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>),<br>        cudaHostAllocDefault);<br><br>	<span class="hljs-comment">//主机上的内存赋值</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; FULL_DATA_SIZE; i++)&#123;<br>        host_a[i] = i;<br>        host_b[i] = FULL_DATA_SIZE - i;<br>    &#125;<br><br>    <span class="hljs-comment">//每个流计算N个数据：比如stream0计算数据0~(N-1), stream1计算数据N~(2N-1)</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; N_STREAM; i++) &#123;<br>        <span class="hljs-comment">//host copy to device</span><br>        <span class="hljs-built_in">cudaMemcpyAsync</span>(dev_a0 + i * N, host_a + i * N, N, cudaMemcpyHostToDevice, stream[i]);<br>        <span class="hljs-built_in">cudaMemcpyAsync</span>(dev_b0 + i * N, host_b + i * N, N, cudaMemcpyHostToDevice, stream[i]);<br>        MyKernel &lt;&lt;&lt;N / <span class="hljs-number">1024</span>, <span class="hljs-number">1024</span>, <span class="hljs-number">0</span>, stream[i]&gt;&gt;&gt;(dev_a0 + i * N, dev_b0 + i * N, dev_c0 + i * N);<br>        <span class="hljs-built_in">cudaMemcpyAsync</span>(host_c + i * N, dev_c0 + i * N, N, cudaMemcpyDeviceToHost, stream[i]);<br>    &#125;<br><br>    <span class="hljs-comment">//在停止应用程序的计时器之前，首先将进行同步</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; N_STREAM; ++i)<br>        <span class="hljs-built_in">cudaStreamSynchronize</span>(stream[i]);<br>    <span class="hljs-built_in">cudaEventRecord</span>(stop, <span class="hljs-number">0</span>);<span class="hljs-comment">//在stream0中插入stop事件</span><br>	<span class="hljs-comment">//等待event会阻塞调用host线程，同步操作，等待stop事件.</span><br>	<span class="hljs-comment">//该函数类似于cudaStreamSynchronize，只不过是等待一个event而不是整个stream执行完毕</span><br>    <span class="hljs-built_in">cudaEventSynchronize</span>(stop);<br>    <span class="hljs-built_in">cudaEventElapsedTime</span>(&amp;elapsedTime, start, stop);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;消耗时间： &quot;</span> &lt;&lt; elapsedTime &lt;&lt;<span class="hljs-string">&quot;ms&quot;</span> &lt;&lt; std::endl;<br><br>    <span class="hljs-comment">//销毁流</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; N_STREAM; ++i)<br>        <span class="hljs-built_in">cudaStreamDestroy</span>(stream[i]);<br>    <span class="hljs-comment">//释放流和内存</span><br>    <span class="hljs-built_in">cudaFreeHost</span>(host_a);<br>    <span class="hljs-built_in">cudaFreeHost</span>(host_b);<br>    <span class="hljs-built_in">cudaFreeHost</span>(host_c);<br>    <span class="hljs-built_in">cudaFree</span>(dev_a0);<br>    <span class="hljs-built_in">cudaFree</span>(dev_b0);<br>    <span class="hljs-built_in">cudaFree</span>(dev_c0);<br><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">output:</span><br><span class="hljs-comment">消耗时间： 11.385ms</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/C/CUDA/" class="category-chain-item">CUDA</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/CUDA/" class="print-no-link">#CUDA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CUDA Streams</div>
+      <div>http://example.com/2026/07/23/CUDA-Streams/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Yu xin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年7月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/07/24/CUDA-%E5%AE%9E%E7%8E%B0softmax%E7%AE%97%E5%AD%90/" title="CUDA 实现softmax算子">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CUDA 实现softmax算子</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/07/23/CUDA-Graphs/" title="CUDA Graphs">
+                        <span class="hidden-mobile">CUDA Graphs</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

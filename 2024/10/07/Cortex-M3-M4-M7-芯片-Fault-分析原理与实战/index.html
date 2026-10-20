@@ -19,12 +19,12 @@
   <meta name="author" content="Yu xin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="[toc]   一、简介  1、异常类型 HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由">
+    <meta name="description" content="[toc]  一、简介 1、异常类型 HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Cortex-M3&#x2F;M4&#x2F;M7 芯片 Fault 分析原理与实战">
 <meta property="og:url" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/index.html">
 <meta property="og:site_name" content="Yuxxxxxxxxxx">
-<meta property="og:description" content="[toc]   一、简介  1、异常类型 HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由">
+<meta property="og:description" content="[toc]  一、简介 1、异常类型 HardFault（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 HardFault_Handler 函数中，引发程序故障进而影响程序的正常运行。 一般而言，我们遇到的错误有如下几种：  HardFault（硬件故障）：默认异常，由于异常处理过程中的错误或由于任">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/1.png">
 <meta property="og:image" content="http://example.com/2024/10/07/Cortex-M3-M4-M7-%E8%8A%AF%E7%89%87-Fault-%E5%88%86%E6%9E%90%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98/2.png">
@@ -315,8 +315,8 @@
                 
                 <p>[toc]</p>
 <hr>
-<h1 id="一-简介"><a class="markdownIt-Anchor" href="#一-简介"></a> 一、简介</h1>
-<h2 id="1-异常类型"><a class="markdownIt-Anchor" href="#1-异常类型"></a> 1、异常类型</h2>
+<h1>一、简介</h1>
+<h2 id="1、异常类型">1、异常类型</h2>
 <p><code>HardFault</code>（硬件错误）是一类在嵌入式系统开发中较为常见的系统异常，优先级仅低于复位和 NMI（不可屏蔽中断）。当系统运行过程中遇到了某些错误时程序就会跳转至 <code>HardFault_Handler</code> 函数中，引发程序故障进而影响程序的正常运行。</p>
 <p>一般而言，我们遇到的错误有如下几种：</p>
 <ul>
@@ -325,8 +325,8 @@
 <li><code>BusFault</code>（总线故障）：在指令取指、数据读/写、中断向量取指和寄存器入栈(保存/恢复)中断(进入/退出)时检测内存访问错误。</li>
 <li><code>UsageFault</code>（使用故障）：检测未定义指令的执行，加载/存储多个未对齐的内存访问。启用时，将检测除 0 和其他非对齐内存访问。</li>
 </ul>
-<h2 id="2-异常优先级"><a class="markdownIt-Anchor" href="#2-异常优先级"></a> 2、异常优先级</h2>
-<p>每个异常都有一个相关联的异常号和一个相关联的优先级号。为简化软件层，CMSIS 只使用 IRQ 编号，因此对中断以外的异常使用<mark>负值</mark>。下表按优先级顺序列出故障异常：</p>
+<h2 id="2、异常优先级">2、异常优先级</h2>
+<p>每个异常都有一个相关联的异常号和一个相关联的优先级号。为简化软件层，CMSIS 只使用 IRQ 编号，因此对中断以外的异常使用==负值==。下表按优先级顺序列出故障异常：</p>
 <table>
 <thead>
 <tr>
@@ -371,9 +371,9 @@
 <p>由这张表可以看出，<code>HardFault</code> 异常总是启用的，并且具有固定的优先级(高于其他中断和异常，但低于不可屏蔽中断 NMI)。因此，在禁用故障异常或在执行故障异常处理程序期间发生故障的情况下，将执行 <code>HardFault</code> 异常。通过下面的例子来理解一下这段话。</p>
 <p>在 <code>stm32f4xx_it.c</code> 文件中有如下几个中断服务程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">NMI_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">HardFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">MemManage_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">BusFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">UsageFault_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">SVC_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">DebugMon_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">PendSV_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">SysTick_Handler</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br></code></pre></td></tr></table></figure>
-<p>以 <code>MemManage_Handler</code> 为例，如果你没有使能这个中断的话，那它肯定也不会进入这个中断，而是会进入 <code>HardFault_Handler</code>，也就是硬件异常！这也是下面要讲的<mark>优先级提升</mark>。</p>
+<p>以 <code>MemManage_Handler</code> 为例，如果你没有使能这个中断的话，那它肯定也不会进入这个中断，而是会进入 <code>HardFault_Handler</code>，也就是硬件异常！这也是下面要讲的==优先级提升==。</p>
 <p>而所有其他故障异常(<code>MemManage fault</code>、<code>Bus Fault</code> 和 <code>Usage Fault</code>)都具有可编程优先级。重置后，这些异常被禁用，可以在系统或应用软件中使用系统控制块(SCB)中的寄存器启用。</p>
-<p>通常，异常优先级和异常掩码寄存器的值一起确定处理器是否进入错误处理程序，以及错误处理程序是否可以抢占另一个错误处理程序。在某些情况下（例如刚才的例子），具有可配置优先级的故障被视为 <code>Hard Fault</code>。这被称为<mark>优先级提升</mark>，即故障升级为 <code>HardFault</code>。升级到 <code>HardFault</code> 发生在：</p>
+<p>通常，异常优先级和异常掩码寄存器的值一起确定处理器是否进入错误处理程序，以及错误处理程序是否可以抢占另一个错误处理程序。在某些情况下（例如刚才的例子），具有可配置优先级的故障被视为 <code>Hard Fault</code>。这被称为==优先级提升==，即故障升级为 <code>HardFault</code>。升级到 <code>HardFault</code> 发生在：</p>
 <ol>
 <li>当一个 Fault 触发时，并再次触发相同的 Fault。之所以会升级到 <code>HardFault</code>，是因为处理程序不能抢占自己（它必须具有与当前优先级相同的优先级）。</li>
 <li>当一个 Fault 执行时，有一个优先级比它低或者同级的 Fault 被触发。因为新错误的处理程序不能抢占当前执行的错误处理程序。</li>
@@ -382,17 +382,17 @@
 </ol>
 <p>如果在入栈过程中进入 BusFault handler 时发生 <code>BusFault</code>，<code>BusFault</code> 不会升级为 <code>HardFault</code>。这意味着，如果崩溃的栈导致了错误，即使处理程序的入栈失败，也会执行错误处理程序。错误处理程序正常运行，但栈内容已损坏。</p>
 <blockquote>
-<p>注意：只有 <mark>Reset</mark>(复位中断) 和 <mark>NMI</mark>(不可屏蔽中断) 可以抢占固定优先级的 <code>HardFault</code>。<code>HardFault</code> 可以抢占除 Reset、NMI 或其他 HardFault 之外的任何异常。如下图所示：</p>
+<p>注意：只有 ==Reset==(复位中断) 和 ==NMI==(不可屏蔽中断) 可以抢占固定优先级的 <code>HardFault</code>。<code>HardFault</code> 可以抢占除 Reset、NMI 或其他 HardFault 之外的任何异常。如下图所示：</p>
 <p><img src="1.png" srcset="/img/loading.gif" lazyload alt></p>
 </blockquote>
-<h2 id="3-同步异步问题"><a class="markdownIt-Anchor" href="#3-同步异步问题"></a> 3、同步异步问题</h2>
+<h2 id="3、同步异步问题">3、同步异步问题</h2>
 <p><code>BusFault</code> 错误处理程序可以使用 <code>BFSR</code> 来确定错误是异步的(<em><strong>IMPRECISERR</strong></em>，不精确的)还是同步的(<em><strong>PRECISERR</strong></em>，精确的)。</p>
 <p>同步总线故障也被称为精确总线故障。何谓精确？就是总线触发异常之后，我们可以找到它触发异常的地址。如果同步总线故障发生在 NMI 或 HardFault 处理程序内，则会升级为锁定。缓存维护操作也可能触发总线故障。调试访问也可能触发总线故障。调试器的加载或存储访问是同步的，并且仅对调试器接口可见。</p>
-<p>异步总线故障被称为为不精确总线故障，同理，就是总线触发异常之后，我们不能找到它触发异常的地址。它可能发生在处理器设计中存在写缓冲时。因此，在观察到总线错误响应之前，处理器流水线会继续执行后续的指令。当异步总线故障被触发时，总线故障异常被挂起。如果另一个高优先级的中断事件同时到达，则首先执行高优先级的中断处理程序，然后发生 <code>BusFault</code>。如果总线故障处理程序未启用，则挂起 <code>HardFault</code>。由异步总线故障引起的硬故障不会升级为锁定。异步错误<mark>通常是不可恢复的</mark>，因为你不知道是哪段代码导致了错误。</p>
+<p>异步总线故障被称为为不精确总线故障，同理，就是总线触发异常之后，我们不能找到它触发异常的地址。它可能发生在处理器设计中存在写缓冲时。因此，在观察到总线错误响应之前，处理器流水线会继续执行后续的指令。当异步总线故障被触发时，总线故障异常被挂起。如果另一个高优先级的中断事件同时到达，则首先执行高优先级的中断处理程序，然后发生 <code>BusFault</code>。如果总线故障处理程序未启用，则挂起 <code>HardFault</code>。由异步总线故障引起的硬故障不会升级为锁定。异步错误==通常是不可恢复的==，因为你不知道是哪段代码导致了错误。</p>
 <blockquote>
 <p>现代的芯片都是多级流水线执行的，它触发的时候，多级流水线人在执行，我们无法锁定是哪一级出了问题，也就无法找到精确的错误地址。</p>
 </blockquote>
-<h2 id="4-异常具体类型"><a class="markdownIt-Anchor" href="#4-异常具体类型"></a> 4、异常具体类型</h2>
+<h2 id="4、异常具体类型">4、异常具体类型</h2>
 <p>下表中列出了 Fault 类型、Fault Handler、Fault status register 和故障发生的寄存器位名：</p>
 <ul>
 <li><code>HardFault</code> - <code>HFSR</code></li>
@@ -531,8 +531,8 @@
 </tbody>
 </table>
 <p>下面就来看一下这些寄存器。</p>
-<h1 id="二-fault-exception-registers"><a class="markdownIt-Anchor" href="#二-fault-exception-registers"></a> 二、Fault exception registers</h1>
-<h2 id="1-control-registers"><a class="markdownIt-Anchor" href="#1-control-registers"></a> 1、Control registers</h2>
+<h1>二、Fault exception registers</h1>
+<h2 id="1、Control-registers">1、Control registers</h2>
 <p>系统控制块(SCB)提供系统实施信息和系统控制。这包括系统异常的配置、控制和报告。它的一些寄存器用于控制 Fault 异常。</p>
 <p>这里有三个寄存器：</p>
 <ul>
@@ -570,7 +570,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="11-ccr"><a class="markdownIt-Anchor" href="#11-ccr"></a> 1.1 CCR</h3>
+<h3 id="1-1-CCR">1.1 CCR</h3>
 <p><img src="2.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>DIV_0_TRP</code>：在处理器执行除数为 0 的 <code>SDIV</code> 或 <code>UDIV</code> 指令时启用 <code>Usage Fault</code>
@@ -583,11 +583,11 @@
 <ul>
 <li>0：不捕获非对齐的半字和字访问</li>
 <li>1：捕获非对齐的半字和字访问；非对齐访问会产生 <code>Usage Fault</code></li>
-<li>请注意，使用 <code>LDM</code>、<code>STM</code>、<code>LDRD</code> 和 <code>STRD</code> 指令的非对齐访问总是会产生 <code>Usage Fault</code>，<mark>即使 <code>UNALIGN_TRP</code> 设置为 0</mark></li>
+<li>请注意，使用 <code>LDM</code>、<code>STM</code>、<code>LDRD</code> 和 <code>STRD</code> 指令的非对齐访问总是会产生 <code>Usage Fault</code>，==即使 <code>UNALIGN_TRP</code> 设置为 0==</li>
 </ul>
 </li>
 </ul>
-<h3 id="12-shp"><a class="markdownIt-Anchor" href="#12-shp"></a> 1.2 SHP</h3>
+<h3 id="1-2-SHP">1.2 SHP</h3>
 <p>SHP 寄存器设置异常处理程序的优先级。故障异常通过以下方式控制：</p>
 <ul>
 <li><code>SHP[0]</code>：内存管理故障的优先级</li>
@@ -598,7 +598,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">NVIC_SetPriority (MemoryManagement_IRQn, <span class="hljs-number">0x0F</span>);<br>NVIC_SetPriority (BusFault_IRQn, <span class="hljs-number">0x08</span>);<br>NVIC_SetPriority (UsageFault_IRQn, <span class="hljs-number">0x01</span>);<br>...<br>UsageFault_prio = NVIC_GetPriority (UsageFault_IRQn);<br></code></pre></td></tr></table></figure>
 <p>函数原型如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">__STATIC_INLINE <span class="hljs-type">void</span> <span class="hljs-title function_">NVIC_SetPriority</span><span class="hljs-params">(IRQn_Type IRQn, <span class="hljs-type">uint32_t</span> priority)</span><br>&#123;<br>  <span class="hljs-keyword">if</span>((<span class="hljs-type">int32_t</span>)IRQn &lt; <span class="hljs-number">0</span>) &#123;<br>    SCB-&gt;SHP[(((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn) &amp; <span class="hljs-number">0xF</span>UL)<span class="hljs-number">-4UL</span>] = (<span class="hljs-type">uint8_t</span>)((priority &lt;&lt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFF</span>UL);<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    NVIC-&gt;IP[((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn)]               = (<span class="hljs-type">uint8_t</span>)((priority &lt;&lt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)) &amp; (<span class="hljs-type">uint32_t</span>)<span class="hljs-number">0xFF</span>UL);<br>  &#125;<br>&#125;<br><br>__STATIC_INLINE <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">NVIC_GetPriority</span><span class="hljs-params">(IRQn_Type IRQn)</span><br>&#123;<br><br>  <span class="hljs-keyword">if</span>((<span class="hljs-type">int32_t</span>)IRQn &lt; <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span>(((<span class="hljs-type">uint32_t</span>)SCB-&gt;SHP[(((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn) &amp; <span class="hljs-number">0xF</span>UL)<span class="hljs-number">-4UL</span>] &gt;&gt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)));<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">return</span>(((<span class="hljs-type">uint32_t</span>)NVIC-&gt;IP[((<span class="hljs-type">uint32_t</span>)(<span class="hljs-type">int32_t</span>)IRQn)]               &gt;&gt; (<span class="hljs-number">8</span> - __NVIC_PRIO_BITS)));<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="13-shcsr"><a class="markdownIt-Anchor" href="#13-shcsr"></a> 1.3 SHCSR</h3>
+<h3 id="1-3-SHCSR">1.3 SHCSR</h3>
 <p><img src="3.png" srcset="/img/loading.gif" lazyload alt><br>
 SHCSR 寄存器的以下几位属于异常：</p>
 <ul>
@@ -614,7 +614,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 </ul>
 <p>虽然可以写入 SHCSR 寄存器的所有位，但在大多数软件应用程序中，只有向启用位写入才有意义。<code>Memory Management Fault</code>、<code>Bus Fault</code> 和 <code>Usage Fault</code> 可以通过以下语句启用：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">SCB-&gt;SHCSR |= SCB_SHCSR_USGFAULTENA_Msk<br>		    | SCB_SHCSR_BUSFAULTENA_Msk<br>		    | SCB_SHCSR_MEMFAULTENA_Msk; <span class="hljs-comment">//enable Usage-/Bus-/MPU Fault</span><br></code></pre></td></tr></table></figure>
-<h2 id="2-status-and-address-registers"><a class="markdownIt-Anchor" href="#2-status-and-address-registers"></a> 2、Status and address registers</h2>
+<h2 id="2、Status-and-address-registers">2、Status and address registers</h2>
 <p>下表列出了故障状态寄存器和故障地址寄存器的名称，并列出了每个寄存器的内存地址：</p>
 <table>
 <thead>
@@ -671,7 +671,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 </tr>
 </tbody>
 </table>
-<h3 id="21-hardfault-status-registerhsfr"><a class="markdownIt-Anchor" href="#21-hardfault-status-registerhsfr"></a> 2.1 HardFault Status Register——HSFR</h3>
+<h3 id="2-1-HardFault-Status-Register——HSFR">2.1 HardFault Status Register——HSFR</h3>
 <p><img src="4.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>VECTTBL</code>：表示在异常处理期间读向量表的总线故障：
@@ -688,20 +688,20 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <li>在设置该比特位时，<code>Hard Fault Handler</code> 必须读取其他故障状态寄存器，以查找故障的原因。</li>
 </ul>
 </li>
-<li><code>DEBUGEVT</code>：保留用于调试。当写入寄存器时，<mark>必须将该位写入 0</mark>，否则行为将不可预测。</li>
+<li><code>DEBUGEVT</code>：保留用于调试。当写入寄存器时，==必须将该位写入 0==，否则行为将不可预测。</li>
 </ul>
-<h3 id="22-configurable-fault-status-registercfsr"><a class="markdownIt-Anchor" href="#22-configurable-fault-status-registercfsr"></a> 2.2 Configurable Fault Status Register——CFSR</h3>
+<h3 id="2-2-Configurable-Fault-Status-Register——CFSR">2.2 Configurable Fault Status Register——CFSR</h3>
 <p><img src="5.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>CSFR 寄存器可以分为三种状态寄存器：<code>Usage Fault</code>、<code>Bus Fault</code> 和 <code>Memory Management Fault</code>。</p>
-<h3 id="23-memmanage-fault-status-and-address-registers-mmfsr-mmfar"><a class="markdownIt-Anchor" href="#23-memmanage-fault-status-and-address-registers-mmfsr-mmfar"></a> 2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)</h3>
-<h4 id="231-memmanage-status-registermmfsr"><a class="markdownIt-Anchor" href="#231-memmanage-status-registermmfsr"></a> 2.3.1 MemManage Status Register——MMFSR</h4>
+<h3 id="2-3-MemManage-Fault-Status-and-Address-Registers-MMFSR-MMFAR">2.3 MemManage Fault Status and Address Registers (MMFSR; MMFAR)</h3>
+<h4 id="2-3-1-MemManage-Status-Register——MMFSR">2.3.1 MemManage Status Register——MMFSR</h4>
 <p><img src="6.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>IACCVIOL</code>：非法指令访问标志:
 <ul>
 <li>0：无指令访问违规故障</li>
 <li>1：处理器试图从不允许执行的位置取指令。</li>
-<li>异常返回时入栈的 PC 值指向故障指令。<mark>处理器不会向 MMFAR 写入故障地址</mark>。在任何尝试取指令到 XN (<em><strong>eXecute Never</strong></em>）区域时都会发生此故障，即使 MPU 被禁用或不存在。潜在的原因如下：
+<li>异常返回时入栈的 PC 值指向故障指令。==处理器不会向 MMFAR 写入故障地址==。在任何尝试取指令到 XN (<em><strong>eXecute Never</strong></em>）区域时都会发生此故障，即使 MPU 被禁用或不存在。潜在的原因如下：
 <ol>
 <li>跳转到 MPU 中未定义或定义为不可执行的区域。</li>
 <li>由于栈内容损坏而无效返回。</li>
@@ -760,15 +760,15 @@ SHCSR 寄存器的以下几位属于异常：</p>
 </ul>
 </li>
 </ul>
-<h4 id="232-memmanage-address-registermmfar"><a class="markdownIt-Anchor" href="#232-memmanage-address-registermmfar"></a> 2.3.2 MemManage Address Register——MMFAR</h4>
-<p>BFAR 地址与精确数据访问总线故障关联。只允许特权访问。<mark>非特权访问产生总线错误</mark>。</p>
+<h4 id="2-3-2-MemManage-Address-Register——MMFAR">2.3.2 MemManage Address Register——MMFAR</h4>
+<p>BFAR 地址与精确数据访问总线故障关联。只允许特权访问。==非特权访问产生总线错误==。</p>
 <p><img src="7.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>ADDRESS</code>：<code>MemManage Fault</code> 的数据地址。该寄存器被更新为产生 <code>MemManage Fault</code>的位置的地址。MMFSR 显示故障原因。该字段仅在MMFSR 时有效。设置 <code>MMARVALID</code>。在没有唯一 BFAR 和 MMFAR 寄存器的实现中，如果是 BFSR，则该寄存器的值是未知的。设置<code>BFARVALID</code>。</li>
 </ul>
-<h3 id="24-busfault-status-and-address-register-bfsr-bfar"><a class="markdownIt-Anchor" href="#24-busfault-status-and-address-register-bfsr-bfar"></a> 2.4 BusFault Status and Address Register (BFSR; BFAR)</h3>
-<h4 id="241-busfault-status-registerbfsr"><a class="markdownIt-Anchor" href="#241-busfault-status-registerbfsr"></a> 2.4.1 BusFault Status Register——BFSR</h4>
-<p>总线故障状态寄存器（BFSR）显示由指令获取和数据访问导致的总线错误的状态，并指示在总线操作期间检测到的内存访问故障。只允许特权访问。<mark>非特权访问将产生总线故障</mark>。</p>
+<h3 id="2-4-BusFault-Status-and-Address-Register-BFSR-BFAR">2.4 BusFault Status and Address Register (BFSR; BFAR)</h3>
+<h4 id="2-4-1-BusFault-Status-Register——BFSR">2.4.1 BusFault Status Register——BFSR</h4>
+<p>总线故障状态寄存器（BFSR）显示由指令获取和数据访问导致的总线错误的状态，并指示在总线操作期间检测到的内存访问故障。只允许特权访问。==非特权访问将产生总线故障==。</p>
 <p><img src="8.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>IBUSERR</code>：指令总线错误。记录指令预取是否发生总线故障。
@@ -788,14 +788,14 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <ul>
 <li>0：没有精确的数据总线错误</li>
 <li>1：一个数据总线错误已经发生，并且为异常入栈的 PC 值返回到导致故障的指令。</li>
-<li>当处理器设置该位时，它将<mark>异常地址</mark>（不是数据地址）写入 BFAR。</li>
+<li>当处理器设置该位时，它将==异常地址==（不是数据地址）写入 BFAR。</li>
 </ul>
 </li>
 <li><code>IMPRECISERR</code>：不精确的数据总线错误:
 <ul>
 <li>0：没有不精确的数据总线错误</li>
 <li>1：数据总线发生了错误，但栈帧中的返回地址与导致错误的指令无关。</li>
-<li>当处理器设置该比特位时，它不会向 BFAR 写入故障地址。这是一个<mark>异步</mark>错误。因此：
+<li>当处理器设置该比特位时，它不会向 BFAR 写入故障地址。这是一个==异步==错误。因此：
 <ol>
 <li>如果在当前进程的优先级高于总线故障优先级时检测到总线故障，则总线故障变为待决状态，只有在处理器从所有高优先级进程返回时才变为活动状态。</li>
 <li>如果在处理器进入不精确总线故障的处理程序之前发生了精确故障，那么处理程序将同时检测 <code>IMPRECISERR</code> 设为 1 和精确故障状态位中的一个设为 1。</li>
@@ -836,13 +836,13 @@ SHCSR 寄存器的以下几位属于异常：</p>
 </ul>
 </li>
 </ul>
-<h4 id="242-busfault-address-registerbfar"><a class="markdownIt-Anchor" href="#242-busfault-address-registerbfar"></a> 2.4.2 BusFault Address Register——BFAR</h4>
+<h4 id="2-4-2-BusFault-Address-Register——BFAR">2.4.2 BusFault Address Register——BFAR</h4>
 <p>BFAR 地址与精确数据访问总线故障关联。只允许特权访问。非特权访问产生总线错误。</p>
 <p><img src="9.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
 <li><code>ADDRESS</code>：精确总线故障的数据地址。用产生总线故障的位置的地址更新该寄存器。BFSR 表示故障原因。该字段仅在 BFSR 时有效。设置 BFARVALID。在没有唯一 BFAR 和 MMFAR 寄存器的实现中，如果是 MMFSR，则该寄存器的值是未知的。设置 MMARVALID。</li>
 </ul>
-<h3 id="25-usagefault-status-registerufsr"><a class="markdownIt-Anchor" href="#25-usagefault-status-registerufsr"></a> 2.5 UsageFault Status Register——UFSR</h3>
+<h3 id="2-5-UsageFault-Status-Register——UFSR">2.5 UsageFault Status Register——UFSR</h3>
 <p><img src="10.png" srcset="/img/loading.gif" lazyload alt><br>
 <code>Usage Fault</code> 状态寄存器 UFSR包含一些指令执行故障和数据访问的状态。只允许特权访问。非特权访问产生总线错误。</p>
 <p>该寄存器分配了下列比特位：</p>
@@ -947,7 +947,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <blockquote>
 <p>注意，<code>UsageFault</code> 状态寄存器的位是粘滞的。这意味着，当一个或多个异常发生时，相关的比特位设置为 1。设置为 1 的比特位只能通过向该比特位写入 1 或复位来清除为 0。</p>
 </blockquote>
-<h3 id="26-auxiliary-bus-fault-status-registerabfsr-cortex-m7-only"><a class="markdownIt-Anchor" href="#26-auxiliary-bus-fault-status-registerabfsr-cortex-m7-only"></a> 2.6 Auxiliary Bus Fault Status Register——ABFSR (Cortex-M7 only)</h3>
+<h3 id="2-6-Auxiliary-Bus-Fault-Status-Register——ABFSR-Cortex-M7-only">2.6 Auxiliary Bus Fault Status Register——ABFSR (Cortex-M7 only)</h3>
 <p>辅助总线故障状态寄存器（ABFSR）存储了异步总线故障源的信息。如果发生了总线故障，故障处理程序可以读取该寄存器以确定哪个总线接口触发了故障，如果源是 AXIM 接口，则接收到哪个错误类型。<code>ABFSR[4:0]</code> 字段在用任何值写入 ABFSR 之前都是有效的。ASBFSR 比特分配如下:</p>
 <p><img src="11.png" srcset="/img/loading.gif" lazyload alt></p>
 <ul>
@@ -968,20 +968,20 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <blockquote>
 <p>注意：这些接口可能不会出现在你的实现中。</p>
 </blockquote>
-<h1 id="四-fault-handlers-的实现"><a class="markdownIt-Anchor" href="#四-fault-handlers-的实现"></a> 四、Fault Handlers 的实现</h1>
+<h1>四、Fault Handlers 的实现</h1>
 <p>错误处理程序有多种用法。它们可以用来安全关闭系统，通知用户遇到的问题，或者触发整个系统的自测。</p>
 <p>符合 CMSIS 规范的启动文件(<code>startup_device.s</code>)定义了设备的所有异常和中断向量。这些向量定义了异常或中断处理程序函数的入口地址。下列代码清单显示了一个典型的向量表：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">__Vectors DCD __initial_sp 	     ; Top of Stack<br>	   	  DCD Reset_Handler      ; Reset Handler<br>		  DCD NMI_Handler        ; NMI Handler<br>		  DCD HardFault_Handler  ; Hard Fault Handler<br>		  DCD MemManage_Handler  ; MPU Fault Handler<br>		  DCD BusFault_Handler   ; Bus Fault Handler<br>		  DCD UsageFault_Handler ; Usage Fault Handler<br>		  DCD <span class="hljs-number">0</span> 				 ; Reserved<br>......<br></code></pre></td></tr></table></figure>
 <p>在调试期间，错误处理程序可能只是导致调试器停止的 BKPT(断点)指令。一般来说，所有错误都会升级为 <code>HardFault</code>，因此在 <code>HardFault</code> 处理程序中添加断点指令就足够了。当使用 MDK 和符合 CMSIS 规范的设备包含文件时，可以用自己的代码覆盖(例如 <code>stm32f4xx_it.c</code> 中的) <code>HardFault</code> 处理程序。</p>
-<h1 id="五-补充"><a class="markdownIt-Anchor" href="#五-补充"></a> 五、补充</h1>
+<h1>五、补充</h1>
 <p>下面使用到了 Segger 调试工具，下载地址：<a target="_blank" rel="noopener" href="https://www.armbbs.cn/forum.php?mod=attachment&amp;aid=MTQ5NTR8YjhkZTcyMTd8MTcyODI5OTkzOXw3MzI0N3wyMTk0MA==">HardFaultHandler.zip</a></p>
 <p>里面只有一个 .c 文件和一个 .s 文件，直接移植到你的项目工程即可。本质上就是实现了一个 <code>Hard Fault Handler</code>，并保存了上面提到的一系列寄存器，方便我们分析。</p>
 <p>下面介绍一下它的原理。</p>
 <p><img src="12.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>LR 寄存器在上面刚讲过，在中断中它用作 <code>EXC_RETURN</code>。而它的第二位就是判断使用的是 MSP 还是 PSP。</p>
-<p>右边的那个栈保存的是 R0、R1、R2、R3、R12、LR（R14）、PC（R15）、XPSR。这几个寄存器会<mark>自动</mark>地硬件入栈，入栈之后，进入中断服务程序，然后做进一步处理。而其它的寄存器需要用户来处理，由于我们使用的是 C 编译器，所以这些工作就有编译器来处理，也就是不需要我们管了。</p>
-<h1 id="六-实例讲解"><a class="markdownIt-Anchor" href="#六-实例讲解"></a> 六、实例讲解</h1>
-<h2 id="1-观察出入栈"><a class="markdownIt-Anchor" href="#1-观察出入栈"></a> 1、观察出入栈</h2>
+<p>右边的那个栈保存的是 R0、R1、R2、R3、R12、LR（R14）、PC（R15）、XPSR。这几个寄存器会==自动==地硬件入栈，入栈之后，进入中断服务程序，然后做进一步处理。而其它的寄存器需要用户来处理，由于我们使用的是 C 编译器，所以这些工作就有编译器来处理，也就是不需要我们管了。</p>
+<h1>六、实例讲解</h1>
+<h2 id="1、观察出入栈">1、观察出入栈</h2>
 <p>例程说明：</p>
 <p><img src="13.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>下面就进入 Keil 的调试模式：</p>
@@ -993,7 +993,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <p><img src="16.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>正如前面所言，这几个寄存器会自动入栈，不过这里 LR、PC 的值似乎对不上。因为它们会在退出时，重新赋值：</p>
 <p><img src="17.png" srcset="/img/loading.gif" lazyload alt></p>
-<h2 id="2-fault-演示"><a class="markdownIt-Anchor" href="#2-fault-演示"></a> 2、Fault 演示</h2>
+<h2 id="2、Fault-演示">2、Fault 演示</h2>
 <p>在接下来的例程中，我将对以下五种情况的 Fault 进行演示：</p>
 <ol>
 <li>非法读取</li>
@@ -1009,7 +1009,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <p>核心代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">switch</span> (UART_RX_BUF_BIN[CNT])<br>&#123;   <br>	<span class="hljs-comment">/* 非法读取 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;1&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br>			<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>			p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>			n = *p;<br>			<br>			(<span class="hljs-type">void</span>)n;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>	<br>	<span class="hljs-comment">/* 非对齐访问 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;2&#x27;</span>: <br>		&#123;<br>			<span class="hljs-type">float</span> *ptr;<br>                     <span class="hljs-type">float</span> fTest;<br>                     <br>                     ptr = (<span class="hljs-type">float</span> *)(<span class="hljs-number">0x20010002</span>);<br>                     *ptr = <span class="hljs-number">0.2f</span>;<br>                     *ptr +=<span class="hljs-number">0.1f</span>;<br>                     <br>                     fTest = *ptr;<br>                     (<span class="hljs-type">void</span>)fTest;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>	<br>	<span class="hljs-comment">/* 非法写入 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;3&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br>                     <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>                     p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>                     *p = <span class="hljs-number">100</span>;<br>                     <br>                     (<span class="hljs-type">void</span>)n;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>		<br>	<span class="hljs-comment">/* 非法函数状态 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;4&#x27;</span>: <br>		&#123;<br>			<span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*t_funcPtr)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br>                     t_funcPtr MyFunc = (t_funcPtr)(<span class="hljs-number">0x0001000</span> | <span class="hljs-number">0x0</span>); <span class="hljs-comment">/* LSB不能是0*/</span>                                              <br>                     MyFunc();<br>		&#125;<br>		<span class="hljs-keyword">break</span>; <br>                 <br>             <span class="hljs-comment">/* 除以0的问题 */</span><br>	<span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;5&#x27;</span>: <br>		&#123;<br>                     <span class="hljs-type">int</span> r;<br>                     <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a;<br>                     <span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> b;<br>                     <br>                     a = <span class="hljs-number">1</span>;<br>                     b = <span class="hljs-number">0</span>;<br>                     r = a / b;<br>                     <br>                     (<span class="hljs-type">void</span>)r;<br>		&#125;<br>		<span class="hljs-keyword">break</span>;<br>		<br>	<span class="hljs-keyword">default</span>: <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Error Num!\r\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>主要是从串口读入一个数字，然后进行相应的操作。</p>
-<h3 id="21-非法读取"><a class="markdownIt-Anchor" href="#21-非法读取"></a> 2.1 非法读取</h3>
+<h3 id="2-1-非法读取">2.1 非法读取</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>n = *p;<br><br>(<span class="hljs-type">void</span>)n;<br></code></pre></td></tr></table></figure>
 <p><code>0xCCCCCCCC</code> 没有别的含义，主要用作演示。因为它的最低位是 0，所以会出错——非法读取（地址）。</p>
 <p>现在点击全速运行，并通过串口助手发送一个 ‘1’ 给 STM32：</p>
@@ -1038,20 +1038,20 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <p>输入刚才复制的 PC 的值，现在程序跳转到：</p>
 <p><img src="27.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>而它上一条指令也正是发生错误的那条语句。</p>
-<h3 id="22-非对齐访问"><a class="markdownIt-Anchor" href="#22-非对齐访问"></a> 2.2 非对齐访问</h3>
+<h3 id="2-2-非对齐访问">2.2 非对齐访问</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">float</span> *ptr;<br><span class="hljs-type">float</span> fTest;<br><br>ptr = (<span class="hljs-type">float</span> *)(<span class="hljs-number">0x20010002</span>);<br>*ptr = <span class="hljs-number">0.2f</span>;<br>*ptr +=<span class="hljs-number">0.1f</span>;<br><br>fTest = *ptr;<br>(<span class="hljs-type">void</span>)fTest;<br></code></pre></td></tr></table></figure>
 <p>主要是这句：<code>ptr = (float *)(0x20010002);</code>，这里开启了硬件浮点。前文中提到，开启了硬件浮点，则地址必须是四字节对齐。显而易见，这里并不是四字节对齐，也就触发了非对齐访问错误。</p>
 <p>和一类似，进入到异常处理程序：</p>
 <p><img src="29.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>从右边的 <code>Fault Reports</code> 就可以看出这里触发的是非对齐访问异常。而 FORCED 则是由于我的程序中没有开启 <code>Usage Fault</code>，所以就强制升级为 <code>Hard Fault</code>。</p>
 <p>这里的分析方法和一类似，就不过多介绍了。</p>
-<h3 id="23-非法写入"><a class="markdownIt-Anchor" href="#23-非法写入"></a> 2.3 非法写入</h3>
+<h3 id="2-3-非法写入">2.3 非法写入</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>* p;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> n;<br>p = (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>*)<span class="hljs-number">0xCCCCCCCC</span>;<br>*p = <span class="hljs-number">100</span>;<br><br>(<span class="hljs-type">void</span>)n;<br></code></pre></td></tr></table></figure>
 <p>触发中断：</p>
 <p><img src="30.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>这里就比较特殊了，因为这是一个不精确的总线异常，前面介绍过，这种异常是找不到错误位置的，刚才讲到的方法也都用不上了。</p>
 <p>这里就只能细心一点，逐一排查了。</p>
-<h3 id="24-非法函数状态"><a class="markdownIt-Anchor" href="#24-非法函数状态"></a> 2.4 非法函数状态</h3>
+<h3 id="2-4-非法函数状态">2.4 非法函数状态</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*t_funcPtr)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br>t_funcPtr MyFunc = (t_funcPtr)(<span class="hljs-number">0x0001000</span> | <span class="hljs-number">0x0</span>); <span class="hljs-comment">/* LSB不能是0*/</span>                                              <br>MyFunc();<br></code></pre></td></tr></table></figure>
 <p><img src="31.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>再通过刚才的方法去找一下错误位置：</p>
@@ -1062,7 +1062,7 @@ SHCSR 寄存器的以下几位属于异常：</p>
 <p><img src="34.png" srcset="/img/loading.gif" lazyload alt></p>
 <p>这是表明这段代码地址是无效的。Cortex-M 内核只有 Thumb 状态，而没有 ARM 状态，如果我们强行让地址执行 ARM 状态，它就会触发异常，就像这里一样。</p>
 <p>我们就只能通过这里的 <code>0x00001000</code> 来锁定程序出错的位置：<code>t_funcPtr MyFunc = (t_funcPtr)(0x0001000 | 0x0);</code>。</p>
-<h3 id="25-除-0-的问题"><a class="markdownIt-Anchor" href="#25-除-0-的问题"></a> 2.5 除 0 的问题</h3>
+<h3 id="2-5-除-0-的问题">2.5 除 0 的问题</h3>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> r;<br><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> a;<br><span class="hljs-keyword">volatile</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> b;<br><br>a = <span class="hljs-number">1</span>;<br>b = <span class="hljs-number">0</span>;<br>r = a / b;<br><br>(<span class="hljs-type">void</span>)r;<br></code></pre></td></tr></table></figure>
 <p>注意，触发除 0 的错误需要单独使能，否则就会如前面所说的得到商为 0 的结果而不会报错！</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">SCB-&gt;CCR = <span class="hljs-number">0x210</span>;  <span class="hljs-comment">/* 使能除 0 的错误 */</span><br></code></pre></td></tr></table></figure>
